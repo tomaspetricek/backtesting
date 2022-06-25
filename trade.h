@@ -6,6 +6,7 @@
 #define EMASTRATEGY_TRADE_H
 
 #include <ostream>
+
 namespace trading {
     class action {
     public:
@@ -93,17 +94,27 @@ namespace trading {
         value val_;
     };
 
-    struct order {
-        trading::action action;
-        trading::side side;
+    class order {
+        trading::action action_;
+        trading::side side_;
 
+    public:
         explicit order(trading::action action, trading::side side)
-                :action(action), side(side) { }
+                :action_(action), side_(side) { }
 
         friend std::ostream& operator<<(std::ostream& os, const order& order)
         {
-            os << "action: " << order.action << ", side: " << order.side;
+            os << "action: " << order.action_ << ", side: " << order.side_;
             return os;
+        }
+
+        const trading::action& action() const
+        {
+            return action_;
+        }
+        const trading::side& side() const
+        {
+            return side_;
         }
     };
 }

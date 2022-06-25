@@ -62,7 +62,7 @@ void run()
 
     strategy::triple_ema strategy{short_ema, middle_ema, long_ema};
 
-    std::optional<order>order = std::nullopt;
+    std::optional<order>order;
 
     // use strategy
     for (const auto& price : prices) {
