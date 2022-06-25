@@ -100,11 +100,6 @@ namespace trading {
         explicit order(trading::action action, trading::side side)
                 :action(action), side(side) { }
 
-        static order make_no_order()
-        {
-            return order(action::do_nothing, side::none);
-        }
-
         friend std::ostream& operator<<(std::ostream& os, const order& order)
         {
             os << "action: " << order.action << ", side: " << order.side;
