@@ -1,9 +1,11 @@
 #include <iostream>
 #include <vector>
-#include <typeinfo>
 
 #include "exceptions.h"
 #include "indicator.h"
+#include "strategy.h"
+
+using namespace trading;
 
 void print_exception(const std::exception& e, int level = 0)
 {
@@ -25,7 +27,7 @@ void run()
 
     // create indicator
     int period{5};
-    ema indicator{period};
+    indicator::ema ind{period};
 
     if (prices.size()<period+1)
         throw std::logic_error("Number of prices has to be greater than period + 1");
@@ -36,7 +38,7 @@ void run()
     // collect indicator values
     for (const auto& price : prices) {
         try {
-            vals.emplace_back(indicator(price));
+            vals.emplace_back(ind(price));
         }
         catch (const not_ready& ex) {
             std::cerr << "Cannot calculate ema value" << std::endl
@@ -48,9 +50,26 @@ void run()
     }
 
     // display indicator values
+    std::cout << "ema values:" << std::endl;
+
     for (const auto& val : vals)
         std::cout << val << " ";
     std::cout << std::endl;
+
+    indicator::ema short_ema{2};
+    indicator::ema middle_ema{4};
+    indicator::ema long_ema{6};
+
+    strategy::triple_ema strategy{short_ema, middle_ema, long_ema};
+
+    trading::order order = trading::order::make_no_order();
+
+    // use strategy
+    for (const auto& price : prices) {
+        order = strategy(price);
+
+        std::cout << order << std::endl;
+    }
 }
 
 int main()

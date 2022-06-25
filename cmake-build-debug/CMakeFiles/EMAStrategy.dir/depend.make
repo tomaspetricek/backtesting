@@ -4,4 +4,6 @@
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../exceptions.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../indicator.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../main.cpp
+CMakeFiles/EMAStrategy.dir/main.cpp.o: ../strategy.h
+CMakeFiles/EMAStrategy.dir/main.cpp.o: ../trade.h
 
