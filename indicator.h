@@ -38,7 +38,6 @@ public:
     explicit ema(int period, int smoothing = 2)
             :period_(validate_period(period)), smoothing_(validate_smoothing(smoothing)) { }
 
-public:
     double& operator()(double curr_price)
     {
         if (curr_price<0.0)

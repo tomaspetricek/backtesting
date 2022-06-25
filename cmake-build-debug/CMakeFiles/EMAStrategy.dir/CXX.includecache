@@ -21,6 +21,8 @@ iostream
 -
 vector
 -
+typeinfo
+-
 exceptions.h
 /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/exceptions.h
 indicator.h
