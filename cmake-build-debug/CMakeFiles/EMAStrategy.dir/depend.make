@@ -6,6 +6,8 @@ CMakeFiles/EMAStrategy.dir/main.cpp.o: ../exceptions.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../indicator.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../main.cpp
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../order.h
+CMakeFiles/EMAStrategy.dir/main.cpp.o: ../point.h
+CMakeFiles/EMAStrategy.dir/main.cpp.o: ../position.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../side.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../strategy.h
 

@@ -4,6 +4,7 @@
 #include "exceptions.h"
 #include "indicator.h"
 #include "strategy.h"
+#include "position.h"
 #include "order.h"
 
 using namespace trading;
@@ -64,14 +65,31 @@ void run()
     strategy::triple_ema strategy{short_ema, middle_ema, long_ema};
 
     std::optional<order>order;
+    trading::position pos{};
+
+    std::vector<position> closed;
 
     // use strategy
     for (const auto& price : prices) {
         order = strategy(price);
 
-        if (order)
-            std::cout << *order << std::endl;
+        if (order) {
+            // must be extracted from candles
+            auto created = std::chrono::system_clock::now();
+
+            if (order->action()==action::buy) {
+                pos.set_side(order->side());
+                pos.set_entry(point(price, std::chrono::system_clock::to_time_t(created)));
+            }
+            else if (order->action()==action::sell) {
+                assert(pos.get_side()==order->side());
+                pos.set_exit(point(price, std::chrono::system_clock::to_time_t(created)));
+                closed.push_back(pos);
+            }
+        }
     }
+
+
 }
 
 int main()

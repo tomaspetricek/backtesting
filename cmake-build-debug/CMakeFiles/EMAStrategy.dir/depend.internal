@@ -7,5 +7,7 @@ CMakeFiles/EMAStrategy.dir/main.cpp.o
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/indicator.h
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/main.cpp
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/order.h
+ /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/point.h
+ /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/position.h
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/side.h
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/strategy.h
