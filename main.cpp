@@ -4,6 +4,7 @@
 #include "exceptions.h"
 #include "indicator.h"
 #include "strategy.h"
+#include "order.h"
 
 using namespace trading;
 

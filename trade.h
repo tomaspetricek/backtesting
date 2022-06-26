@@ -7,115 +7,11 @@
 
 #include <ostream>
 
+// exit - price, date
+// entry - ...
 namespace trading {
-    class action {
-    public:
-        enum value {
-            buy,
-            sell,
-            do_nothing
-        };
+    class trade {
 
-        action() = default;
-        constexpr action(value act)
-                :val_(act) { }
-
-        constexpr explicit operator value() const { return val_; }
-        explicit operator bool() const = delete;
-
-        constexpr bool operator==(action act) const { return val_==act.val_; }
-        constexpr bool operator==(action::value val) const { return val_==val; }
-        constexpr bool operator!=(action act) const { return val_!=act.val_; }
-        constexpr bool operator!=(action::value val) const { return val_!=val; }
-
-        friend std::ostream& operator<<(std::ostream& os, const action& action)
-        {
-            std::string val;
-
-            switch (action.val_) {
-            case buy:
-                val = "buy";
-                break;
-            case sell:
-                val = "sell";
-                break;
-            case do_nothing:
-                val = "do nothing";
-                break;
-            }
-            os << val;
-            return os;
-        }
-
-    private:
-        value val_;
-    };
-
-    class side {
-    public:
-        enum value {
-            short_,
-            long_,
-            none
-        };
-
-        side() = default;
-        constexpr side(value act)
-                :val_(act) { }
-
-        constexpr explicit operator value() const { return val_; }
-        explicit operator bool() const = delete;
-
-        constexpr bool operator==(side oth) const { return val_==oth.val_; }
-        constexpr bool operator==(side::value val) const { return val_==val; }
-        constexpr bool operator!=(side oth) const { return val_!=oth.val_; }
-        constexpr bool operator!=(side::value val) const { return val_!=val; }
-
-        friend std::ostream& operator<<(std::ostream& os, const side& side)
-        {
-            std::string val;
-
-            switch (side.val_) {
-            case short_:
-                val = "short";
-                break;
-            case long_:
-                val = "long";
-                break;
-            case none:
-                val = "none";
-                break;
-            }
-            os << val;
-            return os;
-        }
-
-    private:
-        value val_;
-    };
-
-    class order {
-        trading::action action_;
-        trading::side side_;
-
-    public:
-        explicit order(trading::action action, trading::side side)
-                :action_(action), side_(side) { }
-
-        friend std::ostream& operator<<(std::ostream& os, const order& order)
-        {
-            os << "action: " << order.action_ << ", side: " << order.side_;
-            return os;
-        }
-
-        const trading::action& action() const
-        {
-            return action_;
-        }
-        const trading::side& side() const
-        {
-            return side_;
-        }
     };
 }
 

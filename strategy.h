@@ -7,7 +7,7 @@
 
 #include <optional>
 #include "indicator.h"
-#include "trade.h"
+#include "order.h"
 #include "exceptions.h"
 
 namespace trading::strategy {
