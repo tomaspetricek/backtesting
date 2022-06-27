@@ -20,4 +20,18 @@ public:
     }
 };
 
+class bad_formatting : public std::runtime_error {
+public:
+
+    explicit bad_formatting(const std::string& string)
+            :runtime_error(string) { }
+
+    ~bad_formatting() noexcept override = default;
+
+    const char* what() const _NOEXCEPT override
+    {
+        return runtime_error::what();
+    }
+};
+
 #endif //EMASTRATEGY_EXCEPTIONS_H

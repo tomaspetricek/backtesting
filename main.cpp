@@ -6,6 +6,7 @@
 #include "strategy.h"
 #include "position.h"
 #include "order.h"
+#include "read.h"
 
 using namespace trading;
 
@@ -89,8 +90,12 @@ void run()
         }
     }
 
+    // read candles
+    std::filesystem::path candle_csv("../eth-usdt-1-hour.csv");
 
+    read_candles(candle_csv, ';');
 }
+
 
 int main()
 {
