@@ -10,17 +10,21 @@
 
 namespace trading {
     class position {
-        side side_;
-        point entry_;
-        point exit_;
+        point entry_{};
+        point exit_{};
 
-    public:
+        point validate_exit(const point& exit)
+        {
+            if (entry_.get_created()>=exit.get_created())
+                throw std::invalid_argument("Exit time has higher than entry time");
+
+            return exit;
+        }
+
+    protected:
         position() = default;
 
-        const side& get_side() const
-        {
-            return side_;
-        }
+    public:
         const point& get_entry() const
         {
             return entry_;
@@ -30,19 +34,33 @@ namespace trading {
             return exit_;
         }
 
-        void set_side(const side& side)
-        {
-            side_ = side;
-        }
-
         void set_entry(const point& entry)
         {
             entry_ = entry;
         }
         void set_exit(const point& exit)
         {
+            validate_exit(exit);
             exit_ = exit;
         }
+
+        virtual ~position() = default;
+    };
+
+    class long_position : public position {
+    public:
+        long_position()
+                :position() { }
+
+        ~long_position() override = default;
+    };
+
+    class short_position : public position {
+    public:
+        short_position()
+                :position() { }
+
+        ~short_position() override = default;
     };
 }
 

@@ -32,7 +32,11 @@ namespace trading {
     public:
         candle(time_t created, double open, double high, double low, double close)
                 :created_(validate_time(created)), open_(validate_price(open)), high_(validate_price(high)),
-                 low_(validate_price(low)), close_(validate_price(close)) { }
+                 low_(validate_price(low)), close_(validate_price(close))
+        {
+            if (high<=low)
+                throw std::invalid_argument("High price has to be lower or equal to low price");
+        }
 
         std::time_t get_created() const
         {

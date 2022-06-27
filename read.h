@@ -14,7 +14,8 @@
 #include "exceptions.h"
 
 namespace trading {
-    std::vector<candle> read_candles(const std::filesystem::path& path, char delim)
+    std::vector<candle> read_candles(const std::filesystem::path& path, char delim,
+            const std::chrono::seconds& period)
     {
         std::ifstream file(path.string());
 
@@ -23,7 +24,7 @@ namespace trading {
 
         std::vector<candle> candles;
         std::string line, data;
-        long time;
+        long curr_created, bef_created = 0;
         double open, high, low, close;
 
         // read header
@@ -37,7 +38,7 @@ namespace trading {
 
             try {
                 std::getline(ss, data, delim);
-                time = std::stol(data);
+                curr_created = std::stol(data);
 
                 std::getline(ss, data, delim);
                 open = std::stod(data);
@@ -55,8 +56,14 @@ namespace trading {
                 std::throw_with_nested(bad_formatting("Cannot parse line"));
             }
 
+            if (bef_created!=0)
+                if (period.count()!=(curr_created-bef_created))
+                    throw std::invalid_argument("Incorrect duration between candles");
+
+            bef_created = curr_created;
+
             try {
-                candles.emplace_back(time, open, high, low, close);
+                candles.emplace_back(curr_created, open, high, low, close);
             }
             catch (...) {
                 std::throw_with_nested(std::runtime_error("Cannot create candle"));

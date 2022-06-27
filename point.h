@@ -16,6 +16,15 @@ namespace trading {
 
         point(double price, std::time_t created)
                 :price_(price), created_(created) { }
+
+        double get_price() const
+        {
+            return price_;
+        }
+        time_t get_created() const
+        {
+            return created_;
+        }
     };
 }
 

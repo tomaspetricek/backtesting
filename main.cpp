@@ -25,77 +25,47 @@ void print_exception(const std::exception& e, int level = 0)
 
 void run()
 {
-    std::vector<double> prices{10, 11, 11.5, 10.75, 12, 11.75, 12.25, 14, 16, 17, 15.6,
-                               15.75, 16, 14, 16.5, 17, 17.25, 18, 18.75, 20};
-
-    // create indicator
-    int period{5};
-    indicator::ema ind{period};
-
-    if (prices.size()<period+1)
-        throw std::logic_error("Number of prices has to be greater than period + 1");
-
-    std::vector<double> vals;
-    vals.reserve(prices.size()-(period-1));
-
-    // collect indicator values
-    for (const auto& price : prices) {
-        try {
-            vals.emplace_back(ind(price));
-        }
-        catch (const not_ready& ex) {
-            std::cerr << "Cannot calculate ema value" << std::endl
-                      << ex.what() << std::endl;
-        }
-        catch (...) {
-            std::throw_with_nested(std::runtime_error("Cannot calculate ema value"));
-        }
-    }
-
-    // display indicator values
-    std::cout << "ema values:" << std::endl;
-
-    for (const auto& val : vals)
-        std::cout << val << " ";
-    std::cout << std::endl;
-
     indicator::ema short_ema{2};
     indicator::ema middle_ema{4};
     indicator::ema long_ema{6};
-
     strategy::triple_ema strategy{short_ema, middle_ema, long_ema};
 
-    std::optional<order>order;
-    trading::position pos{};
 
-    std::vector<position> closed;
+    // read candles
+    std::filesystem::path candle_csv("../eth-usdt-1-hour.csv");
+    std::chrono::seconds period = std::chrono::hours(1);
+    std::vector<candle> candles = read_candles(candle_csv, ';', period);
+
+    std::optional<order>order;
+    std::shared_ptr<position> pos;
+    std::vector<std::shared_ptr<position>> closed;
 
     // use strategy
-    for (const auto& price : prices) {
-        order = strategy(price);
+    for (const auto& candle : candles) {
+        order = strategy(candle.get_close());
 
         if (order) {
-            // must be extracted from candles
-            auto created = std::chrono::system_clock::now();
+            auto point = trading::point(candle.get_close(), candle.get_created());
 
+            // open position
+            if (order->side()==side::long_)
+                pos = std::make_shared<long_position>();
+            else if (order->side()==side::short_)
+                pos = std::make_shared<short_position>();
+
+            // close position
             if (order->action()==action::buy) {
-                pos.set_side(order->side());
-                pos.set_entry(point(price, std::chrono::system_clock::to_time_t(created)));
+                pos->set_entry(point);
             }
             else if (order->action()==action::sell) {
-                assert(pos.get_side()==order->side());
-                pos.set_exit(point(price, std::chrono::system_clock::to_time_t(created)));
+                pos->set_exit(point);
                 closed.push_back(pos);
             }
         }
     }
 
-    // read candles
-    std::filesystem::path candle_csv("../eth-usdt-1-hour.csv");
-
-    read_candles(candle_csv, ';');
+    std::cout << "done" << std::endl;
 }
-
 
 int main()
 {
