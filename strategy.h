@@ -22,7 +22,14 @@ namespace trading::strategy {
     public:
         explicit triple_ema(const indicator::ema& short_ema, const indicator::ema& middle_ema,
                 const indicator::ema& long_ema)
-                :short_ema_(short_ema), middle_ema_(middle_ema), long_ema_(long_ema) { }
+                :short_ema_(short_ema), middle_ema_(middle_ema), long_ema_(long_ema)
+        {
+            if (short_ema_.period()>=middle_ema_.period())
+                throw std::invalid_argument("Short ema period has to be shorter than middle ema period");
+
+            if (middle_ema_.period()>=long_ema_.period())
+                throw std::invalid_argument("Middle ema period has to be shorter than long ema period");
+        }
 
         std::optional<order> operator()(double curr_price)
         {
