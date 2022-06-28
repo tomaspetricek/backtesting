@@ -25,19 +25,6 @@ void print_exception(const std::exception& e, int level = 0)
 
 void run()
 {
-    // create strategy
-    std::shared_ptr<strategy::long_triple_ema> strategy;
-
-    try {
-        indicator::ema short_ema{15};
-        indicator::ema middle_ema{30};
-        indicator::ema long_ema{60};
-        strategy = std::make_shared<strategy::long_triple_ema>(short_ema, middle_ema, long_ema);
-    }
-    catch (...) {
-        std::throw_with_nested(std::runtime_error("Cannot create strategy"));
-    }
-
     // read candles
     std::filesystem::path candle_csv("../data/btc-usdt-30-min.csv");
     std::chrono::seconds period = std::chrono::minutes(30);
@@ -49,35 +36,58 @@ void run()
     catch (...) {
         std::throw_with_nested(std::runtime_error("Cannot read candles"));
     }
-    
     assert(!candles.empty());
 
+    int min_period{1};
+    int max_period{150};
+    assert(max_period>=3);
+
+    double pos_size = 100;
+
+    // prepare variables
+    std::shared_ptr<strategy::long_triple_ema> strategy;
     std::shared_ptr<long_order> order;
     std::shared_ptr<long_position> pos;
     std::vector<std::shared_ptr<long_position>> closed;
 
-    double pos_size = 100;
+    // use brute force
+    for (int short_period{min_period}; short_period<max_period-1; short_period++) {
+        for (int middle_period{short_period+1}; middle_period<max_period; middle_period++) {
+            for (int long_period{middle_period+1}; long_period<max_period+1; long_period++) {
+                std::cout << short_period<< ", " << middle_period << ", " << long_period << std::endl;
 
-    // collect positions
-    for (const auto& candle : candles) {
-        order.reset((*strategy)(candle.get_close()));
+                // create strategy
+                try {
+                    indicator::ema short_ema{short_period};
+                    indicator::ema middle_ema{middle_period};
+                    indicator::ema long_ema{long_period};
+                    strategy = std::make_shared<strategy::long_triple_ema>(short_ema, middle_ema, long_ema);
+                }
+                catch (...) {
+                    std::throw_with_nested(std::runtime_error("Cannot create strategy"));
+                }
 
-        if (order) {
-            auto point = trading::point(candle.get_close(), candle.get_created());
+                // collect positions
+                for (const auto& candle : candles) {
+                    order.reset((*strategy)(candle.get_close()));
 
-            // open position
-            if (order->action()==action::buy) {
-                pos = std::make_shared<long_position>(point, pos_size);
-            }
-            // close position
-            else if (order->action()==action::sell) {
-                pos->set_exit(point);
-                closed.push_back(pos);
-                std::cout << pos->get_percent_gain() << std::endl;
+                    if (order) {
+                        auto point = trading::point(candle.get_close(), candle.get_created());
+
+                        // open position
+                        if (order->action()==action::buy) {
+                            pos = std::make_shared<long_position>(point, pos_size);
+                        }
+                        // close position
+                        else if (order->action()==action::sell) {
+                            pos->set_exit(point);
+                            closed.push_back(pos);
+                        }
+                    }
+                }
             }
         }
     }
-
     std::cout << "done" << std::endl;
 }
 
