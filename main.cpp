@@ -26,16 +26,29 @@ void print_exception(const std::exception& e, int level = 0)
 void run()
 {
     // create strategy
-    indicator::ema short_ema{5};
-    indicator::ema middle_ema{21};
-    indicator::ema long_ema{63};
-    std::shared_ptr<strategy::long_triple_ema> strategy = std::make_shared<strategy::long_triple_ema>(short_ema,
-            middle_ema, long_ema);
+    std::shared_ptr<strategy::long_triple_ema> strategy;
+
+    try {
+        indicator::ema short_ema{5};
+        indicator::ema middle_ema{21};
+        indicator::ema long_ema{63};
+        strategy = std::make_shared<strategy::long_triple_ema>(short_ema, middle_ema, long_ema);
+    }
+    catch (...) {
+        std::throw_with_nested(std::runtime_error("Cannot create strategy"));
+    }
 
     // read candles
     std::filesystem::path candle_csv("../eth-usdt-1-hour.csv");
     std::chrono::seconds period = std::chrono::hours(1);
-    std::vector<candle> candles = read_candles(candle_csv, ';', period);
+    std::vector<candle> candles;
+
+    try {
+        candles = read_candles(candle_csv, ';', period);
+    }
+    catch (...) {
+        std::throw_with_nested(std::runtime_error("Cannot read candles"));
+    }
 
     std::shared_ptr<long_order> order;
     std::shared_ptr<long_position> pos;
@@ -45,7 +58,7 @@ void run()
 
     // use strategy
     for (const auto& candle : candles) {
-        order = dynamic_pointer_cast<long_order>((*strategy)(candle.get_close()));
+        order.reset((*strategy)(candle.get_close()));
 
         if (order) {
             auto point = trading::point(candle.get_close(), candle.get_created());
@@ -54,7 +67,7 @@ void run()
             if (order->action()==action::buy) {
                 pos = std::make_shared<long_position>(point, pos_size);
             }
-            // close position
+                // close position
             else if (order->action()==action::sell) {
                 pos->set_exit(point);
                 closed.push_back(pos);

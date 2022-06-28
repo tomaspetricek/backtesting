@@ -35,7 +35,7 @@ namespace trading::strategy {
     public:
         virtual ~triple_ema() = default;
 
-        virtual std::shared_ptr<order> operator()(double curr_price) = 0;
+        virtual order* operator()(double curr_price) = 0;
     };
 
     class long_triple_ema : public triple_ema {
@@ -46,7 +46,7 @@ namespace trading::strategy {
 
         ~long_triple_ema() override = default;
 
-        std::shared_ptr<order> operator()(double curr_price) override
+        long_order* operator()(double curr_price) override
         {
             double curr_short, curr_middle, curr_long;
 
@@ -65,11 +65,11 @@ namespace trading::strategy {
 
             if (curr_middle>curr_long && curr_middle<curr_short && !pos_opened) {
                 pos_opened = true;
-                return std::make_shared<long_order>(action::buy);
+                return new long_order(action::buy);
             }
             else if (curr_short<curr_middle && pos_opened) {
                 pos_opened = false;
-                return std::make_shared<long_order>(action::sell);
+                return new long_order(action::sell);
             }
             else {
                 return nullptr;
@@ -85,7 +85,7 @@ namespace trading::strategy {
 
         ~short_triple_ema() override = default;
 
-        std::shared_ptr<order> operator()(double curr_price) override
+        short_order* operator()(double curr_price) override
         {
             double curr_short, curr_middle, curr_long;
 
@@ -104,11 +104,11 @@ namespace trading::strategy {
 
             if (curr_middle<curr_long && curr_middle>curr_short && !pos_opened) {
                 pos_opened = true;
-                return std::make_shared<short_order>(action::buy);
+                return new short_order(action::buy);
             }
             else if (curr_short>curr_middle && pos_opened) {
                 pos_opened = false;
-                return std::make_shared<short_order>(action::sell);
+                return new short_order(action::sell);
             }
             else {
                 return nullptr;
