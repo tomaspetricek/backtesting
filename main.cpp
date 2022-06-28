@@ -25,9 +25,9 @@ void print_exception(const std::exception& e, int level = 0)
 
 void run()
 {
-    indicator::ema short_ema{2};
-    indicator::ema middle_ema{4};
-    indicator::ema long_ema{6};
+    indicator::ema short_ema{5};
+    indicator::ema middle_ema{21};
+    indicator::ema long_ema{63};
     strategy::triple_ema strategy{short_ema, middle_ema, long_ema};
 
 
@@ -40,6 +40,8 @@ void run()
     std::shared_ptr<position> pos;
     std::vector<std::shared_ptr<position>> closed;
 
+    double pos_size = 100;
+
     // use strategy
     for (const auto& candle : candles) {
         order = strategy(candle.get_close());
@@ -48,18 +50,17 @@ void run()
             auto point = trading::point(candle.get_close(), candle.get_created());
 
             // open position
-            if (order->side()==side::long_)
-                pos = std::make_shared<long_position>();
-            else if (order->side()==side::short_)
-                pos = std::make_shared<short_position>();
-
-            // close position
             if (order->action()==action::buy) {
-                pos->set_entry(point);
+                if (order->side()==side::long_)
+                    pos = std::make_shared<long_position>(point, pos_size);
+                else if (order->side()==side::short_)
+                    pos = std::make_shared<short_position>(point, pos_size);
             }
+                // close position
             else if (order->action()==action::sell) {
                 pos->set_exit(point);
                 closed.push_back(pos);
+                std::cout << pos->get_percent_gain() << std::endl;
             }
         }
     }
