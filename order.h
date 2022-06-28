@@ -11,15 +11,14 @@
 namespace trading {
     class order {
         trading::action action_;
-        trading::side side_;
-
+    protected:
+        explicit order(const trading::action& action)
+                :action_(action) { }
     public:
-        explicit order(trading::action action, trading::side side)
-                :action_(action), side_(side) { }
 
         friend std::ostream& operator<<(std::ostream& os, const order& order)
         {
-            os << "action: " << order.action_ << ", side: " << order.side_;
+            os << "action: " << order.action_;
             return os;
         }
 
@@ -27,10 +26,24 @@ namespace trading {
         {
             return action_;
         }
-        const trading::side& side() const
-        {
-            return side_;
-        }
+
+        virtual ~order() = default;
+    };
+
+    class long_order : public order {
+    public:
+        explicit long_order(const trading::action& action)
+                :order(action) { }
+
+        ~long_order() override = default;
+    };
+
+    class short_order : public order {
+    public:
+        explicit short_order(const trading::action& action)
+                :order(action) { }
+
+        ~short_order() override = default;
     };
 }
 
