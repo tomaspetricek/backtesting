@@ -29,9 +29,9 @@ void run()
     std::shared_ptr<strategy::long_triple_ema> strategy;
 
     try {
-        indicator::ema short_ema{5};
-        indicator::ema middle_ema{21};
-        indicator::ema long_ema{63};
+        indicator::ema short_ema{15};
+        indicator::ema middle_ema{30};
+        indicator::ema long_ema{60};
         strategy = std::make_shared<strategy::long_triple_ema>(short_ema, middle_ema, long_ema);
     }
     catch (...) {
@@ -39,8 +39,8 @@ void run()
     }
 
     // read candles
-    std::filesystem::path candle_csv("../eth-usdt-1-hour.csv");
-    std::chrono::seconds period = std::chrono::hours(1);
+    std::filesystem::path candle_csv("../data/btc-usdt-30-min.csv");
+    std::chrono::seconds period = std::chrono::minutes(30);
     std::vector<candle> candles;
 
     try {
@@ -49,6 +49,8 @@ void run()
     catch (...) {
         std::throw_with_nested(std::runtime_error("Cannot read candles"));
     }
+    
+    assert(!candles.empty());
 
     std::shared_ptr<long_order> order;
     std::shared_ptr<long_position> pos;
@@ -56,7 +58,7 @@ void run()
 
     double pos_size = 100;
 
-    // use strategy
+    // collect positions
     for (const auto& candle : candles) {
         order.reset((*strategy)(candle.get_close()));
 
@@ -67,7 +69,7 @@ void run()
             if (order->action()==action::buy) {
                 pos = std::make_shared<long_position>(point, pos_size);
             }
-                // close position
+            // close position
             else if (order->action()==action::sell) {
                 pos->set_exit(point);
                 closed.push_back(pos);
