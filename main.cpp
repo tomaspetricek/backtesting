@@ -32,7 +32,7 @@ void run()
         throw std::runtime_error("No candles read");
 
     int min_period{1};
-    int max_period{10};
+    int max_period{20};
     assert(max_period>=3);
 
     double pos_size{100};

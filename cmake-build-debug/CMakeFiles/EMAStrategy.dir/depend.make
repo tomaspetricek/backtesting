@@ -3,11 +3,13 @@
 
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../action.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../candle.h
+CMakeFiles/EMAStrategy.dir/main.cpp.o: ../currency.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../ema.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../exceptions.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../main.cpp
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../point.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../position.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../read.h
+CMakeFiles/EMAStrategy.dir/main.cpp.o: ../stats.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../triple_ema.h
 

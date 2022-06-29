@@ -6,14 +6,11 @@
 #define EMASTRATEGY_TRADE_H
 
 #include <ostream>
+
 #include "point.h"
+#include "stats.h"
 
 namespace trading {
-    double calculate_percent_gain(double buy_price, double sell_price)
-    {
-        return ((sell_price-buy_price)/buy_price)*100;
-    }
-
     class position {
     private:
         point validate_exit(const point& exit)
@@ -78,7 +75,7 @@ namespace trading {
 
         double calculate_percent_gain(double curr_price) override
         {
-            return trading::calculate_percent_gain(entry_.get_price(), curr_price);
+            return stats::calculate_percent_gain(entry_.get_price(), curr_price);
         }
     };
 
@@ -91,7 +88,7 @@ namespace trading {
 
         double calculate_percent_gain(double curr_price) override
         {
-            return trading::calculate_percent_gain(curr_price, entry_.get_price());
+            return stats::calculate_percent_gain(curr_price, entry_.get_price());
         }
     };
 }
