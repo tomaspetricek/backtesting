@@ -8,7 +8,7 @@
 #include <ostream>
 
 #include "point.h"
-#include "stats.h"
+#include "formula.h"
 
 namespace trading {
     class position {
@@ -75,7 +75,7 @@ namespace trading {
 
         double calculate_percent_gain(double curr_price) override
         {
-            return stats::calculate_percent_gain(entry_.get_price(), curr_price);
+            return formula::calculate_percent_gain(entry_.get_price(), curr_price);
         }
     };
 
@@ -88,7 +88,7 @@ namespace trading {
 
         double calculate_percent_gain(double curr_price) override
         {
-            return stats::calculate_percent_gain(curr_price, entry_.get_price());
+            return formula::calculate_percent_gain(curr_price, entry_.get_price());
         }
     };
 }
