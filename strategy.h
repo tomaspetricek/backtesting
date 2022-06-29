@@ -5,10 +5,10 @@
 #ifndef EMASTRATEGY_STRATEGY_H
 #define EMASTRATEGY_STRATEGY_H
 
-#include <memory>
+#include <optional>
 
 #include "indicator.h"
-#include "order.h"
+#include "action.h"
 #include "exceptions.h"
 
 namespace trading::strategy {
@@ -35,7 +35,7 @@ namespace trading::strategy {
     public:
         virtual ~triple_ema() = default;
 
-        virtual order* operator()(double curr_price) = 0;
+        virtual std::optional<action> operator()(double curr_price) = 0;
     };
 
     class long_triple_ema : public triple_ema {
@@ -46,7 +46,7 @@ namespace trading::strategy {
 
         ~long_triple_ema() override = default;
 
-        long_order* operator()(double curr_price) override
+        std::optional<action> operator()(double curr_price) override
         {
             double curr_short, curr_middle, curr_long;
 
@@ -57,7 +57,7 @@ namespace trading::strategy {
             }
                 // indicators are not ready to decide
             catch (const not_ready& exp) {
-                return nullptr;
+                return std::nullopt;
             }
             catch (...) {
                 std::throw_with_nested(std::runtime_error("Cannot calculate ema value"));
@@ -65,14 +65,14 @@ namespace trading::strategy {
 
             if (curr_middle>curr_long && curr_middle<curr_short && !pos_opened) {
                 pos_opened = true;
-                return new long_order(action::buy);
+                return action::buy;
             }
             else if (curr_short<curr_middle && pos_opened) {
                 pos_opened = false;
-                return new long_order(action::sell);
+                return action::sell;
             }
             else {
-                return nullptr;
+                return std::nullopt;
             }
         }
     };
@@ -85,7 +85,7 @@ namespace trading::strategy {
 
         ~short_triple_ema() override = default;
 
-        short_order* operator()(double curr_price) override
+        std::optional<action> operator()(double curr_price) override
         {
             double curr_short, curr_middle, curr_long;
 
@@ -96,7 +96,7 @@ namespace trading::strategy {
             }
                 // indicators are not ready to decide
             catch (const not_ready& exp) {
-                return nullptr;
+                return std::nullopt;
             }
             catch (...) {
                 std::throw_with_nested(std::runtime_error("Cannot calculate ema value"));
@@ -104,14 +104,14 @@ namespace trading::strategy {
 
             if (curr_middle<curr_long && curr_middle>curr_short && !pos_opened) {
                 pos_opened = true;
-                return new short_order(action::buy);
+                return action::buy;
             }
             else if (curr_short>curr_middle && pos_opened) {
                 pos_opened = false;
-                return new short_order(action::sell);
+                return action::sell;
             }
             else {
-                return nullptr;
+                return std::nullopt;
             }
         }
     };

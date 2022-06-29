@@ -42,11 +42,11 @@ void run()
     int max_period{150};
     assert(max_period>=3);
 
-    double pos_size = 100;
+    double pos_size{100};
 
     // prepare variables
     std::shared_ptr<strategy::long_triple_ema> strategy;
-    std::shared_ptr<long_order> order;
+    std::optional<action>action;
     std::shared_ptr<long_position> pos;
     std::vector<std::shared_ptr<long_position>> closed;
 
@@ -54,7 +54,7 @@ void run()
     for (int short_period{min_period}; short_period<max_period-1; short_period++) {
         for (int middle_period{short_period+1}; middle_period<max_period; middle_period++) {
             for (int long_period{middle_period+1}; long_period<max_period+1; long_period++) {
-                std::cout << short_period<< ", " << middle_period << ", " << long_period << std::endl;
+                std::cout << short_period << ", " << middle_period << ", " << long_period << std::endl;
 
                 // create strategy
                 try {
@@ -69,17 +69,17 @@ void run()
 
                 // collect positions
                 for (const auto& candle : candles) {
-                    order.reset((*strategy)(candle.get_close()));
-
-                    if (order) {
+                    action = (*strategy)(candle.get_close());
+                    
+                    if (action) {
                         auto point = trading::point(candle.get_close(), candle.get_created());
 
                         // open position
-                        if (order->action()==action::buy) {
+                        if (action==action::buy) {
                             pos = std::make_shared<long_position>(point, pos_size);
                         }
-                        // close position
-                        else if (order->action()==action::sell) {
+                            // close position
+                        else if (action==action::sell) {
                             pos->set_exit(point);
                             closed.push_back(pos);
                         }
