@@ -2,12 +2,12 @@
 // Created by Tomáš Petříček on 25.06.2022.
 //
 
-#ifndef EMASTRATEGY_STRATEGY_H
-#define EMASTRATEGY_STRATEGY_H
+#ifndef EMASTRATEGY_TRIPLE_EMA_H
+#define EMASTRATEGY_TRIPLE_EMA_H
 
 #include <optional>
 
-#include "indicator.h"
+#include "ema.h"
 #include "action.h"
 #include "exceptions.h"
 
@@ -117,4 +117,4 @@ namespace trading::strategy {
     };
 }
 
-#endif //EMASTRATEGY_STRATEGY_H
+#endif //EMASTRATEGY_TRIPLE_EMA_H

@@ -3,8 +3,8 @@
 #include <memory>
 
 #include "exceptions.h"
-#include "indicator.h"
-#include "strategy.h"
+#include "ema.h"
+#include "triple_ema.h"
 #include "read.h"
 #include "position.h"
 
