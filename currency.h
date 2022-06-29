@@ -5,10 +5,16 @@
 #ifndef EMASTRATEGY_CURRENCY_H
 #define EMASTRATEGY_CURRENCY_H
 
-namespace trading {
-    enum class currency {
+namespace trading::currency {
+    enum class crypto {
         BTC,
-        ETH,
+        USDT,
+    };
+
+    // BTC/USDT - base/quote
+    struct crypto_pair {
+        crypto base;
+        crypto quote;
     };
 }
 

@@ -7,11 +7,15 @@
 #include "triple_ema.h"
 #include "read.h"
 #include "position.h"
+#include "currency.h"
 
 using namespace trading;
+using namespace currency;
 
 void run()
 {
+    crypto_pair pair{crypto::BTC, crypto::USDT};
+
     // read candles
     std::filesystem::path candle_csv("../data/btc-usdt-30-min.csv");
     std::chrono::seconds period = std::chrono::minutes(30);
@@ -28,7 +32,7 @@ void run()
         throw std::runtime_error("No candles read");
 
     int min_period{1};
-    int max_period{150};
+    int max_period{10};
     assert(max_period>=3);
 
     double pos_size{100};
