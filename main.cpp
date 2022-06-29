@@ -10,19 +10,6 @@
 
 using namespace trading;
 
-void print_exception(const std::exception& e, int level = 0)
-{
-    std::cerr << std::string(level, '\t') << "exception: " << e.what() << '\n';
-
-    try {
-        std::rethrow_if_nested(e);
-    }
-    catch (const std::exception& nested_exception) {
-        print_exception(nested_exception, level+1);
-    }
-    catch (...) { }
-}
-
 void run()
 {
     // read candles
@@ -70,7 +57,7 @@ void run()
                 // collect positions
                 for (const auto& candle : candles) {
                     action = (*strategy)(candle.get_close());
-                    
+
                     if (action) {
                         auto point = trading::point(candle.get_close(), candle.get_created());
 
