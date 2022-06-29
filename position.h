@@ -9,8 +9,10 @@
 
 #include "point.h"
 #include "formula.h"
+#include "currency.h"
 
 namespace trading {
+    template<typename CurrencyType>
     class position {
     private:
         point validate_exit(const point& exit)
@@ -27,11 +29,12 @@ namespace trading {
         bool closed_ = false;
         double size_;
         double percent_gain_;
-
-        position(const point& entry, double size)
-                :entry_(entry), size_(size) { }
+        currency::pair<CurrencyType> pair_;
 
     public:
+        position(const point& entry, double size, const currency::pair<CurrencyType>& pair)
+                :entry_(entry), size_(size), pair_(pair) { }
+
         virtual ~position() = default;
 
         virtual double calculate_percent_gain(double curr_price) = 0;
@@ -66,29 +69,31 @@ namespace trading {
         }
     };
 
-    class long_position : public position {
+    template<typename CurrencyType>
+    class long_position : public position<CurrencyType> {
     public:
-        long_position(const point& entry, double amount)
-                :position(entry, amount) { }
+        long_position(const point& entry, double size, const currency::pair<CurrencyType>& pair)
+                :position<CurrencyType>(entry, size, pair) { }
 
         ~long_position() override = default;
 
         double calculate_percent_gain(double curr_price) override
         {
-            return formula::calculate_percent_gain(entry_.get_price(), curr_price);
+            return formula::calculate_percent_gain(this->entry_.get_price(), curr_price);
         }
     };
 
-    class short_position : public position {
+    template<typename CurrencyType>
+    class short_position : public position<CurrencyType> {
     public:
-        short_position(const point& entry, double amount)
-                :position(entry, amount) { }
+        short_position(const point& entry, double size, const currency::pair<CurrencyType>& pair)
+                :position<CurrencyType>(entry, size, pair) { }
 
         ~short_position() override = default;
 
         double calculate_percent_gain(double curr_price) override
         {
-            return formula::calculate_percent_gain(curr_price, entry_.get_price());
+            return formula::calculate_percent_gain(curr_price, this->entry_.get_price());
         }
     };
 }

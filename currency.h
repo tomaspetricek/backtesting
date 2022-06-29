@@ -11,10 +11,17 @@ namespace trading::currency {
         USDT,
     };
 
+    enum class forex {
+        USD,
+        EUR,
+        GBP,
+    };
+
     // BTC/USDT - base/quote
-    struct crypto_pair {
-        crypto base;
-        crypto quote;
+    template<typename CurrencyType>
+    struct pair {
+        CurrencyType base;
+        CurrencyType quote;
     };
 }
 

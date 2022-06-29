@@ -14,7 +14,7 @@ using namespace currency;
 
 void run()
 {
-    crypto_pair pair{crypto::BTC, crypto::USDT};
+    pair<crypto> pair{crypto::BTC, crypto::USDT};
 
     // read candles
     std::filesystem::path candle_csv("../data/btc-usdt-30-min.csv");
@@ -40,8 +40,8 @@ void run()
     // prepare variables
     std::shared_ptr<strategy::long_triple_ema> strategy;
     std::optional<action>action;
-    std::shared_ptr<long_position> pos;
-    std::vector<std::shared_ptr<long_position>> closed;
+    std::shared_ptr<long_position<crypto>> pos;
+    std::vector<std::shared_ptr<long_position<crypto>>> closed;
 
     // use brute force
     for (int short_period{min_period}; short_period<max_period-1; short_period++) {
@@ -69,7 +69,7 @@ void run()
 
                         // open position
                         if (action==action::buy) {
-                            pos = std::make_shared<long_position>(point, pos_size);
+                            pos = std::make_shared<long_position<crypto>>(point, pos_size, pair);
                         }
                             // close position
                         else if (action==action::sell) {
