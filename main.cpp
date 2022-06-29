@@ -23,7 +23,9 @@ void run()
     catch (...) {
         std::throw_with_nested(std::runtime_error("Cannot read candles"));
     }
-    assert(!candles.empty());
+
+    if (candles.empty())
+        throw std::runtime_error("No candles read");
 
     int min_period{1};
     int max_period{150};
