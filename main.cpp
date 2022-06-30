@@ -88,10 +88,15 @@ void run()
 
     // use optimizer
     optimizer::brute_force<int, int, int, int> optim;
-    std::function<int(int, int, int)> func;
+    std::function<int(int, int, int)> func = [](int min_period, int middle_period, int long_period) {
+        std::cout << "min period: " << min_period << std::endl
+                  << "middle period: " << middle_period << std::endl
+                  << "long period: " << long_period << std::endl;
+        return 0;
+    };
     range<int> min_periods{1, 10};
-    range<int> middle_periods{1, 10};
-    range<int> long_periods{1, 10};
+    range<int> middle_periods{2, 10};
+    range<int> long_periods{3, 10};
     optim(min_periods, middle_periods, long_periods, func);
 
     // use range
