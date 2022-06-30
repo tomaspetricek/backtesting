@@ -8,12 +8,15 @@
 #include "read.h"
 #include "position.h"
 #include "currency.h"
+#include "brute_force.h"
 
 using namespace trading;
 using namespace currency;
+using namespace strategy;
 
 void run()
 {
+    // create currency pair
     pair<crypto> pair{crypto::BTC, crypto::USDT};
 
     // read candles
@@ -82,6 +85,19 @@ void run()
         }
     }
     std::cout << "done" << std::endl;
+
+    // use optimizer
+    optimizer::brute_force<int, int, int, int> optim;
+    std::function<int(int, int, int)> func;
+    range<int> min_periods{1, 10};
+    range<int> middle_periods{1, 10};
+    range<int> long_periods{1, 10};
+    optim(min_periods, middle_periods, long_periods, func);
+
+    // use range
+    for (int i : min_periods)
+        std::cout << i << " ";
+    std::cout << std::endl;
 }
 
 int main()
