@@ -11,36 +11,45 @@
 #include "tuple.h"
 
 namespace trading::strategy::optimizer {
-//    template<size_t Depth, class Callable>
-//    constexpr void nested_for(size_t begin, size_t end, Callable&& c)
-//    {
-//        static_assert(Depth>0);
-//        for (size_t i = begin; i!=end; ++i) {
-//            if constexpr(Depth==1) {
-//                c(i);
-//            }
-//            else {
-//                auto bind_an_argument = [i, &c](auto... args) {
-//                    c(i, args...);
-//                };
-//                nested_for<Depth-1>(begin, end, bind_an_argument);
-//            }
-//        }
-//    }
+    // https://stackoverflow.com/questions/20162903/template-parameter-packs-access-nth-type-and-nth-element
+    template<int Index, class... Types>
+    decltype(auto) get(Types&& ... args)
+    {
+        return std::get<Index>(std::forward_as_tuple(args...));
+    }
 
     template<typename ReturnType, class ...Types>
     class brute_force {
         std::tuple<Types...> input_;
 
+        // https://stackoverflow.com/questions/34535795/n-dimensionally-nested-metaloops-with-templates
+        template<size_t Depth, class Callable>
+        constexpr void nested_for(std::tuple<range<Types>...> ranges, Callable&& func)
+        {
+            static_assert(Depth>0);
+
+            constexpr int idx = sizeof...(Types)-Depth;
+            auto curr_range = std::get<idx>(ranges);
+
+            for (auto it = curr_range.begin(); it!=curr_range.end(); ++it) {
+                std::get<idx>(input_) = *it;
+
+                if constexpr(Depth==1)
+                    //call(func, input_);
+                    print(input_);
+                else
+                    nested_for<Depth-1>(ranges, func);
+            }
+        }
+
     public:
         ReturnType operator()(range<Types>... ranges, const std::function<ReturnType(Types...)>& func)
         {
+            // initialize input
             input_ = std::make_tuple((*(ranges.begin()))...);
 
-            std::cout << "input: ";
-            print(input_);
-
-            call(func, input_);
+            // call nested loop
+            nested_for<sizeof...(Types)>(std::forward_as_tuple(ranges...), func);
         }
     };
 }

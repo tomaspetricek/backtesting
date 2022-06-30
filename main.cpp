@@ -50,7 +50,7 @@ void run()
     for (int short_period{min_period}; short_period<max_period-1; short_period++) {
         for (int middle_period{short_period+1}; middle_period<max_period; middle_period++) {
             for (int long_period{middle_period+1}; long_period<max_period+1; long_period++) {
-                std::cout << short_period << ", " << middle_period << ", " << long_period << std::endl;
+                // std::cout << short_period << ", " << middle_period << ", " << long_period << std::endl;
 
                 // create strategy
                 try {
@@ -94,9 +94,9 @@ void run()
                   << "long period: " << long_period << std::endl;
         return 0;
     };
-    range<int> min_periods{1, 10};
-    range<int> middle_periods{2, 10};
-    range<int> long_periods{3, 10};
+    range<int> min_periods{1, 100};
+    range<int> middle_periods{1, 100};
+    range<int> long_periods{1, 100};
     optim(min_periods, middle_periods, long_periods, func);
 
     // use range
