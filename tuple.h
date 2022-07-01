@@ -34,4 +34,16 @@ auto call(Function func, Tuple tup)
     return call(func, tup, std::make_index_sequence<size>{});
 }
 
+// https://stackoverflow.com/questions/38885406/produce-stdtuple-of-same-type-in-compile-time-given-its-length-by-a-template-a
+template <typename Type, std::size_t size>
+struct tuple_n{
+    template< typename...Args> using type = typename tuple_n<Type, size-1>::template type<Type, Args...>;
+};
+
+template <typename Type>
+struct tuple_n<Type, 0> {
+    template<typename...Args> using type = std::tuple<Args...>;
+};
+template <typename Type, std::size_t size>  using tuple_of = typename tuple_n<Type, size>::template type<>;
+
 #endif //EMASTRATEGY_TUPLE_H
