@@ -12,35 +12,56 @@ public:
     class iterator {
         friend class range;
     public:
-        Type operator*() const { return i_; }
+        Type operator*() const { return val_; }
         const iterator& operator++()
         {
-            ++i_;
+            val_ += step_;
             return *this;
         }
+
         iterator operator++(int)
         {
             iterator copy(*this);
-            ++i_;
+            val_ += step_;
             return copy;
         }
 
-        bool operator==(const iterator& other) const { return i_==other.i_; }
-        bool operator!=(const iterator& other) const { return i_!=other.i_; }
+        bool operator==(const iterator& other) const { return val_==other.val_; }
+        bool operator!=(const iterator& other) const { return val_!=other.val_; }
 
     protected:
-        explicit iterator(Type start)
-                :i_(start) { }
+    public:
+        explicit iterator(Type val, Type step)
+                :val_(val), step_(step) { }
 
     private:
-        unsigned long i_;
+        Type val_;
+        Type step_;
     };
 
     iterator begin() const { return begin_; }
     iterator end() const { return end_; }
 
-    range(Type begin, Type end)
-            :begin_(begin), end_(end) { }
+    range(const Type& begin, const Type& end, Type step)
+            :begin_(begin, step), end_(end, step)
+    {
+        if (begin>end) {
+            if ((begin-end)%step!=0)
+                throw std::invalid_argument("Difference between begin and end must be multiple of step");
+
+            if (step>0)
+                throw std::invalid_argument("Step has to be lower than 0 if begin is greater than end");
+        }
+
+        if (begin<end) {
+            if ((end-begin)%step!=0)
+                throw std::invalid_argument("Difference between end and begin must be multiple of step");
+
+            if (step<0)
+                throw std::invalid_argument("Step has to be greater than 0 if begin is lower than end");
+        }
+    }
+
 private:
     iterator begin_;
     iterator end_;

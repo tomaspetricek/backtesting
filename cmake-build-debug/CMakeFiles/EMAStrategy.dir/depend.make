@@ -13,6 +13,7 @@ CMakeFiles/EMAStrategy.dir/main.cpp.o: ../point.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../position.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../range.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../read.h
+CMakeFiles/EMAStrategy.dir/main.cpp.o: ../test_box.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../triple_ema.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../tuple.h
 

@@ -75,11 +75,13 @@ namespace trading::strategy::optimizer {
             for (auto i = min; i<=max; ++i) {
                 std::get<idx>(input_) = i;
 
-                if constexpr(Depth==1)
-                    //call(func, input_);
+                if constexpr(Depth==1) {
                     print(input_);
-                else
-                    nested_for<Depth-1>(min+diff, max+diff, diff, func);
+                    call(func, input_);
+                }
+                else {
+                    nested_for<Depth-1>(i+diff, max+diff, diff, func);
+                }
             }
         }
 
