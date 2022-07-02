@@ -22,7 +22,7 @@ namespace trading::indicator {
 
         static int validate_period(int period)
         {
-            if (period<1)
+            if (period<=1)
                 throw std::invalid_argument("Period has to be greater than 1");
 
             return period;
@@ -30,7 +30,7 @@ namespace trading::indicator {
 
         static int validate_smoothing(int smoothing)
         {
-            if (smoothing<1)
+            if (smoothing<=1)
                 throw std::invalid_argument("Smoothing has to be greater than 1");
 
             return smoothing;
@@ -50,7 +50,7 @@ namespace trading::indicator {
                 sum_init_prices_ += curr_price;
 
                 if (n_init_prices==period_) {
-                    
+
                     // calculate simple moving average (SMA) for initial ema value
                     prev_ema_ = sum_init_prices_/period_;
                     ready_ = true;

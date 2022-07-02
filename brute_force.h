@@ -33,7 +33,7 @@ namespace trading::strategy::optimizer {
 
         // https://stackoverflow.com/questions/34535795/n-dimensionally-nested-metaloops-with-templates
         template<size_t Depth, class Callable>
-        constexpr void nested_for(std::tuple<range<Types>...> ranges, Callable&& func)
+        constexpr void nested_for(std::tuple<util::range<Types>...> ranges, Callable&& func)
         {
             static_assert(Depth>0);
 
@@ -52,7 +52,7 @@ namespace trading::strategy::optimizer {
         }
 
     public:
-        ReturnType operator()(range<Types>... ranges, const std::function<ReturnType(Types...)>& func)
+        ReturnType operator()(util::range<Types>... ranges, const std::function<ReturnType(Types...)>& func)
         {
             // initialize input
             input_ = std::make_tuple((*(ranges.begin()))...);
@@ -67,12 +67,12 @@ namespace trading::strategy::optimizer {
         tuple_of<Type, size> input_;
 
         template<size_t Depth, class Callable>
-        constexpr void nested_for(Type min, Type max, Type diff, Callable&& func)
+        constexpr void nested_for(const util::range<Type> args_range, Callable&& func)
         {
             static_assert(Depth>0);
             constexpr int idx = size-Depth;
 
-            for (auto i = min; i<=max; ++i) {
+            for (auto i : args_range) {
                 std::get<idx>(input_) = i;
 
                 if constexpr(Depth==1) {
@@ -80,22 +80,33 @@ namespace trading::strategy::optimizer {
                     call(func, input_);
                 }
                 else {
-                    nested_for<Depth-1>(i+diff, max+diff, diff, func);
+                    nested_for<Depth-1>(util::range<Type>{i+args_range.step(), *args_range.end()+args_range.step(),
+                                                          args_range.step()}, func);
                 }
             }
         }
 
     public:
         template<class Callable>
-        ReturnType operator()(Type min, Type max, Type diff, const Callable& func)
+        ReturnType operator()(const util::range<Type>& args_range, const Callable& func)
         {
-            Type lowest_max = max-(diff*(size-1));
+            Type first_end;
 
-            if (lowest_max<min)
-                throw std::invalid_argument("Minimum has to be lower or equal than the lowest maximum");
+            if (*args_range.begin()<*args_range.end()) {
+                first_end = *args_range.end()-(args_range.step()*(size-1));
+
+                if (first_end<*args_range.begin())
+                    throw std::invalid_argument("Cannot create first end, not enough steps between begin and end");
+            }
+            else if (*args_range.begin()>*args_range.end()) {
+                first_end = *args_range.end()+(args_range.step()*(size-1));
+
+                if (first_end>*args_range.begin())
+                    throw std::invalid_argument("Cannot create first end, not enough steps between begin and end");
+            }
 
             // call nested loop
-            nested_for<size>(min, lowest_max, diff, func);
+            nested_for<size>(util::range<Type>{*args_range.begin(), first_end, args_range.step()}, func);
         }
     };
 }

@@ -3,10 +3,7 @@
 #include <memory>
 
 #include "exceptions.h"
-#include "ema.h"
-#include "triple_ema.h"
 #include "read.h"
-#include "position.h"
 #include "currency.h"
 #include "brute_force.h"
 #include "test_box.h"
@@ -18,7 +15,7 @@ using namespace strategy;
 void run()
 {
     // use range
-    range<int> range{22, 10, -2};
+    util::range<int> range{1, 6+1, 1};
 
     for (auto val : range)
         std::cout << val << " ";
@@ -45,11 +42,11 @@ void run()
     int pos_size{100};
     auto box = test_box(candles, pos_size, pair);
 
-    int min_period{1};
-    int max_period{100};
-    int diff{10};
-    optimizer::brute_force_subsequent<int, int, 3> optim2{};
-    optim2(min_period, max_period, diff, box);
+    int min_period{2};
+    int diff{2};
+    int max_period{(diff*10)+diff};
+    optimizer::brute_force_subsequent<int, int, 3> optim{};
+    optim(util::range<int>(min_period, max_period, diff), box);
 }
 
 int main()
