@@ -37,11 +37,11 @@ void run()
     auto box = test_box<crypto, long_position, strategy::long_triple_ema>(candles, pos_size, pair);
 
     // use optimizer
-    int min_period{2};
-    int diff{2};
-    int max_period{(diff*10)+diff};
-    optimizer::brute_force_subsequent<int, int, 3> optim{};
-    optim(util::range<int>(min_period, max_period, diff), box);
+    int min_short_period{2};
+    int diff{1};
+    int max_short_period{100};
+    optimizer::brute_force_sliding<int, int, 3> optim{};
+    optim(util::range<int>(min_short_period, max_short_period, diff), box);
 }
 
 int main()

@@ -65,17 +65,17 @@ namespace trading::strategy::optimizer {
     };
 
     template<typename ReturnType, typename Type, std::size_t size>
-    class brute_force_subsequent {
+    class brute_force_sliding {
         tuple_of<Type, size> input_;
 
         template<size_t Depth, class Callable>
-        constexpr void nested_for(const util::range<Type> args_range, Callable&& func)
+        constexpr void nested_for(const util::range<Type> args, Callable&& func)
         {
             static_assert(Depth>0);
             constexpr int idx = size-Depth;
 
             // loop through
-            for (auto val : args_range) {
+            for (auto val : args) {
                 std::get<idx>(input_) = val;
 
                 // reached inner most loop
@@ -85,34 +85,18 @@ namespace trading::strategy::optimizer {
                 }
                 // call inner loop
                 else {
-                    nested_for<Depth-1>(util::range<Type>{val+args_range.step(), *args_range.end()+args_range.step(),
-                                                          args_range.step()}, func);
+                    nested_for<Depth-1>(util::range<Type>{val+args.step(), *args.end()+args.step(),
+                                                          args.step()}, func);
                 }
             }
         }
 
     public:
         template<class Callable>
-        ReturnType operator()(const util::range<Type>& args_range, const Callable& func)
+        ReturnType operator()(const util::range<Type>& args, const Callable& func)
         {
-            // create first end
-            Type first_end;
-
-            if (*args_range.begin()<*args_range.end()) {
-                first_end = *args_range.end()-(args_range.step()*(size-1));
-
-                if (first_end<*args_range.begin())
-                    throw std::invalid_argument("Cannot create first end, not enough steps between begin and end");
-            }
-            else if (*args_range.begin()>*args_range.end()) {
-                first_end = *args_range.end()+(args_range.step()*(size-1));
-
-                if (first_end>*args_range.begin())
-                    throw std::invalid_argument("Cannot create first end, not enough steps between begin and end");
-            }
-
             // call nested loop
-            nested_for<size>(util::range<Type>{*args_range.begin(), first_end, args_range.step()}, func);
+            nested_for<size>(args, func);
         }
     };
 }
