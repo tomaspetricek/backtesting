@@ -14,13 +14,6 @@ using namespace strategy;
 
 void run()
 {
-    // use range
-    util::range<int> range{1, 6+1, 1};
-
-    for (auto val : range)
-        std::cout << val << " ";
-    std::cout << std::endl;
-
     // create currency pair
     pair<crypto> pair{crypto::BTC, crypto::USDT};
 
@@ -39,10 +32,11 @@ void run()
     if (candles.empty())
         throw std::runtime_error("No candles read");
 
+    // create test box
     int pos_size{100};
-    // TODO - its not logically save - long strategy can create short positions
     auto box = test_box<crypto, long_position, strategy::long_triple_ema>(candles, pos_size, pair);
 
+    // use optimizer
     int min_period{2};
     int diff{2};
     int max_period{(diff*10)+diff};
@@ -52,9 +46,11 @@ void run()
 
 int main()
 {
+    // run program
     try {
         run();
     }
+    // show exceptions
     catch (const std::exception& e) {
         print_exception(e);
     }

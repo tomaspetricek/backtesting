@@ -58,12 +58,13 @@ namespace trading::strategy {
         {
             double curr_short, curr_middle, curr_long;
 
+            // get indicator values
             try {
                 curr_short = short_ema_(curr_price);
                 curr_middle = middle_ema_(curr_price);
                 curr_long = long_ema_(curr_price);
             }
-                // indicators are not ready to decide
+            // indicators are not ready to decide
             catch (const not_ready& exp) {
                 return std::nullopt;
             }
@@ -71,14 +72,17 @@ namespace trading::strategy {
                 std::throw_with_nested(std::runtime_error("Cannot calculate ema value"));
             }
 
+            // buy
             if (curr_middle>curr_long && curr_middle<curr_short && !pos_opened) {
                 pos_opened = true;
                 return action::buy;
             }
+            // sell
             else if (curr_short<curr_middle && pos_opened) {
                 pos_opened = false;
                 return action::sell;
             }
+            // do nothing
             else {
                 return std::nullopt;
             }
@@ -100,12 +104,13 @@ namespace trading::strategy {
         {
             double curr_short, curr_middle, curr_long;
 
+            // get indicator values
             try {
                 curr_short = short_ema_(curr_price);
                 curr_middle = middle_ema_(curr_price);
                 curr_long = long_ema_(curr_price);
             }
-                // indicators are not ready to decide
+            // indicators are not ready to decide
             catch (const not_ready& exp) {
                 return std::nullopt;
             }
@@ -113,14 +118,17 @@ namespace trading::strategy {
                 std::throw_with_nested(std::runtime_error("Cannot calculate ema value"));
             }
 
+            // buy
             if (curr_middle<curr_long && curr_middle>curr_short && !pos_opened) {
                 pos_opened = true;
                 return action::buy;
             }
+            // sell
             else if (curr_short>curr_middle && pos_opened) {
                 pos_opened = false;
                 return action::sell;
             }
+            // do nothing
             else {
                 return std::nullopt;
             }

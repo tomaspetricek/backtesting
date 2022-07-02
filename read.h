@@ -30,12 +30,14 @@ namespace trading {
         // read header
         std::getline(file, line);
 
+        // read lines
         while (std::getline(file, line)) {
             // clean
             line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
             std::stringstream ss(line);
             ss.exceptions(std::ios::failbit);
 
+            // parse line
             try {
                 std::getline(ss, data, delim);
                 curr_created = std::stol(data);
@@ -56,12 +58,14 @@ namespace trading {
                 std::throw_with_nested(bad_formatting("Cannot parse line"));
             }
 
+            // check duration between
             if (bef_created!=0)
                 if (period.count()!=(curr_created-bef_created))
                     throw std::invalid_argument("Incorrect duration between candles");
 
             bef_created = curr_created;
 
+            // add candle
             try {
                 candles.emplace_back(curr_created, open, high, low, close);
             }

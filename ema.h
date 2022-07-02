@@ -50,7 +50,6 @@ namespace trading::indicator {
                 sum_init_prices_ += curr_price;
 
                 if (n_init_prices==period_) {
-
                     // calculate simple moving average (SMA) for initial ema value
                     prev_ema_ = sum_init_prices_/period_;
                     ready_ = true;
@@ -62,6 +61,7 @@ namespace trading::indicator {
                 }
             }
 
+            // calculate current ema
             prev_ema_ = (curr_price*weighting_factor_)+(prev_ema_*(1-weighting_factor_));
             return prev_ema_;
         }

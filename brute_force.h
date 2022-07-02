@@ -74,6 +74,7 @@ namespace trading::strategy::optimizer {
             static_assert(Depth>0);
             constexpr int idx = size-Depth;
 
+            // loop through
             for (auto val : args_range) {
                 std::get<idx>(input_) = val;
 
@@ -82,7 +83,7 @@ namespace trading::strategy::optimizer {
                     print(input_);
                     call(func, input_);
                 }
-                    // call inner loop
+                // call inner loop
                 else {
                     nested_for<Depth-1>(util::range<Type>{val+args_range.step(), *args_range.end()+args_range.step(),
                                                           args_range.step()}, func);
@@ -94,6 +95,7 @@ namespace trading::strategy::optimizer {
         template<class Callable>
         ReturnType operator()(const util::range<Type>& args_range, const Callable& func)
         {
+            // create first end
             Type first_end;
 
             if (*args_range.begin()<*args_range.end()) {
