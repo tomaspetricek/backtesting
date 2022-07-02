@@ -40,7 +40,8 @@ void run()
         throw std::runtime_error("No candles read");
 
     int pos_size{100};
-    auto box = test_box(candles, pos_size, pair);
+    // TODO - its not logically save - long strategy can create short positions
+    auto box = test_box<crypto, long_position, strategy::long_triple_ema>(candles, pos_size, pair);
 
     int min_period{2};
     int diff{2};

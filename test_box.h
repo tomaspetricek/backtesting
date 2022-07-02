@@ -14,29 +14,27 @@
 #include "currency.h"
 
 namespace trading {
+    template<typename Currency, template<typename> typename Position, typename Strategy>
     class test_box {
     private:
-        std::shared_ptr<strategy::long_triple_ema> strategy_;
+        std::shared_ptr<Strategy> strategy_;
         std::optional<action> action_;
-        std::shared_ptr<long_position<currency::crypto>> pos_{nullptr};
-        std::vector<std::shared_ptr<long_position<currency::crypto>>> closed_{};
+        std::shared_ptr<Position<Currency>> pos_{nullptr};
+        std::vector<std::shared_ptr<Position<Currency>>> closed_{};
         std::vector<candle> candles_{};
         int pos_size_;
-        currency::pair<currency::crypto> pair_;
+        currency::pair<Currency> pair_;
 
     public:
-        test_box(std::vector<candle> candles, int pos_size, const currency::pair<currency::crypto>& pair)
+        test_box(std::vector<candle> candles, int pos_size, const currency::pair<Currency>& pair)
                 :candles_(std::move(candles)), pos_size_(pos_size), pair_(pair) { }
 
-        void operator()(int short_period, int middle_period, int long_period)
+        template<typename ...Args>
+        void operator()(Args... args)
         {
-
             // create strategy
             try {
-                indicator::ema short_ema{short_period};
-                indicator::ema middle_ema{middle_period};
-                indicator::ema long_ema{long_period};
-                strategy_ = std::make_shared<strategy::long_triple_ema>(short_ema, middle_ema, long_ema);
+                strategy_ = std::make_shared<Strategy>(args...);
             }
             catch (...) {
                 std::throw_with_nested(std::runtime_error("Cannot create strategy"));
@@ -51,10 +49,10 @@ namespace trading {
 
                     // open position
                     if (action_==action::buy) {
-                        pos_ = std::make_shared<long_position<currency::crypto>>
+                        pos_ = std::make_shared<Position<Currency>>
                                 (point, pos_size_, pair_);
                     }
-                        // close position
+                    // close position
                     else if (action_==action::sell) {
                         pos_->set_exit(point);
                         closed_.push_back(pos_);

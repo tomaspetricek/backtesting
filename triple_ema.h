@@ -33,6 +33,11 @@ namespace trading::strategy {
         }
 
     public:
+        triple_ema(int short_period, int middle_period, int long_period)
+                :triple_ema{indicator::ema{short_period}, indicator::ema{middle_period},
+                            indicator::ema{long_period}} { }
+
+    public:
         virtual ~triple_ema() = default;
 
         virtual std::optional<action> operator()(double curr_price) = 0;
@@ -43,6 +48,9 @@ namespace trading::strategy {
         long_triple_ema(const indicator::ema& short_ema, const indicator::ema& middle_ema,
                 const indicator::ema& long_ema)
                 :triple_ema(short_ema, middle_ema, long_ema) { }
+
+        long_triple_ema(int short_period, int middle_period, int long_period)
+                :triple_ema(short_period, middle_period, long_period) { }
 
         ~long_triple_ema() override = default;
 
@@ -82,6 +90,9 @@ namespace trading::strategy {
         short_triple_ema(const indicator::ema& short_ema, const indicator::ema& middle_ema,
                 const indicator::ema& long_ema)
                 :triple_ema(short_ema, middle_ema, long_ema) { }
+
+        short_triple_ema(int short_period, int middle_period, int long_period)
+                :triple_ema(short_period, middle_period, long_period) { }
 
         ~short_triple_ema() override = default;
 

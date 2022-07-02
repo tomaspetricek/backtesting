@@ -43,11 +43,13 @@ namespace trading::strategy::optimizer {
             for (auto it = curr_range.begin(); it!=curr_range.end(); ++it) {
                 std::get<idx>(input_) = *it;
 
-                if constexpr(Depth==1)
-                    //call(func, input_);
+                if constexpr(Depth==1) {
+                    call(func, input_);
                     print(input_);
-                else
+                }
+                else {
                     nested_for<Depth-1>(ranges, func);
+                }
             }
         }
 
@@ -72,15 +74,17 @@ namespace trading::strategy::optimizer {
             static_assert(Depth>0);
             constexpr int idx = size-Depth;
 
-            for (auto i : args_range) {
-                std::get<idx>(input_) = i;
+            for (auto val : args_range) {
+                std::get<idx>(input_) = val;
 
+                // reached inner most loop
                 if constexpr(Depth==1) {
                     print(input_);
                     call(func, input_);
                 }
+                    // call inner loop
                 else {
-                    nested_for<Depth-1>(util::range<Type>{i+args_range.step(), *args_range.end()+args_range.step(),
+                    nested_for<Depth-1>(util::range<Type>{val+args_range.step(), *args_range.end()+args_range.step(),
                                                           args_range.step()}, func);
                 }
             }
