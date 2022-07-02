@@ -38,10 +38,11 @@ void run()
 
     // use optimizer
     int min_short_period{2};
-    int step{1};
+    int step{14};
+    int shift{3};
     int max_short_period{100+step}; // make inclusive
     optimizer::brute_force_sliding<int, int, 3> optim{};
-    optim(util::range<int>(min_short_period, max_short_period, step), box);
+    optim(util::range<int>(min_short_period, max_short_period, step), shift, box);
 }
 
 int main()

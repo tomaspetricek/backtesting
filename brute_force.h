@@ -69,7 +69,7 @@ namespace trading::strategy::optimizer {
         tuple_of<Type, size> input_;
 
         template<size_t Depth, class Callable>
-        constexpr void nested_for(const util::range<Type> args, Callable&& func)
+        constexpr void nested_for(const util::range<Type> args, const Type& shift, Callable&& func)
         {
             static_assert(Depth>0);
             constexpr int idx = size-Depth;
@@ -85,18 +85,17 @@ namespace trading::strategy::optimizer {
                 }
                 // call inner loop
                 else {
-                    nested_for<Depth-1>(util::range<Type>{val+args.step(), *args.end()+args.step(),
-                                                          args.step()}, func);
+                    nested_for<Depth-1>(util::range<Type>{val+shift, *args.end()+shift, args.step()}, shift, func);
                 }
             }
         }
 
     public:
         template<class Callable>
-        ReturnType operator()(const util::range<Type>& args, const Callable& func)
+        ReturnType operator()(const util::range<Type>& args, const Type& shift, const Callable& func)
         {
             // call nested loop
-            nested_for<size>(args, func);
+            nested_for<size>(args, shift, func);
         }
     };
 }
