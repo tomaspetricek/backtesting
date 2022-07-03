@@ -10,6 +10,7 @@
 #include "point.h"
 #include "formula.h"
 #include "currency.h"
+#include "price.h"
 
 namespace trading {
     template<typename CurrencyType>
@@ -37,7 +38,7 @@ namespace trading {
 
         virtual ~position() = default;
 
-        virtual double calculate_percent_gain(double curr_price) = 0;
+        virtual double calculate_percent_gain(const price& curr) = 0;
 
         const point& get_entry() const
         {
@@ -77,9 +78,9 @@ namespace trading {
 
         ~long_position() override = default;
 
-        double calculate_percent_gain(double curr_price) override
+        double calculate_percent_gain(const price& curr) override
         {
-            return formula::calculate_percent_gain(this->entry_.get_price(), curr_price);
+            return formula::percent_gain(this->entry_.get_price(), curr);
         }
     };
 
@@ -91,9 +92,9 @@ namespace trading {
 
         ~short_position() override = default;
 
-        double calculate_percent_gain(double curr_price) override
+        double calculate_percent_gain(const price& curr) override
         {
-            return formula::calculate_percent_gain(curr_price, this->entry_.get_price());
+            return formula::percent_gain(curr, this->entry_.get_price());
         }
     };
 }

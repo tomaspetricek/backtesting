@@ -11,6 +11,7 @@ CMakeFiles/EMAStrategy.dir/main.cpp.o: ../formula.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../main.cpp
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../point.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../position.h
+CMakeFiles/EMAStrategy.dir/main.cpp.o: ../price.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../range.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../read.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../test_box.h

@@ -7,6 +7,8 @@
 #include "currency.h"
 #include "brute_force.h"
 #include "test_box.h"
+#include "formula.h"
+#include "price.h"
 
 using namespace trading;
 using namespace currency;
@@ -38,20 +40,29 @@ void run()
 
     // use optimizer
     int min_short_period{2};
-    int step{14};
-    int shift{3};
+    int step{1};
+    int shift{1};
     int max_short_period{100+step}; // make inclusive
     optimizer::brute_force_sliding<int, int, 3> optim{};
     optim(util::range<int>(min_short_period, max_short_period, step), shift, box);
 }
 
+void use_formulas()
+{
+    price entry{1.1246};
+    price exit{1.1077};
+    std::cout << "percent gain: " << formula::percent_gain(entry, exit) << " %" << std::endl;
+}
+
 int main()
 {
+    use_formulas();
+
     // run program
     try {
         run();
     }
-    // show exceptions
+        // show exceptions
     catch (const std::exception& e) {
         print_exception(e);
     }

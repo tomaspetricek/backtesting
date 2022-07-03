@@ -10,6 +10,7 @@
 #include "ema.h"
 #include "action.h"
 #include "exceptions.h"
+#include "price.h"
 
 namespace trading::strategy {
 
@@ -40,7 +41,7 @@ namespace trading::strategy {
     public:
         virtual ~triple_ema() = default;
 
-        virtual std::optional<action> operator()(double curr_price) = 0;
+        virtual std::optional<action> operator()(const price& curr) = 0;
     };
 
     class long_triple_ema : public triple_ema {
@@ -54,15 +55,15 @@ namespace trading::strategy {
 
         ~long_triple_ema() override = default;
 
-        std::optional<action> operator()(double curr_price) override
+        std::optional<action> operator()(const price& curr) override
         {
             double curr_short, curr_middle, curr_long;
 
             // get indicator values
             try {
-                curr_short = short_ema_(curr_price);
-                curr_middle = middle_ema_(curr_price);
-                curr_long = long_ema_(curr_price);
+                curr_short = short_ema_(curr);
+                curr_middle = middle_ema_(curr);
+                curr_long = long_ema_(curr);
             }
             // indicators are not ready to decide
             catch (const not_ready& exp) {
@@ -100,15 +101,15 @@ namespace trading::strategy {
 
         ~short_triple_ema() override = default;
 
-        std::optional<action> operator()(double curr_price) override
+        std::optional<action> operator()(const price& curr) override
         {
             double curr_short, curr_middle, curr_long;
 
             // get indicator values
             try {
-                curr_short = short_ema_(curr_price);
-                curr_middle = middle_ema_(curr_price);
-                curr_long = long_ema_(curr_price);
+                curr_short = short_ema_(curr);
+                curr_middle = middle_ema_(curr);
+                curr_long = long_ema_(curr);
             }
             // indicators are not ready to decide
             catch (const not_ready& exp) {

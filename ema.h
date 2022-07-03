@@ -6,7 +6,9 @@
 #define EMASTRATEGY_MOVING_AVERAGE_H
 
 #include <numeric>
+
 #include "exceptions.h"
+#include "price.h"
 
 namespace trading::indicator {
 
@@ -40,14 +42,11 @@ namespace trading::indicator {
         explicit ema(int period, int smoothing = 2)
                 :period_(validate_period(period)), smoothing_(validate_smoothing(smoothing)) { }
 
-        double& operator()(double curr_price)
+        double& operator()(const price& curr)
         {
-            if (curr_price<0.0)
-                throw std::invalid_argument("Price has to be greater than 0");
-
             if (!ready_) {
                 n_init_prices++;
-                sum_init_prices_ += curr_price;
+                sum_init_prices_ += static_cast<double>(curr);
 
                 if (n_init_prices==period_) {
                     // calculate simple moving average (SMA) for initial ema value
@@ -62,7 +61,7 @@ namespace trading::indicator {
             }
 
             // calculate current ema
-            prev_ema_ = (curr_price*weighting_factor_)+(prev_ema_*(1-weighting_factor_));
+            prev_ema_ = (static_cast<double>(curr)*weighting_factor_)+(prev_ema_*(1-weighting_factor_));
             return prev_ema_;
         }
 

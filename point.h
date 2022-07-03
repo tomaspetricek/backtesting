@@ -7,17 +7,20 @@
 
 #include <ctime>
 
+#include "price.h"
+
 namespace trading {
     class point {
-        double price_;
+        price price_;
         std::time_t created_;
+
     public:
         point() = default;
 
-        point(double price, std::time_t created)
+        point(const price& price, time_t created)
                 :price_(price), created_(created) { }
 
-        double get_price() const
+        price get_price() const
         {
             return price_;
         }
