@@ -29,7 +29,7 @@ namespace trading {
         point exit_{};
         bool closed_ = false;
         double size_;
-        double percent_gain_;
+        double percent_gain_{};
         currency::pair<CurrencyType> pair_;
 
     public:

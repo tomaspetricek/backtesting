@@ -62,7 +62,7 @@ namespace trading {
         }
 
         explicit operator double() const {
-            return val_;;
+            return val_;
         }
     };
 }

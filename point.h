@@ -17,7 +17,7 @@ namespace trading {
     public:
         point() = default;
 
-        point(const price& price, time_t created)
+        explicit point(const price& price, time_t created)
                 :price_(price), created_(created) { }
 
         price get_price() const
