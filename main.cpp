@@ -9,6 +9,7 @@
 #include "test_box.h"
 #include "formula.h"
 #include "price.h"
+#include "sma.h"
 
 using namespace trading;
 using namespace currency;
@@ -54,9 +55,42 @@ void use_formulas()
     std::cout << "percent percent_gain: " << formula::percent_gain(entry, exit) << " %" << std::endl;
 }
 
+void use_indicators()
+{
+    // use sma
+    std::vector<double> vals{10, 11, 11.5, 10.75, 12, 11.75, 12.25, 14, 16, 17, 15.6, 15.75, 16, 14, 16.5, 17, 17.25,
+                             18, 18.75, 20};
+    indicator::sma sma{5};
+
+    std::cout << "sma:" << std::endl;
+    for (const double& val : vals) {
+        try {
+            std::cout << sma(val) << ", ";
+        }
+        catch (const not_ready& ex) {
+            print_exception(ex);
+        }
+    }
+    std::cout << std::endl;
+
+    // use ema
+    indicator::ema ema{5};
+
+    std::cout << "ema:" << std::endl;
+    for (const double& val : vals) {
+        try {
+            std::cout << ema(val) << ", ";
+        }
+        catch (const not_ready& ex) {
+            print_exception(ex);
+        }
+    }
+    std::cout << std::endl;
+}
+
 int main()
 {
-    use_formulas();
+    use_indicators();
 
     // run program
     try {

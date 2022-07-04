@@ -9,16 +9,17 @@
 
 #include "exceptions.h"
 #include "price.h"
+#include "sma.h"
 
 namespace trading::indicator {
 
+    // https://plainenglish.io/blog/how-to-calculate-the-ema-of-a-stock-with-python
     // exponential moving average
     class ema {
         const int period_ = 1;
         bool ready_ = false;
-        int n_init_prices = 0;
-        double sum_init_prices_ = 0;
-        double prev_ema_ = 0;
+        indicator::sma sma;
+        double prev_val_ = 0;
         int smoothing_ = 2;
         double weighting_factor_ = static_cast<double>(smoothing_)/(period_+1);
 
@@ -40,32 +41,27 @@ namespace trading::indicator {
 
     public:
         explicit ema(int period, int smoothing = 2)
-                :period_(validate_period(period)), smoothing_(validate_smoothing(smoothing)) { }
+                :period_(validate_period(period)), smoothing_(validate_smoothing(smoothing)), sma(period) { }
 
-        double& operator()(const price& curr)
+        double operator()(double sample)
         {
             if (!ready_) {
-                n_init_prices++;
-                sum_init_prices_ += static_cast<double>(curr);
-
-                if (n_init_prices==period_) {
-                    // calculate simple moving average (SMA) for initial ema value
-                    prev_ema_ = sum_init_prices_/period_;
+                try {
+                    prev_val_ = sma(sample);
                     ready_ = true;
-                    return prev_ema_;
+                    return prev_val_;
                 }
-                else {
-                    throw not_ready("Not enough initial prices yet. Need "
-                            +std::to_string(period_-n_init_prices)+" more");
+                catch (const not_ready& ex) {
+                    std::throw_with_nested(not_ready("Not enough prices to calculate initial ema"));
                 }
             }
 
             // calculate current ema
-            prev_ema_ = (static_cast<double>(curr)*weighting_factor_)+(prev_ema_*(1-weighting_factor_));
-            return prev_ema_;
+            prev_val_ = (sample*weighting_factor_)+(prev_val_*(1-weighting_factor_));
+            return prev_val_;
         }
 
-        const int period() const { return period_; }
+        int period() const { return period_; }
     };
 }
 

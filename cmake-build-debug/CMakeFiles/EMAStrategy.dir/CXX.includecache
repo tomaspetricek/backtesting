@@ -31,6 +31,8 @@ exceptions.h
 /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/exceptions.h
 price.h
 /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/price.h
+sma.h
+/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/sma.h
 
 /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/exceptions.h
 exception
@@ -59,6 +61,8 @@ formula.h
 /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/formula.h
 price.h
 /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/price.h
+sma.h
+/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/sma.h
 
 /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/point.h
 ctime
@@ -96,6 +100,10 @@ candle.h
 exceptions.h
 /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/exceptions.h
 
+/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/sma.h
+queue
+-
+
 /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/test_box.h
 utility
 -
@@ -112,6 +120,8 @@ currency.h
 
 /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/triple_ema.h
 optional
+-
+utility
 -
 ema.h
 /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/ema.h
