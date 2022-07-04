@@ -17,6 +17,12 @@ namespace trading {
     std::vector<candle> read_candles(const std::filesystem::path& path, char delim,
             const std::chrono::seconds& period)
     {
+        if (!std::filesystem::exists(path))
+            throw std::invalid_argument("File does not exist");
+
+        if (path.extension()!=".csv")
+            throw std::invalid_argument("Invalid file extension");
+
         std::ifstream file(path.string());
 
         if (!file.is_open())
