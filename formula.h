@@ -5,8 +5,10 @@
 #ifndef EMASTRATEGY_FORMULA_H
 #define EMASTRATEGY_FORMULA_H
 
+typedef double percentage;
+
 namespace trading::formula {
-    double percent_gain(const price& buy, const price& sell)
+    percentage percent_gain(const price& buy, const price& sell)
     {
         return ((static_cast<double>(sell)-static_cast<double>(buy))/static_cast<double>(buy))*100;
     }
@@ -17,7 +19,7 @@ namespace trading::formula {
     }
 
     // gross profit in percentage
-    double gross_profit_margin(double gross_profit, double revenue)
+    percentage gross_profit_margin(double gross_profit, double revenue)
     {
         return (gross_profit/revenue)*100;
     }
@@ -28,7 +30,7 @@ namespace trading::formula {
     }
 
     // net profit in percentage
-    double net_profit_margin(double net_profit, double expenses)
+    percentage net_profit_margin(double net_profit, double expenses)
     {
         return (net_profit/expenses)*100;
     }

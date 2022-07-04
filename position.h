@@ -29,7 +29,7 @@ namespace trading {
         point exit_{};
         bool closed_ = false;
         double size_;
-        double percent_gain_{};
+        percentage gain_{};
         currency::pair<CurrencyType> pair_;
 
     public:
@@ -38,7 +38,7 @@ namespace trading {
 
         virtual ~position() = default;
 
-        virtual double calculate_percent_gain(const price& curr) = 0;
+        virtual percentage calculate_percent_gain(const price& curr) = 0;
 
         const point& get_entry() const
         {
@@ -58,7 +58,7 @@ namespace trading {
             if (!closed_)
                 throw not_ready("Position not closed yet");
 
-            return percent_gain_;
+            return gain_;
         }
 
         void set_exit(const point& exit)
@@ -66,7 +66,7 @@ namespace trading {
             validate_exit(exit);
             closed_ = true;
             exit_ = exit;
-            percent_gain_ = calculate_percent_gain(exit_.get_price());
+            gain_ = calculate_percent_gain(exit_.get_price());
         }
     };
 
@@ -78,7 +78,7 @@ namespace trading {
 
         ~long_position() override = default;
 
-        double calculate_percent_gain(const price& curr) override
+        percentage calculate_percent_gain(const price& curr) override
         {
             return formula::percent_gain(this->entry_.get_price(), curr);
         }
@@ -92,7 +92,7 @@ namespace trading {
 
         ~short_position() override = default;
 
-        double calculate_percent_gain(const price& curr) override
+        percentage calculate_percent_gain(const price& curr) override
         {
             return formula::percent_gain(curr, this->entry_.get_price());
         }
