@@ -90,6 +90,8 @@ void use_indicators()
 
 int main()
 {
+    // show demo
+    use_formulas();
     use_indicators();
 
     // run program

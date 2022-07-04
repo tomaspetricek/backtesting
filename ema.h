@@ -16,7 +16,7 @@ namespace trading::indicator {
     // https://plainenglish.io/blog/how-to-calculate-the-ema-of-a-stock-with-python
     // exponential moving average
     class ema {
-        const int period_ = 1;
+        const int period_;
         bool ready_ = false;
         indicator::sma sma;
         double prev_val_ = 0;
@@ -40,7 +40,7 @@ namespace trading::indicator {
         }
 
     public:
-        explicit ema(int period, int smoothing = 2)
+        explicit ema(int period = 1, int smoothing = 2)
                 :period_(validate_period(period)), smoothing_(validate_smoothing(smoothing)), sma(period) { }
 
         double operator()(double sample)

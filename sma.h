@@ -12,7 +12,7 @@ namespace trading::indicator {
     // https://stackoverflow.com/questions/10990618/calculate-rolling-moving-average-in-c
     // simple moving average
     class sma {
-        const int period_ = 1;
+        const int period_;
         double sum_samples_ = 0;
         std::queue<double> samples_;
 
@@ -25,7 +25,7 @@ namespace trading::indicator {
         }
 
     public:
-        explicit sma(const int period)
+        explicit sma(const int period = 1)
                 :period_(validate_period(period)) { }
 
         double operator()(double sample)
@@ -38,7 +38,7 @@ namespace trading::indicator {
                 throw not_ready("Not enough initial prices yet. Need "
                         +std::to_string(period_-samples_.size())+" more");
             }
-            // move - remove old sample
+                // move - remove old sample
             else if (samples_.size()>period_) {
                 double oldest = samples_.front();
                 sum_samples_ -= oldest;
