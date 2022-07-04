@@ -12,21 +12,6 @@
 #include "tuple.h"
 
 namespace trading::strategy::optimizer {
-    // https://stackoverflow.com/questions/20162903/template-parameter-packs-access-nth-type-and-nth-element
-    template<int Index, class... Types>
-    decltype(auto) get(Types&& ... args)
-    {
-        return std::get<Index>(std::forward_as_tuple(args...));
-    }
-
-    template<typename Type, std::size_t size>
-    void print_arr(const std::array<Type, size>& arr)
-    {
-        for (int i = 0; i<size-1; i++)
-            std::cout << arr[i] << " ";
-        std::cout << arr[size-1] << std::endl;
-    }
-
     template<typename ReturnType, class ...Types>
     class brute_force {
         std::tuple<Types...> input_;
@@ -83,7 +68,7 @@ namespace trading::strategy::optimizer {
                     print(input_);
                     call(func, input_);
                 }
-                // call inner loop
+                    // call inner loop
                 else {
                     nested_for<Depth-1>(util::range<Type>{val+shift, *args.end()+shift, args.step()}, shift, func);
                 }
