@@ -41,13 +41,13 @@ namespace trading {
                 std::throw_with_nested(std::runtime_error("Cannot create strategy"));
             }
 
-            // collect positions
-            for (const auto& candle : candles_) {
-                price mean_price = candle::ohlc4(candle);
+            // collect trades
+            for (auto candle_it = candles_.begin(); candle_it!=candles_.end(); candle_it++) {
+                price mean_price = candle::ohlc4(*candle_it);
                 action_ = (*strategy_)(mean_price);
 
                 if (action_) {
-                    point created{mean_price, candle.created()};
+                    point created{mean_price, candle_it->created()};
 
                     // buy
                     if (action_==action::buy) {
@@ -66,9 +66,15 @@ namespace trading {
 
                     // add to closed trades
                     if (curr_.size()==0) {
-                        closed_.push_back(curr_);
+                        closed_.emplace_back(curr_);
                         curr_ = trade(pair_);
                     }
+                }
+
+                // close last trade if not closed at the end
+                if (candle_it+1==candles_.end() && curr_.size()>0) {
+                    std::size_t trade_size = curr_.size();
+                    curr_.add_closed(position{trade_size, point{mean_price, candle_it->created()}});
                 }
             }
         }
