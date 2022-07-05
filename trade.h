@@ -9,7 +9,9 @@
 #include <cmath>
 
 #include "position.h"
-#include "formula.h"
+#include "interval.h"
+
+typedef left_open_interval<0, 1> part;
 
 namespace trading {
     template<typename Currency>
@@ -38,7 +40,7 @@ namespace trading {
         void add_closed(const position& pos)
         {
             if (pos.size()>size_)
-                throw std::logic_error("Cannot add closed position. Trade size is smaller than position size");
+                throw std::logic_error("Cannot add closed position. Position size is greater than trade size.");
 
             size_ -= pos.size();
             closed_.emplace_back(pos);
@@ -49,12 +51,9 @@ namespace trading {
             return size_;
         }
 
-        std::size_t calculate_position_size(percentage part)
+        std::size_t calculate_position_size(const part& trade_part)
         {
-            if (part<=0.0 || part>1.0)
-                throw std::invalid_argument("Part has to be between (0.0, 1.0>");
-
-            return std::round(size_*part);
+            return std::round(size_*static_cast<double>(trade_part));
         }
     };
 }

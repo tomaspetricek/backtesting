@@ -8,6 +8,7 @@ CMakeFiles/EMAStrategy.dir/main.cpp.o: ../currency.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../ema.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../exceptions.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../formula.h
+CMakeFiles/EMAStrategy.dir/main.cpp.o: ../interval.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../main.cpp
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../pack.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../point.h
