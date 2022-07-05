@@ -42,7 +42,7 @@ namespace trading {
 
             // collect positions
             for (const auto& candle : candles_) {
-                action_ = (*strategy_)(candle.get_close());
+                action_ = (*strategy_)(candle::ohlc4(candle));
 
                 if (action_) {
                     auto point = trading::point(candle.get_close(), candle.get_created());

@@ -6,6 +6,7 @@
 #define EMASTRATEGY_CANDLE_H
 
 #include "price.h"
+#include "pack.h"
 
 namespace trading {
     class candle {
@@ -33,6 +34,24 @@ namespace trading {
 
         candle(time_t created, double open, double high, double low, double close)
                 :candle{created, price{open}, price{high}, price{low}, price{close}} { }
+
+        // mean high and low
+        static price hl2(const candle& candle)
+        {
+            return mean(candle.high_, candle.low_);
+        }
+
+        // mean open, high, low, close
+        static price hlc3(const candle& candle)
+        {
+            return mean(candle.high_, candle.low_, candle.close_);
+        }
+
+        // mean open, high, low, close
+        static price ohlc4(const candle& candle)
+        {
+            return mean(candle.open_, candle.high_, candle.low_, candle.close_);
+        }
 
         std::time_t get_created() const
         {

@@ -46,6 +46,11 @@ namespace trading {
             return price{val_+val};
         }
 
+        price operator+(const price& rhs) const
+        {
+            return price{val_+rhs.val_};
+        }
+
         price operator-(double val) const
         {
             return price{val_-val};

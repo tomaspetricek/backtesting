@@ -12,4 +12,16 @@ decltype(auto) get(Types&& ... pack)
     return std::get<Index>(std::forward_as_tuple(pack...));
 }
 
+template<typename... Type>
+auto sum(Type... vals)
+{
+    return (vals + ...);
+}
+
+template<typename... Type>
+auto mean(Type... vals)
+{
+    return sum(vals...)/sizeof...(vals);
+}
+
 #endif //EMASTRATEGY_PACK_H
