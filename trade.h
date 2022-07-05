@@ -6,8 +6,10 @@
 #define EMASTRATEGY_TRADE_H
 
 #include <vector>
+#include <cmath>
 
 #include "position.h"
+#include "formula.h"
 
 namespace trading {
     template<typename Currency>
@@ -45,6 +47,14 @@ namespace trading {
         std::size_t size() const
         {
             return size_;
+        }
+
+        std::size_t calculate_position_size(percentage part)
+        {
+            if (part<=0.0 || part>1.0)
+                throw std::invalid_argument("Part has to be between (0.0, 1.0>");
+
+            return std::round(size_*part);
         }
     };
 }

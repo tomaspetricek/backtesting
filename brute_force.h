@@ -66,9 +66,14 @@ namespace trading::strategy::optimizer {
                 // reached inner most loop
                 if constexpr(Depth==1) {
                     print(input_);
-                    call(func, input_);
+                    try {
+                        call(func, input_);
+                    }
+                    catch (...) {
+                        std::throw_with_nested(std::runtime_error("Exception thrown while calling a function"));
+                    }
                 }
-                    // call inner loop
+                // call inner loop
                 else {
                     nested_for<Depth-1>(util::range<Type>{val+shift, *args.end()+shift, args.step()}, shift, func);
                 }
