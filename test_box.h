@@ -49,15 +49,24 @@ namespace trading {
                 if (action_) {
                     point created{mean_price, candle.created()};
 
-                    // open trade
+                    // buy
                     if (action_==action::buy) {
-                        curr_ = trade<Currency>(pair_, position{pos_size_, created});
+                        curr_.buy(position{pos_size_, created});
                     }
-                    // close trade
+                    // sell
                     else if (action_==action::sell) {
+                        curr_.sell(position{pos_size_, created});
+                    }
+                    // sell all
+                    else if (action_==action::sell_all) {
                         curr_.sell_all(created);
                         assert(curr_.size()==0.0);
+                    }
+
+                    // add to closed trades
+                    if (curr_.size()==0) {
                         closed_.push_back(curr_);
+                        curr_ = trade(pair_);
                     }
                 }
             }

@@ -11,6 +11,7 @@ namespace trading {
         enum value {
             buy,
             sell,
+            sell_all,
             do_nothing
         };
 
@@ -36,6 +37,9 @@ namespace trading {
                 break;
             case sell:
                 val = "sell";
+                break;
+            case sell_all:
+                val = "sell all";
                 break;
             case do_nothing:
                 val = "do nothing";
