@@ -1,102 +1,43 @@
 //
-// Created by Tomáš Petříček on 25.06.2022.
+// Created by Tomáš Petříček on 05.07.2022.
 //
 
-#ifndef EMASTRATEGY_TRADE_H
-#define EMASTRATEGY_TRADE_H
+#ifndef EMASTRATEGY_POSITION_H
+#define EMASTRATEGY_POSITION_H
 
 #include <ostream>
 
-#include "point.h"
-#include "formula.h"
 #include "currency.h"
 #include "price.h"
+#include "point.h"
 
 namespace trading {
-    template<typename CurrencyType>
     class position {
-    private:
-        point validate_exit(const point& exit)
-        {
-            if (entry_.get_created()>=exit.get_created())
-                throw std::invalid_argument("Exit time has higher than entry time");
-
-            return exit;
-        }
-
-    protected:
-        point entry_;
-        point exit_{};
-        bool closed_ = false;
-        double size_;
-        percentage gain_{};
-        currency::pair<CurrencyType> pair_;
+        std::size_t size_;
+        point created_;
 
     public:
-        position(const point& entry, double size, const currency::pair<CurrencyType>& pair)
-                :entry_(entry), size_(size), pair_(pair) { }
+        position(std::size_t size, const point& created)
+                :size_(size), created_(created) { }
 
-        virtual ~position() = default;
+        position(std::size_t size, const price& price, time_t created)
+                :size_(size), created_(price, created) { }
 
-        virtual percentage calculate_percent_gain(const price& curr) = 0;
-
-        const point& get_entry() const
+        std::size_t size() const
         {
-            return entry_;
+            return size_;
         }
 
-        const point& get_exit() const
+        time_t time_created() const
         {
-            if (!closed_)
-                throw not_ready("Position not closed yet");
-
-            return exit_;
+            return created_.time();
         }
 
-        double get_percent_gain() const
+        price price_created() const
         {
-            if (!closed_)
-                throw not_ready("Position not closed yet");
-
-            return gain_;
-        }
-
-        void set_exit(const point& exit)
-        {
-            validate_exit(exit);
-            closed_ = true;
-            exit_ = exit;
-            gain_ = calculate_percent_gain(exit_.get_price());
-        }
-    };
-
-    template<typename CurrencyType>
-    class long_position : public position<CurrencyType> {
-    public:
-        long_position(const point& entry, double size, const currency::pair<CurrencyType>& pair)
-                :position<CurrencyType>(entry, size, pair) { }
-
-        ~long_position() override = default;
-
-        percentage calculate_percent_gain(const price& curr) override
-        {
-            return formula::percent_gain(this->entry_.get_price(), curr);
-        }
-    };
-
-    template<typename CurrencyType>
-    class short_position : public position<CurrencyType> {
-    public:
-        short_position(const point& entry, double size, const currency::pair<CurrencyType>& pair)
-                :position<CurrencyType>(entry, size, pair) { }
-
-        ~short_position() override = default;
-
-        percentage calculate_percent_gain(const price& curr) override
-        {
-            return formula::percent_gain(curr, this->entry_.get_price());
+            return created_.price();
         }
     };
 }
 
-#endif //EMASTRATEGY_TRADE_H
+#endif //EMASTRATEGY_POSITION_H

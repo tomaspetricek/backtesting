@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 26.06.2022.
 //
 
-#ifndef EMASTRATEGY_POSITION_H
-#define EMASTRATEGY_POSITION_H
+#ifndef EMASTRATEGY_POINT_H
+#define EMASTRATEGY_POINT_H
 
 #include <ctime>
 
@@ -12,23 +12,24 @@
 namespace trading {
     class point {
         price price_;
-        std::time_t created_;
+        std::time_t time_;
 
     public:
         point() = default;
 
         explicit point(const price& price, time_t created)
-                :price_(price), created_(created) { }
+                :price_(price), time_(created) { }
 
-        price get_price() const
+        price price() const
         {
             return price_;
         }
-        time_t get_created() const
+
+        time_t time() const
         {
-            return created_;
+            return time_;
         }
     };
 }
 
-#endif //EMASTRATEGY_POSITION_H
+#endif //EMASTRATEGY_POINT_H

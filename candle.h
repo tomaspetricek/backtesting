@@ -53,27 +53,27 @@ namespace trading {
             return mean(candle.open_, candle.high_, candle.low_, candle.close_);
         }
 
-        std::time_t get_created() const
+        std::time_t created() const
         {
             return created_;
         }
 
-        price get_open() const
+        price open() const
         {
             return open_;
         }
 
-        price get_high() const
+        price high() const
         {
             return high_;
         }
 
-        price get_low() const
+        price low() const
         {
             return low_;
         }
 
-        price get_close() const
+        price close() const
         {
             return close_;
         }

@@ -36,8 +36,8 @@ void run()
         throw std::runtime_error("No candles read");
 
     // create test box
-    int pos_size{100};
-    auto box = test_box<crypto, long_position, strategy::long_triple_ema>(candles, pos_size, pair);
+    std::size_t pos_size{100};
+    auto box = test_box<crypto, strategy::long_triple_ema>(candles, pos_size, pair);
 
     // use optimizer
     int min_short_period{2};

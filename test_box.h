@@ -10,24 +10,25 @@
 #include "exceptions.h"
 #include "ema.h"
 #include "triple_ema.h"
-#include "position.h"
 #include "currency.h"
+#include "position.h"
+#include "trade.h"
 
 namespace trading {
-    template<typename Currency, template<typename> typename Position, typename Strategy>
+    template<typename Currency, typename Strategy>
     class test_box {
     private:
         std::shared_ptr<Strategy> strategy_;
         std::optional<action> action_;
-        std::shared_ptr<Position<Currency>> pos_{nullptr};
-        std::vector<std::shared_ptr<Position<Currency>>> closed_{};
+        std::vector<trade<Currency>> closed_{};
         std::vector<candle> candles_{};
-        int pos_size_;
+        std::size_t pos_size_;
         currency::pair<Currency> pair_;
+        trade<Currency> curr_;
 
     public:
-        test_box(std::vector<candle> candles, int pos_size, const currency::pair<Currency>& pair)
-                :candles_(std::move(candles)), pos_size_(pos_size), pair_(pair) { }
+        test_box(std::vector<candle> candles, std::size_t pos_size, const currency::pair<Currency>& pair)
+                :candles_(std::move(candles)), pos_size_(pos_size), pair_(pair), curr_(pair) { }
 
         template<typename ...Args>
         void operator()(Args... args)
@@ -42,20 +43,21 @@ namespace trading {
 
             // collect positions
             for (const auto& candle : candles_) {
-                action_ = (*strategy_)(candle::ohlc4(candle));
+                price mean_price = candle::ohlc4(candle);
+                action_ = (*strategy_)(mean_price);
 
                 if (action_) {
-                    auto point = trading::point(candle.get_close(), candle.get_created());
+                    point created{mean_price, candle.created()};
 
-                    // open position
+                    // open trade
                     if (action_==action::buy) {
-                        pos_ = std::make_shared<Position<Currency>>
-                                (point, pos_size_, pair_);
+                        curr_ = trade<Currency>(pair_, position{pos_size_, created});
                     }
-                    // close position
+                    // close trade
                     else if (action_==action::sell) {
-                        pos_->set_exit(point);
-                        closed_.push_back(pos_);
+                        curr_.sell_all(created);
+                        assert(curr_.size()==0.0);
+                        closed_.push_back(curr_);
                     }
                 }
             }
