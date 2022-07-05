@@ -24,27 +24,22 @@ namespace trading {
         trade(const currency::pair<Currency>& pair, const position& pos)
                 :pair_(pair)
         {
-            buy(pos);
+            add_opened(pos);
         }
 
-        void buy(const position& pos)
+        void add_opened(const position& pos)
         {
             size_ += pos.size();
             open_pos_.emplace_back(pos);
         }
 
-        void sell(const position& pos)
+        void add_closed(const position& pos)
         {
             if (pos.size()>size_)
-                throw std::logic_error("Cannot sell more than was bought");
+                throw std::logic_error("Cannot add closed position. Trade size is smaller than position size");
 
             size_ -= pos.size();
             close_pos_.emplace_back(pos);
-        }
-
-        void sell_all(const point& created)
-        {
-            sell(position{size_, created});
         }
 
         std::size_t size() const
