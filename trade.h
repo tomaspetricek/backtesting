@@ -12,8 +12,8 @@
 namespace trading {
     template<typename Currency>
     class trade {
-        std::vector<position> open_pos_;
-        std::vector<position> close_pos_;
+        std::vector<position> opened_;
+        std::vector<position> closed_;
         currency::pair<Currency> pair_;
         std::size_t size_ = 0;
 
@@ -30,7 +30,7 @@ namespace trading {
         void add_opened(const position& pos)
         {
             size_ += pos.size();
-            open_pos_.emplace_back(pos);
+            opened_.emplace_back(pos);
         }
 
         void add_closed(const position& pos)
@@ -39,7 +39,7 @@ namespace trading {
                 throw std::logic_error("Cannot add closed position. Trade size is smaller than position size");
 
             size_ -= pos.size();
-            close_pos_.emplace_back(pos);
+            closed_.emplace_back(pos);
         }
 
         std::size_t size() const
