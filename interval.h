@@ -7,10 +7,10 @@
 
 template<int min, int max, typename MinComparator, typename MaxComparator>
 class interval {
+    static_assert(min<max);
+
 protected:
     double val_;
-
-    static_assert(min<max);
 
     static double validate(double val)
     {
@@ -31,16 +31,14 @@ public:
 };
 
 template<int min, int max>
-class open_interval : public interval<min, max, std::greater<double>, std::less<double>>
-{
+class open_interval : public interval<min, max, std::greater<double>, std::less<double>> {
 public:
     explicit open_interval(double val)
         : interval<min, max, std::greater<double>, std::less<double>>(val) {}
 };
 
 template<int min, int max>
-class closed_interval : public interval<min, max, std::greater_equal<double>, std::less_equal<double>>
-{
+class closed_interval : public interval<min, max, std::greater_equal<double>, std::less_equal<double>> {
 public:
     explicit closed_interval(double val)
         : interval<min, max, std::greater_equal<double>, std::less_equal<double>>(val) {}
@@ -48,8 +46,7 @@ public:
 
 // does not contain maximum
 template<int min, int max>
-class right_open_interval : public interval<min, max, std::greater_equal<double>, std::less<double>>
-{
+class right_open_interval : public interval<min, max, std::greater_equal<double>, std::less<double>> {
 public:
     explicit right_open_interval(double val)
         : interval<min, max, std::greater_equal<double>, std::less<double>>(val) {}
@@ -57,8 +54,7 @@ public:
 
 // does not contain minimum
 template<int min, int max>
-class left_open_interval : public interval<min, max, std::greater<double>, std::less_equal<double>>
-{
+class left_open_interval : public interval<min, max, std::greater<double>, std::less_equal<double>> {
 public:
     explicit left_open_interval(double val)
         : interval<min, max, std::greater<double>, std::less_equal<double>>(val) { }
