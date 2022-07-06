@@ -48,20 +48,17 @@ namespace trading {
                 action_ = (*strategy_)(mean_price);
 
                 if (action_) {
-                    point created{mean_price, candle_it->created()};
-
                     // buy
                     if (action_==action::buy) {
-                        curr_.add_opened(position{pos_size_, created});
+                        curr_.add_opened(position{pos_size_, mean_price, candle_it->created()});
                     }
-                        // sell
+                    // sell
                     else if (action_==action::sell) {
-                        curr_.add_closed(position{pos_size_, created});
+                        curr_.add_closed(position{pos_size_, mean_price, candle_it->created()});
                     }
-                        // sell all
+                    // sell all
                     else if (action_==action::sell_all) {
-                        std::size_t trade_size = curr_.size();
-                        curr_.add_closed(position{trade_size, created});
+                        curr_.add_closed(position{curr_.size(), mean_price, candle_it->created()});
                         assert(curr_.size()==0.0);
                     }
 
@@ -73,10 +70,8 @@ namespace trading {
                 }
 
                 // close last trade if not closed at the end
-                if (candle_it+1==candles_.end() && curr_.size()>0) {
-                    std::size_t trade_size = curr_.size();
-                    curr_.add_closed(position{trade_size, point{mean_price, candle_it->created()}});
-                }
+                if (candle_it+1==candles_.end() && curr_.size()>0)
+                    curr_.add_closed(position{curr_.size(), mean_price, candle_it->created()});
             }
         }
     };

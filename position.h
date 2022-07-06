@@ -9,33 +9,28 @@
 
 #include "currency.h"
 #include "price.h"
-#include "point.h"
 
 namespace trading {
     class position {
         std::size_t size_;
-        point created_;
+        price price_;
+        std::time_t created_;
 
     public:
-        position(std::size_t size, const point& created)
-                :size_(size), created_(created) { }
+        position(size_t size, const price& price, time_t created)
+                :size_(size), price_(price), created_(created) { }
 
-        position(std::size_t size, const price& price, time_t created)
-                :size_(size), created_(price, created) { }
-
-        std::size_t size() const
+        size_t size() const
         {
             return size_;
         }
-
-        time_t time_created() const
+        const price& price() const
         {
-            return created_.time();
+            return price_;
         }
-
-        price price_created() const
+        time_t created() const
         {
-            return created_.price();
+            return created_;
         }
     };
 }
