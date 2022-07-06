@@ -18,7 +18,7 @@ namespace trading {
         }
 
     public:
-        explicit price(double value=0.0)
+        explicit price(double value = 0.0)
                 :val_(validate(value)) { }
 
         bool operator<(const price& rhs) const
@@ -66,7 +66,8 @@ namespace trading {
             return price{val_/val};
         }
 
-        explicit operator double() const {
+        explicit operator double() const
+        {
             return val_;
         }
     };

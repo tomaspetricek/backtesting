@@ -12,7 +12,7 @@
 #include "tuple.h"
 
 namespace trading::strategy::optimizer {
-    template<typename ReturnType, class ...Types>
+    template<class ...Types>
     class brute_force {
         std::tuple<Types...> input_;
 
@@ -39,17 +39,19 @@ namespace trading::strategy::optimizer {
         }
 
     public:
-        ReturnType operator()(util::range<Types>... ranges, const std::function<ReturnType(Types...)>& func)
+        std::tuple<Types...> operator()(util::range<Types>... ranges, const std::function<void(Types...)>& func)
         {
             // initialize input
             input_ = std::make_tuple((*(ranges.begin()))...);
 
             // call nested loop
             nested_for<sizeof...(Types)>(std::forward_as_tuple(ranges...), func);
+
+            return input_;
         }
     };
 
-    template<typename ReturnType, typename Type, std::size_t size>
+    template<typename Type, std::size_t size>
     class brute_force_sliding {
         tuple_of<Type, size> input_;
 
@@ -73,7 +75,7 @@ namespace trading::strategy::optimizer {
                         std::throw_with_nested(std::runtime_error("Exception thrown while calling a function"));
                     }
                 }
-                // call inner loop
+                    // call inner loop
                 else {
                     nested_for<Depth-1>(util::range<Type>{val+shift, *args.end()+shift, args.step()}, shift, func);
                 }
@@ -82,10 +84,12 @@ namespace trading::strategy::optimizer {
 
     public:
         template<class Callable>
-        ReturnType operator()(const util::range<Type>& args, const Type& shift, const Callable& func)
+        tuple_of<Type, size> operator()(const util::range<Type>& args, const Type& shift, const Callable& func)
         {
             // call nested loop
             nested_for<size>(args, shift, func);
+
+            return input_;
         }
     };
 }

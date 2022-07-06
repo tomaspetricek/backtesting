@@ -13,6 +13,7 @@
 #include "currency.h"
 #include "position.h"
 #include "trade.h"
+#include "fraction.h"
 
 namespace trading {
     template<typename Currency, typename Strategy>
@@ -53,11 +54,11 @@ namespace trading {
                     if (action_==action::buy) {
                         curr_.add_opened(position{pos_size_, created});
                     }
-                    // sell
+                        // sell
                     else if (action_==action::sell) {
                         curr_.add_closed(position{pos_size_, created});
                     }
-                    // sell all
+                        // sell all
                     else if (action_==action::sell_all) {
                         std::size_t trade_size = curr_.size();
                         curr_.add_closed(position{trade_size, created});

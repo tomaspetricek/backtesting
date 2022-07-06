@@ -44,7 +44,7 @@ void run()
     int step{1};
     int shift{1};
     int max_short_period{100+step}; // make inclusive
-    optimizer::brute_force_sliding<int, int, 3> optim{};
+    optimizer::brute_force_sliding<int, 3> optim{};
     optim(util::range<int>(min_short_period, max_short_period, step), shift, box);
 }
 
@@ -52,7 +52,7 @@ void use_formulas()
 {
     price entry{1.1246};
     price exit{1.1077};
-    std::cout << "percent percent_gain: " << formula::percent_gain(entry, exit) << " %" << std::endl;
+    std::cout << "percent gain: " << formula::percent_gain(entry, exit) << " %" << std::endl;
 }
 
 void use_indicators()

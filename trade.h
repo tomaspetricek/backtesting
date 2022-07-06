@@ -9,9 +9,7 @@
 #include <cmath>
 
 #include "position.h"
-#include "interval.h"
-
-typedef left_open_interval<0, 1> part;
+#include "fraction.h"
 
 namespace trading {
     template<typename Currency>
@@ -51,9 +49,9 @@ namespace trading {
             return size_;
         }
 
-        std::size_t calculate_position_size(const part& trade_part)
+        std::size_t calculate_position_size(const fraction& trade_frac)
         {
-            return std::round(size_*static_cast<double>(trade_part));
+            return std::round(size_*static_cast<double>(trade_frac));
         }
     };
 }
