@@ -54,8 +54,6 @@ namespace trading::indicator {
         }
 
         ~ema() override = default;
-
-        int period() const { return period_; }
     };
 }
 

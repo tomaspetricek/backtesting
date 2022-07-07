@@ -25,6 +25,11 @@ namespace trading::indicator {
         virtual double operator()(double sample) = 0;
 
         virtual ~moving_average() = default;
+
+        int period() const
+        {
+            return period_;
+        }
     };
 }
 
