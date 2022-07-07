@@ -48,44 +48,42 @@ void run()
     optim(util::range<int>(min_short_period, max_short_period, step), shift, box);
 }
 
-void use_formulas()
+template<typename Indicator>
+void print_vals(Indicator indic, const std::vector<double>& samples)
 {
-    price entry{1.1246};
-    price exit{1.1077};
-    std::cout << "percent gain: " << formula::percent_gain(entry, exit) << " %" << std::endl;
+    for (const double& val : samples) {
+        try {
+            std::cout << indic(val) << ", ";
+        }
+        catch (const not_ready& ex) {
+            print_exception(ex);
+        }
+    }
+    std::cout << std::endl;
 }
 
 void use_indicators()
 {
     // use sma
-    std::vector<double> vals{10, 11, 11.5, 10.75, 12, 11.75, 12.25, 14, 16, 17, 15.6, 15.75, 16, 14, 16.5, 17, 17.25,
-                             18, 18.75, 20};
-    indicator::sma sma{5};
+    std::vector<double> samples{10, 11, 11.5, 10.75, 12, 11.75, 12.25, 14, 16, 17, 15.6, 15.75, 16, 14, 16.5, 17, 17.25,
+                                18, 18.75, 20};
 
+    // use sma
+    indicator::sma sma{5};
     std::cout << "sma:" << std::endl;
-    for (const double& val : vals) {
-        try {
-            std::cout << sma(val) << ", ";
-        }
-        catch (const not_ready& ex) {
-            print_exception(ex);
-        }
-    }
-    std::cout << std::endl;
+    print_vals(sma, samples);
 
     // use ema
     indicator::ema ema{5};
-
     std::cout << "ema:" << std::endl;
-    for (const double& val : vals) {
-        try {
-            std::cout << ema(val) << ", ";
-        }
-        catch (const not_ready& ex) {
-            print_exception(ex);
-        }
-    }
-    std::cout << std::endl;
+    print_vals(ema, samples);
+}
+
+void use_formulas()
+{
+    price entry{1.1246};
+    price exit{1.1077};
+    std::cout << "percent gain: " << formula::percent_gain(entry, exit) << " %" << std::endl;
 }
 
 int main()
