@@ -10,6 +10,7 @@
 #include "formula.h"
 #include "price.h"
 #include "sma.h"
+#include "interval.h"
 
 using namespace trading;
 using namespace currency;
@@ -86,19 +87,32 @@ void use_formulas()
     std::cout << "percent gain: " << formula::percent_gain(entry, exit) << " %" << std::endl;
 }
 
+void use_interval()
+{
+    constexpr validator::right_open_interval<0, 1> validator;
+
+    try {
+        validator(1);
+    }
+    catch (const std::exception& ex) {
+        print_exception(ex);
+    }
+}
+
 int main()
 {
     // show demo
     use_formulas();
     use_indicators();
+    use_interval();
 
     // run program
     try {
         run();
     }
         // show exceptions
-    catch (const std::exception& e) {
-        print_exception(e);
+    catch (const std::exception& ex) {
+        print_exception(ex);
     }
 
     return 0;
