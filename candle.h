@@ -38,19 +38,19 @@ namespace trading {
         // mean high and low
         static price hl2(const candle& candle)
         {
-            return mean(candle.high_, candle.low_);
+            return price{mean(candle.high_, candle.low_)};
         }
 
         // mean open, high, low, close
         static price hlc3(const candle& candle)
         {
-            return mean(candle.high_, candle.low_, candle.close_);
+            return price{mean(candle.high_, candle.low_, candle.close_)};
         }
 
         // mean open, high, low, close
         static price ohlc4(const candle& candle)
         {
-            return mean(candle.open_, candle.high_, candle.low_, candle.close_);
+            return price{mean(candle.open_, candle.high_, candle.low_, candle.close_)};
         }
 
         std::time_t created() const

@@ -19,9 +19,9 @@ auto sum(Type... vals)
 }
 
 template<typename... Type>
-auto mean(Type... vals)
+double mean(Type... vals)
 {
-    return sum(vals...)/sizeof...(vals);
+    return static_cast<double>(sum(vals...))/sizeof...(vals);
 }
 
 #endif //EMASTRATEGY_PACK_H
