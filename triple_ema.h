@@ -23,8 +23,9 @@ namespace trading::strategy {
         indicator::ema long_ema_; // low moving
         bool pos_opened = false;
 
-        explicit triple_ema(indicator::ema short_ema, indicator::ema middle_ema, indicator::ema long_ema)
-                :short_ema_(std::move(short_ema)), middle_ema_(std::move(middle_ema)), long_ema_(std::move(long_ema))
+        explicit triple_ema(const indicator::ema& short_ema, const indicator::ema& middle_ema,
+                const indicator::ema& long_ema)
+                :short_ema_(short_ema), middle_ema_(middle_ema), long_ema_(long_ema)
         {
             if (short_ema_.period()>=middle_ema_.period())
                 throw std::invalid_argument("Short ema period has to be shorter than middle ema period");
@@ -79,12 +80,12 @@ namespace trading::strategy {
                 pos_opened = true;
                 return action::buy;
             }
-            // sell
+                // sell
             else if (curr_short<curr_middle && pos_opened) {
                 pos_opened = false;
                 return action::sell;
             }
-            // do nothing
+                // do nothing
             else {
                 return std::nullopt;
             }

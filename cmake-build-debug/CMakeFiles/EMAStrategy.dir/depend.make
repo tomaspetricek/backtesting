@@ -11,6 +11,7 @@ CMakeFiles/EMAStrategy.dir/main.cpp.o: ../formula.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../fraction.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../interval.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../main.cpp
+CMakeFiles/EMAStrategy.dir/main.cpp.o: ../moving_average.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../pack.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../position.h
 CMakeFiles/EMAStrategy.dir/main.cpp.o: ../price.h

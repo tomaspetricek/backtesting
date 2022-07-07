@@ -2,34 +2,26 @@
 // Created by Tomáš Petříček on 25.06.2022.
 //
 
-#ifndef EMASTRATEGY_MOVING_AVERAGE_H
-#define EMASTRATEGY_MOVING_AVERAGE_H
+#ifndef EMASTRATEGY_EMA_H
+#define EMASTRATEGY_EMA_H
 
 #include <numeric>
 
 #include "exceptions.h"
 #include "price.h"
+#include "moving_average.h"
 #include "sma.h"
 
 namespace trading::indicator {
 
     // https://plainenglish.io/blog/how-to-calculate-the-ema-of-a-stock-with-python
     // exponential moving average
-    class ema {
-        const int period_;
+    class ema : public moving_average {
         bool ready_ = false;
         indicator::sma sma;
         double prev_val_ = 0;
         int smoothing_ = 2;
         double weighting_factor_ = static_cast<double>(smoothing_)/(period_+1);
-
-        static int validate_period(int period)
-        {
-            if (period<=1)
-                throw std::invalid_argument("Period has to be greater than 1");
-
-            return period;
-        }
 
         static int validate_smoothing(int smoothing)
         {
@@ -41,9 +33,9 @@ namespace trading::indicator {
 
     public:
         explicit ema(int period = 1, int smoothing = 2)
-                :period_(validate_period(period)), smoothing_(validate_smoothing(smoothing)), sma(period) { }
+                :moving_average(period), smoothing_(validate_smoothing(smoothing)), sma(period) { }
 
-        double operator()(double sample)
+        double operator()(double sample) override
         {
             if (!ready_) {
                 try {
@@ -61,8 +53,10 @@ namespace trading::indicator {
             return prev_val_;
         }
 
+        ~ema() override = default;
+
         int period() const { return period_; }
     };
 }
 
-#endif //EMASTRATEGY_MOVING_AVERAGE_H
+#endif //EMASTRATEGY_EMA_H
