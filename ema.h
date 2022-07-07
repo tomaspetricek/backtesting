@@ -17,7 +17,6 @@ namespace trading::indicator {
     // https://plainenglish.io/blog/how-to-calculate-the-ema-of-a-stock-with-python
     // exponential moving average
     class ema : public moving_average {
-        bool ready_ = false;
         indicator::sma sma;
         double prev_val_ = 0;
         int smoothing_ = 2;
@@ -35,21 +34,27 @@ namespace trading::indicator {
         explicit ema(int period = 1, int smoothing = 2)
                 :moving_average(period), smoothing_(validate_smoothing(smoothing)), sma(period) { }
 
-        double operator()(double sample) override
+        ema& operator()(double sample) override
         {
-            if (!ready_) {
-                try {
-                    prev_val_ = sma(sample);
+            if (!sma.is_ready()) {
+                sma(sample);
+
+                if (sma.is_ready()) {
+                    prev_val_ = static_cast<double>(sma);
                     ready_ = true;
-                    return prev_val_;
-                }
-                catch (const not_ready& ex) {
-                    std::throw_with_nested(not_ready("Not enough prices to calculate initial ema"));
                 }
             }
 
             // calculate current ema
             prev_val_ = (sample*weighting_factor_)+(prev_val_*(1-weighting_factor_));
+            return *this;
+        }
+
+        explicit operator double() const override
+        {
+            if (!ready_)
+                throw not_ready("Not enough prices to calculate initial ema");
+
             return prev_val_;
         }
 

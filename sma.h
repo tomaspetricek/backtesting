@@ -29,26 +29,32 @@ namespace trading::indicator {
         explicit sma(int period = 1)
                 :moving_average(period) { }
 
-        double operator()(double sample) override
+        sma& operator()(double sample) override
         {
             sum_samples_ += sample;
             samples_.push(sample);
 
-            // not enough samples
-            if (samples_.size()<period_) {
-                throw not_ready("Not enough initial prices yet. Need "
-                        +std::to_string(period_-samples_.size())+" more");
-            }
-                // move - remove old sample
-            else if (samples_.size()>period_) {
+            if (samples_.size()>=period_)
+                ready_ = true;
+
+            // move
+            if (samples_.size()>period_) {
                 double oldest = samples_.front();
                 sum_samples_ -= oldest;
                 samples_.pop();
             }
 
-            return sum_samples_/samples_.size();
+            return *this;
         }
 
+        explicit operator double() const override
+        {
+            if (!ready_)
+                throw not_ready("Not enough initial prices yet. Need "
+                        +std::to_string(period_-samples_.size())+" more");
+
+            return sum_samples_/samples_.size();
+        }
         ~sma() override = default;
     };
 }

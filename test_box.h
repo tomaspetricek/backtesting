@@ -42,23 +42,25 @@ namespace trading {
                 std::throw_with_nested(std::runtime_error("Cannot create strategy"));
             }
 
+            price mean_price;
+
             // collect trades
-            for (auto candle_it = candles_.begin(); candle_it!=candles_.end(); candle_it++) {
-                price mean_price = candle::ohlc4(*candle_it);
+            for (const candle& candle : candles_) {
+                mean_price = candle::ohlc4(candle);
                 action_ = (*strategy_)(mean_price);
 
                 if (action_) {
                     // buy
                     if (action_==action::buy) {
-                        curr_.add_opened(position{pos_size_, mean_price, candle_it->created()});
+                        curr_.add_opened(position{pos_size_, mean_price, candle.created()});
                     }
-                    // sell
+                        // sell
                     else if (action_==action::sell) {
-                        curr_.add_closed(position{pos_size_, mean_price, candle_it->created()});
+                        curr_.add_closed(position{pos_size_, mean_price, candle.created()});
                     }
-                    // sell all
+                        // sell all
                     else if (action_==action::sell_all) {
-                        curr_.add_closed(position{curr_.size(), mean_price, candle_it->created()});
+                        curr_.add_closed(position{curr_.size(), mean_price, candle.created()});
                         assert(curr_.size()==0.0);
                     }
 
@@ -68,11 +70,11 @@ namespace trading {
                         curr_ = trade(pair_);
                     }
                 }
-
-                // close last trade if not closed at the end
-                if (candle_it+1==candles_.end() && curr_.size()>0)
-                    curr_.add_closed(position{curr_.size(), mean_price, candle_it->created()});
             }
+
+            // close last trade if not closed at the end
+            if (curr_.size()>0)
+                curr_.add_closed(position{curr_.size(), mean_price, candles_.back().created()});
         }
     };
 }

@@ -53,12 +53,10 @@ template<typename Indicator>
 void print_vals(Indicator indic, const std::vector<double>& samples)
 {
     for (const double& val : samples) {
-        try {
-            std::cout << indic(val) << ", ";
-        }
-        catch (const not_ready& ex) {
-            print_exception(ex);
-        }
+        indic(val);
+
+        if (indic.is_ready())
+            std::cout << static_cast<double>(indic);
     }
     std::cout << std::endl;
 }

@@ -17,18 +17,26 @@ namespace trading::indicator {
 
     protected:
         int period_;
+        bool ready_ = false;
 
     public:
         explicit moving_average(int period = 1)
                 :period_(period) { }
 
-        virtual double operator()(double sample) = 0;
+        virtual moving_average& operator()(double sample) = 0;
+
+        virtual explicit operator double() const = 0;
 
         virtual ~moving_average() = default;
 
         int period() const
         {
             return period_;
+        }
+
+        bool is_ready() const
+        {
+            return ready_;
         }
     };
 }

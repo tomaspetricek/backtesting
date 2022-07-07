@@ -21,7 +21,8 @@ namespace trading::strategy {
         indicator::ema short_ema_; // fast moving
         indicator::ema middle_ema_; // slow
         indicator::ema long_ema_; // low moving
-        bool pos_opened = false;
+        bool pos_opened_ = false;
+        bool indicators_ready_ = false;
 
         explicit triple_ema(const indicator::ema& short_ema, const indicator::ema& middle_ema,
                 const indicator::ema& long_ema)
@@ -32,6 +33,17 @@ namespace trading::strategy {
 
             if (middle_ema_.period()>=long_ema_.period())
                 throw std::invalid_argument("Middle ema period has to be shorter than long ema period");
+        }
+
+        void update_indicators(const price& curr)
+        {
+            auto curr_val = static_cast<double>(curr);
+            short_ema_(curr_val);
+            middle_ema_(curr_val);
+            long_ema_(curr_val);
+
+            if (long_ema_.is_ready())
+                indicators_ready_ = true;
         }
 
     public:
@@ -58,31 +70,23 @@ namespace trading::strategy {
 
         std::optional<action> operator()(const price& curr) override
         {
-            double curr_short, curr_middle, curr_long;
+            update_indicators(curr);
 
-            // get indicator values
-            try {
-                auto curr_val = static_cast<double>(curr);
-                curr_short = short_ema_(curr_val);
-                curr_middle = middle_ema_(curr_val);
-                curr_long = long_ema_(curr_val);
-            }
-                // indicators are not ready to decide
-            catch (const not_ready& exp) {
+            if (!indicators_ready_)
                 return std::nullopt;
-            }
-            catch (...) {
-                std::throw_with_nested(std::runtime_error("Cannot calculate ema value"));
-            }
+
+            auto curr_short = static_cast<double>(short_ema_);
+            auto curr_middle = static_cast<double>(middle_ema_);
+            auto curr_long = static_cast<double>(long_ema_);
 
             // buy
-            if (curr_middle>curr_long && curr_middle<curr_short && !pos_opened) {
-                pos_opened = true;
+            if (curr_middle>curr_long && curr_middle<curr_short && !pos_opened_) {
+                pos_opened_ = true;
                 return action::buy;
             }
                 // sell
-            else if (curr_short<curr_middle && pos_opened) {
-                pos_opened = false;
+            else if (curr_short<curr_middle && pos_opened_) {
+                pos_opened_ = false;
                 return action::sell;
             }
                 // do nothing
@@ -105,31 +109,23 @@ namespace trading::strategy {
 
         std::optional<action> operator()(const price& curr) override
         {
-            double curr_short, curr_middle, curr_long;
+            update_indicators(curr);
 
-            // get indicator values
-            try {
-                auto curr_val = static_cast<double>(curr);
-                curr_short = short_ema_(curr_val);
-                curr_middle = middle_ema_(curr_val);
-                curr_long = long_ema_(curr_val);
-            }
-                // indicators are not ready to decide
-            catch (const not_ready& exp) {
+            if (!indicators_ready_)
                 return std::nullopt;
-            }
-            catch (...) {
-                std::throw_with_nested(std::runtime_error("Cannot calculate ema value"));
-            }
+
+            auto curr_short = static_cast<double>(short_ema_);
+            auto curr_middle = static_cast<double>(middle_ema_);
+            auto curr_long = static_cast<double>(long_ema_);
 
             // buy
-            if (curr_middle<curr_long && curr_middle>curr_short && !pos_opened) {
-                pos_opened = true;
+            if (curr_middle<curr_long && curr_middle>curr_short && !pos_opened_) {
+                pos_opened_ = true;
                 return action::buy;
             }
                 // sell
-            else if (curr_short>curr_middle && pos_opened) {
-                pos_opened = false;
+            else if (curr_short>curr_middle && pos_opened_) {
+                pos_opened_ = false;
                 return action::sell;
             }
                 // do nothing
