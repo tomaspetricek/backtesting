@@ -2,15 +2,7 @@
 #include <vector>
 #include <memory>
 
-#include "exceptions.h"
-#include "read.h"
-#include "currency.h"
-#include "brute_force.h"
-#include "test_box.h"
-#include "formula.h"
-#include "price.h"
-#include "sma.h"
-#include "interval.h"
+#include <trading.hpp>
 
 using namespace trading;
 using namespace currency;
@@ -46,7 +38,7 @@ void run()
     int shift{1};
     int max_short_period{100+step}; // make inclusive
     optimizer::brute_force_sliding<int, 3> optim{};
-    optim(util::range<int>(min_short_period, max_short_period, step), shift, box);
+    optim(trading::range<int>(min_short_period, max_short_period, step), shift, box);
 }
 
 template<typename Indicator>

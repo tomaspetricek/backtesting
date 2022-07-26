@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 07.07.2022.
 //
 
-#ifndef EMASTRATEGY_MOVING_AVERAGE_H
-#define EMASTRATEGY_MOVING_AVERAGE_H
+#ifndef EMASTRATEGY_MOVING_AVERAGE_HPP
+#define EMASTRATEGY_MOVING_AVERAGE_HPP
 
 namespace trading::indicator {
     class moving_average {
@@ -41,4 +41,4 @@ namespace trading::indicator {
     };
 }
 
-#endif //EMASTRATEGY_MOVING_AVERAGE_H
+#endif //EMASTRATEGY_MOVING_AVERAGE_HPP

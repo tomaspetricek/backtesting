@@ -2,15 +2,15 @@
 // Created by Tomáš Petříček on 25.06.2022.
 //
 
-#ifndef EMASTRATEGY_EMA_H
-#define EMASTRATEGY_EMA_H
+#ifndef EMASTRATEGY_EMA_HPP
+#define EMASTRATEGY_EMA_HPP
 
 #include <numeric>
 
-#include "exceptions.h"
-#include "price.h"
-#include "moving_average.h"
-#include "sma.h"
+#include <trading/exception.hpp>
+#include <trading/price.hpp>
+#include <trading/indicator/moving_average.hpp>
+#include <trading/indicator/sma.hpp>
 
 namespace trading::indicator {
 
@@ -62,4 +62,4 @@ namespace trading::indicator {
     };
 }
 
-#endif //EMASTRATEGY_EMA_H
+#endif //EMASTRATEGY_EMA_HPP

@@ -1,5 +1,5 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/EMAStrategy.dir/main.cpp.o"
+  "CMakeFiles/EMAStrategy.dir/src/main.cpp.o"
   "EMAStrategy"
   "EMAStrategy.pdb"
 )

@@ -2,11 +2,11 @@
 // Created by Tomáš Petříček on 27.06.2022.
 //
 
-#ifndef EMASTRATEGY_CANDLE_H
-#define EMASTRATEGY_CANDLE_H
+#ifndef EMASTRATEGY_CANDLE_HPP
+#define EMASTRATEGY_CANDLE_HPP
 
-#include "price.h"
-#include "pack.h"
+#include <trading/price.hpp>
+#include <trading/pack.hpp>
 
 namespace trading {
     class candle {
@@ -80,4 +80,4 @@ namespace trading {
     };
 }
 
-#endif //EMASTRATEGY_CANDLE_H
+#endif //EMASTRATEGY_CANDLE_HPP

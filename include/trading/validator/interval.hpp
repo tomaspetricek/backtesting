@@ -2,10 +2,11 @@
 // Created by Tomáš Petříček on 05.07.2022.
 //
 
-#ifndef EMASTRATEGY_INTERVAL_H
-#define EMASTRATEGY_INTERVAL_H
+#ifndef EMASTRATEGY_INTERVAL_HPP
+#define EMASTRATEGY_INTERVAL_HPP
 
 #include <string_view>
+#include <sstream>
 
 namespace trading::validator {
     template<int min, int max, typename MinComparator, typename MaxComparator>
@@ -63,4 +64,4 @@ namespace trading::validator {
     };
 }
 
-#endif //EMASTRATEGY_INTERVAL_H
+#endif //EMASTRATEGY_INTERVAL_HPP

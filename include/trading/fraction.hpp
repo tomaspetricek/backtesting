@@ -2,10 +2,10 @@
 // Created by Tomáš Petříček on 06.07.2022.
 //
 
-#ifndef EMASTRATEGY_FRACTION_H
-#define EMASTRATEGY_FRACTION_H
+#ifndef EMASTRATEGY_FRACTION_HPP
+#define EMASTRATEGY_FRACTION_HPP
 
-#include "interval.h"
+#include <trading/validator/interval.hpp>
 
 namespace trading {
     class fraction {
@@ -23,4 +23,4 @@ namespace trading {
     };
 }
 
-#endif //EMASTRATEGY_FRACTION_H
+#endif //EMASTRATEGY_FRACTION_HPP

@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 26.06.2022.
 //
 
-#ifndef EMASTRATEGY_ACTION_H
-#define EMASTRATEGY_ACTION_H
+#ifndef EMASTRATEGY_ACTION_HPP
+#define EMASTRATEGY_ACTION_HPP
 
 namespace trading {
     class action {
@@ -54,4 +54,4 @@ namespace trading {
     };
 }
 
-#endif //EMASTRATEGY_ACTION_H
+#endif //EMASTRATEGY_ACTION_HPP

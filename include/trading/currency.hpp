@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 26.06.2022.
 //
 
-#ifndef EMASTRATEGY_CURRENCY_H
-#define EMASTRATEGY_CURRENCY_H
+#ifndef EMASTRATEGY_CURRENCY_HPP
+#define EMASTRATEGY_CURRENCY_HPP
 
 namespace trading::currency {
     enum class crypto {
@@ -33,4 +33,4 @@ namespace trading::currency {
     };
 }
 
-#endif //EMASTRATEGY_CURRENCY_H
+#endif //EMASTRATEGY_CURRENCY_HPP

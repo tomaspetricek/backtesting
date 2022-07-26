@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 03.07.2022.
 //
 
-#ifndef EMASTRATEGY_PRICE_H
-#define EMASTRATEGY_PRICE_H
+#ifndef EMASTRATEGY_PRICE_HPP
+#define EMASTRATEGY_PRICE_HPP
 
 namespace trading {
     class price {
@@ -73,4 +73,4 @@ namespace trading {
     };
 }
 
-#endif //EMASTRATEGY_PRICE_H
+#endif //EMASTRATEGY_PRICE_HPP

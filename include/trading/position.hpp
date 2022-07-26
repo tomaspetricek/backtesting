@@ -2,13 +2,13 @@
 // Created by Tomáš Petříček on 05.07.2022.
 //
 
-#ifndef EMASTRATEGY_POSITION_H
-#define EMASTRATEGY_POSITION_H
+#ifndef EMASTRATEGY_POSITION_HPP
+#define EMASTRATEGY_POSITION_HPP
 
 #include <ostream>
 
-#include "currency.h"
-#include "price.h"
+#include <trading/currency.hpp>
+#include <trading/price.hpp>
 
 namespace trading {
     class position {
@@ -35,4 +35,4 @@ namespace trading {
     };
 }
 
-#endif //EMASTRATEGY_POSITION_H
+#endif //EMASTRATEGY_POSITION_HPP

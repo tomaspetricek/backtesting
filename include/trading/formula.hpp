@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 29.06.2022.
 //
 
-#ifndef EMASTRATEGY_FORMULA_H
-#define EMASTRATEGY_FORMULA_H
+#ifndef EMASTRATEGY_FORMULA_HPP
+#define EMASTRATEGY_FORMULA_HPP
 
 typedef double percentage;
 
@@ -36,4 +36,4 @@ namespace trading::formula {
     }
 }
 
-#endif //EMASTRATEGY_FORMULA_H
+#endif //EMASTRATEGY_FORMULA_HPP

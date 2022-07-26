@@ -2,14 +2,14 @@
 // Created by Tomáš Petříček on 30.06.2022.
 //
 
-#ifndef EMASTRATEGY_BRUTE_FORCE_H
-#define EMASTRATEGY_BRUTE_FORCE_H
+#ifndef EMASTRATEGY_BRUTE_FORCE_HPP
+#define EMASTRATEGY_BRUTE_FORCE_HPP
 
 #include <tuple>
 #include <array>
 
-#include "range.h"
-#include "tuple.h"
+#include <trading/range.hpp>
+#include <trading/tuple.hpp>
 
 namespace trading::strategy::optimizer {
     template<class ...Types>
@@ -18,7 +18,7 @@ namespace trading::strategy::optimizer {
 
         // https://stackoverflow.com/questions/34535795/n-dimensionally-nested-metaloops-with-templates
         template<size_t Depth, class Callable>
-        constexpr void nested_for(std::tuple<util::range<Types>...> ranges, Callable&& func)
+        constexpr void nested_for(std::tuple<range<Types>...> ranges, Callable&& func)
         {
             static_assert(Depth>0);
 
@@ -39,7 +39,7 @@ namespace trading::strategy::optimizer {
         }
 
     public:
-        std::tuple<Types...> operator()(util::range<Types>... ranges, const std::function<void(Types...)>& func)
+        std::tuple<Types...> operator()(range<Types>... ranges, const std::function<void(Types...)>& func)
         {
             // initialize input
             input_ = std::make_tuple((*(ranges.begin()))...);
@@ -56,7 +56,7 @@ namespace trading::strategy::optimizer {
         tuple_of<Type, size> input_;
 
         template<size_t Depth, class Callable>
-        constexpr void nested_for(const util::range<Type> args, const Type& shift, Callable&& func)
+        constexpr void nested_for(const range<Type> args, const Type& shift, Callable&& func)
         {
             static_assert(Depth>0);
             constexpr int idx = size-Depth;
@@ -77,14 +77,14 @@ namespace trading::strategy::optimizer {
                 }
                     // call inner loop
                 else {
-                    nested_for<Depth-1>(util::range<Type>{val+shift, *args.end()+shift, args.step()}, shift, func);
+                    nested_for<Depth-1>(range<Type>{val+shift, *args.end()+shift, args.step()}, shift, func);
                 }
             }
         }
 
     public:
         template<class Callable>
-        tuple_of<Type, size> operator()(const util::range<Type>& args, const Type& shift, const Callable& func)
+        tuple_of<Type, size> operator()(const range<Type>& args, const Type& shift, const Callable& func)
         {
             // call nested loop
             nested_for<size>(args, shift, func);
@@ -94,4 +94,4 @@ namespace trading::strategy::optimizer {
     };
 }
 
-#endif //EMASTRATEGY_BRUTE_FORCE_H
+#endif //EMASTRATEGY_BRUTE_FORCE_HPP

@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 04.07.2022.
 //
 
-#ifndef EMASTRATEGY_PACK_H
-#define EMASTRATEGY_PACK_H
+#ifndef EMASTRATEGY_PACK_HPP
+#define EMASTRATEGY_PACK_HPP
 
 // https://stackoverflow.com/questions/20162903/template-parameter-packs-access-nth-type-and-nth-element
 template<int Index, class... Types>
@@ -24,4 +24,4 @@ double mean(Type... vals)
     return static_cast<double>(sum(vals...))/sizeof...(vals);
 }
 
-#endif //EMASTRATEGY_PACK_H
+#endif //EMASTRATEGY_PACK_HPP

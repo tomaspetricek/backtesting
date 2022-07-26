@@ -5,4 +5,6 @@ set(CMAKE_CXX_COMPILER /usr/bin/g++)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(EMAStrategy main.cpp)
+include_directories(include)
+
+add_executable(EMAStrategy src/main.cpp)

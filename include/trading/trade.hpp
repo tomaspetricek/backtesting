@@ -2,14 +2,14 @@
 // Created by Tomáš Petříček on 05.07.2022.
 //
 
-#ifndef EMASTRATEGY_TRADE_H
-#define EMASTRATEGY_TRADE_H
+#ifndef EMASTRATEGY_TRADE_HPP
+#define EMASTRATEGY_TRADE_HPP
 
 #include <vector>
 #include <cmath>
 
-#include "position.h"
-#include "fraction.h"
+#include <trading/position.hpp>
+#include <trading/fraction.hpp>
 
 namespace trading {
     template<typename Currency>
@@ -56,4 +56,4 @@ namespace trading {
     };
 }
 
-#endif //EMASTRATEGY_TRADE_H
+#endif //EMASTRATEGY_TRADE_HPP

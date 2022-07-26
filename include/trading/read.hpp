@@ -2,16 +2,16 @@
 // Created by Tomáš Petříček on 27.06.2022.
 //
 
-#ifndef EMASTRATEGY_READ_H
-#define EMASTRATEGY_READ_H
+#ifndef EMASTRATEGY_READ_HPP
+#define EMASTRATEGY_READ_HPP
 
 #include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <chrono>
 
-#include "candle.h"
-#include "exceptions.h"
+#include <trading/candle.hpp>
+#include <trading/exception.hpp>
 
 namespace trading {
     std::vector<candle> read_candles(const std::filesystem::path& path, char delim,
@@ -84,4 +84,4 @@ namespace trading {
     }
 }
 
-#endif //EMASTRATEGY_READ_H
+#endif //EMASTRATEGY_READ_HPP

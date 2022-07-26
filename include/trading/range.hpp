@@ -2,10 +2,10 @@
 // Created by Tomáš Petříček on 30.06.2022.
 //
 
-#ifndef EMASTRATEGY_RANGE_H
-#define EMASTRATEGY_RANGE_H
+#ifndef EMASTRATEGY_RANGE_HPP
+#define EMASTRATEGY_RANGE_HPP
 
-namespace util {
+namespace trading {
 // based on: https://stackoverflow.com/questions/7185437/is-there-a-range-class-in-c11-for-use-with-range-based-for-loops
     template<typename Type>
     class range {
@@ -81,4 +81,4 @@ namespace util {
     };
 }
 
-#endif //EMASTRATEGY_RANGE_H
+#endif //EMASTRATEGY_RANGE_HPP

@@ -2,18 +2,18 @@
 // Created by Tomáš Petříček on 01.07.2022.
 //
 
-#ifndef EMASTRATEGY_TEST_BOX_H
-#define EMASTRATEGY_TEST_BOX_H
+#ifndef EMASTRATEGY_TEST_BOX_HPP
+#define EMASTRATEGY_TEST_BOX_HPP
 
 #include <utility>
 
-#include "exceptions.h"
-#include "ema.h"
-#include "triple_ema.h"
-#include "currency.h"
-#include "position.h"
-#include "trade.h"
-#include "fraction.h"
+#include <trading/exception.hpp>
+#include <trading/indicator/ema.hpp>
+#include <trading/strategy/triple_ema.hpp>
+#include <trading/currency.hpp>
+#include <trading/position.hpp>
+#include <trading/trade.hpp>
+#include <trading/fraction.hpp>
 
 namespace trading {
     template<typename Currency, typename Strategy>
@@ -79,4 +79,4 @@ namespace trading {
     };
 }
 
-#endif //EMASTRATEGY_TEST_BOX_H
+#endif //EMASTRATEGY_TEST_BOX_HPP
