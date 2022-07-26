@@ -8,14 +8,10 @@
 #include <trading/indicator/ema.hpp>
 #include <trading/indicator/moving_average.hpp>
 #include <trading/indicator/sma.hpp>
-
 #include <trading/optimizer/brute_force.hpp>
-
 #include <trading/strategy/bazooka.hpp>
 #include <trading/strategy/triple_ema.hpp>
-
 #include <trading/validator/interval.hpp>
-
 #include <trading/action.hpp>
 #include <trading/candle.hpp>
 #include <trading/currency.hpp>
