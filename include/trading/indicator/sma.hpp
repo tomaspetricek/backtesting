@@ -17,14 +17,6 @@ namespace trading::indicator {
         double sum_samples_ = 0;
         std::queue<double> samples_;
 
-        static int validate_period(int period)
-        {
-            if (period<=1)
-                throw std::invalid_argument("Period has to be greater than 1");
-
-            return period;
-        }
-
     public:
         explicit sma(int period = 1)
                 :moving_average(period) { }
@@ -55,6 +47,7 @@ namespace trading::indicator {
 
             return sum_samples_/samples_.size();
         }
+        
         ~sma() override = default;
     };
 }
