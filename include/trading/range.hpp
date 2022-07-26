@@ -48,7 +48,7 @@ namespace trading {
                 :step_(validate_step(step)), begin_(begin, step), end_(end, step)
         {
             if (begin==end) {
-                throw std::invalid_argument("Begin and has to be different");
+                throw std::invalid_argument("Begin and end has to be different");
             }
             else if (begin>end) {
                 if ((begin-end)%step!=0)
