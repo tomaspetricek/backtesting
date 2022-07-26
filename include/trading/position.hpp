@@ -16,14 +16,22 @@ namespace trading {
         price price_;
         std::time_t created_;
 
-    public:
-        position(size_t size, const price& price, time_t created)
-                :size_(size), price_(price), created_(created) { }
-
-        size_t size() const
+        static std::size_t validate_size(std::size_t size)
         {
-            return size_;
+            if (size<=0)
+                throw std::invalid_argument("Position size has to be greater than 0");
+
+            return size;
         }
+
+    public:
+        position(std::size_t size, const price& price, time_t created)
+                :size_(validate_size(size)), price_(price), created_(created) { }
+
+        // avoid implicit conversion
+        template<typename Type>
+        position(Type size, const price& price, time_t created) = delete;
+
         const price& price() const
         {
             return price_;
@@ -31,6 +39,11 @@ namespace trading {
         time_t created() const
         {
             return created_;
+        }
+
+        std::size_t size() const
+        {
+            return size_;
         }
     };
 }

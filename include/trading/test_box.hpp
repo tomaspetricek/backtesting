@@ -28,10 +28,24 @@ namespace trading {
         currency::pair<Currency> pair_;
         trade<Currency> curr_;
 
+        static std::size_t validate_pos_size(std::size_t size)
+        {
+            if (size<=0)
+                throw std::invalid_argument("Position size has to be greater than 0");
+
+            return size;
+        }
+
     public:
         test_box(std::vector<data_point<price>> price_points, std::size_t pos_size,
                 const currency::pair<Currency>& pair)
-                :price_points_(std::move(price_points)), pos_size_(pos_size), pair_(pair), curr_(pair) { }
+                :price_points_(std::move(price_points)), pos_size_(validate_pos_size(pos_size)), pair_(pair),
+                 curr_(pair) { }
+
+        // remove implicit conversion
+        template<typename Type>
+        test_box(std::vector<data_point<price>> price_points, Type pos_size,
+                const currency::pair<Currency>& pair) = delete;
 
         template<typename ...Args>
         void operator()(Args... args)
