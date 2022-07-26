@@ -51,15 +51,15 @@ namespace trading {
                 if (action_) {
                     // buy
                     if (action_==action::buy) {
-                        curr_.add_opened(position{pos_size_, point.value(), point.occurred()});
+                        curr_.add_opened(position{pos_size_, point.value(), point.happened()});
                     }
                         // sell
                     else if (action_==action::sell) {
-                        curr_.add_closed(position{pos_size_, point.value(), point.occurred()});
+                        curr_.add_closed(position{pos_size_, point.value(), point.happened()});
                     }
                         // sell all
                     else if (action_==action::sell_all) {
-                        curr_.add_closed(position{curr_.size(), point.value(), point.occurred()});
+                        curr_.add_closed(position{curr_.size(), point.value(), point.happened()});
                         assert(curr_.size()==0.0);
                     }
 
@@ -74,7 +74,7 @@ namespace trading {
             // close last trade if not closed at the end
             if (curr_.size()>0) {
                 const auto& point = price_points_.back();
-                curr_.add_closed(position{curr_.size(), point.value(), point.occurred()});
+                curr_.add_closed(position{curr_.size(), point.value(), point.happened()});
             }
         }
     };
