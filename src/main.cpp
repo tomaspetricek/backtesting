@@ -28,9 +28,16 @@ void run()
     if (candles.empty())
         throw std::runtime_error("No candles read");
 
+    // prepare price points
+    std::vector<data_point<price>> price_points;
+    price_points.reserve(candles.size());
+
+    for (const auto& candle : candles)
+        price_points.emplace_back(candle.created(), candle::ohlc4(candle));
+
     // create test box
     std::size_t pos_size{100};
-    auto box = test_box<crypto, strategy::long_triple_ema>(candles, pos_size, pair);
+    auto box = test_box<crypto, strategy::long_triple_ema>(price_points, pos_size, pair);
 
     // use optimizer
     int min_short_period{2};
@@ -38,7 +45,7 @@ void run()
     int shift{1};
     int max_short_period{100+step}; // make inclusive
     optimizer::brute_force_sliding<int, 3> optim{};
-    optim(trading::range<int>(min_short_period, max_short_period, step), shift, box);
+    optim(range<int>(min_short_period, max_short_period, step), shift, box);
 }
 
 template<typename Indicator>

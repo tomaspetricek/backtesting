@@ -14,6 +14,7 @@
 #include <trading/position.hpp>
 #include <trading/trade.hpp>
 #include <trading/fraction.hpp>
+#include <trading/data_point.hpp>
 
 namespace trading {
     template<typename Currency, typename Strategy>
@@ -22,14 +23,15 @@ namespace trading {
         std::shared_ptr<Strategy> strategy_;
         std::optional<action> action_;
         std::vector<trade<Currency>> closed_{};
-        std::vector<candle> candles_{};
+        std::vector<data_point<price>> price_points_{};
         std::size_t pos_size_;
         currency::pair<Currency> pair_;
         trade<Currency> curr_;
 
     public:
-        test_box(std::vector<candle> candles, std::size_t pos_size, const currency::pair<Currency>& pair)
-                :candles_(std::move(candles)), pos_size_(pos_size), pair_(pair), curr_(pair) { }
+        test_box(std::vector<data_point<price>> price_points, std::size_t pos_size,
+                const currency::pair<Currency>& pair)
+                :price_points_(std::move(price_points)), pos_size_(pos_size), pair_(pair), curr_(pair) { }
 
         template<typename ...Args>
         void operator()(Args... args)
@@ -42,25 +44,22 @@ namespace trading {
                 std::throw_with_nested(std::runtime_error("Cannot create strategy"));
             }
 
-            price mean_price;
-
             // collect trades
-            for (const candle& candle : candles_) {
-                mean_price = candle::ohlc4(candle);
-                action_ = (*strategy_)(mean_price);
+            for (const auto& point : price_points_) {
+                action_ = (*strategy_)(point.value());
 
                 if (action_) {
                     // buy
                     if (action_==action::buy) {
-                        curr_.add_opened(position{pos_size_, mean_price, candle.created()});
+                        curr_.add_opened(position{pos_size_, point.value(), point.occurred()});
                     }
                         // sell
                     else if (action_==action::sell) {
-                        curr_.add_closed(position{pos_size_, mean_price, candle.created()});
+                        curr_.add_closed(position{pos_size_, point.value(), point.occurred()});
                     }
                         // sell all
                     else if (action_==action::sell_all) {
-                        curr_.add_closed(position{curr_.size(), mean_price, candle.created()});
+                        curr_.add_closed(position{curr_.size(), point.value(), point.occurred()});
                         assert(curr_.size()==0.0);
                     }
 
@@ -73,8 +72,10 @@ namespace trading {
             }
 
             // close last trade if not closed at the end
-            if (curr_.size()>0)
-                curr_.add_closed(position{curr_.size(), mean_price, candles_.back().created()});
+            if (curr_.size()>0) {
+                const auto& point = price_points_.back();
+                curr_.add_closed(position{curr_.size(), point.value(), point.occurred()});
+            }
         }
     };
 }

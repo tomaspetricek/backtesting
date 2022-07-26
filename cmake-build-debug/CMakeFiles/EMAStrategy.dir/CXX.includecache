@@ -27,6 +27,8 @@ trading/candle.hpp
 -
 trading/currency.hpp
 -
+trading/data_point.hpp
+-
 trading/exception.hpp
 -
 trading/formula.hpp
@@ -61,6 +63,8 @@ trading/pack.hpp
 -
 
 ../include/trading/currency.hpp
+
+../include/trading/data_point.hpp
 
 ../include/trading/exception.hpp
 exception
@@ -164,6 +168,8 @@ trading/position.hpp
 trading/trade.hpp
 -
 trading/fraction.hpp
+-
+trading/data_point.hpp
 -
 
 ../include/trading/trade.hpp

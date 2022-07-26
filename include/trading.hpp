@@ -15,6 +15,7 @@
 #include <trading/action.hpp>
 #include <trading/candle.hpp>
 #include <trading/currency.hpp>
+#include <trading/data_point.hpp>
 #include <trading/exception.hpp>
 #include <trading/formula.hpp>
 #include <trading/fraction.hpp>

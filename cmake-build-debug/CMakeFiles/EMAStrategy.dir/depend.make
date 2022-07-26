@@ -5,6 +5,7 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/action.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/candle.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/currency.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/data_point.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/exception.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/formula.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/fraction.hpp
