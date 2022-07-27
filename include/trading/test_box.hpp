@@ -25,7 +25,6 @@ namespace trading {
         std::vector<data_point<price>> price_points_{};
         std::size_t pos_size_;
         currency::pair<Currency> pair_;
-        trade<Currency> curr_;
 
         static std::size_t validate_pos_size(std::size_t size)
         {
@@ -38,8 +37,7 @@ namespace trading {
     public:
         test_box(std::vector<data_point<price>> price_points, std::size_t pos_size,
                 const currency::pair<Currency>& pair)
-                :price_points_(std::move(price_points)), pos_size_(validate_pos_size(pos_size)), pair_(pair),
-                 curr_(pair) { }
+                :price_points_(std::move(price_points)), pos_size_(validate_pos_size(pos_size)), pair_(pair) { }
 
         // remove implicit conversion
         template<typename Type>
@@ -50,6 +48,7 @@ namespace trading {
         void operator()(Args... args)
         {
             std::vector<trade<Currency>> closed;
+            std::optional<trade<Currency>> active;
 
             // create strategy
             try {
@@ -64,33 +63,48 @@ namespace trading {
                 action_ = (*strategy_)(point.value());
 
                 if (action_) {
-                    // buy
-                    if (action_==action::buy) {
-                        curr_.add_opened(position{pos_size_, point.value(), point.happened()});
+                    if (!active) {
+                        // create active trade
+                        if (action_==action::buy) {
+                            auto pos = position{pos_size_, point.value(), point.happened()};
+                            active = std::make_optional(trade(pair_, pos));
+                        }
+                        else if (action_==action::sell || action_==action::sell_all) {
+                            throw std::logic_error("Cannot sell. No active trade available");
+                        }
                     }
-                        // sell
-                    else if (action_==action::sell) {
-                        curr_.add_closed(position{pos_size_, point.value(), point.happened()});
-                    }
-                        // sell all
-                    else if (action_==action::sell_all) {
-                        curr_.add_closed(position{curr_.size(), point.value(), point.happened()});
-                        assert(curr_.size()==0.0);
-                    }
+                    else {
+                        // buy
+                        if (action_==action::buy) {
+                            auto pos = position{pos_size_, point.value(), point.happened()};
+                            active->add_opened(pos);
+                        }
+                            // sell
+                        else if (action_==action::sell) {
+                            auto pos = position{pos_size_, point.value(), point.happened()};
+                            active->add_closed(pos);
+                        }
+                            // sell all
+                        else if (action_==action::sell_all) {
+                            auto pos = position{active->size(), point.value(), point.happened()};
+                            active->add_closed(pos);
+                            assert(active->size()==0);
+                        }
 
-                    // add to closed trades
-                    if (curr_.is_closed()) {
-                        closed.emplace_back(curr_);
-                        curr_ = trade(pair_);
+                        // add to closed trades
+                        if (active->is_closed()) {
+                            closed.emplace_back(*active);
+                            active = std::nullopt;
+                        }
                     }
                 }
             }
 
-            // close last trade if not closed at the end
-            if (curr_.size()>0) {
+            // close active trade
+            if (active) {
                 const auto& point = price_points_.back();
-                curr_.add_closed(position{curr_.size(), point.value(), point.happened()});
-                closed.emplace_back(curr_);
+                active->add_closed(position{active->size(), point.value(), point.happened()});
+                closed.emplace_back(*active);
             }
         }
     };
