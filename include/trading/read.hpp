@@ -77,13 +77,8 @@ namespace trading {
 
             bef_opened = curr_opened;
 
-            // create ptime
-            try {
-                opened = boost::posix_time::from_time_t(curr_opened);
-            }
-            catch (...) {
-                std::throw_with_nested(std::invalid_argument("Cannot create posix time"));
-            }
+            // convert to ptime
+            opened = boost::posix_time::from_time_t(curr_opened);
 
             // add candle
             try {
