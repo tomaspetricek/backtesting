@@ -18,6 +18,7 @@ namespace trading {
         std::vector<position> closed_;
         currency::pair<Currency> pair_;
         std::size_t size_ = 0;
+        bool is_closed_ = false;
 
     public:
         explicit trade(const currency::pair<Currency>& pair)
@@ -31,6 +32,9 @@ namespace trading {
 
         void add_opened(const position& pos)
         {
+            if (is_closed_)
+                throw std::runtime_error("Cannot add position to closed trade");
+
             size_ += pos.size();
             opened_.emplace_back(pos);
         }
@@ -42,6 +46,9 @@ namespace trading {
 
             size_ -= pos.size();
             closed_.emplace_back(pos);
+
+            // check if closed
+            if (size_==0) is_closed_ = true;
         }
 
         std::size_t size() const
@@ -52,6 +59,11 @@ namespace trading {
         std::size_t calculate_position_size(const fraction& trade_frac)
         {
             return std::round(size_*static_cast<double>(trade_frac));
+        }
+
+        bool is_closed()
+        {
+            return is_closed_;
         }
     };
 }

@@ -22,7 +22,6 @@ namespace trading {
     private:
         std::shared_ptr<Strategy> strategy_;
         std::optional<action> action_;
-        std::vector<trade<Currency>> closed_{};
         std::vector<data_point<price>> price_points_{};
         std::size_t pos_size_;
         currency::pair<Currency> pair_;
@@ -50,6 +49,8 @@ namespace trading {
         template<typename ...Args>
         void operator()(Args... args)
         {
+            std::vector<trade<Currency>> closed;
+
             // create strategy
             try {
                 strategy_ = std::make_shared<Strategy>(args...);
@@ -78,8 +79,8 @@ namespace trading {
                     }
 
                     // add to closed trades
-                    if (curr_.size()==0) {
-                        closed_.emplace_back(curr_);
+                    if (curr_.is_closed()) {
+                        closed.emplace_back(curr_);
                         curr_ = trade(pair_);
                     }
                 }
@@ -89,6 +90,7 @@ namespace trading {
             if (curr_.size()>0) {
                 const auto& point = price_points_.back();
                 curr_.add_closed(position{curr_.size(), point.value(), point.happened()});
+                closed.emplace_back(curr_);
             }
         }
     };
