@@ -20,7 +20,6 @@ namespace trading {
     template<typename Currency, typename Strategy>
     class test_box {
     private:
-        std::shared_ptr<Strategy> strategy_;
         std::optional<action> action_;
         std::vector<data_point<price>> price_points_{};
         std::size_t pos_size_;
@@ -49,10 +48,11 @@ namespace trading {
         {
             std::vector<trade<Currency>> closed;
             std::optional<trade<Currency>> active;
+            std::unique_ptr<Strategy> strategy;
 
             // create strategy
             try {
-                strategy_ = std::make_shared<Strategy>(args...);
+                strategy = std::make_unique<Strategy>(args...);
             }
             catch (...) {
                 std::throw_with_nested(std::runtime_error("Cannot create strategy"));
@@ -60,7 +60,7 @@ namespace trading {
 
             // collect trades
             for (const auto& point : price_points_) {
-                action_ = (*strategy_)(point.value());
+                action_ = (*strategy)(point.value());
 
                 if (action_) {
                     if (!active) {
