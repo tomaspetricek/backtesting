@@ -12,7 +12,7 @@ namespace trading {
         static double validate(double val)
         {
             if (val<0.0)
-                throw std::invalid_argument("Price has to be greater than 0");
+                throw std::invalid_argument("Price has to be greater or equal to 0");
 
             return val;
         }

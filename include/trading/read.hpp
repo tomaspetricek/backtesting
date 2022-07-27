@@ -10,6 +10,8 @@
 #include <sstream>
 #include <chrono>
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 #include <trading/candle.hpp>
 #include <trading/exception.hpp>
 
@@ -30,8 +32,9 @@ namespace trading {
 
         std::vector<candle> candles;
         std::string line, data;
-        long curr_created, bef_created = 0;
+        std::time_t curr_opened, bef_opened = 0;
         double open, high, low, close;
+        boost::posix_time::ptime opened;
 
         // read header
         std::getline(file, line);
@@ -46,7 +49,7 @@ namespace trading {
             // parse line
             try {
                 std::getline(ss, data, delim);
-                curr_created = std::stol(data);
+                curr_opened = std::stol(data);
 
                 std::getline(ss, data, delim);
                 open = std::stod(data);
@@ -64,16 +67,27 @@ namespace trading {
                 std::throw_with_nested(bad_formatting("Cannot parse line"));
             }
 
+            if (curr_opened<0)
+                throw std::invalid_argument("Candle time has to greater or equal to 0");
+
             // check duration between
-            if (bef_created!=0)
-                if (period.count()!=(curr_created-bef_created))
+            if (bef_opened!=0)
+                if (period.count()!=(curr_opened-bef_opened))
                     throw std::invalid_argument("Incorrect duration between candles");
 
-            bef_created = curr_created;
+            bef_opened = curr_opened;
+
+            // create ptime
+            try {
+                opened = boost::posix_time::from_time_t(curr_opened);
+            }
+            catch (...) {
+                std::throw_with_nested(std::invalid_argument("Cannot create posix time"));
+            }
 
             // add candle
             try {
-                candles.emplace_back(curr_created, open, high, low, close);
+                candles.emplace_back(opened, open, high, low, close);
             }
             catch (...) {
                 std::throw_with_nested(std::runtime_error("Cannot create candle"));

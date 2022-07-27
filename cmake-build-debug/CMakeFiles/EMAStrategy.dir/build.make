@@ -99,6 +99,7 @@ EMAStrategy_EXTERNAL_OBJECTS =
 
 EMAStrategy: CMakeFiles/EMAStrategy.dir/src/main.cpp.o
 EMAStrategy: CMakeFiles/EMAStrategy.dir/build.make
+EMAStrategy: /usr/local/lib/libboost_date_time-mt.dylib
 EMAStrategy: CMakeFiles/EMAStrategy.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable EMAStrategy"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/EMAStrategy.dir/link.txt --verbose=$(VERBOSE)

@@ -2,6 +2,8 @@
 #include <vector>
 #include <memory>
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 #include <trading.hpp>
 
 using namespace trading;
@@ -33,7 +35,7 @@ void run()
     price_points.reserve(candles.size());
 
     for (const auto& candle : candles)
-        price_points.emplace_back(candle.created(), candle::ohlc4(candle));
+        price_points.emplace_back(candle.opened(), candle::ohlc4(candle));
 
     // create test box
     std::size_t pos_size{100};

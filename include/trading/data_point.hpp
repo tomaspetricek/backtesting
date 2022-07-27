@@ -8,11 +8,11 @@
 namespace trading {
     template<typename Type>
     struct data_point {
-        std::time_t happened_;
+        boost::posix_time::ptime happened_;
         Type value_;
 
     public:
-        data_point(time_t happened, Type value)
+        data_point(const boost::posix_time::ptime& happened, Type value)
                 :happened_(happened), value_(value) { }
 
         const price& value() const
@@ -20,7 +20,7 @@ namespace trading {
             return value_;
         }
 
-        time_t happened() const
+        boost::posix_time::ptime happened() const
         {
             return happened_;
         }

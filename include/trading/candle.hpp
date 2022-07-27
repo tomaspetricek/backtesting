@@ -7,33 +7,26 @@
 
 #include <trading/price.hpp>
 #include <trading/pack.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace trading {
     class candle {
-        std::time_t created_;
+        boost::posix_time::ptime opened_;
         price open_;
         price high_;
         price low_;
         price close_;
 
-        static std::time_t validate_time(time_t time)
-        {
-            if (time<0)
-                throw std::invalid_argument("Time has to be greater than 0");
-
-            return time;
-        }
-
     public:
-        candle(time_t created, const price& open, const price& high, const price& low, const price& close)
-                :created_(validate_time(created)), open_(open), high_(high), low_(low), close_(close)
+        candle(const boost::posix_time::ptime& opened, const price& open, const price& high, const price& low, const price& close)
+                :opened_(opened), open_(open), high_(high), low_(low), close_(close)
         {
             if (high<=low)
                 throw std::invalid_argument("High price has to be lower or equal to low price");
         }
 
-        candle(time_t created, double open, double high, double low, double close)
-                :candle{created, price{open}, price{high}, price{low}, price{close}} { }
+        candle(const boost::posix_time::ptime& opened, double open, double high, double low, double close)
+                :candle{opened, price{open}, price{high}, price{low}, price{close}} { }
 
         // mean high and low
         static price hl2(const candle& candle)
@@ -53,9 +46,9 @@ namespace trading {
             return price{mean(candle.open_, candle.high_, candle.low_, candle.close_)};
         }
 
-        std::time_t created() const
+        boost::posix_time::ptime opened() const
         {
-            return created_;
+            return opened_;
         }
 
         price open() const

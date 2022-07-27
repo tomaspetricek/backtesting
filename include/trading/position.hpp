@@ -14,7 +14,7 @@ namespace trading {
     class position {
         std::size_t size_;
         price price_;
-        std::time_t created_;
+        boost::posix_time::ptime created_;
 
         static std::size_t validate_size(std::size_t size)
         {
@@ -25,7 +25,7 @@ namespace trading {
         }
 
     public:
-        position(std::size_t size, const price& price, time_t created)
+        position(std::size_t size, const price& price, const boost::posix_time::ptime& created)
                 :size_(validate_size(size)), price_(price), created_(created) { }
 
         // avoid implicit conversion
@@ -36,7 +36,7 @@ namespace trading {
         {
             return price_;
         }
-        time_t created() const
+        boost::posix_time::ptime created() const
         {
             return created_;
         }
