@@ -39,7 +39,7 @@ void run()
 
     // create test box
     std::size_t pos_size{100};
-    auto box = test_box<crypto, strategy::long_triple_ema>(price_points, pos_size, pair);
+    auto box = test_box<strategy::long_triple_ema>(price_points, pos_size);
 
     // use optimizer
     int min_short_period{2};

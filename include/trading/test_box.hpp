@@ -17,13 +17,12 @@
 #include <trading/data_point.hpp>
 
 namespace trading {
-    template<typename Currency, typename Strategy>
+    template<typename Strategy>
     class test_box {
     private:
         std::optional<action> action_;
-        std::vector<data_point<price>> price_points_{};
+        std::vector<data_point<price>> price_points_;
         std::size_t pos_size_;
-        currency::pair<Currency> pair_;
 
         static std::size_t validate_pos_size(std::size_t size)
         {
@@ -34,20 +33,18 @@ namespace trading {
         }
 
     public:
-        test_box(std::vector<data_point<price>> price_points, std::size_t pos_size,
-                const currency::pair<Currency>& pair)
-                :price_points_(std::move(price_points)), pos_size_(validate_pos_size(pos_size)), pair_(pair) { }
+        explicit test_box(std::vector<data_point<price>> price_points, std::size_t pos_size)
+                :price_points_(std::move(price_points)), pos_size_(validate_pos_size(pos_size)) { }
 
         // remove implicit conversion
         template<typename Type>
-        test_box(std::vector<data_point<price>> price_points, Type pos_size,
-                const currency::pair<Currency>& pair) = delete;
+        test_box(std::vector<data_point<price>> price_points, Type pos_size) = delete;
 
         template<typename ...Args>
         void operator()(Args... args)
         {
-            std::vector<trade<Currency>> closed;
-            std::optional<trade<Currency>> active;
+            std::vector<trade> closed;
+            std::optional<trade> active;
             std::unique_ptr<Strategy> strategy;
 
             // create strategy
@@ -67,7 +64,7 @@ namespace trading {
                         // create active trade
                         if (action_==action::buy) {
                             auto pos = position{pos_size_, point.value(), point.happened()};
-                            active = std::make_optional(trade(pair_, pos));
+                            active = std::make_optional(trade(pos));
                         }
                         else if (action_==action::sell || action_==action::sell_all) {
                             throw std::logic_error("Cannot sell. No active trade available");

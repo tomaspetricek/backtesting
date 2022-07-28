@@ -12,17 +12,14 @@
 #include <trading/fraction.hpp>
 
 namespace trading {
-    template<typename Currency>
     class trade {
         std::vector<position> opened_;
         std::vector<position> closed_;
-        currency::pair<Currency> pair_;
         std::size_t size_ = 0;
         bool is_opened_ = true;
 
     public:
-        trade(const currency::pair<Currency>& pair, const position& pos)
-                :pair_(pair)
+        explicit trade(const position& pos)
         {
             add_opened(pos);
         }
@@ -53,12 +50,12 @@ namespace trading {
             return size_;
         }
 
-        std::size_t calculate_position_size(const fraction& trade_frac)
+        std::size_t calculate_position_size(const fraction& trade_frac) const
         {
             return std::round(size_*static_cast<double>(trade_frac));
         }
 
-        bool is_closed()
+        bool is_closed() const
         {
             return !is_opened_;
         }
