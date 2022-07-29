@@ -2,8 +2,6 @@
 #include <vector>
 #include <memory>
 
-#include <boost/date_time/posix_time/posix_time.hpp>
-
 #include <trading.hpp>
 
 using namespace trading;
@@ -102,11 +100,13 @@ void use_interval()
 void use_optimizer()
 {
     // use cartesian optimizer
-    range<int> lens{0, 4+2, 2};
-    range<int> widths{-2, 6+4, 4};
-    range<int> depths{0, 1+1, 1};
-    auto func = [](int len, int width, int depth) { };
-    brute_force::cartesian_product<int, int, int> optim{func, lens, widths, depths};
+    range<int> lens{2, 4+2, 2};
+    range<int> widths{12, 6-2, -2};
+    range<int> depths{1, 2+1, 1};
+    auto func = [](int len, int width, int depth) {
+        std::cout << "Volume: " << len*width*depth << std::endl;
+    };
+    brute_force::cartesian_product<int, int, int> optim{std::move(func), lens, widths, depths};
 
     std::cout << "Brute force, Cartesian product:" << std::endl;
     optim();
