@@ -9,6 +9,7 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/data_point.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/exception.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/formula.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/fraction.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/function.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/ema.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/moving_average.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/sma.hpp

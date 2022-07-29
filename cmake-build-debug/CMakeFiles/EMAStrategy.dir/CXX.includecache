@@ -35,6 +35,8 @@ trading/formula.hpp
 -
 trading/fraction.hpp
 -
+trading/function.hpp
+-
 trading/pack.hpp
 -
 trading/position.hpp
@@ -78,6 +80,10 @@ exception
 trading/validator/interval.hpp
 -
 
+../include/trading/function.hpp
+functional
+-
+
 ../include/trading/indicator/ema.hpp
 numeric
 -
@@ -106,6 +112,8 @@ array
 trading/range.hpp
 -
 trading/tuple.hpp
+-
+trading/function.hpp
 -
 
 ../include/trading/pack.hpp

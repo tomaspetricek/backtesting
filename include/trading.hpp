@@ -19,6 +19,7 @@
 #include <trading/exception.hpp>
 #include <trading/formula.hpp>
 #include <trading/fraction.hpp>
+#include <trading/function.hpp>
 #include <trading/pack.hpp>
 #include <trading/position.hpp>
 #include <trading/price.hpp>

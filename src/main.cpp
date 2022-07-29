@@ -46,8 +46,8 @@ void run()
     int step{1};
     int shift{1};
     int max_short_period{100+step}; // make inclusive
-    optimizer::brute_force_sliding<int, 3> optim{};
-    optim(range<int>(min_short_period, max_short_period, step), shift, box);
+    optimizer::brute_force_sliding<int, 3> optim{std::move(box), range<int>(min_short_period, max_short_period, step), shift};
+    optim();
 }
 
 template<typename Indicator>

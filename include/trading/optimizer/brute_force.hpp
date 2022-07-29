@@ -10,86 +10,106 @@
 
 #include <trading/range.hpp>
 #include <trading/tuple.hpp>
+#include <trading/function.hpp>
 
 namespace trading::strategy::optimizer {
+    template<class Callable, class Args, class Config>
+    class optimizer_base {
+    protected:
+        Callable func_;
+        Args args_;
+        Config curr_;
+
+        void make_call()
+        {
+            print(curr_);
+
+            try {
+                call(func_, curr_);
+            }
+            catch (...) {
+                std::throw_with_nested(std::runtime_error("Exception thrown while calling a function"));
+            }
+        }
+
+    public:
+        explicit optimizer_base(Callable&& func, Args args)
+                :func_(std::move(func)), args_(args) { }
+    };
+
     template<class ...Types>
-    class brute_force {
-        std::tuple<Types...> input_;
+    class brute_force : public optimizer_base<std::function<void(Types...)>, std::tuple<range<Types>...>,
+            std::tuple<Types...>> {
 
         // https://stackoverflow.com/questions/34535795/n-dimensionally-nested-metaloops-with-templates
-        template<size_t Depth, class Callable>
-        constexpr void nested_for(std::tuple<range<Types>...> ranges, Callable&& func)
+        template<size_t Depth>
+        constexpr void nested_for()
         {
             static_assert(Depth>0);
-
             constexpr int idx = sizeof...(Types)-Depth;
-            auto curr_range = std::get<idx>(ranges);
+            auto curr_range = std::get<idx>(this->args_);
 
             for (auto it = curr_range.begin(); it!=curr_range.end(); ++it) {
-                std::get<idx>(input_) = *it;
+                // update curr
+                std::get<idx>(this->curr_) = *it;
 
                 if constexpr(Depth==1) {
-                    call(func, input_);
-                    print(input_);
+                    this->make_call();
                 }
                 else {
-                    nested_for<Depth-1>(ranges, func);
+                    nested_for<Depth-1>();
                 }
             }
         }
 
     public:
-        std::tuple<Types...> operator()(range<Types>... ranges, const std::function<void(Types...)>& func)
+        explicit brute_force(std::function<void(Types...)>&& func, range<Types>... ranges)
+                :optimizer_base<std::function<void(Types...)>, std::tuple<range<Types>...>, std::tuple<Types...>>
+                         (std::move(func), std::forward_as_tuple(ranges...)) { }
+
+        void operator()()
         {
-            // initialize input
-            input_ = std::make_tuple((*(ranges.begin()))...);
-
             // call nested loop
-            nested_for<sizeof...(Types)>(std::forward_as_tuple(ranges...), func);
-
-            return input_;
+            nested_for<sizeof...(Types)>();
         }
     };
 
     template<typename Type, std::size_t size>
-    class brute_force_sliding {
-        tuple_of<Type, size> input_;
+    class brute_force_sliding : public optimizer_base<function_of<void, Type, size>, range<Type>,
+            tuple_of<Type, size>> {
+        Type shift_;
 
-        template<size_t Depth, class Callable>
-        constexpr void nested_for(const range<Type> args, const Type& shift, Callable&& func)
+        template<size_t Depth>
+        constexpr void nested_for(const range<Type>& args)
         {
             static_assert(Depth>0);
             constexpr int idx = size-Depth;
 
             // loop through
             for (auto val : args) {
-                std::get<idx>(input_) = val;
+                // update curr
+                std::get<idx>(this->curr_) = val;
 
                 // reached inner most loop
                 if constexpr(Depth==1) {
-                    print(input_);
-                    try {
-                        call(func, input_);
-                    }
-                    catch (...) {
-                        std::throw_with_nested(std::runtime_error("Exception thrown while calling a function"));
-                    }
+                    this->make_call();
                 }
                     // call inner loop
                 else {
-                    nested_for<Depth-1>(range<Type>{val+shift, *args.end()+shift, args.step()}, shift, func);
+                    nested_for<Depth-1>(range<Type>{val+shift_, *args.end()+shift_, args.step()});
                 }
             }
         }
 
     public:
-        template<class Callable>
-        tuple_of<Type, size> operator()(const range<Type>& args, const Type& shift, const Callable& func)
+        explicit brute_force_sliding(function_of<void, Type, size>&& func, const range<Type>& args, Type shift)
+                :optimizer_base<function_of<void, Type, size>, range<Type>, tuple_of<Type, size>>
+                         (std::move(func), args), shift_(shift) { }
+
+        void operator()()
         {
             // call nested loop
-            nested_for<size>(args, shift, func);
-
-            return input_;
+            nested_for<size>(this->args_);
         }
     };
 }
