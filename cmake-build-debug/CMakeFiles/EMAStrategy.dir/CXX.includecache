@@ -104,6 +104,8 @@ queue
 trading/indicator/moving_average.hpp
 -
 
+../include/trading/optimizer/base.hpp
+
 ../include/trading/optimizer/brute_force.hpp
 tuple
 -
@@ -114,6 +116,8 @@ trading/range.hpp
 trading/tuple.hpp
 -
 trading/function.hpp
+-
+trading/optimizer/base.hpp
 -
 
 ../include/trading/pack.hpp

@@ -9,6 +9,7 @@
 using namespace trading;
 using namespace currency;
 using namespace strategy;
+using namespace optimizer;
 
 void run()
 {
@@ -46,7 +47,7 @@ void run()
     int step{1};
     int shift{1};
     int max_short_period{100+step}; // make inclusive
-    optimizer::brute_force_sliding<int, 3> optim{std::move(box), range<int>(min_short_period, max_short_period, step), shift};
+    brute_force::sliding<int, 3> optim{std::move(box), range<int>(min_short_period, max_short_period, step), shift};
     optim();
 }
 
@@ -98,12 +99,26 @@ void use_interval()
     }
 }
 
+void use_optimizer()
+{
+    // use cartesian optimizer
+    range<int> lens{0, 4+2, 2};
+    range<int> widths{-2, 6+4, 4};
+    range<int> depths{0, 1+1, 1};
+    auto func = [](int len, int width, int depth) { };
+    brute_force::cartesian_product<int, int, int> optim{func, lens, widths, depths};
+
+    std::cout << "Brute force, Cartesian product:" << std::endl;
+    optim();
+}
+
 int main()
 {
     // show demo
     use_formulas();
     use_indicators();
     use_interval();
+    use_optimizer();
 
     // run program
     try {

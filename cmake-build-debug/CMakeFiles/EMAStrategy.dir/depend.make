@@ -13,6 +13,7 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/function.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/ema.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/moving_average.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/sma.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/base.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/brute_force.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/pack.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/position.hpp

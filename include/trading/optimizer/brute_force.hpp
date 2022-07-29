@@ -11,34 +11,11 @@
 #include <trading/range.hpp>
 #include <trading/tuple.hpp>
 #include <trading/function.hpp>
+#include <trading/optimizer/base.hpp>
 
-namespace trading::strategy::optimizer {
-    template<class Callable, class Args, class Config>
-    class optimizer_base {
-    protected:
-        Callable func_;
-        Args args_;
-        Config curr_;
-
-        void make_call()
-        {
-            print(curr_);
-
-            try {
-                call(func_, curr_);
-            }
-            catch (...) {
-                std::throw_with_nested(std::runtime_error("Exception thrown while calling a function"));
-            }
-        }
-
-    public:
-        explicit optimizer_base(Callable&& func, Args args)
-                :func_(std::move(func)), args_(args) { }
-    };
-
+namespace trading::strategy::optimizer::brute_force {
     template<class ...Types>
-    class brute_force : public optimizer_base<std::function<void(Types...)>, std::tuple<range<Types>...>,
+    class cartesian_product : public base<std::function<void(Types...)>, std::tuple<range<Types>...>,
             std::tuple<Types...>> {
 
         // https://stackoverflow.com/questions/34535795/n-dimensionally-nested-metaloops-with-templates
@@ -63,8 +40,8 @@ namespace trading::strategy::optimizer {
         }
 
     public:
-        explicit brute_force(std::function<void(Types...)>&& func, range<Types>... ranges)
-                :optimizer_base<std::function<void(Types...)>, std::tuple<range<Types>...>, std::tuple<Types...>>
+        explicit cartesian_product(std::function<void(Types...)>&& func, range<Types>... ranges)
+                :base<std::function<void(Types...)>, std::tuple<range<Types>...>, std::tuple<Types...>>
                          (std::move(func), std::forward_as_tuple(ranges...)) { }
 
         void operator()()
@@ -75,7 +52,7 @@ namespace trading::strategy::optimizer {
     };
 
     template<typename Type, std::size_t size>
-    class brute_force_sliding : public optimizer_base<function_of<void, Type, size>, range<Type>,
+    class sliding : public base<function_of<void, Type, size>, range<Type>,
             tuple_of<Type, size>> {
         Type shift_;
 
@@ -102,8 +79,8 @@ namespace trading::strategy::optimizer {
         }
 
     public:
-        explicit brute_force_sliding(function_of<void, Type, size>&& func, const range<Type>& args, Type shift)
-                :optimizer_base<function_of<void, Type, size>, range<Type>, tuple_of<Type, size>>
+        explicit sliding(function_of<void, Type, size>&& func, const range<Type>& args, Type shift)
+                :base<function_of<void, Type, size>, range<Type>, tuple_of<Type, size>>
                          (std::move(func), args), shift_(shift) { }
 
         void operator()()
