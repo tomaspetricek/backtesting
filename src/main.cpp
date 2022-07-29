@@ -46,6 +46,7 @@ void run()
     int shift{2};
     int max_short_period{51+step}; // make inclusive
     brute_force::sliding<int, 3> optim{std::move(box), range<int>(min_short_period, max_short_period, step), shift};
+    std::cout << "\nbrute force, sliding:" << std::endl;
     optim();
 }
 
@@ -99,16 +100,17 @@ void use_interval()
 
 void use_optimizer()
 {
-    // use cartesian optimizer
+    // prepare
     range<int> lens{2, 4+2, 2};
     range<int> widths{12, 6-2, -2};
     range<int> depths{1, 2+1, 1};
     auto func = [](int len, int width, int depth) {
-        std::cout << "Volume: " << len*width*depth << std::endl;
+        std::cout << "volume: " << len*width*depth << std::endl;
     };
     brute_force::cartesian_product<int, int, int> optim{std::move(func), lens, widths, depths};
 
-    std::cout << "Brute force, Cartesian product:" << std::endl;
+    // optimize
+    std::cout << "\nbrute force, cartesian product:" << std::endl;
     optim();
 }
 
