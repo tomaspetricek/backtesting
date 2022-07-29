@@ -42,9 +42,9 @@ void run()
 
     // use optimizer
     int min_short_period{2};
-    int step{1};
-    int shift{1};
-    int max_short_period{100+step}; // make inclusive
+    int step{7};
+    int shift{2};
+    int max_short_period{51+step}; // make inclusive
     brute_force::sliding<int, 3> optim{std::move(box), range<int>(min_short_period, max_short_period, step), shift};
     optim();
 }
