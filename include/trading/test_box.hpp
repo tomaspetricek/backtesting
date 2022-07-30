@@ -9,7 +9,6 @@
 
 #include <trading/exception.hpp>
 #include <trading/indicator/ema.hpp>
-#include <trading/strategy/triple_ema.hpp>
 #include <trading/currency.hpp>
 #include <trading/position.hpp>
 #include <trading/trade.hpp>

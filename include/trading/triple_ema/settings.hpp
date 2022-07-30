@@ -2,22 +2,22 @@
 // Created by Tomáš Petříček on 30.07.2022.
 //
 
-#ifndef EMASTRATEGY_SETTINGS_TRIPLE_EMA_HPP
-#define EMASTRATEGY_SETTINGS_TRIPLE_EMA_HPP
+#ifndef EMASTRATEGY_TRIPLE_EMA_SETTINGS_HPP
+#define EMASTRATEGY_TRIPLE_EMA_SETTINGS_HPP
 
 #include <optional>
 
 #include <trading/trade.hpp>
-#include <trading/action.hpp>
-#include <trading/position.hpp>
 #include <trading/data_point.hpp>
+#include <trading/position.hpp>
+#include <trading/action.hpp>
 
-namespace trading::settings {
-    class triple_ema {
+namespace trading::triple_ema {
+    class settings {
         std::size_t pos_size_;
 
     public:
-        explicit triple_ema(size_t pos_size)
+        explicit settings(size_t pos_size)
                 :pos_size_(pos_size) { }
 
         void update_active(std::optional<trade>& active, const action& action, const price_point& point) const
@@ -53,4 +53,4 @@ namespace trading::settings {
     };
 }
 
-#endif //EMASTRATEGY_SETTINGS_TRIPLE_EMA_HPP
+#endif //EMASTRATEGY_TRIPLE_EMA_SETTINGS_HPP

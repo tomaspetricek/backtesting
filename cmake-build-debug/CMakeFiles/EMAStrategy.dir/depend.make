@@ -3,6 +3,8 @@
 
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/action.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/bazooka/settings.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/bazooka/strategy.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/candle.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/currency.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/data_point.hpp
@@ -13,19 +15,21 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/function.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/ema.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/moving_average.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/sma.hpp
-CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/base.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/brute_force.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/cartesian_product/brute_force.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/sliding/brute_force.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/pack.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/position.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/price.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/range.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/read.hpp
-CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/settings/triple_ema.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/side.hpp
-CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/strategy/bazooka.hpp
-CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/strategy/triple_ema.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/test_box.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/trade.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/triple_ema/long_strategy.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/triple_ema/settings.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/triple_ema/short_strategy.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/triple_ema/strategy.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/tuple.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/validator/interval.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../src/main.cpp

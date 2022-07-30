@@ -37,18 +37,18 @@ void run()
 
     // create settings
     std::size_t pos_size{100};
-    settings::triple_ema settings{pos_size};
+    triple_ema::settings settings{pos_size};
 
     // create test box
-    auto box = test_box<strategy::long_triple_ema, settings::triple_ema>(price_points, settings);
+    auto box = test_box<triple_ema::long_strategy, triple_ema::settings>(price_points, settings);
 
     // use optimizer
     int min_short_period{2};
     int step{7};
     int shift{2};
     int max_short_period{51+step}; // make inclusive
-    brute_force::sliding<int, 3> optim{std::move(box), range<int>(min_short_period, max_short_period, step), shift};
-    std::cout << "\nbrute force, sliding:" << std::endl;
+    sliding::brute_force<int, 3> optim{std::move(box), range<int>(min_short_period, max_short_period, step), shift};
+    std::cout << "\nsliding, brute force:" << std::endl;
     optim();
 }
 
@@ -109,10 +109,10 @@ void use_optimizer()
     auto func = [](int len, int width, int depth) {
         std::cout << "volume: " << len*width*depth << std::endl;
     };
-    brute_force::cartesian_product<int, int, int> optim{std::move(func), lens, widths, depths};
+    cartesian_product::brute_force<int, int, int> optim{std::move(func), lens, widths, depths};
 
     // optimize
-    std::cout << "\nbrute force, cartesian product:" << std::endl;
+    std::cout << "\ncartesian product, brute force:" << std::endl;
     optim();
 }
 
