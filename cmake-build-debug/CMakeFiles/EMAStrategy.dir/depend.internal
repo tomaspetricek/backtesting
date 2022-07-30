@@ -21,6 +21,7 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o
  ../include/trading/price.hpp
  ../include/trading/range.hpp
  ../include/trading/read.hpp
+ ../include/trading/settings/triple_ema.hpp
  ../include/trading/side.hpp
  ../include/trading/strategy/bazooka.hpp
  ../include/trading/strategy/triple_ema.hpp

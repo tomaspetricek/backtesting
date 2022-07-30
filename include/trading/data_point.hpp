@@ -5,6 +5,10 @@
 #ifndef EMASTRATEGY_DATA_POINT_HPP
 #define EMASTRATEGY_DATA_POINT_HPP
 
+#include <boost/date_time/posix_time/ptime.hpp>
+
+#include <trading/price.hpp>
+
 namespace trading {
     template<typename Type>
     struct data_point {
@@ -25,6 +29,8 @@ namespace trading {
             return happened_;
         }
     };
+
+    typedef data_point<price> price_point;
 }
 
 #endif //EMASTRATEGY_DATA_POINT_HPP

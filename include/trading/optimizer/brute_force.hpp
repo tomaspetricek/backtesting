@@ -13,7 +13,7 @@
 #include <trading/function.hpp>
 #include <trading/optimizer/base.hpp>
 
-namespace trading::strategy::optimizer::brute_force {
+namespace trading::optimizer::brute_force {
     template<class ...Types>
     class cartesian_product : public base<std::function<void(Types...)>, std::tuple<range<Types>...>,
             std::tuple<Types...>> {

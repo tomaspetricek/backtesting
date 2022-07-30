@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 25.06.2022.
 //
 
-#ifndef EMASTRATEGY_TRIPLE_EMA_HPP
-#define EMASTRATEGY_TRIPLE_EMA_HPP
+#ifndef EMASTRATEGY_STRATEGY_TRIPLE_EMA_HPP
+#define EMASTRATEGY_STRATEGY_TRIPLE_EMA_HPP
 
 #include <optional>
 #include <utility>
@@ -136,4 +136,4 @@ namespace trading::strategy {
     };
 }
 
-#endif //EMASTRATEGY_TRIPLE_EMA_HPP
+#endif //EMASTRATEGY_STRATEGY_TRIPLE_EMA_HPP

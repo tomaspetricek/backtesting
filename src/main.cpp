@@ -6,7 +6,6 @@
 
 using namespace trading;
 using namespace currency;
-using namespace strategy;
 using namespace optimizer;
 
 void run()
@@ -36,9 +35,12 @@ void run()
     for (const auto& candle : candles)
         price_points.emplace_back(candle.opened(), candle::ohlc4(candle));
 
-    // create test box
+    // create settings
     std::size_t pos_size{100};
-    auto box = test_box<strategy::long_triple_ema>(price_points, pos_size);
+    settings::triple_ema settings{pos_size};
+
+    // create test box
+    auto box = test_box<strategy::long_triple_ema, settings::triple_ema>(price_points, settings);
 
     // use optimizer
     int min_short_period{2};

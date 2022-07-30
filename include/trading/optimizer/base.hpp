@@ -5,7 +5,7 @@
 #ifndef EMASTRATEGY_OPTIMIZER_BASE_HPP
 #define EMASTRATEGY_OPTIMIZER_BASE_HPP
 
-namespace trading::strategy::optimizer {
+namespace trading::optimizer {
     template<class Callable, class Args, class Config>
     class base {
     protected:

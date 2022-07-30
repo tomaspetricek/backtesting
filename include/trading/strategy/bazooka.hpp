@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 30.06.2022.
 //
 
-#ifndef EMASTRATEGY_BAZOOKA_H
-#define EMASTRATEGY_BAZOOKA_H
+#ifndef EMASTRATEGY_STRATEGY_BAZOOKA_HPP
+#define EMASTRATEGY_STRATEGY_BAZOOKA_HPP
 
 namespace trading::strategy {
     class bazooka {
@@ -11,4 +11,4 @@ namespace trading::strategy {
     };
 }
 
-#endif //EMASTRATEGY_BAZOOKA_H
+#endif //EMASTRATEGY_STRATEGY_BAZOOKA_HPP

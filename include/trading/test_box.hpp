@@ -17,28 +17,16 @@
 #include <trading/data_point.hpp>
 
 namespace trading {
-    template<typename Strategy>
+    template<typename Strategy, typename Settings>
     class test_box {
     private:
         std::optional<action> action_;
-        std::vector<data_point<price>> price_points_;
-        std::size_t pos_size_;
-
-        static std::size_t validate_pos_size(std::size_t size)
-        {
-            if (size<=0)
-                throw std::invalid_argument("Position size has to be greater than 0");
-
-            return size;
-        }
+        std::vector<price_point> price_points_;
+        Settings settings_;
 
     public:
-        explicit test_box(std::vector<data_point<price>> price_points, std::size_t pos_size)
-                :price_points_(std::move(price_points)), pos_size_(validate_pos_size(pos_size)) { }
-
-        // remove implicit conversion
-        template<typename Type>
-        test_box(std::vector<data_point<price>> price_points, Type pos_size) = delete;
+        explicit test_box(std::vector<data_point<price>> price_points, const Settings& settings)
+                :price_points_(std::move(price_points)), settings_(settings) { }
 
         template<typename ...Args>
         void operator()(Args... args)
@@ -60,39 +48,12 @@ namespace trading {
                 action_ = (*strategy)(point.value());
 
                 if (action_) {
-                    if (!active) {
-                        // create active trade
-                        if (action_==action::buy) {
-                            auto pos = position{pos_size_, point.value(), point.happened()};
-                            active = std::make_optional(trade(pos));
-                        }
-                        else if (action_==action::sell || action_==action::sell_all) {
-                            throw std::logic_error("Cannot sell. No active trade available");
-                        }
-                    }
-                    else {
-                        // buy
-                        if (action_==action::buy) {
-                            auto pos = position{pos_size_, point.value(), point.happened()};
-                            active->add_opened(pos);
-                        }
-                            // sell
-                        else if (action_==action::sell) {
-                            auto pos = position{pos_size_, point.value(), point.happened()};
-                            active->add_closed(pos);
-                        }
-                            // sell all
-                        else if (action_==action::sell_all) {
-                            auto pos = position{active->size(), point.value(), point.happened()};
-                            active->add_closed(pos);
-                            assert(active->size()==0);
-                        }
+                    settings_.update_active(active, *action_, point);
 
-                        // add to closed trades
-                        if (active->is_closed()) {
-                            closed.emplace_back(*active);
-                            active = std::nullopt;
-                        }
+                    // add to closed trades
+                    if (active->is_closed()) {
+                        closed.emplace_back(*active);
+                        active = std::nullopt;
                     }
                 }
             }

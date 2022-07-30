@@ -7,12 +7,14 @@
 
 #include <ostream>
 
+#include <boost/date_time/posix_time/ptime.hpp>
+
 #include <trading/currency.hpp>
 #include <trading/price.hpp>
 
 namespace trading {
     class position {
-        std::size_t size_;
+        std::size_t size_ = 0;
         price price_;
         boost::posix_time::ptime created_;
 
@@ -25,6 +27,8 @@ namespace trading {
         }
 
     public:
+        position() = default;
+
         position(std::size_t size, const price& price, const boost::posix_time::ptime& created)
                 :size_(validate_size(size)), price_(price), created_(created) { }
 

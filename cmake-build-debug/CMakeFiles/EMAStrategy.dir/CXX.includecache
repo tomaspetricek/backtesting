@@ -15,6 +15,8 @@ trading/indicator/sma.hpp
 -
 trading/optimizer/brute_force.hpp
 -
+trading/settings/triple_ema.hpp
+-
 trading/strategy/bazooka.hpp
 -
 trading/strategy/triple_ema.hpp
@@ -69,6 +71,10 @@ boost/date_time/posix_time/posix_time.hpp
 ../include/trading/currency.hpp
 
 ../include/trading/data_point.hpp
+boost/date_time/posix_time/ptime.hpp
+-
+trading/price.hpp
+-
 
 ../include/trading/exception.hpp
 exception
@@ -125,6 +131,8 @@ trading/optimizer/base.hpp
 ../include/trading/position.hpp
 ostream
 -
+boost/date_time/posix_time/ptime.hpp
+-
 trading/currency.hpp
 -
 trading/price.hpp
@@ -148,6 +156,18 @@ boost/date_time/posix_time/posix_time.hpp
 trading/candle.hpp
 -
 trading/exception.hpp
+-
+
+../include/trading/settings/triple_ema.hpp
+optional
+-
+trading/trade.hpp
+-
+trading/action.hpp
+-
+trading/position.hpp
+-
+trading/data_point.hpp
 -
 
 ../include/trading/side.hpp
