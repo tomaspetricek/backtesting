@@ -6,6 +6,7 @@
 #define EMASTRATEGY_TRIPLE_EMA_STRATEGY_HPP
 
 #include <trading/action.hpp>
+#include <utility>
 
 namespace trading::triple_ema {
 // source: https://python.plainenglish.io/triple-moving-average-trading-strategy-aaa44d96d532
@@ -17,9 +18,10 @@ namespace trading::triple_ema {
         bool pos_opened_ = false;
         bool indicators_ready_ = false;
 
-        explicit strategy(const indicator::ema& short_ema, const indicator::ema& middle_ema,
-                const indicator::ema& long_ema)
-                :short_ema_(short_ema), middle_ema_(middle_ema), long_ema_(long_ema)
+        strategy() = default;
+
+        explicit strategy(indicator::ema short_ema, indicator::ema middle_ema, indicator::ema long_ema)
+                :short_ema_(std::move(short_ema)), middle_ema_(std::move(middle_ema)), long_ema_(std::move(long_ema))
         {
             if (short_ema_.period()>=middle_ema_.period())
                 throw std::invalid_argument("Short ema period has to be shorter than middle ema period");
@@ -30,7 +32,7 @@ namespace trading::triple_ema {
 
         strategy(int short_period, int middle_period, int long_period)
                 :strategy{indicator::ema{short_period}, indicator::ema{middle_period},
-                            indicator::ema{long_period}} { }
+                          indicator::ema{long_period}} { }
 
         void update_indicators(const price& curr)
         {
@@ -42,11 +44,6 @@ namespace trading::triple_ema {
             if (long_ema_.is_ready())
                 indicators_ready_ = true;
         }
-
-    public:
-        virtual ~strategy() = default;
-
-        virtual std::optional<action> operator()(const price& curr) = 0;
     };
 }
 

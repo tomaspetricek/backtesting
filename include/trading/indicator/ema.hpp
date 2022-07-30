@@ -31,10 +31,10 @@ namespace trading::indicator {
         }
 
     public:
-        explicit ema(int period = 1, int smoothing = 2)
+        explicit ema(int period = min_period, int smoothing = 2)
                 :moving_average(period), smoothing_(validate_smoothing(smoothing)), sma(period) { }
 
-        ema& operator()(double sample) override
+        ema& operator()(double sample)
         {
             if (!sma.is_ready()) {
                 sma(sample);
@@ -50,15 +50,13 @@ namespace trading::indicator {
             return *this;
         }
 
-        explicit operator double() const override
+        explicit operator double() const
         {
             if (!ready_)
                 throw not_ready("Not enough prices to calculate initial ema");
 
             return prev_val_;
         }
-
-        ~ema() override = default;
     };
 }
 

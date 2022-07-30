@@ -5,9 +5,15 @@
 #ifndef EMASTRATEGY_BAZOOKA_STRATEGY_HPP
 #define EMASTRATEGY_BAZOOKA_STRATEGY_HPP
 
-namespace trading::bazooka {
-    class strategy {
+#include <array>
+#include <memory>
 
+#include <trading/indicator/moving_average.hpp>
+
+namespace trading::bazooka {
+    template<typename MovingAverage, std::size_t size>
+    class strategy {
+        std::array<MovingAverage, size> levels_;
     };
 }
 

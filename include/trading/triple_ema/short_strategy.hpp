@@ -13,16 +13,16 @@
 namespace trading::triple_ema {
     class short_strategy : strategy {
     public:
-        short_strategy(const indicator::ema& short_ema, const indicator::ema& middle_ema,
+        short_strategy() = default;
+
+        explicit short_strategy(const indicator::ema& short_ema, const indicator::ema& middle_ema,
                 const indicator::ema& long_ema)
                 :strategy(short_ema, middle_ema, long_ema) { }
 
         short_strategy(int short_period, int middle_period, int long_period)
                 :strategy(short_period, middle_period, long_period) { }
 
-        ~short_strategy() override = default;
-
-        std::optional<action> operator()(const price& curr) override
+        std::optional<action> operator()(const price& curr)
         {
             update_indicators(curr);
 

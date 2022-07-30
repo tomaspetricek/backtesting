@@ -32,11 +32,11 @@ namespace trading {
         {
             std::vector<trade> closed;
             std::optional<trade> active;
-            std::unique_ptr<Strategy> strategy;
+            Strategy strategy;
 
             // create strategy
             try {
-                strategy = std::make_unique<Strategy>(args...);
+                strategy = Strategy(args...);
             }
             catch (...) {
                 std::throw_with_nested(std::runtime_error("Cannot create strategy"));
@@ -44,7 +44,7 @@ namespace trading {
 
             // collect trades
             for (const auto& point : price_points_) {
-                action_ = (*strategy)(point.value());
+                action_ = strategy(point.value());
 
                 if (action_) {
                     settings_.update_active(active, *action_, point);

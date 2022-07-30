@@ -116,6 +116,11 @@ void use_optimizer()
     optim();
 }
 
+void use_bazooka() {
+    constexpr int n_levels{4};
+    std::array<indicator::ema, n_levels> levels;
+}
+
 int main()
 {
     // show demo

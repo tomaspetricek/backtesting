@@ -69,8 +69,26 @@ trading/tuple.hpp
 ../include/trading/action.hpp
 
 ../include/trading/bazooka/settings.hpp
+array
+-
+optional
+-
+trading/trade.hpp
+-
+trading/data_point.hpp
+-
+trading/position.hpp
+-
+trading/action.hpp
+-
 
 ../include/trading/bazooka/strategy.hpp
+array
+-
+memory
+-
+trading/indicator/moving_average.hpp
+-
 
 ../include/trading/candle.hpp
 trading/price.hpp
@@ -244,6 +262,8 @@ trading/action.hpp
 
 ../include/trading/triple_ema/strategy.hpp
 trading/action.hpp
+-
+utility
 -
 
 ../include/trading/tuple.hpp

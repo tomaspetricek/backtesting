@@ -18,10 +18,10 @@ namespace trading::indicator {
         std::queue<double> samples_;
 
     public:
-        explicit sma(int period = 1)
+        explicit sma(int period = min_period)
                 :moving_average(period) { }
 
-        sma& operator()(double sample) override
+        sma& operator()(double sample)
         {
             sum_samples_ += sample;
             samples_.push(sample);
@@ -39,7 +39,7 @@ namespace trading::indicator {
             return *this;
         }
 
-        explicit operator double() const override
+        explicit operator double() const
         {
             if (!ready_)
                 throw not_ready("Not enough initial prices yet. Need "
@@ -47,8 +47,6 @@ namespace trading::indicator {
 
             return sum_samples_/samples_.size();
         }
-        
-        ~sma() override = default;
     };
 }
 
