@@ -122,7 +122,7 @@ queue
 trading/indicator/moving_average.hpp
 -
 
-../include/trading/optimizer/brute_force.hpp
+../include/trading/optimizer/base.hpp
 
 ../include/trading/optimizer/cartesian_product/brute_force.hpp
 tuple
@@ -135,7 +135,7 @@ trading/tuple.hpp
 -
 trading/function.hpp
 -
-trading/optimizer/brute_force.hpp
+trading/optimizer/base.hpp
 -
 
 ../include/trading/optimizer/sliding/brute_force.hpp
@@ -149,7 +149,7 @@ trading/tuple.hpp
 -
 trading/function.hpp
 -
-trading/optimizer/brute_force.hpp
+trading/optimizer/base.hpp
 -
 
 ../include/trading/pack.hpp

@@ -11,11 +11,11 @@
 #include <trading/range.hpp>
 #include <trading/tuple.hpp>
 #include <trading/function.hpp>
-#include <trading/optimizer/brute_force.hpp>
+#include <trading/optimizer/base.hpp>
 
 namespace trading::optimizer::sliding {
     template<typename Type, std::size_t size>
-    class brute_force : public optimizer::brute_force<function_of<void, Type, size>, range<Type>,
+    class brute_force : public optimizer::base<function_of<void, Type, size>, range<Type>,
             tuple_of<Type, size>> {
         Type shift_;
 
@@ -43,7 +43,7 @@ namespace trading::optimizer::sliding {
 
     public:
         explicit brute_force(function_of<void, Type, size>&& func, const range<Type>& args, Type shift)
-                :optimizer::brute_force<function_of<void, Type, size>, range<Type>, tuple_of<Type, size>>
+                :optimizer::base<function_of<void, Type, size>, range<Type>, tuple_of<Type, size>>
                          (std::move(func), args), shift_(shift) { }
 
         void operator()()

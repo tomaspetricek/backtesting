@@ -11,11 +11,11 @@
 #include <trading/range.hpp>
 #include <trading/tuple.hpp>
 #include <trading/function.hpp>
-#include <trading/optimizer/brute_force.hpp>
+#include <trading/optimizer/base.hpp>
 
 namespace trading::optimizer::cartesian_product {
     template<class ...Types>
-    class brute_force : public optimizer::brute_force<std::function<void(Types...)>, std::tuple<range<Types>...>,
+    class brute_force : public optimizer::base<std::function<void(Types...)>, std::tuple<range<Types>...>,
             std::tuple<Types...>> {
 
         // https://stackoverflow.com/questions/34535795/n-dimensionally-nested-metaloops-with-templates
@@ -41,9 +41,8 @@ namespace trading::optimizer::cartesian_product {
 
     public:
         explicit brute_force(std::function<void(Types...)>&& func, range<Types>... ranges)
-                :optimizer::brute_force<std::function<void(
-                Types...)>, std::tuple<range<Types>...>, std::tuple<Types...>>
-                         (std::move(func), std::forward_as_tuple(ranges...)) { }
+                :optimizer::base<std::function<void(Types...)>, std::tuple<range<Types>...>,
+                std::tuple<Types...>>(std::move(func), std::forward_as_tuple(ranges...)) { }
 
         void operator()()
         {

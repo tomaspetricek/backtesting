@@ -7,7 +7,7 @@
 
 namespace trading::optimizer {
     template<class Callable, class Args, class Config>
-    class brute_force {
+    class base {
     protected:
         Callable func_;
         Args args_;
@@ -26,7 +26,7 @@ namespace trading::optimizer {
         }
 
     public:
-        explicit brute_force(Callable&& func, Args args)
+        explicit base(Callable&& func, Args args)
                 :func_(std::move(func)), args_(args) { }
     };
 }
