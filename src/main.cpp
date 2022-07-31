@@ -83,9 +83,14 @@ void use_indicators()
 
 void use_formulas()
 {
-    price entry{1.1246};
-    price exit{1.1077};
-    std::cout << "percent gain: " << formula::percent_gain(entry, exit) << " %" << std::endl;
+    // example from: https://www.tradingview.com/support/solutions/43000561856-how-are-strategy-tester-report-values-calculated-and-what-do-they-mean/
+    double buy{333.25};
+    double sell{351.34};
+    std::cout << "profit: " << formula::percent::profit(buy, sell) << " %" << std::endl;
+
+    double profit{18.09};
+    formula::percent::cumulative_profit cum_profit(1000);
+    std::cout << "cumulative profit: " << cum_profit(profit) << " %" << std::endl;
 }
 
 void use_interval()
