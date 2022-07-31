@@ -48,7 +48,7 @@ void run()
     int shift{2};
     int max_short_period{51+step}; // make inclusive
     sliding::brute_force<int, 3> optim{std::move(box), range<int>(min_short_period, max_short_period, step), shift};
-    std::cout << "\nsliding, brute force:" << std::endl;
+    std::cout << "sliding, brute force:" << std::endl;
     optim();
 }
 
@@ -106,24 +106,36 @@ void use_optimizer()
     range<int> lens{2, 4+2, 2};
     range<int> widths{12, 6-2, -2};
     range<int> depths{1, 2+1, 1};
-    auto func = [](int len, int width, int depth) {
-        std::cout << "volume: " << len*width*depth << std::endl;
+    auto volume = [](int len, int width, int depth) {
+        std::cout << len*width*depth << std::endl;
     };
-    cartesian_product::brute_force<int, int, int> optim{std::move(func), lens, widths, depths};
+    cartesian_product::brute_force<int, int, int> optim{std::move(volume), lens, widths, depths};
 
     // optimize
-    std::cout << "\ncartesian product, brute force:" << std::endl;
+    std::cout << "cartesian product, brute force:" << std::endl;
     optim();
 }
 
-void use_bazooka() {
+void use_bazooka()
+{
     constexpr int n_levels{4};
     std::array<indicator::ema, n_levels> levels;
+}
+
+void use_fraction()
+{
+    fraction<7> frac1(2);
+    fraction<7> frac2(5);
+    std::cout << "fractions:" << std::endl
+              << static_cast<double>(frac1) << std::endl
+              << static_cast<double>(frac2) << std::endl;
+    std::cout << "makes whole: " << std::boolalpha << fraction<7>::makes_whole({frac1, frac2}) << std::endl;
 }
 
 int main()
 {
     // show demo
+    use_fraction();
     use_formulas();
     use_indicators();
     use_interval();

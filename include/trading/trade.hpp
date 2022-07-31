@@ -50,7 +50,8 @@ namespace trading {
             return size_;
         }
 
-        std::size_t calculate_position_size(const fraction& trade_frac) const
+        template<unsigned int denom>
+        std::size_t calculate_position_size(const fraction<denom>& trade_frac) const
         {
             return std::round(size_*static_cast<double>(trade_frac));
         }
