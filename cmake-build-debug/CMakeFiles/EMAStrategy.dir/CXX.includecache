@@ -11,6 +11,8 @@ trading/bazooka/trade_manager.hpp
 -
 trading/bazooka/strategy.hpp
 -
+trading/binance/spot/market.hpp
+-
 trading/indicator/ema.hpp
 -
 trading/indicator/moving_average.hpp
@@ -92,6 +94,10 @@ trading/data_point.hpp
 trading/position.hpp
 -
 trading/action.hpp
+-
+
+../include/trading/binance/spot/market.hpp
+trading/trade.hpp
 -
 
 ../include/trading/candle.hpp

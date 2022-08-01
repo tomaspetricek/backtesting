@@ -6,6 +6,7 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o
  ../include/trading/action.hpp
  ../include/trading/bazooka/strategy.hpp
  ../include/trading/bazooka/trade_manager.hpp
+ ../include/trading/binance/spot/market.hpp
  ../include/trading/candle.hpp
  ../include/trading/currency.hpp
  ../include/trading/data_point.hpp

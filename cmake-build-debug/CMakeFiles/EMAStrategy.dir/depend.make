@@ -5,6 +5,7 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/action.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/bazooka/strategy.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/bazooka/trade_manager.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/binance/spot/market.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/candle.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/currency.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/data_point.hpp
