@@ -16,16 +16,16 @@
 #include <trading/data_point.hpp>
 
 namespace trading {
-    template<typename Strategy, typename Settings>
+    template<typename Strategy, typename TradeManager>
     class test_box {
     private:
         std::optional<action> action_;
         std::vector<price_point> price_points_;
-        Settings settings_;
+        TradeManager manager_;
 
     public:
-        explicit test_box(std::vector<data_point<price>> price_points, const Settings& settings)
-                :price_points_(std::move(price_points)), settings_(settings) { }
+        explicit test_box(std::vector<data_point<price>> price_points, const TradeManager& manager)
+                :price_points_(std::move(price_points)), manager_(manager) { }
 
         template<typename ...Args>
         void operator()(Args... args)
@@ -47,7 +47,7 @@ namespace trading {
                 action_ = strategy(point.value());
 
                 if (action_) {
-                    settings_.update_active(active, *action_, point);
+                    manager_.update_active(active, *action_, point);
 
                     // add to closed trades
                     if (active->is_closed()) {

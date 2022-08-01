@@ -35,12 +35,12 @@ void run()
     for (const auto& candle : candles)
         price_points.emplace_back(candle.opened(), candle::ohlc4(candle));
 
-    // create settings
+    // create trade manager
     std::size_t pos_size{100};
-    triple_ema::settings settings{pos_size};
+    triple_ema::trade_manager manager{pos_size};
 
     // create test box
-    auto box = test_box<triple_ema::long_strategy, triple_ema::settings>(price_points, settings);
+    auto box = test_box<triple_ema::long_strategy, triple_ema::trade_manager>(price_points, manager);
 
     // use optimizer
     int min_short_period{2};

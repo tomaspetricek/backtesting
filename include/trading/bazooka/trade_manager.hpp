@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 30.07.2022.
 //
 
-#ifndef EMASTRATEGY_BAZOOKA_SETTINGS_HPP
-#define EMASTRATEGY_BAZOOKA_SETTINGS_HPP
+#ifndef EMASTRATEGY_BAZOOKA_TRADE_MANAGER_HPP
+#define EMASTRATEGY_BAZOOKA_TRADE_MANAGER_HPP
 
 #include <array>
 #include <optional>
@@ -15,7 +15,7 @@
 
 namespace trading::bazooka {
     template<std::size_t size>
-    class settings {
+    class trade_manager {
         std::array<std::size_t, size> pos_sizes_;
 
     public:
@@ -25,4 +25,4 @@ namespace trading::bazooka {
     };
 }
 
-#endif //EMASTRATEGY_BAZOOKA_SETTINGS_HPP
+#endif //EMASTRATEGY_BAZOOKA_TRADE_MANAGER_HPP

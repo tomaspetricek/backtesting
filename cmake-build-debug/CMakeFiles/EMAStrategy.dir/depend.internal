@@ -4,8 +4,8 @@
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o
  ../include/trading.hpp
  ../include/trading/action.hpp
- ../include/trading/bazooka/settings.hpp
  ../include/trading/bazooka/strategy.hpp
+ ../include/trading/bazooka/trade_manager.hpp
  ../include/trading/candle.hpp
  ../include/trading/currency.hpp
  ../include/trading/data_point.hpp
@@ -28,9 +28,9 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o
  ../include/trading/test_box.hpp
  ../include/trading/trade.hpp
  ../include/trading/triple_ema/long_strategy.hpp
- ../include/trading/triple_ema/settings.hpp
  ../include/trading/triple_ema/short_strategy.hpp
  ../include/trading/triple_ema/strategy.hpp
+ ../include/trading/triple_ema/trade_manager.hpp
  ../include/trading/tuple.hpp
  ../include/trading/validator/interval.hpp
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/src/main.cpp

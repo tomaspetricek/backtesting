@@ -3,8 +3,8 @@
 
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/action.hpp
-CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/bazooka/settings.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/bazooka/strategy.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/bazooka/trade_manager.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/candle.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/currency.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/data_point.hpp
@@ -27,9 +27,9 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/side.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/test_box.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/trade.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/triple_ema/long_strategy.hpp
-CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/triple_ema/settings.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/triple_ema/short_strategy.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/triple_ema/strategy.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/triple_ema/trade_manager.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/tuple.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/validator/interval.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../src/main.cpp

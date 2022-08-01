@@ -5,7 +5,7 @@
 #ifndef EMASTRATEGY_TRADING_HPP
 #define EMASTRATEGY_TRADING_HPP
 
-#include <trading/bazooka/settings.hpp>
+#include <trading/bazooka/trade_manager.hpp>
 #include <trading/bazooka/strategy.hpp>
 #include <trading/indicator/ema.hpp>
 #include <trading/indicator/moving_average.hpp>
@@ -13,7 +13,7 @@
 #include <trading/optimizer/cartesian_product/brute_force.hpp>
 #include <trading/optimizer/sliding/brute_force.hpp>
 #include <trading/triple_ema/long_strategy.hpp>
-#include <trading/triple_ema/settings.hpp>
+#include <trading/triple_ema/trade_manager.hpp>
 #include <trading/triple_ema/short_strategy.hpp>
 #include <trading/triple_ema/strategy.hpp>
 #include <trading/validator/interval.hpp>

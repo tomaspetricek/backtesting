@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 30.07.2022.
 //
 
-#ifndef EMASTRATEGY_TRIPLE_EMA_SETTINGS_HPP
-#define EMASTRATEGY_TRIPLE_EMA_SETTINGS_HPP
+#ifndef EMASTRATEGY_TRADE_MANAGER_SETTINGS_HPP
+#define EMASTRATEGY_TRADE_MANAGER_SETTINGS_HPP
 
 #include <optional>
 
@@ -13,11 +13,11 @@
 #include <trading/action.hpp>
 
 namespace trading::triple_ema {
-    class settings {
+    class trade_manager {
         std::size_t pos_size_;
 
     public:
-        explicit settings(size_t pos_size)
+        explicit trade_manager(size_t pos_size)
                 :pos_size_(pos_size) { }
 
         void update_active(std::optional<trade>& active, const action& action, const price_point& point) const
@@ -53,4 +53,4 @@ namespace trading::triple_ema {
     };
 }
 
-#endif //EMASTRATEGY_TRIPLE_EMA_SETTINGS_HPP
+#endif //EMASTRATEGY_TRADE_MANAGER_SETTINGS_HPP

@@ -7,7 +7,7 @@
 #IncludeRegexTransform: 
 
 ../include/trading.hpp
-trading/bazooka/settings.hpp
+trading/bazooka/trade_manager.hpp
 -
 trading/bazooka/strategy.hpp
 -
@@ -23,7 +23,7 @@ trading/optimizer/sliding/brute_force.hpp
 -
 trading/triple_ema/long_strategy.hpp
 -
-trading/triple_ema/settings.hpp
+trading/triple_ema/trade_manager.hpp
 -
 trading/triple_ema/short_strategy.hpp
 -
@@ -68,7 +68,15 @@ trading/tuple.hpp
 
 ../include/trading/action.hpp
 
-../include/trading/bazooka/settings.hpp
+../include/trading/bazooka/strategy.hpp
+array
+-
+memory
+-
+trading/indicator/moving_average.hpp
+-
+
+../include/trading/bazooka/trade_manager.hpp
 array
 -
 optional
@@ -80,14 +88,6 @@ trading/data_point.hpp
 trading/position.hpp
 -
 trading/action.hpp
--
-
-../include/trading/bazooka/strategy.hpp
-array
--
-memory
--
-trading/indicator/moving_average.hpp
 -
 
 ../include/trading/candle.hpp
@@ -240,18 +240,6 @@ trading/triple_ema/strategy.hpp
 trading/action.hpp
 -
 
-../include/trading/triple_ema/settings.hpp
-optional
--
-trading/trade.hpp
--
-trading/data_point.hpp
--
-trading/position.hpp
--
-trading/action.hpp
--
-
 ../include/trading/triple_ema/short_strategy.hpp
 optional
 -
@@ -264,6 +252,18 @@ trading/action.hpp
 trading/action.hpp
 -
 utility
+-
+
+../include/trading/triple_ema/trade_manager.hpp
+optional
+-
+trading/trade.hpp
+-
+trading/data_point.hpp
+-
+trading/position.hpp
+-
+trading/action.hpp
 -
 
 ../include/trading/tuple.hpp
