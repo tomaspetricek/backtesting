@@ -9,7 +9,7 @@
 
 namespace trading::binance::spot {
     class market {
-        void update_active(trade& active)
+        void manage_active_trade(trade& active)
         {
 
         }

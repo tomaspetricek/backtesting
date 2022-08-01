@@ -47,7 +47,7 @@ namespace trading {
                 action_ = strategy(point.value());
 
                 if (action_) {
-                    manager_.update_active(active, *action_, point);
+                    manager_.update_active_trade(active, *action_, point);
 
                     // add to closed trades
                     if (active->is_closed()) {

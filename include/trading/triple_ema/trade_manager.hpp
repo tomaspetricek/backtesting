@@ -20,7 +20,7 @@ namespace trading::triple_ema {
         explicit trade_manager(size_t pos_size)
                 :pos_size_(pos_size) { }
 
-        void update_active(std::optional<trade>& active, const action& action, const price_point& point) const
+        void update_active_trade(std::optional<trade>& active, const action& action, const price_point& point) const
         {
             if (!active) {
                 // create active trade

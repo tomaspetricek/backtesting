@@ -19,7 +19,7 @@ namespace trading::bazooka {
         std::array<std::size_t, size> pos_sizes_;
 
     public:
-        void update_active(std::optional<trade>& active, const action& action, const price_point& point) const {
+        void update_active_trade(std::optional<trade>& active, const action& action, const price_point& point) const {
 
         }
     };
