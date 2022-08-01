@@ -16,7 +16,7 @@
 #include <trading/data_point.hpp>
 
 namespace trading {
-    template<typename Strategy, typename TradeManager>
+    template<typename Strategy, typename TradeManager, typename Stats>
     class test_box {
     private:
         std::optional<action> action_;
@@ -63,6 +63,9 @@ namespace trading {
                 active->add_closed(position{active->size(), point.value(), point.happened()});
                 closed.emplace_back(*active);
             }
+
+            // create stats
+            Stats stats(closed);
         }
     };
 }

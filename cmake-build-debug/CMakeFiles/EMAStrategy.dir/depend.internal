@@ -20,11 +20,15 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o
  ../include/trading/optimizer/cartesian_product/brute_force.hpp
  ../include/trading/optimizer/sliding/brute_force.hpp
  ../include/trading/pack.hpp
+ ../include/trading/percent/formula.hpp
+ ../include/trading/percent/long_stats.hpp
+ ../include/trading/percent_t.hpp
  ../include/trading/position.hpp
  ../include/trading/price.hpp
  ../include/trading/range.hpp
  ../include/trading/read.hpp
  ../include/trading/side.hpp
+ ../include/trading/stats.hpp
  ../include/trading/test_box.hpp
  ../include/trading/trade.hpp
  ../include/trading/triple_ema/long_strategy.hpp

@@ -19,11 +19,15 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/base.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/cartesian_product/brute_force.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/sliding/brute_force.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/pack.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/percent/formula.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/percent/long_stats.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/percent_t.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/position.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/price.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/range.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/read.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/side.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/stats.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/test_box.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/trade.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/triple_ema/long_strategy.hpp

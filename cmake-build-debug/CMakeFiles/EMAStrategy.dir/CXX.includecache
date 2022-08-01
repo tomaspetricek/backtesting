@@ -21,6 +21,10 @@ trading/optimizer/cartesian_product/brute_force.hpp
 -
 trading/optimizer/sliding/brute_force.hpp
 -
+trading/percent/formula.hpp
+-
+trading/percent/long_stats.hpp
+-
 trading/triple_ema/long_strategy.hpp
 -
 trading/triple_ema/trade_manager.hpp
@@ -172,6 +176,20 @@ trading/optimizer/base.hpp
 
 ../include/trading/pack.hpp
 
+../include/trading/percent/formula.hpp
+trading/percent_t.hpp
+-
+
+../include/trading/percent/long_stats.hpp
+trading/percent_t.hpp
+-
+trading/trade.hpp
+-
+trading/stats.hpp
+-
+
+../include/trading/percent_t.hpp
+
 ../include/trading/position.hpp
 ostream
 -
@@ -203,6 +221,8 @@ trading/exception.hpp
 -
 
 ../include/trading/side.hpp
+
+../include/trading/stats.hpp
 
 ../include/trading/test_box.hpp
 utility

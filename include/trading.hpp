@@ -12,6 +12,8 @@
 #include <trading/indicator/sma.hpp>
 #include <trading/optimizer/cartesian_product/brute_force.hpp>
 #include <trading/optimizer/sliding/brute_force.hpp>
+#include <trading/percent/formula.hpp>
+#include <trading/percent/long_stats.hpp>
 #include <trading/triple_ema/long_strategy.hpp>
 #include <trading/triple_ema/trade_manager.hpp>
 #include <trading/triple_ema/short_strategy.hpp>

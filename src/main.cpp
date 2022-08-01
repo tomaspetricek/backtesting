@@ -40,7 +40,8 @@ void run()
     triple_ema::trade_manager manager{pos_size};
 
     // create test box
-    auto box = test_box<triple_ema::long_strategy, triple_ema::trade_manager>(price_points, manager);
+    auto box = test_box<triple_ema::long_strategy, triple_ema::trade_manager, percent::long_stats>(price_points,
+            manager);
 
     // use optimizer
     int min_short_period{2};
@@ -86,10 +87,10 @@ void use_formulas()
     // example from: https://www.tradingview.com/support/solutions/43000561856-how-are-strategy-tester-report-values-calculated-and-what-do-they-mean/
     double buy{333.25};
     double sell{351.34};
-    std::cout << "profit: " << formula::percent::profit(buy, sell) << " %" << std::endl;
+    std::cout << "profit: " << percent::formula::profit(buy, sell) << " %" << std::endl;
 
-    double profit{18.09};
-    formula::percent::cumulative_profit cum_profit(1000);
+    double profit{formula::profit(buy, sell)};
+    percent::formula::cumulative_profit cum_profit(1000);
     std::cout << "cumulative profit: " << cum_profit(profit) << " %" << std::endl;
 }
 
