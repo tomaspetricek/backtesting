@@ -13,25 +13,27 @@
 #include <trading/position.hpp>
 #include <trading/trade.hpp>
 #include <trading/fraction.hpp>
-#include <trading/data_point.hpp>
+#include <trading/price_point.hpp>
+#include <trading/currency.hpp>
+#include <trading/close_position.hpp>
 
 namespace trading {
-    template<typename Strategy, typename TradeManager, typename Stats>
+    template<currency::crypto base, currency::crypto quote, typename Strategy, template<currency::crypto, currency::crypto> typename TradeManager, typename Stats>
     class test_box {
     private:
         std::optional<action> action_;
-        std::vector<price_point> price_points_;
-        TradeManager manager_;
+        std::vector<price_point<quote>> price_points_;
+        TradeManager<base, quote> manager_;
 
     public:
-        explicit test_box(std::vector<data_point<price>> price_points, const TradeManager& manager)
-                :price_points_(std::move(price_points)), manager_(manager) { }
+        explicit test_box(std::vector<price_point<quote>> price_points, const TradeManager<base, quote>& manager)
+            :price_points_ (std::move(price_points)), manager_(manager) { }
 
         template<typename ...Args>
         void operator()(Args... args)
         {
-            std::vector<trade> closed;
-            std::optional<trade> active;
+            std::vector<trade<base, quote>> closed;
+            std::optional<trade<base, quote>> active;
             Strategy strategy;
 
             // create strategy
@@ -44,7 +46,7 @@ namespace trading {
 
             // collect trades
             for (const auto& point : price_points_) {
-                action_ = strategy(point.value());
+                action_ = strategy(point.price());
 
                 if (action_) {
                     manager_.update_active_trade(active, *action_, point);
@@ -60,12 +62,15 @@ namespace trading {
             // close active trade
             if (active) {
                 const auto& point = price_points_.back();
-                active->add_closed(position{active->size(), point.value(), point.happened()});
+                active->add_closed(close_position<base, quote>{active->size(), point.price(), point.time()});
                 closed.emplace_back(*active);
             }
 
             // create stats
             Stats stats(closed);
+            std::cout << "min profit: " << stats.min_profit()
+                      << " %, max profit: " << stats.max_profit()
+                      << " %, n closed trades: " << stats.n_closed_trades() << std::endl;
         }
     };
 }

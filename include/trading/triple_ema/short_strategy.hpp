@@ -22,7 +22,8 @@ namespace trading::triple_ema {
         short_strategy(int short_period, int middle_period, int long_period)
                 :strategy(short_period, middle_period, long_period) { }
 
-        std::optional<action> operator()(const price& curr)
+        template<typename Price>
+        std::optional<action> operator()(const Price& curr)
         {
             update_indicators(curr);
 

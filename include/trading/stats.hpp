@@ -8,22 +8,22 @@
 namespace trading {
     class stats {
     protected:
+        double min_profit_ = 0.0;
         double max_profit_ = 0.0;
-        double cumulative_profit_ = 0.0;
         std::size_t n_closed_trades_ = 0;
 
-    public:
         explicit stats(size_t n_closed_trades)
                 :n_closed_trades_(n_closed_trades) { }
+
+    public:
+        double min_profit() const
+        {
+            return min_profit_;
+        }
 
         double max_profit() const
         {
             return max_profit_;
-        }
-
-        double cumulative_profit() const
-        {
-            return cumulative_profit_;
         }
 
         size_t n_closed_trades() const

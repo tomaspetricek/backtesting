@@ -21,9 +21,10 @@
 #include <trading/triple_ema/strategy.hpp>
 #include <trading/validator/interval.hpp>
 #include <trading/action.hpp>
+#include <trading/amount.hpp>
 #include <trading/candle.hpp>
 #include <trading/currency.hpp>
-#include <trading/data_point.hpp>
+#include <trading/price_point.hpp>
 #include <trading/exception.hpp>
 #include <trading/formula.hpp>
 #include <trading/fraction.hpp>

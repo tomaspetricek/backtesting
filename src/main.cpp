@@ -11,15 +11,14 @@ using namespace optimizer;
 void run()
 {
     // create currency pair
-    pair<crypto> pair{crypto::BTC, crypto::USDT};
 
     // read candles
     std::filesystem::path candle_csv("../data/btc-usdt-30-min.csv");
     std::chrono::seconds period = std::chrono::minutes(30);
-    std::vector<candle> candles;
+    std::vector<candle<crypto::USDT>> candles;
 
     try {
-        candles = read_candles(candle_csv, ';', period);
+        candles = read_candles<crypto::USDT>(candle_csv, ';', period);
     }
     catch (...) {
         std::throw_with_nested(std::runtime_error("Cannot read candles"));
@@ -29,19 +28,18 @@ void run()
         throw std::runtime_error("No candles read");
 
     // prepare price points
-    std::vector<data_point<price>> price_points;
+    std::vector<price_point<crypto::USDT>> price_points;
     price_points.reserve(candles.size());
 
     for (const auto& candle : candles)
-        price_points.emplace_back(candle.opened(), candle::ohlc4(candle));
+        price_points.emplace_back(candle.opened(), trading::candle<crypto::USDT>::ohlc4(candle));
 
     // create trade manager
-    std::size_t pos_size{100};
-    triple_ema::trade_manager manager{pos_size};
+    double pos_size{100};
+    triple_ema::trade_manager<crypto::BTC, crypto::USDT> manager{pos_size};
 
     // create test box
-    auto box = test_box<triple_ema::long_strategy, triple_ema::trade_manager, percent::long_stats>(price_points,
-            manager);
+    auto box = test_box<crypto::BTC, crypto::USDT, triple_ema::long_strategy, triple_ema::trade_manager, percent::long_stats>(price_points, manager);
 
     // use optimizer
     int min_short_period{2};
@@ -145,6 +143,9 @@ void use_market()
 
 int main()
 {
+    amount<crypto::USDT> bought{1000};
+    amount<crypto::BTC> sold{0.005};
+
     // show demo
     use_fraction();
     use_formulas();

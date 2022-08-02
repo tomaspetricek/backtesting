@@ -5,7 +5,10 @@
 #ifndef EMASTRATEGY_PRICE_HPP
 #define EMASTRATEGY_PRICE_HPP
 
+#include <trading/currency.hpp>
+
 namespace trading {
+    template<typename currency::crypto currency>
     class price {
         double val_;
 

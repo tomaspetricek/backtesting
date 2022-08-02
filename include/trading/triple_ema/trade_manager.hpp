@@ -8,24 +8,26 @@
 #include <optional>
 
 #include <trading/trade.hpp>
-#include <trading/data_point.hpp>
+#include <trading/price_point.hpp>
 #include <trading/position.hpp>
 #include <trading/action.hpp>
+#include <trading/amount.hpp>
 
 namespace trading::triple_ema {
+    template<currency::crypto base, currency::crypto quote>
     class trade_manager {
-        std::size_t pos_size_;
+         amount<quote> buy_size_;
 
     public:
-        explicit trade_manager(size_t pos_size)
-                :pos_size_(pos_size) { }
+        explicit trade_manager(double pos_size)
+                :buy_size_(pos_size) { }
 
-        void update_active_trade(std::optional<trade>& active, const action& action, const price_point& point) const
+        void update_active_trade(std::optional<trade<base, quote>>& active, const action& action, const price_point<quote>& point) const
         {
             if (!active) {
                 // create active trade
                 if (action==action::buy) {
-                    auto pos = position{pos_size_, point.value(), point.happened()};
+                    auto pos = open_position<base, quote>{buy_size_, point.price(), point.time()};
                     active = std::make_optional(trade(pos));
                 }
                 else if (action==action::sell || action==action::sell_all) {
@@ -35,17 +37,17 @@ namespace trading::triple_ema {
             else {
                 // buy
                 if (action==action::buy) {
-                    auto pos = position{pos_size_, point.value(), point.happened()};
+                    auto pos = open_position<base, quote>{buy_size_, point.price(), point.time()};
                     active->add_opened(pos);
                 }
                     // sell
                 else if (action==action::sell) {
-                    auto pos = position{pos_size_, point.value(), point.happened()};
+                    auto pos = close_position<base, quote>{active->size(), point.price(), point.time()};
                     active->add_closed(pos);
                 }
                     // sell all
                 else if (action==action::sell_all) {
-                    auto pos = position{active->size(), point.value(), point.happened()};
+                    auto pos = close_position<base, quote>{active->size(), point.price(), point.time()};
                     active->add_closed(pos);
                 }
             }

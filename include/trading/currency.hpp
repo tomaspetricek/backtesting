@@ -16,21 +16,6 @@ namespace trading::currency {
         EUR,
         GBP,
     };
-
-    // BTC/USDT - base/quote
-    template<typename CurrencyType>
-    class pair {
-        CurrencyType base;
-        CurrencyType quote;
-
-    public:
-        pair(CurrencyType base, CurrencyType quote)
-                :base(base), quote(quote)
-        {
-            if (base==quote)
-                throw std::runtime_error("Base and quote currencies has to be different");
-        }
-    };
 }
 
 #endif //EMASTRATEGY_CURRENCY_HPP

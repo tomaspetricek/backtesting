@@ -34,7 +34,8 @@ namespace trading::triple_ema {
                 :strategy{indicator::ema{short_period}, indicator::ema{middle_period},
                           indicator::ema{long_period}} { }
 
-        void update_indicators(const price& curr)
+        template<typename Price>
+        void update_indicators(const Price& curr)
         {
             auto curr_val = static_cast<double>(curr);
             short_ema_(curr_val);

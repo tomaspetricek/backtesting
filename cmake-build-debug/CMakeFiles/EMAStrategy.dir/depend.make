@@ -3,12 +3,13 @@
 
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/action.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/amount.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/bazooka/strategy.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/bazooka/trade_manager.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/binance/spot/market.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/candle.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/close_position.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/currency.hpp
-CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/data_point.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/exception.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/formula.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/fraction.hpp
@@ -16,6 +17,7 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/function.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/ema.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/moving_average.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/sma.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/open_position.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/base.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/cartesian_product/brute_force.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/sliding/brute_force.hpp
@@ -25,6 +27,7 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/percent/long_stats
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/percent_t.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/position.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/price.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/price_point.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/range.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/read.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/side.hpp

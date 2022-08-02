@@ -11,43 +11,42 @@
 
 #include <trading/currency.hpp>
 #include <trading/price.hpp>
+#include <trading/currency.hpp>
+#include <trading/amount.hpp>
 
 namespace trading {
+    template<currency::crypto buy, currency::crypto sell, currency::crypto price_curr>
     class position {
-        std::size_t size_ = 0;
-        price price_;
+    protected:
+        amount<buy> bought_{0};
+        amount<sell> sold_{0};
+        price<price_curr> price_;
         boost::posix_time::ptime created_;
-
-        static std::size_t validate_size(std::size_t size)
-        {
-            if (size<=0)
-                throw std::invalid_argument("Position size has to be greater than 0");
-
-            return size;
-        }
 
     public:
         position() = default;
 
-        position(std::size_t size, const price& price, const boost::posix_time::ptime& created)
-                :size_(validate_size(size)), price_(price), created_(created) { }
+        explicit position(const amount<sell>& sold, const price<price_curr>& price, const boost::posix_time::ptime& created)
+                :sold_(sold), price_(price), created_(created) {}
 
-        // avoid implicit conversion
-        template<typename Type>
-        position(Type size, const price& price, time_t created) = delete;
-
-        const price& price() const
+        const price<price_curr>& price() const
         {
             return price_;
         }
+        
         boost::posix_time::ptime created() const
         {
             return created_;
         }
 
-        std::size_t size() const
+        const amount<buy>& bought() const
         {
-            return size_;
+            return bought_;
+        }
+
+        const amount<sell>& sold() const
+        {
+            return sold_;
         }
     };
 }

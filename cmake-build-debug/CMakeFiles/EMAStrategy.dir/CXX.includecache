@@ -39,11 +39,13 @@ trading/validator/interval.hpp
 -
 trading/action.hpp
 -
+trading/amount.hpp
+-
 trading/candle.hpp
 -
 trading/currency.hpp
 -
-trading/data_point.hpp
+trading/price_point.hpp
 -
 trading/exception.hpp
 -
@@ -74,6 +76,10 @@ trading/tuple.hpp
 
 ../include/trading/action.hpp
 
+../include/trading/amount.hpp
+trading/currency.hpp
+-
+
 ../include/trading/bazooka/strategy.hpp
 array
 -
@@ -89,7 +95,7 @@ optional
 -
 trading/trade.hpp
 -
-trading/data_point.hpp
+trading/price_point.hpp
 -
 trading/position.hpp
 -
@@ -101,20 +107,20 @@ trading/trade.hpp
 -
 
 ../include/trading/candle.hpp
+boost/date_time/posix_time/posix_time.hpp
+-
 trading/price.hpp
 -
 trading/pack.hpp
 -
-boost/date_time/posix_time/posix_time.hpp
+trading/currency.hpp
+-
+
+../include/trading/close_position.hpp
+trading/position.hpp
 -
 
 ../include/trading/currency.hpp
-
-../include/trading/data_point.hpp
-boost/date_time/posix_time/ptime.hpp
--
-trading/price.hpp
--
 
 ../include/trading/exception.hpp
 exception
@@ -148,6 +154,12 @@ trading/indicator/sma.hpp
 queue
 -
 trading/indicator/moving_average.hpp
+-
+
+../include/trading/open_position.hpp
+trading/position.hpp
+-
+trading/amount.hpp
 -
 
 ../include/trading/optimizer/base.hpp
@@ -205,8 +217,20 @@ trading/currency.hpp
 -
 trading/price.hpp
 -
+trading/currency.hpp
+-
+trading/amount.hpp
+-
 
 ../include/trading/price.hpp
+trading/currency.hpp
+-
+
+../include/trading/price_point.hpp
+boost/date_time/posix_time/ptime.hpp
+-
+trading/price.hpp
+-
 
 ../include/trading/range.hpp
 
@@ -224,6 +248,8 @@ boost/date_time/posix_time/posix_time.hpp
 trading/candle.hpp
 -
 trading/exception.hpp
+-
+trading/currency.hpp
 -
 
 ../include/trading/side.hpp
@@ -245,7 +271,11 @@ trading/trade.hpp
 -
 trading/fraction.hpp
 -
-trading/data_point.hpp
+trading/price_point.hpp
+-
+trading/currency.hpp
+-
+trading/close_position.hpp
 -
 
 ../include/trading/trade.hpp
@@ -256,6 +286,10 @@ cmath
 trading/position.hpp
 -
 trading/fraction.hpp
+-
+trading/open_position.hpp
+-
+trading/close_position.hpp
 -
 
 ../include/trading/triple_ema/long_strategy.hpp
@@ -285,11 +319,13 @@ optional
 -
 trading/trade.hpp
 -
-trading/data_point.hpp
+trading/price_point.hpp
 -
 trading/position.hpp
 -
 trading/action.hpp
+-
+trading/amount.hpp
 -
 
 ../include/trading/tuple.hpp
