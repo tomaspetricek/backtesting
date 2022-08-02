@@ -12,6 +12,14 @@ namespace trading {
     class amount {
         double val_;
 
+        static double validate(double val)
+        {
+            if (val<0.0)
+                throw std::invalid_argument("Amount has to be greater than 0");
+
+            return val;
+        }
+
     public:
         explicit amount(double value)
                 :val_(value) { }
@@ -21,13 +29,15 @@ namespace trading {
             return val_;
         }
 
-        amount<curr>& operator+=(const amount<curr>& rhs) {
-            val_ += rhs.val_;
+        amount<curr>& operator+=(const amount<curr>& rhs)
+        {
+            *this = amount<curr>{val_+rhs.val_};
             return *this;
         }
 
-        amount<curr>& operator-=(const amount<curr>& rhs) {
-            val_ -= rhs.val_;
+        amount<curr>& operator-=(const amount<curr>& rhs)
+        {
+            *this = amount<curr>{val_-rhs.val_};
             return *this;
         }
 

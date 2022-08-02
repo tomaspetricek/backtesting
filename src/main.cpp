@@ -35,8 +35,8 @@ void run()
         price_points.emplace_back(candle.opened(), trading::candle<crypto::USDT>::ohlc4(candle));
 
     // create trade manager
-    double pos_size{100};
-    triple_ema::trade_manager<crypto::BTC, crypto::USDT> manager{pos_size};
+    amount<crypto::USDT> buy_size{100};
+    triple_ema::trade_manager<crypto::BTC, crypto::USDT> manager{buy_size};
 
     // create test box
     auto box = test_box<crypto::BTC, crypto::USDT, triple_ema::long_strategy, triple_ema::trade_manager, percent::long_stats>(price_points, manager);
@@ -60,6 +60,7 @@ void print_vals(Indicator indic, const std::vector<double>& samples)
         if (indic.is_ready())
             std::cout << static_cast<double>(indic);
     }
+
     std::cout << std::endl;
 }
 

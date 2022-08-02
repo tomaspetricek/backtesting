@@ -72,6 +72,7 @@ namespace trading {
         {
             return total_sold_;
         }
+
         const amount<quote>& total_bought() const
         {
             return total_bought_;
