@@ -12,42 +12,39 @@
 #include <trading/currency.hpp>
 
 namespace trading {
-    template<currency::crypto quote>
     class candle {
         boost::posix_time::ptime opened_;
-        price<quote> open_;
-        price<quote> high_;
-        price<quote> low_;
-        price<quote> close_;
+        price open_;
+        price high_;
+        price low_;
+        price close_;
 
     public:
-        candle(const boost::posix_time::ptime& opened, const price<quote>& open, const price<quote>& high,
-                const price<quote>& low, const price<quote>& close)
-                :opened_(opened), open_(open), high_(high), low_(low), close_(close)
+        explicit candle(const boost::posix_time::ptime& opened, double open, double high,
+                double low, double close)
+                :opened_(opened), open_(price{open}), high_(price{high}),
+                 low_(price{low}), close_(price{close})
         {
             if (high<=low)
                 throw std::invalid_argument("High price has to be lower or equal to low price");
         }
 
-        candle(const boost::posix_time::ptime& opened, double open, double high, double low, double close)
-                :candle{opened, price<quote>{open}, price<quote>{high}, price<quote>{low}, price<quote>{close}} { }
-
         // mean high and low
-        static price<quote> hl2(const candle& candle)
+        static price hl2(const candle& candle)
         {
-            return price<quote>{mean(candle.high_, candle.low_)};
+            return price{mean(candle.high_, candle.low_)};
         }
 
         // mean open, high, low, close
-        static price<quote> hlc3(const candle& candle)
+        static price hlc3(const candle& candle)
         {
-            return price<quote>{mean(candle.high_, candle.low_, candle.close_)};
+            return price{mean(candle.high_, candle.low_)};
         }
 
         // mean open, high, low, close
-        static price<quote> ohlc4(const candle& candle)
+        static price ohlc4(const candle& candle)
         {
-            return price<quote>{mean(candle.open_, candle.high_, candle.low_, candle.close_)};
+            return price{mean(candle.open_, candle.high_, candle.low_, candle.close_)};
         }
 
         boost::posix_time::ptime opened() const
@@ -55,22 +52,22 @@ namespace trading {
             return opened_;
         }
 
-        price<quote> open() const
+        price open() const
         {
             return open_;
         }
 
-        price<quote> high() const
+        price high() const
         {
             return high_;
         }
 
-        price<quote> low() const
+        price low() const
         {
             return low_;
         }
 
-        price<quote> close() const
+        price close() const
         {
             return close_;
         }

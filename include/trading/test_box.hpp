@@ -15,25 +15,24 @@
 #include <trading/fraction.hpp>
 #include <trading/price_point.hpp>
 #include <trading/currency.hpp>
-#include <trading/close_position.hpp>
 
 namespace trading {
-    template<currency::crypto base, currency::crypto quote, typename Strategy, template<currency::crypto, currency::crypto> typename TradeManager, typename Stats>
+    template<typename Strategy, typename TradeManager, typename Stats>
     class test_box {
     private:
         std::optional<action> action_;
-        std::vector<price_point<quote>> price_points_;
-        TradeManager<base, quote> manager_;
+        std::vector<price_point> price_points_;
+        TradeManager manager_;
 
     public:
-        explicit test_box(std::vector<price_point<quote>> price_points, const TradeManager<base, quote>& manager)
+        explicit test_box(std::vector<price_point> price_points, const TradeManager& manager)
             :price_points_ (std::move(price_points)), manager_(manager) { }
 
         template<typename ...Args>
         void operator()(Args... args)
         {
-            std::vector<trade<base, quote>> closed;
-            std::optional<trade<base, quote>> active;
+            std::vector<trade> closed;
+            std::optional<trade> active;
             Strategy strategy;
 
             // create strategy
@@ -62,7 +61,7 @@ namespace trading {
             // close active trade
             if (active) {
                 const auto& point = price_points_.back();
-                active->add_closed(close_position<base, quote>{active->size(), point.price(), point.time()});
+                active->add_closed(position::create_close(active->size(), point.price(), point.time()));
                 closed.emplace_back(*active);
             }
 

@@ -10,16 +10,15 @@
 #include <trading/price.hpp>
 
 namespace trading {
-    template<currency::crypto curr>
     struct price_point {
         boost::posix_time::ptime time_;
-        price<curr> price_;
+        price price_;
 
     public:
-        price_point(const boost::posix_time::ptime& time, price<curr> price)
+        price_point(const boost::posix_time::ptime& time, const price& price)
                 :time_(time), price_(price) { }
 
-        const price<curr>& price() const
+        const price& price() const
         {
             return price_;
         }

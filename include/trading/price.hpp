@@ -6,9 +6,9 @@
 #define EMASTRATEGY_PRICE_HPP
 
 #include <trading/currency.hpp>
+#include <trading/exception.hpp>
 
 namespace trading {
-    template<typename currency::crypto currency>
     class price {
         double val_;
 
@@ -21,8 +21,8 @@ namespace trading {
         }
 
     public:
-        explicit price(double value = 0.0)
-                :val_(validate(value)) { }
+        constexpr explicit price(double val)
+                :val_(val) { }
 
         bool operator<(const price& rhs) const
         {
@@ -42,11 +42,6 @@ namespace trading {
         bool operator>=(const price& rhs) const
         {
             return !(*this<rhs);
-        }
-
-        price operator+(double val) const
-        {
-            return price{val_+val};
         }
 
         price operator+(const price& rhs) const

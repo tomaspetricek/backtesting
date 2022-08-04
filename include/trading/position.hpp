@@ -12,41 +12,47 @@
 #include <trading/currency.hpp>
 #include <trading/price.hpp>
 #include <trading/currency.hpp>
-#include <trading/amount.hpp>
+#include <trading/amount_t.hpp>
 
 namespace trading {
-    template<currency::crypto buy, currency::crypto sell, currency::crypto price_curr>
     class position {
     protected:
-        amount<buy> bought_{0};
-        amount<sell> sold_{0};
-        price<price_curr> price_;
+        amount_t sold_;
+        amount_t bought_;
+        price price_;
         boost::posix_time::ptime created_;
 
     public:
-        position() = default;
+        explicit position(amount_t sold, const amount_t bought, const price& price,
+                const boost::posix_time::ptime& created)
+                :sold_(sold), bought_(bought), price_(price), created_(created) { }
 
-        explicit position(const amount<sell>& sold, const price<price_curr>& price, const boost::posix_time::ptime& created)
-                :sold_(sold), price_(price), created_(created) {}
-
-        const price<price_curr>& price() const
+        const price& price() const
         {
             return price_;
         }
-        
+
         boost::posix_time::ptime created() const
         {
             return created_;
         }
 
-        const amount<buy>& bought() const
+        amount_t sold() const
+        {
+            return sold_;
+        }
+        amount_t bought() const
         {
             return bought_;
         }
 
-        const amount<sell>& sold() const
+        static position create_close(amount_t sold, const trading::price& price, const boost::posix_time::ptime& created)
         {
-            return sold_;
+            return position(sold, sold*static_cast<double>(price), price, created);
+        }
+
+        static position create_open(amount_t sold, const trading::price& price, const boost::posix_time::ptime& created) {
+            return position{sold, sold/static_cast<double>(price), price, created};
         }
     };
 }

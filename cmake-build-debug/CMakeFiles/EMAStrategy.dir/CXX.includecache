@@ -39,7 +39,7 @@ trading/validator/interval.hpp
 -
 trading/action.hpp
 -
-trading/amount.hpp
+trading/money.hpp
 -
 trading/candle.hpp
 -
@@ -76,9 +76,7 @@ trading/tuple.hpp
 
 ../include/trading/action.hpp
 
-../include/trading/amount.hpp
-trading/currency.hpp
--
+../include/trading/amount_t.hpp
 
 ../include/trading/bazooka/strategy.hpp
 array
@@ -114,10 +112,6 @@ trading/price.hpp
 trading/pack.hpp
 -
 trading/currency.hpp
--
-
-../include/trading/close_position.hpp
-trading/position.hpp
 -
 
 ../include/trading/currency.hpp
@@ -156,10 +150,10 @@ queue
 trading/indicator/moving_average.hpp
 -
 
-../include/trading/open_position.hpp
-trading/position.hpp
+../include/trading/money.hpp
+trading/currency.hpp
 -
-trading/amount.hpp
+trading/exception.hpp
 -
 
 ../include/trading/optimizer/base.hpp
@@ -219,11 +213,13 @@ trading/price.hpp
 -
 trading/currency.hpp
 -
-trading/amount.hpp
+trading/amount_t.hpp
 -
 
 ../include/trading/price.hpp
 trading/currency.hpp
+-
+trading/exception.hpp
 -
 
 ../include/trading/price_point.hpp
@@ -275,8 +271,6 @@ trading/price_point.hpp
 -
 trading/currency.hpp
 -
-trading/close_position.hpp
--
 
 ../include/trading/trade.hpp
 vector
@@ -287,9 +281,7 @@ trading/position.hpp
 -
 trading/fraction.hpp
 -
-trading/open_position.hpp
--
-trading/close_position.hpp
+trading/amount_t.hpp
 -
 
 ../include/trading/triple_ema/long_strategy.hpp
@@ -325,7 +317,11 @@ trading/position.hpp
 -
 trading/action.hpp
 -
-trading/amount.hpp
+trading/money.hpp
+-
+trading/currency.hpp
+-
+trading/amount_t.hpp
 -
 
 ../include/trading/tuple.hpp

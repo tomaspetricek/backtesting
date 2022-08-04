@@ -17,8 +17,7 @@
 #include <trading/currency.hpp>
 
 namespace trading {
-    template<currency::crypto quote>
-    std::vector<candle<quote>> read_candles(const std::filesystem::path& path, char delim,
+    std::vector<candle> read_candles(const std::filesystem::path& path, char delim,
             const std::chrono::seconds& period)
     {
         if (!std::filesystem::exists(path))
@@ -32,7 +31,7 @@ namespace trading {
         if (!file.is_open())
             throw std::runtime_error("Cannot open "+path.string());
 
-        std::vector<candle<quote>> candles;
+        std::vector<candle> candles;
         std::string line, data;
         std::time_t curr_opened, bef_opened = 0;
         double open, high, low, close;

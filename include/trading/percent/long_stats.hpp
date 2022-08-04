@@ -12,15 +12,13 @@
 namespace trading::percent {
     class long_stats : public trading::stats {
     public:
-        template<currency::crypto base, currency::crypto quote>
-        explicit long_stats(const std::vector<trade<base, quote>>& closed)
+        explicit long_stats(const std::vector<trade>& closed)
                 :trading::stats{closed.size()}
         {
             percent_t profit;
             double buy, sell;
 
             for (const auto& trade : closed) {
-
                 if (!trade.is_closed())
                     throw std::invalid_argument("Trade must be closed");
 

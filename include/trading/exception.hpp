@@ -23,11 +23,24 @@ namespace trading {
 
     class bad_formatting : public std::runtime_error {
     public:
-
         explicit bad_formatting(const std::string& string)
                 :runtime_error(string) { }
 
         ~bad_formatting() noexcept override = default;
+
+        const char* what() const _NOEXCEPT override
+        {
+            return runtime_error::what();
+        }
+    };
+
+    // source: https://github.com/mariusbancila/moneycpp/blob/master/include/money.h
+    class currency_mismatch_error : public std::runtime_error {
+    public:
+        explicit currency_mismatch_error()
+                :runtime_error("Currencies do not match") { }
+
+        ~currency_mismatch_error() noexcept override = default;
 
         const char* what() const _NOEXCEPT override
         {

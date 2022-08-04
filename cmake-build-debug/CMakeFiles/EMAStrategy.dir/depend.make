@@ -3,12 +3,11 @@
 
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/action.hpp
-CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/amount.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/amount_t.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/bazooka/strategy.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/bazooka/trade_manager.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/binance/spot/market.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/candle.hpp
-CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/close_position.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/currency.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/exception.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/formula.hpp
@@ -17,7 +16,7 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/function.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/ema.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/moving_average.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/indicator/sma.hpp
-CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/open_position.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/money.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/base.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/cartesian_product/brute_force.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/optimizer/sliding/brute_force.hpp

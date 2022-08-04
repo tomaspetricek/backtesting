@@ -10,26 +10,24 @@
 
 #include <trading/position.hpp>
 #include <trading/fraction.hpp>
-#include <trading/open_position.hpp>
-#include <trading/close_position.hpp>
+#include <trading/amount_t.hpp>
 
 namespace trading {
-    template<currency::crypto base, currency::crypto quote>
     class trade {
-        std::vector<open_position<base, quote>> opened_;
-        std::vector<close_position<base, quote>> closed_;
-        amount<base> size_{0};
-        amount<quote> total_sold_{0};
-        amount<quote> total_bought_{0};
+        std::vector<position> opened_;
+        std::vector<position> closed_;
+        amount_t size_{0.0};
+        amount_t total_sold_{0.0};
+        amount_t total_bought_{0.0};
         bool is_opened_ = true;
 
     public:
-        explicit trade(const open_position<base, quote>& pos)
+        explicit trade(const position& pos)
         {
             add_opened(pos);
         }
 
-        void add_opened(const open_position<base, quote>& pos)
+        void add_opened(const position& pos)
         {
             if (!is_opened_)
                 throw std::runtime_error("Cannot add position to closed trade");
@@ -39,7 +37,7 @@ namespace trading {
             opened_.emplace_back(pos);
         }
 
-        void add_closed(const close_position<base, quote>& pos)
+        void add_closed(const position& pos)
         {
             if (pos.sold()>size_)
                 throw std::logic_error("Cannot add closed position. Position size is greater than trade size.");
@@ -52,28 +50,22 @@ namespace trading {
             if (size_==0) is_opened_ = false;
         }
 
-        const amount<base>& size() const
+        const amount_t& size() const
         {
             return size_;
         }
-
-//        template<unsigned int denom>
-//        double calculate_position_size(const fraction<denom>& trade_frac) const
-//        {
-//            return size_*static_cast<double>(trade_frac);
-//        }
 
         bool is_closed() const
         {
             return !is_opened_;
         }
 
-        const amount<quote>& total_sold() const
+        const amount_t& total_sold() const
         {
             return total_sold_;
         }
 
-        const amount<quote>& total_bought() const
+        const amount_t& total_bought() const
         {
             return total_bought_;
         }
