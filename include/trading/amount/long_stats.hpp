@@ -1,0 +1,8 @@
+//
+// Created by Tomáš Petříček on 05.08.2022.
+//
+
+#ifndef EMASTRATEGY_LONG_STATS_HPP
+#define EMASTRATEGY_LONG_STATS_HPP
+
+#endif //EMASTRATEGY_LONG_STATS_HPP

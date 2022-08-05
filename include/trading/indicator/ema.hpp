@@ -8,7 +8,7 @@
 #include <numeric>
 
 #include <trading/exception.hpp>
-#include <trading/price.hpp>
+#include <trading/price_t.hpp>
 #include <trading/indicator/moving_average.hpp>
 #include <trading/indicator/sma.hpp>
 

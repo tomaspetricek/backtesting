@@ -67,8 +67,8 @@ namespace trading {
 
             // create stats
             Stats stats(closed);
-            std::cout << "min profit: " << stats.min_profit()
-                      << " %, max profit: " << stats.max_profit()
+            std::cout << "min profit: " << value_of(stats.min_profit())
+                      << " %, max profit: " << value_of(stats.max_profit())
                       << " %, n closed trades: " << stats.n_closed_trades() << std::endl;
         }
     };

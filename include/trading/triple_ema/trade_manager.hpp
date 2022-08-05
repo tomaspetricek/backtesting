@@ -21,7 +21,7 @@ namespace trading::triple_ema {
 
         static amount_t validate_buy_size(amount_t buy_size)
         {
-            if (buy_size<=0)
+            if (buy_size<=amount_t{0.0})
                 throw std::invalid_argument("Buy size has to be greater than 0");
 
             return buy_size;

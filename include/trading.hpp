@@ -26,17 +26,18 @@
 #include <trading/currency.hpp>
 #include <trading/price_point.hpp>
 #include <trading/exception.hpp>
-#include <trading/formula.hpp>
+#include <trading/amount/formula.hpp>
 #include <trading/fraction.hpp>
 #include <trading/function.hpp>
 #include <trading/pack.hpp>
 #include <trading/position.hpp>
-#include <trading/price.hpp>
+#include <trading/price_t.hpp>
 #include <trading/range.hpp>
 #include <trading/read.hpp>
 #include <trading/side.hpp>
 #include <trading/test_box.hpp>
 #include <trading/trade.hpp>
 #include <trading/tuple.hpp>
+#include <strong_type/strong_type.hpp>
 
 #endif //EMASTRATEGY_TRADING_HPP

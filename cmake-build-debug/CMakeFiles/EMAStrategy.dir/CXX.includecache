@@ -6,6 +6,24 @@
 
 #IncludeRegexTransform: 
 
+../include/strong_type/strong_type.hpp
+functional
+-
+istream
+-
+ostream
+-
+type_traits
+-
+utility
+-
+version
+-
+format
+-
+fmt/format.h
+-
+
 ../include/trading.hpp
 trading/bazooka/trade_manager.hpp
 -
@@ -49,7 +67,7 @@ trading/price_point.hpp
 -
 trading/exception.hpp
 -
-trading/formula.hpp
+trading/amount/formula.hpp
 -
 trading/fraction.hpp
 -
@@ -59,7 +77,7 @@ trading/pack.hpp
 -
 trading/position.hpp
 -
-trading/price.hpp
+trading/price_t.hpp
 -
 trading/range.hpp
 -
@@ -73,10 +91,16 @@ trading/trade.hpp
 -
 trading/tuple.hpp
 -
+strong_type/strong_type.hpp
+-
 
 ../include/trading/action.hpp
 
+../include/trading/amount/formula.hpp
+
 ../include/trading/amount_t.hpp
+strong_type/strong_type.hpp
+-
 
 ../include/trading/bazooka/strategy.hpp
 array
@@ -107,7 +131,7 @@ trading/trade.hpp
 ../include/trading/candle.hpp
 boost/date_time/posix_time/posix_time.hpp
 -
-trading/price.hpp
+trading/price_t.hpp
 -
 trading/pack.hpp
 -
@@ -119,8 +143,6 @@ trading/currency.hpp
 ../include/trading/exception.hpp
 exception
 -
-
-../include/trading/formula.hpp
 
 ../include/trading/fraction.hpp
 trading/validator/interval.hpp
@@ -135,7 +157,7 @@ numeric
 -
 trading/exception.hpp
 -
-trading/price.hpp
+trading/price_t.hpp
 -
 trading/indicator/moving_average.hpp
 -
@@ -199,8 +221,14 @@ trading/trade.hpp
 -
 trading/stats.hpp
 -
+trading/percent_t.hpp
+-
+trading/percent/formula.hpp
+-
 
 ../include/trading/percent_t.hpp
+strong_type/strong_type.hpp
+-
 
 ../include/trading/position.hpp
 ostream
@@ -209,23 +237,25 @@ boost/date_time/posix_time/ptime.hpp
 -
 trading/currency.hpp
 -
-trading/price.hpp
+trading/price_t.hpp
 -
 trading/currency.hpp
 -
 trading/amount_t.hpp
 -
 
-../include/trading/price.hpp
+../include/trading/price_point.hpp
+boost/date_time/posix_time/ptime.hpp
+-
+trading/price_t.hpp
+-
+
+../include/trading/price_t.hpp
 trading/currency.hpp
 -
 trading/exception.hpp
 -
-
-../include/trading/price_point.hpp
-boost/date_time/posix_time/ptime.hpp
--
-trading/price.hpp
+strong_type/strong_type.hpp
 -
 
 ../include/trading/range.hpp
@@ -251,6 +281,8 @@ trading/currency.hpp
 ../include/trading/side.hpp
 
 ../include/trading/stats.hpp
+trading/amount_t.hpp
+-
 
 ../include/trading/test_box.hpp
 utility

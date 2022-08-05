@@ -7,44 +7,44 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include <trading/price.hpp>
+#include <trading/price_t.hpp>
 #include <trading/pack.hpp>
 #include <trading/currency.hpp>
 
 namespace trading {
     class candle {
         boost::posix_time::ptime opened_;
-        price open_;
-        price high_;
-        price low_;
-        price close_;
+        price_t open_;
+        price_t high_;
+        price_t low_;
+        price_t close_;
 
     public:
         explicit candle(const boost::posix_time::ptime& opened, double open, double high,
                 double low, double close)
-                :opened_(opened), open_(price{open}), high_(price{high}),
-                 low_(price{low}), close_(price{close})
+                :opened_(opened), open_(price_t{open}), high_(price_t{high}),
+                 low_(price_t{low}), close_(price_t{close})
         {
             if (high<=low)
                 throw std::invalid_argument("High price has to be lower or equal to low price");
         }
 
         // mean high and low
-        static price hl2(const candle& candle)
+        static price_t hl2(const candle& candle)
         {
-            return price{mean(candle.high_, candle.low_)};
+            return price_t{mean(candle.high_, candle.low_)};
         }
 
         // mean open, high, low, close
-        static price hlc3(const candle& candle)
+        static price_t hlc3(const candle& candle)
         {
-            return price{mean(candle.high_, candle.low_)};
+            return price_t{mean(candle.high_, candle.low_)};
         }
 
         // mean open, high, low, close
-        static price ohlc4(const candle& candle)
+        static price_t ohlc4(const candle& candle)
         {
-            return price{mean(candle.open_, candle.high_, candle.low_, candle.close_)};
+            return price_t{mean(candle.open_, candle.high_, candle.low_, candle.close_)};
         }
 
         boost::posix_time::ptime opened() const
@@ -52,22 +52,22 @@ namespace trading {
             return opened_;
         }
 
-        price open() const
+        price_t open() const
         {
             return open_;
         }
 
-        price high() const
+        price_t high() const
         {
             return high_;
         }
 
-        price low() const
+        price_t low() const
         {
             return low_;
         }
 
-        price close() const
+        price_t close() const
         {
             return close_;
         }

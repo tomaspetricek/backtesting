@@ -8,32 +8,11 @@
 #include <trading/percent_t.hpp>
 #include <trading/trade.hpp>
 #include <trading/stats.hpp>
+#include <trading/percent_t.hpp>
+#include <trading/percent/formula.hpp>
 
 namespace trading::percent {
-    class long_stats : public trading::stats {
-    public:
-        explicit long_stats(const std::vector<trade>& closed)
-                :trading::stats{closed.size()}
-        {
-            percent_t profit;
-            double buy, sell;
-
-            for (const auto& trade : closed) {
-                if (!trade.is_closed())
-                    throw std::invalid_argument("Trade must be closed");
-
-                buy = static_cast<double>(trade.total_sold());
-                sell = static_cast<double>(trade.total_bought());
-
-                // calculate stats
-                profit = percent::formula::profit(buy, sell);
-
-                if (profit>max_profit_) max_profit_ = profit;
-
-                if (profit<min_profit_) min_profit_ = profit;
-            }
-        }
-    };
+    using long_stats = trading::stats<percent_t, formula::profit>;
 }
 
 #endif //EMASTRATEGY_PERCENT_STATS_HPP

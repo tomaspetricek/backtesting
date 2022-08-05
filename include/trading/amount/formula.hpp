@@ -5,8 +5,8 @@
 #ifndef EMASTRATEGY_FORMULA_HPP
 #define EMASTRATEGY_FORMULA_HPP
 
-namespace trading::formula {
-    inline double profit(double buy, double sell)
+namespace trading::amount::formula {
+    inline amount_t profit(amount_t buy, amount_t sell)
     {
         return sell-buy;
     }

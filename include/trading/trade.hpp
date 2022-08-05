@@ -47,7 +47,7 @@ namespace trading {
             closed_.emplace_back(pos);
 
             // check if closed
-            if (size_==0) is_opened_ = false;
+            if (size_==amount_t{0}) is_opened_ = false;
         }
 
         const amount_t& size() const

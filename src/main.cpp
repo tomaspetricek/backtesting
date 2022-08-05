@@ -84,13 +84,13 @@ void use_indicators()
 void use_formulas()
 {
     // example from: https://www.tradingview.com/support/solutions/43000561856-how-are-strategy-tester-report-values-calculated-and-what-do-they-mean/
-    double buy{333.25};
-    double sell{351.34};
-    std::cout << "profit: " << percent::formula::profit(buy, sell) << " %" << std::endl;
+    amount_t buy{333.25};
+    amount_t sell{351.34};
+    std::cout << "profit: " << value_of(percent::formula::profit(buy, sell)) << " %" << std::endl;
 
-    double profit{formula::profit(buy, sell)};
+    amount_t profit{amount::formula::profit(buy, sell)};
     percent::formula::cumulative_profit cum_profit(1000);
-    std::cout << "cumulative profit: " << cum_profit(profit) << " %" << std::endl;
+    std::cout << "cumulative profit: " << value_of(cum_profit(profit)) << " %" << std::endl;
 }
 
 void use_interval()

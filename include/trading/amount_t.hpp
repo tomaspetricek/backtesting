@@ -5,8 +5,10 @@
 #ifndef EMASTRATEGY_AMOUNT_T_HPP
 #define EMASTRATEGY_AMOUNT_T_HPP
 
+#include <strong_type/strong_type.hpp>
+
 namespace trading {
-    typedef double amount_t;
+    using amount_t = strong::type<double, struct amount_tag, strong::equality, strong::ordered, strong::arithmetic>;
 }
 
 #endif //EMASTRATEGY_AMOUNT_T_HPP
