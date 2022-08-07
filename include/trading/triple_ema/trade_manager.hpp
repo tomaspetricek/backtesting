@@ -36,7 +36,7 @@ namespace trading::triple_ema {
             if (!active) {
                 // create active trade
                 if (action==action::buy) {
-                    auto pos = position::create_open(buy_size_, point.price(), point.time());
+                    auto pos = position::create_open(buy_size_, point.price, point.time);
                     active = std::make_optional(trade(pos));
                 }
                 else if (action==action::sell || action==action::sell_all) {
@@ -46,17 +46,17 @@ namespace trading::triple_ema {
             else {
                 // buy
                 if (action==action::buy) {
-                    auto pos = position::create_open(buy_size_, point.price(), point.time());
+                    auto pos = position::create_open(buy_size_, point.price, point.time);
                     active->add_opened(pos);
                 }
                     // sell
                 else if (action==action::sell) {
-                    auto pos = position::create_close(active->size(), point.price(), point.time());
+                    auto pos = position::create_close(active->size(), point.price, point.time);
                     active->add_closed(pos);
                 }
                     // sell all
                 else if (action==action::sell_all) {
-                    auto pos = position::create_close(active->size(), point.price(), point.time());
+                    auto pos = position::create_close(active->size(), point.price, point.time);
                     active->add_closed(pos);
                 }
             }

@@ -71,6 +71,9 @@ namespace trading {
             if (curr_opened<0)
                 throw std::invalid_argument("Candle time has to greater or equal to 0");
 
+            if (open<0 || high<0 || low<0 || close<0)
+                throw std::invalid_argument("Price has to be greater or equal to 0");
+
             // check duration between
             if (bef_opened!=0)
                 if (period.count()!=(curr_opened-bef_opened))

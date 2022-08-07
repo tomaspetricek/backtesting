@@ -11,22 +11,12 @@
 
 namespace trading {
     struct price_point {
-        boost::posix_time::ptime time_;
-        price_t price_;
+        boost::posix_time::ptime time;
+        price_t price;
 
     public:
-        price_point(const boost::posix_time::ptime& time, const price_t& price)
-                :time_(time), price_(price) { }
-
-        const price_t& price() const
-        {
-            return price_;
-        }
-
-        boost::posix_time::ptime time() const
-        {
-            return time_;
-        }
+        explicit price_point(const boost::posix_time::ptime& time, const price_t& price)
+                :time(time), price(price) { }
     };
 }
 

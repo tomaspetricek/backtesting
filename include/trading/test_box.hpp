@@ -45,7 +45,7 @@ namespace trading {
 
             // collect trades
             for (const auto& point : price_points_) {
-                action_ = strategy(point.price());
+                action_ = strategy(point.price);
 
                 if (action_) {
                     manager_.update_active_trade(active, *action_, point);
@@ -61,7 +61,7 @@ namespace trading {
             // close active trade
             if (active) {
                 const auto& point = price_points_.back();
-                active->add_closed(position::create_close(active->size(), point.price(), point.time()));
+                active->add_closed(position::create_close(active->size(), point.price, point.time));
                 closed.emplace_back(*active);
             }
 
