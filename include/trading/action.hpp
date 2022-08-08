@@ -9,7 +9,8 @@ namespace trading {
     enum class action {
         buy,
         sell,
-        sell_all
+        do_nothing,
+        sell_all,
     };
 }
 

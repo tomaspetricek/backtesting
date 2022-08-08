@@ -23,12 +23,12 @@ namespace trading::triple_ema {
                 :strategy(short_period, middle_period, long_period) { }
 
         template<typename Price>
-        std::optional<action> operator()(const Price& curr)
+        action operator()(const Price& curr)
         {
             update_indicators(curr);
 
             if (!indicators_ready_)
-                return std::nullopt;
+                return action::do_nothing;
 
             auto curr_short = static_cast<double>(short_ema_);
             auto curr_middle = static_cast<double>(middle_ema_);
@@ -46,7 +46,7 @@ namespace trading::triple_ema {
             }
                 // do nothing
             else {
-                return std::nullopt;
+                return action::do_nothing;
             }
         }
     };

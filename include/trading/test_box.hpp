@@ -20,7 +20,6 @@ namespace trading {
     template<typename Strategy, typename TradeManager, typename Stats>
     class test_box {
     private:
-        std::optional<action> action_;
         std::vector<price_point> price_points_;
         TradeManager manager_;
         storage& storage_;
@@ -44,10 +43,8 @@ namespace trading {
 
             // collect trades
             for (const auto& point : price_points_) {
-                action_ = strategy(point.price);
-
-                if (action_)
-                    manager_.update_active_trade(*action_, point);
+                auto action = strategy(point.price);
+                manager_.update_active_trade(action, point);
             }
 
             // close active trade
