@@ -7,16 +7,17 @@
 
 #include <trading/action.hpp>
 #include <utility>
+#include <trading/strategy.hpp>
 
 namespace trading::triple_ema {
 // source: https://python.plainenglish.io/triple-moving-average-trading-strategy-aaa44d96d532
-    class strategy {
+    class strategy : public trading::strategy {
     protected:
         indicator::ema short_ema_; // fast moving
         indicator::ema middle_ema_; // slow
         indicator::ema long_ema_; // low moving
         bool pos_opened_ = false;
-        bool indicators_ready_ = false;
+        bool indics_ready_ = false;
 
         strategy() = default;
 
@@ -42,7 +43,34 @@ namespace trading::triple_ema {
             long_ema_(curr_val);
 
             if (long_ema_.is_ready())
-                indicators_ready_ = true;
+                indics_ready_ = true;
+        }
+
+    private:
+        bool should_sell_all() override
+        {
+            return false;
+        }
+
+    public:
+        action operator()(const price_t& curr) override
+        {
+            update_indicators(curr);
+
+            if (!indics_ready_)
+                return action::do_nothing;
+
+            if (should_buy()) {
+                pos_opened_ = true;
+                return action::buy;
+            }
+            else if (should_sell()) {
+                pos_opened_ = false;
+                return action::sell;
+            }
+            else {
+                return action::do_nothing;
+            }
         }
     };
 }

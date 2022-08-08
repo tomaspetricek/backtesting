@@ -22,32 +22,22 @@ namespace trading::triple_ema {
         long_strategy(int short_period, int middle_period, int long_period)
                 :strategy(short_period, middle_period, long_period) { }
 
-        template<typename Price>
-        action operator()(const Price& curr)
+    private:
+        bool should_buy() override
         {
-            update_indicators(curr);
-
-            if (!indicators_ready_)
-                return action::do_nothing;
-
             auto curr_short = static_cast<double>(short_ema_);
             auto curr_middle = static_cast<double>(middle_ema_);
             auto curr_long = static_cast<double>(long_ema_);
 
-            // buy
-            if (curr_middle>curr_long && curr_middle<curr_short && !pos_opened_) {
-                pos_opened_ = true;
-                return action::buy;
-            }
-                // sell
-            else if (curr_short<curr_middle && pos_opened_) {
-                pos_opened_ = false;
-                return action::sell;
-            }
-                // do nothing
-            else {
-                return action::do_nothing;
-            }
+            return curr_middle>curr_long && curr_middle<curr_short && !pos_opened_;
+        }
+
+        bool should_sell() override
+        {
+            auto curr_short = static_cast<double>(short_ema_);
+            auto curr_middle = static_cast<double>(middle_ema_);
+
+            return curr_short<curr_middle && pos_opened_;
         }
     };
 }

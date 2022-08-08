@@ -164,6 +164,8 @@ trading/validator/interval.hpp
 functional
 -
 
+../include/trading/indicator/base.hpp
+
 ../include/trading/indicator/ema.hpp
 numeric
 -
@@ -177,6 +179,8 @@ trading/indicator/sma.hpp
 -
 
 ../include/trading/indicator/moving_average.hpp
+trading/indicator/base.hpp
+-
 
 ../include/trading/indicator/sma.hpp
 queue
@@ -298,6 +302,8 @@ trading/amount_t.hpp
 trading/trade.hpp
 -
 
+../include/trading/strategy.hpp
+
 ../include/trading/test_box.hpp
 utility
 -
@@ -330,6 +336,12 @@ trading/fraction.hpp
 trading/amount_t.hpp
 -
 
+../include/trading/trade_manager.hpp
+optional
+-
+storage.hpp
+../include/trading/storage.hpp
+
 ../include/trading/triple_ema/long_strategy.hpp
 optional
 -
@@ -351,6 +363,8 @@ trading/action.hpp
 -
 utility
 -
+trading/strategy.hpp
+-
 
 ../include/trading/triple_ema/trade_manager.hpp
 optional
@@ -370,6 +384,8 @@ trading/currency.hpp
 trading/amount_t.hpp
 -
 trading/storage.hpp
+-
+trading/trade_manager.hpp
 -
 
 ../include/trading/tuple.hpp

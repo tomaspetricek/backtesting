@@ -15,12 +15,11 @@
 #include <trading/currency.hpp>
 #include <trading/amount_t.hpp>
 #include <trading/storage.hpp>
+#include <trading/trade_manager.hpp>
 
 namespace trading::triple_ema {
-    class trade_manager {
+    class trade_manager : public trading::trade_manager {
         amount_t buy_size_;
-        std::optional<trade> active_;
-        storage& storage_;
 
         static amount_t validate_buy_size(amount_t buy_size)
         {
@@ -30,54 +29,33 @@ namespace trading::triple_ema {
             return buy_size;
         }
 
-    public:
-        explicit trade_manager(const amount_t& buy_size, storage& storage)
-                :buy_size_(validate_buy_size(buy_size)), storage_(storage) { }
-
-        void update_active_trade(const action& action, const price_point& point)
+        void buy(const price_point& point) override
         {
             if (!active_) {
-                // create active trade
-                if (action==action::buy) {
-                    auto pos = position::create_open(buy_size_, point.price, point.time);
-                    active_ = std::make_optional(trade(pos));
-                }
-                else if (action==action::sell || action==action::sell_all) {
-                    throw std::logic_error("Cannot sell. No active trade available");
-                }
+                auto pos = position::create_open(buy_size_, point.price, point.time);
+                active_ = std::make_optional(trade(pos));
             }
             else {
-                // buy
-                if (action==action::buy) {
-                    auto pos = position::create_open(buy_size_, point.price, point.time);
-                    active_->add_opened(pos);
-                }
-                    // sell
-                else if (action==action::sell) {
-                    auto pos = position::create_close(active_->size(), point.price, point.time);
-                    active_->add_closed(pos);
-                }
-                    // sell all
-                else if (action==action::sell_all) {
-                    auto pos = position::create_close(active_->size(), point.price, point.time);
-                    active_->add_closed(pos);
-                }
-
-                // save closed trade
-                if (active_->is_closed()) {
-                    storage_.save_closed_trade(*active_);
-                    active_ = std::nullopt;
-                }
+                auto pos = position::create_open(buy_size_, point.price, point.time);
+                active_->add_opened(pos);
             }
         }
 
-        void try_close_active_trade(const price_point& point) {
-            if (active_) {
-                auto pos = position::create_close(active_->size(), point.price, point.time);
-                storage_.save_closed_trade(*active_);
-                active_ = std::nullopt;
-            }
+        void sell(const price_point& point) override
+        {
+            auto pos = position::create_close(active_->size(), point.price, point.time);
+            active_->add_closed(pos);
         }
+
+        void sell_all(const price_point& point) override
+        {
+            auto pos = position::create_close(active_->size(), point.price, point.time);
+            active_->add_closed(pos);
+        }
+
+    public:
+        explicit trade_manager(const amount_t& buy_size, storage& storage)
+                :buy_size_(validate_buy_size(buy_size)), trading::trade_manager(storage) { }
     };
 }
 

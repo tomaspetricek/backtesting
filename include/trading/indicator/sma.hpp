@@ -21,7 +21,7 @@ namespace trading::indicator {
         explicit sma(int period = min_period)
                 :moving_average(period) { }
 
-        sma& operator()(double sample)
+        sma& operator()(double sample) override
         {
             sum_samples_ += sample;
             samples_.push(sample);
@@ -39,7 +39,7 @@ namespace trading::indicator {
             return *this;
         }
 
-        explicit operator double() const
+        explicit operator double() const override
         {
             if (!ready_)
                 throw not_ready("Not enough initial prices yet. Need "
