@@ -6,6 +6,7 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o
  ../include/trading.hpp
  ../include/trading/action.hpp
  ../include/trading/amount/formula.hpp
+ ../include/trading/amount/long_stats.hpp
  ../include/trading/amount_t.hpp
  ../include/trading/bazooka/strategy.hpp
  ../include/trading/bazooka/trade_manager.hpp
@@ -33,6 +34,7 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o
  ../include/trading/read.hpp
  ../include/trading/side.hpp
  ../include/trading/stats.hpp
+ ../include/trading/storage.hpp
  ../include/trading/test_box.hpp
  ../include/trading/trade.hpp
  ../include/trading/triple_ema/long_strategy.hpp

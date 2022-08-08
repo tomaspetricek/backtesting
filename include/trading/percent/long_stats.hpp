@@ -5,7 +5,6 @@
 #ifndef EMASTRATEGY_PERCENT_STATS_HPP
 #define EMASTRATEGY_PERCENT_STATS_HPP
 
-#include <trading/percent_t.hpp>
 #include <trading/trade.hpp>
 #include <trading/stats.hpp>
 #include <trading/percent_t.hpp>

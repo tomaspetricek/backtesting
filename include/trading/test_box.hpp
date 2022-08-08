@@ -23,16 +23,15 @@ namespace trading {
         std::optional<action> action_;
         std::vector<price_point> price_points_;
         TradeManager manager_;
+        storage& storage_;
 
     public:
-        explicit test_box(std::vector<price_point> price_points, const TradeManager& manager)
-            :price_points_ (std::move(price_points)), manager_(manager) { }
+        explicit test_box(std::vector<price_point> price_points, TradeManager manager, storage& storage)
+                :price_points_(std::move(price_points)), manager_(manager), storage_(storage) { }
 
         template<typename ...Args>
         void operator()(Args... args)
         {
-            std::vector<trade> closed;
-            std::optional<trade> active;
             Strategy strategy;
 
             // create strategy
@@ -47,26 +46,15 @@ namespace trading {
             for (const auto& point : price_points_) {
                 action_ = strategy(point.price);
 
-                if (action_) {
-                    manager_.update_active_trade(active, *action_, point);
-
-                    // add to closed trades
-                    if (active->is_closed()) {
-                        closed.emplace_back(*active);
-                        active = std::nullopt;
-                    }
-                }
+                if (action_)
+                    manager_.update_active_trade(*action_, point);
             }
 
             // close active trade
-            if (active) {
-                const auto& point = price_points_.back();
-                active->add_closed(position::create_close(active->size(), point.price, point.time));
-                closed.emplace_back(*active);
-            }
+            manager_.try_close_active_trade(price_points_.back());
 
             // create stats
-            Stats stats(closed);
+            Stats stats(storage_.retrieve_closed_trades());
             std::cout << "min profit: " << value_of(stats.min_profit())
                       << " %, max profit: " << value_of(stats.max_profit())
                       << " %, n closed trades: " << stats.n_closed_trades() << std::endl;

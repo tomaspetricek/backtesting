@@ -5,6 +5,7 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/strong_type/strong_type.hp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/action.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/amount/formula.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/amount/long_stats.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/amount_t.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/bazooka/strategy.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/bazooka/trade_manager.hpp
@@ -32,6 +33,7 @@ CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/range.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/read.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/side.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/stats.hpp
+CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/storage.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/test_box.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/trade.hpp
 CMakeFiles/EMAStrategy.dir/src/main.cpp.o: ../include/trading/triple_ema/long_strategy.hpp

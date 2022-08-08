@@ -25,6 +25,8 @@ fmt/format.h
 -
 
 ../include/trading.hpp
+trading/amount/long_stats.hpp
+-
 trading/bazooka/trade_manager.hpp
 -
 trading/bazooka/strategy.hpp
@@ -97,6 +99,16 @@ strong_type/strong_type.hpp
 ../include/trading/action.hpp
 
 ../include/trading/amount/formula.hpp
+
+../include/trading/amount/long_stats.hpp
+trading/trade.hpp
+-
+trading/stats.hpp
+-
+trading/amount_t.hpp
+-
+trading/amount/formula.hpp
+-
 
 ../include/trading/amount_t.hpp
 strong_type/strong_type.hpp
@@ -215,8 +227,6 @@ trading/percent_t.hpp
 -
 
 ../include/trading/percent/long_stats.hpp
-trading/percent_t.hpp
--
 trading/trade.hpp
 -
 trading/stats.hpp
@@ -282,6 +292,10 @@ trading/currency.hpp
 
 ../include/trading/stats.hpp
 trading/amount_t.hpp
+-
+
+../include/trading/storage.hpp
+trading/trade.hpp
 -
 
 ../include/trading/test_box.hpp
@@ -354,6 +368,8 @@ trading/money.hpp
 trading/currency.hpp
 -
 trading/amount_t.hpp
+-
+trading/storage.hpp
 -
 
 ../include/trading/tuple.hpp

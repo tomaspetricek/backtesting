@@ -5,6 +5,7 @@
 #ifndef EMASTRATEGY_TRADING_HPP
 #define EMASTRATEGY_TRADING_HPP
 
+#include <trading/amount/long_stats.hpp>
 #include <trading/bazooka/trade_manager.hpp>
 #include <trading/bazooka/strategy.hpp>
 #include <trading/binance/spot/market.hpp>
