@@ -75,6 +75,8 @@ trading/fraction.hpp
 -
 trading/function.hpp
 -
+trading/long_position.hpp
+-
 trading/pack.hpp
 -
 trading/position.hpp
@@ -89,7 +91,7 @@ trading/side.hpp
 -
 trading/test_box.hpp
 -
-trading/trade.hpp
+trading/long_trade.hpp
 -
 trading/tuple.hpp
 -
@@ -101,9 +103,9 @@ strong_type/strong_type.hpp
 ../include/trading/amount/formula.hpp
 
 ../include/trading/amount/long_stats.hpp
-trading/trade.hpp
+trading/long_trade.hpp
 -
-trading/stats.hpp
+trading/long_stats.hpp
 -
 trading/amount_t.hpp
 -
@@ -127,7 +129,7 @@ array
 -
 optional
 -
-trading/trade.hpp
+trading/long_trade.hpp
 -
 trading/price_point.hpp
 -
@@ -137,7 +139,7 @@ trading/action.hpp
 -
 
 ../include/trading/binance/spot/market.hpp
-trading/trade.hpp
+trading/long_trade.hpp
 -
 
 ../include/trading/candle.hpp
@@ -188,6 +190,26 @@ queue
 trading/indicator/moving_average.hpp
 -
 
+../include/trading/long_position.hpp
+trading/position.hpp
+-
+
+../include/trading/long_stats.hpp
+trading/amount_t.hpp
+-
+
+../include/trading/long_trade.hpp
+vector
+-
+cmath
+-
+trading/long_position.hpp
+-
+trading/fraction.hpp
+-
+trading/amount_t.hpp
+-
+
 ../include/trading/money.hpp
 trading/currency.hpp
 -
@@ -231,9 +253,9 @@ trading/percent_t.hpp
 -
 
 ../include/trading/percent/long_stats.hpp
-trading/trade.hpp
+trading/long_trade.hpp
 -
-trading/stats.hpp
+trading/long_stats.hpp
 -
 trading/percent_t.hpp
 -
@@ -294,12 +316,8 @@ trading/currency.hpp
 
 ../include/trading/side.hpp
 
-../include/trading/stats.hpp
-trading/amount_t.hpp
--
-
 ../include/trading/storage.hpp
-trading/trade.hpp
+trading/long_trade.hpp
 -
 
 ../include/trading/strategy.hpp
@@ -315,7 +333,7 @@ trading/currency.hpp
 -
 trading/position.hpp
 -
-trading/trade.hpp
+trading/long_trade.hpp
 -
 trading/fraction.hpp
 -
@@ -324,23 +342,11 @@ trading/price_point.hpp
 trading/currency.hpp
 -
 
-../include/trading/trade.hpp
-vector
--
-cmath
--
-trading/position.hpp
--
-trading/fraction.hpp
--
-trading/amount_t.hpp
--
-
 ../include/trading/trade_manager.hpp
 optional
 -
-storage.hpp
-../include/trading/storage.hpp
+trading/storage.hpp
+-
 
 ../include/trading/triple_ema/long_strategy.hpp
 optional
@@ -369,7 +375,7 @@ trading/strategy.hpp
 ../include/trading/triple_ema/trade_manager.hpp
 optional
 -
-trading/trade.hpp
+trading/long_trade.hpp
 -
 trading/price_point.hpp
 -

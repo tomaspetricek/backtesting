@@ -2,20 +2,20 @@
 // Created by Tomáš Petříček on 01.08.2022.
 //
 
-#ifndef EMASTRATEGY_STATS_HPP
-#define EMASTRATEGY_STATS_HPP
+#ifndef EMASTRATEGY_LONG_STATS_HPP
+#define EMASTRATEGY_LONG_STATS_HPP
 
 #include <trading/amount_t.hpp>
 
 namespace trading {
     template<typename Unit, Unit(*ProfitFormula)(amount_t, amount_t) >
-    class stats {
+    class long_stats {
     public:
         Unit min_profit_{0.0};
         Unit max_profit_{0.0};
         std::size_t n_closed_trades_ = 0;
 
-        explicit stats(const std::vector<trade>& closed)
+        explicit long_stats(const std::vector<long_trade>& closed)
                 :n_closed_trades_{closed.size()} {
             Unit profit{0.0};
             amount_t buy{0.0}, sell{0.0};
@@ -53,4 +53,4 @@ namespace trading {
     };
 }
 
-#endif //EMASTRATEGY_STATS_HPP
+#endif //EMASTRATEGY_LONG_STATS_HPP

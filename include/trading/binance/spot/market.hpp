@@ -5,7 +5,7 @@
 #ifndef EMASTRATEGY_BINANCE_SPOT_MARKET_HPP
 #define EMASTRATEGY_BINANCE_SPOT_MARKET_HPP
 
-#include <trading/trade.hpp>
+#include <trading/long_trade.hpp>
 
 namespace trading::binance::spot {
     class market {

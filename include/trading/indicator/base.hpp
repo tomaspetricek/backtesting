@@ -12,4 +12,5 @@ namespace trading::indicator {
         virtual explicit operator double() const = 0;
     };
 }
+
 #endif //EMASTRATEGY_BASE_HPP

@@ -22,11 +22,12 @@ namespace trading {
         price_t price_;
         boost::posix_time::ptime created_;
 
-    public:
+    protected:
         explicit position(amount_t sold, const amount_t bought, const price_t& price,
                 const boost::posix_time::ptime& created)
                 :sold_(sold), bought_(bought), price_(price), created_(created) { }
 
+    public:
         const price_t& price() const
         {
             return price_;
@@ -44,15 +45,6 @@ namespace trading {
         amount_t bought() const
         {
             return bought_;
-        }
-
-        static position create_close(amount_t sold, const trading::price_t& price, const boost::posix_time::ptime& created)
-        {
-            return position(sold, amount_t{value_of(sold)*value_of(price)}, price, created);
-        }
-
-        static position create_open(amount_t sold, const trading::price_t& price, const boost::posix_time::ptime& created) {
-            return position{sold, amount_t{value_of(sold)/value_of(price)}, price, created};
         }
     };
 }

@@ -11,7 +11,7 @@
 #include <trading/indicator/ema.hpp>
 #include <trading/currency.hpp>
 #include <trading/position.hpp>
-#include <trading/trade.hpp>
+#include <trading/long_trade.hpp>
 #include <trading/fraction.hpp>
 #include <trading/price_point.hpp>
 #include <trading/currency.hpp>
@@ -48,7 +48,7 @@ namespace trading {
             }
 
             // close active trade
-            manager_.try_close_active_trade(price_points_.back());
+            manager_.try_closing_active_trade(price_points_.back());
 
             // create stats
             Stats stats(storage_.retrieve_closed_trades());

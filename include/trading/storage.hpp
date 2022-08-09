@@ -5,19 +5,19 @@
 #ifndef EMASTRATEGY_STORAGE_HPP
 #define EMASTRATEGY_STORAGE_HPP
 
-#include <trading/trade.hpp>
+#include <trading/long_trade.hpp>
 
 namespace trading {
     class storage {
-        std::vector<trade> closed_;
+        std::vector<long_trade> closed_;
 
     public:
-        void save_closed_trade(const trade& closed)
+        void save_closed_trade(const long_trade& closed)
         {
             closed_.emplace_back(closed);
         }
 
-        std::vector<trade> retrieve_closed_trades()
+        std::vector<long_trade> retrieve_closed_trades()
         {
             return std::move(closed_);
         }

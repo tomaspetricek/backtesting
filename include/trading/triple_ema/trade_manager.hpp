@@ -7,7 +7,7 @@
 
 #include <optional>
 
-#include <trading/trade.hpp>
+#include <trading/long_trade.hpp>
 #include <trading/price_point.hpp>
 #include <trading/position.hpp>
 #include <trading/action.hpp>
@@ -18,7 +18,8 @@
 #include <trading/trade_manager.hpp>
 
 namespace trading::triple_ema {
-    class trade_manager : public trading::trade_manager {
+    template<typename Trade>
+    class trade_manager : public trading::trade_manager<Trade> {
         amount_t buy_size_;
 
         static amount_t validate_buy_size(amount_t buy_size)
@@ -31,31 +32,31 @@ namespace trading::triple_ema {
 
         void buy(const price_point& point) override
         {
-            if (!active_) {
-                auto pos = position::create_open(buy_size_, point.price, point.time);
-                active_ = std::make_optional(trade(pos));
+            if (!this->active_) {
+                auto pos = Trade::create_open_position(buy_size_, point.price, point.time);
+                this->active_ = std::make_optional(long_trade(pos));
             }
             else {
-                auto pos = position::create_open(buy_size_, point.price, point.time);
-                active_->add_opened(pos);
+                auto pos = Trade::create_open_position(buy_size_, point.price, point.time);
+                this->active_->add_opened(pos);
             }
         }
 
         void sell(const price_point& point) override
         {
-            auto pos = position::create_close(active_->size(), point.price, point.time);
-            active_->add_closed(pos);
+            auto pos = Trade::create_close_position(this->active_->size(), point.price, point.time);
+            this->active_->add_closed(pos);
         }
 
         void sell_all(const price_point& point) override
         {
-            auto pos = position::create_close(active_->size(), point.price, point.time);
-            active_->add_closed(pos);
+            auto pos = Trade::create_close_position(this->active_->size(), point.price, point.time);
+            this->active_->add_closed(pos);
         }
 
     public:
         explicit trade_manager(const amount_t& buy_size, storage& storage)
-                :buy_size_(validate_buy_size(buy_size)), trading::trade_manager(storage) { }
+                :buy_size_(validate_buy_size(buy_size)), trading::trade_manager<Trade>(storage) { }
     };
 }
 

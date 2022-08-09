@@ -8,7 +8,7 @@
 #include <array>
 #include <optional>
 
-#include <trading/trade.hpp>
+#include <trading/long_trade.hpp>
 #include <trading/price_point.hpp>
 #include <trading/position.hpp>
 #include <trading/action.hpp>

@@ -39,11 +39,11 @@ void run()
 
     // create trade manager
     amount_t buy_size{25};
-    triple_ema::trade_manager manager{buy_size, storage};
+    triple_ema::trade_manager<long_trade> manager{buy_size, storage};
 
     // create test box
-    auto box = test_box<triple_ema::long_strategy, triple_ema::trade_manager, percent::long_stats>(price_points,
-            manager, storage);
+    auto box = test_box<triple_ema::long_strategy, triple_ema::trade_manager<long_trade>, percent::long_stats>(
+            price_points, manager, storage);
 
     // use optimizer
     int min_short_period{2};
