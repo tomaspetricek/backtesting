@@ -20,7 +20,7 @@ A trade is initiated by creating an open position.
 Additional open positions can be added.
 The trade is closed once all purchased assets are sold.
 Assets are sold by creating close positions.
-Each strategy has its own trade manager, for example `triple_ema::trade_manger`.
+Each strategy has its own trade manager such as `triple_ema::trade_manager`.
 They should inherit from the `trading::trade_manager` class.
 
 ## Optimizer
