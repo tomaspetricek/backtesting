@@ -5,7 +5,7 @@ One of the goals of the design was that class names should make sense without th
 All classes and functions share a common namespace called `trading`.
 
 ## Strategy
-A strategy decides, based on the historical price provided, whether to buy (`action::buy`), sell (`action::sell`), sell all (`action::sell_all`) or do nothing (`action::do_nothing`).
+A strategy decides, based on the historical prices provided, whether to buy (`action::buy`), sell (`action::sell`), sell all (`action::sell_all`) or do nothing (`action::do_nothing`).
 Internally, it uses trading indicators and makes decisions based on their values.
 Each strategy should have its own namespace like `trading::triple_ema` and `trading::bazooka`.
 The `trading::strategy` abstract class should be used to implement a specific strategy.
@@ -14,8 +14,8 @@ When using a long strategy, a trader tries to buy low and sell high. It is the e
 
 ## Trade Manager
 A trade manager goes hand in hand with trading strategy.
-Based on a decisions made by a strategy, *positions* are created.
-They can be either open or close and together they make a trade.
+*Positions* are created based on a decisions made by a strategy.
+They can be either open or close and together they create a trade.
 A trade is initiated by creating an open position.
 Additional open positions can be added.
 The trade is closed once all purchased assets are sold.
@@ -26,7 +26,7 @@ They should inherit from the `trading::trade_manager` class.
 ## Optimizer
 Optimizers are a set of algorithms whose purpose is to find the best possible configuration for a given strategy and given historical data.
 The `optimizer::base` class encapsulates what optimization algorithms have in common. All optimization algorithms should inherit from it.
-They all optimize some *objective function* that has some set of parameters, generally called *configurations*, and input arguments that are used to generate the configurations. 
+They all optimize some *objective function* that has some set of parameters, generally called *configuration*, and input arguments that are used to generate configurations. 
 
 ### Brute Force
 Brute force optimizers go through all possible states in a given search space.
