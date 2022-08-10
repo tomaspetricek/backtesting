@@ -40,6 +40,6 @@
 #include <trading/test_box.hpp>
 #include <trading/long_trade.hpp>
 #include <trading/tuple.hpp>
-#include <strong_type/strong_type.hpp>
+#include <strong_type.hpp>
 
 #endif //EMASTRATEGY_TRADING_HPP

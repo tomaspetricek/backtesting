@@ -8,7 +8,7 @@
 #include <trading/currency.hpp>
 #include <trading/exception.hpp>
 
-#include <strong_type/strong_type.hpp>
+#include <strong_type.hpp>
 
 namespace trading {
     using price_t = strong::type<const double, struct price_tag, strong::equality, strong::ordered, strong::arithmetic>;
