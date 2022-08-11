@@ -50,7 +50,8 @@ void run()
     int step{7};
     int shift{2};
     int max_short_period{51+step}; // make inclusive
-    sliding::brute_force<int, 3> optim{std::move(box), range<int>(min_short_period, max_short_period, step), shift};
+    sliding::search_space space{range<int>(min_short_period, max_short_period, step), shift};
+    sliding::brute_force<int, 3> optim{space, std::move(box)};
     std::cout << "sliding, brute force:" << std::endl;
     optim();
 }
@@ -118,7 +119,8 @@ void use_optimizer()
     auto volume = [](int len, int width, int depth) {
         std::cout << len*width*depth << std::endl;
     };
-    cartesian_product::brute_force<int, int, int> optim{std::move(volume), lens, widths, depths};
+    cartesian_product::search_space space{lens, widths, depths};
+    cartesian_product::brute_force<int, int, int> optim{space, std::move(volume)};
 
     // optimize
     std::cout << "cartesian product, brute force:" << std::endl;

@@ -6,11 +6,10 @@
 #define EMASTRATEGY_OPTIMIZER_BRUTE_FORCE_HPP
 
 namespace trading::optimizer {
-    template<class Callable, class Args, class Config>
+    template<class Callable, class Config>
     class base {
     protected:
         Callable objective_func_;
-        Args args_;
         Config curr_;
 
         void make_call()
@@ -25,9 +24,11 @@ namespace trading::optimizer {
             }
         }
 
+        explicit base(Callable&& func)
+                :objective_func_(std::move(func)) { }
+
     public:
-        explicit base(Callable&& func, Args args)
-                :objective_func_(std::move(func)), args_(args) { }
+        virtual void operator()() = 0;
     };
 }
 

@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-../include/strong_type/strong_type.hpp
+../include/strong_type.hpp
 functional
 -
 istream
@@ -95,7 +95,7 @@ trading/long_trade.hpp
 -
 trading/tuple.hpp
 -
-strong_type/strong_type.hpp
+strong_type.hpp
 -
 
 ../include/trading/action.hpp
@@ -113,7 +113,7 @@ trading/amount/formula.hpp
 -
 
 ../include/trading/amount_t.hpp
-strong_type/strong_type.hpp
+strong_type.hpp
 -
 
 ../include/trading/bazooka/strategy.hpp
@@ -218,6 +218,10 @@ trading/exception.hpp
 
 ../include/trading/optimizer/base.hpp
 
+../include/trading/optimizer/brute_force.hpp
+trading/optimizer/base.hpp
+-
+
 ../include/trading/optimizer/cartesian_product/brute_force.hpp
 tuple
 -
@@ -229,7 +233,17 @@ trading/tuple.hpp
 -
 trading/function.hpp
 -
-trading/optimizer/base.hpp
+trading/optimizer/brute_force.hpp
+-
+trading/pack.hpp
+-
+trading/range.hpp
+-
+trading/optimizer/cartesian_product/search_space.hpp
+-
+
+../include/trading/optimizer/cartesian_product/search_space.hpp
+trading/range.hpp
 -
 
 ../include/trading/optimizer/sliding/brute_force.hpp
@@ -243,8 +257,12 @@ trading/tuple.hpp
 -
 trading/function.hpp
 -
-trading/optimizer/base.hpp
+trading/optimizer/brute_force.hpp
 -
+trading/optimizer/sliding/search_space.hpp
+-
+
+../include/trading/optimizer/sliding/search_space.hpp
 
 ../include/trading/pack.hpp
 
@@ -263,7 +281,7 @@ trading/percent/formula.hpp
 -
 
 ../include/trading/percent_t.hpp
-strong_type/strong_type.hpp
+strong_type.hpp
 -
 
 ../include/trading/position.hpp
@@ -291,7 +309,7 @@ trading/currency.hpp
 -
 trading/exception.hpp
 -
-strong_type/strong_type.hpp
+strong_type.hpp
 -
 
 ../include/trading/range.hpp

@@ -11,46 +11,17 @@
 #include <trading/range.hpp>
 #include <trading/tuple.hpp>
 #include <trading/function.hpp>
-#include <trading/optimizer/base.hpp>
+#include <trading/optimizer/brute_force.hpp>
+#include <trading/optimizer/sliding/search_space.hpp>
 
 namespace trading::optimizer::sliding {
     template<typename Type, std::size_t size>
-    class brute_force : public optimizer::base<function_of<void, Type, size>, range<Type>,
-            tuple_of<Type, size>> {
-        Type shift_;
-
-        template<size_t Depth>
-        constexpr void nested_for(const range<Type>& args)
-        {
-            static_assert(Depth>0);
-            constexpr int idx = size-Depth;
-
-            // loop through
-            for (auto val : args) {
-                // update curr
-                std::get<idx>(this->curr_) = val;
-
-                // reached inner most loop
-                if constexpr(Depth==1) {
-                    this->make_call();
-                }
-                    // call inner loop
-                else {
-                    nested_for<Depth-1>(range<Type>{val+shift_, *args.end()+shift_, args.step()});
-                }
-            }
-        }
-
+    class brute_force : public optimizer::brute_force<search_space<Type>, size,
+            function_of<void, Type, size>, tuple_of<Type, size>> {
     public:
-        explicit brute_force(function_of<void, Type, size>&& func, const range<Type>& args, Type shift)
-                :optimizer::base<function_of<void, Type, size>, range<Type>, tuple_of<Type, size>>
-                         (std::move(func), args), shift_(shift) { }
-
-        void operator()()
-        {
-            // call nested loop
-            nested_for<size>(this->args_);
-        }
+        explicit brute_force(const search_space<Type>& space, function_of<void, Type, size>&& func)
+                :optimizer::brute_force<search_space<Type>, size, function_of<void, Type, size>, tuple_of<Type, size>>
+                         (space, std::move(func)) { }
     };
 }
 
