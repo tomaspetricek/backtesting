@@ -1,0 +1,1 @@
+/usr/bin/clang++  -O3 -Wall -Wextra -g -Wall -Wextra -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/backtesting.dir/src/main.cpp.o  -o backtesting  /usr/local/lib/libboost_date_time-mt.dylib 

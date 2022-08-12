@@ -143,11 +143,6 @@ void use_fraction()
     std::cout << "makes whole: " << std::boolalpha << fraction<7>::makes_whole({frac1, frac2}) << std::endl;
 }
 
-void use_market()
-{
-    binance::spot::market market;
-}
-
 int main()
 {
     // show demo

@@ -1,4 +1,4 @@
-# Install script for directory: /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy
+# Install script for directory: /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

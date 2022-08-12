@@ -32,7 +32,7 @@ namespace trading::indicator {
 
     public:
         explicit ema(int period = min_period, int smoothing = 2)
-                :moving_average(period), smoothing_(validate_smoothing(smoothing)), sma(period) { }
+                :moving_average(period), sma(period), smoothing_(validate_smoothing(smoothing)){ }
 
         ema& operator()(double sample) override
         {

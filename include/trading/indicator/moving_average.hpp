@@ -9,7 +9,7 @@
 
 namespace trading::indicator {
 class moving_average : public indicator::base {
-        static int validate_period(int period)
+        static int validate_period(size_t period)
         {
             if (period<min_period)
                 throw std::invalid_argument("Period has to be greater than 1");
@@ -18,15 +18,15 @@ class moving_average : public indicator::base {
         }
 
     protected:
-        int period_;
+        size_t period_;
         bool ready_ = false;
-        constexpr static int min_period = 1;
+        constexpr static size_t min_period = 1;
 
     public:
-        explicit moving_average(int period = min_period)
+        explicit moving_average(size_t period = min_period)
                 :period_(validate_period(period)) { }
 
-        int period() const
+        size_t period() const
         {
             return period_;
         }

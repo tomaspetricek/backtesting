@@ -18,7 +18,7 @@ namespace trading::indicator {
         std::queue<double> samples_;
 
     public:
-        explicit sma(int period = min_period)
+        explicit sma(size_t period = min_period)
                 :moving_average(period) { }
 
         sma& operator()(double sample) override

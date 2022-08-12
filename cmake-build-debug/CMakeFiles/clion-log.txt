@@ -1,4 +1,4 @@
-/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting
 -- Configuring done
 -- Generating done
--- Build files have been written to: /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/cmake-build-debug
+-- Build files have been written to: /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug

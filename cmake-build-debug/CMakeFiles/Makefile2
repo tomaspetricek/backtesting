@@ -64,16 +64,16 @@ RM = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy
+CMAKE_SOURCE_DIR = /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/cmake-build-debug
+CMAKE_BINARY_DIR = /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug
 
 #=============================================================================
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/EMAStrategy.dir/all
+all: CMakeFiles/backtesting.dir/all
 
 .PHONY : all
 
@@ -83,36 +83,36 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/EMAStrategy.dir/clean
+clean: CMakeFiles/backtesting.dir/clean
 
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/EMAStrategy.dir
+# Target rules for target CMakeFiles/backtesting.dir
 
 # All Build rule for target.
-CMakeFiles/EMAStrategy.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EMAStrategy.dir/build.make CMakeFiles/EMAStrategy.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EMAStrategy.dir/build.make CMakeFiles/EMAStrategy.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target EMAStrategy"
-.PHONY : CMakeFiles/EMAStrategy.dir/all
+CMakeFiles/backtesting.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/backtesting.dir/build.make CMakeFiles/backtesting.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/backtesting.dir/build.make CMakeFiles/backtesting.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target backtesting"
+.PHONY : CMakeFiles/backtesting.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/EMAStrategy.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/cmake-build-debug/CMakeFiles 2
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/EMAStrategy.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/cmake-build-debug/CMakeFiles 0
-.PHONY : CMakeFiles/EMAStrategy.dir/rule
+CMakeFiles/backtesting.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/backtesting.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug/CMakeFiles 0
+.PHONY : CMakeFiles/backtesting.dir/rule
 
 # Convenience name for target.
-EMAStrategy: CMakeFiles/EMAStrategy.dir/rule
+backtesting: CMakeFiles/backtesting.dir/rule
 
-.PHONY : EMAStrategy
+.PHONY : backtesting
 
 # clean rule for target.
-CMakeFiles/EMAStrategy.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EMAStrategy.dir/build.make CMakeFiles/EMAStrategy.dir/clean
-.PHONY : CMakeFiles/EMAStrategy.dir/clean
+CMakeFiles/backtesting.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/backtesting.dir/build.make CMakeFiles/backtesting.dir/clean
+.PHONY : CMakeFiles/backtesting.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

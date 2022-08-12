@@ -68,10 +68,10 @@ RM = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy
+CMAKE_SOURCE_DIR = /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/cmake-build-debug
+CMAKE_BINARY_DIR = /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -100,9 +100,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/cmake-build-debug/CMakeFiles /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/cmake-build-debug/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug/CMakeFiles /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug/CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace-napady/EMAStrategy/cmake-build-debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -131,17 +131,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named EMAStrategy
+# Target rules for targets named backtesting
 
 # Build rule for target.
-EMAStrategy: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 EMAStrategy
-.PHONY : EMAStrategy
+backtesting: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 backtesting
+.PHONY : backtesting
 
 # fast build rule for target.
-EMAStrategy/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EMAStrategy.dir/build.make CMakeFiles/EMAStrategy.dir/build
-.PHONY : EMAStrategy/fast
+backtesting/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/backtesting.dir/build.make CMakeFiles/backtesting.dir/build
+.PHONY : backtesting/fast
 
 src/main.o: src/main.cpp.o
 
@@ -149,7 +149,7 @@ src/main.o: src/main.cpp.o
 
 # target to build an object file
 src/main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EMAStrategy.dir/build.make CMakeFiles/EMAStrategy.dir/src/main.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/backtesting.dir/build.make CMakeFiles/backtesting.dir/src/main.cpp.o
 .PHONY : src/main.cpp.o
 
 src/main.i: src/main.cpp.i
@@ -158,7 +158,7 @@ src/main.i: src/main.cpp.i
 
 # target to preprocess a source file
 src/main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EMAStrategy.dir/build.make CMakeFiles/EMAStrategy.dir/src/main.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/backtesting.dir/build.make CMakeFiles/backtesting.dir/src/main.cpp.i
 .PHONY : src/main.cpp.i
 
 src/main.s: src/main.cpp.s
@@ -167,7 +167,7 @@ src/main.s: src/main.cpp.s
 
 # target to generate assembly for a file
 src/main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/EMAStrategy.dir/build.make CMakeFiles/EMAStrategy.dir/src/main.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/backtesting.dir/build.make CMakeFiles/backtesting.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
 # Help Target
@@ -178,7 +178,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... EMAStrategy"
+	@echo "... backtesting"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

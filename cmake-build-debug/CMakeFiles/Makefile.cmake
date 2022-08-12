@@ -66,5 +66,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/EMAStrategy.dir/DependInfo.cmake"
+  "CMakeFiles/backtesting.dir/DependInfo.cmake"
   )

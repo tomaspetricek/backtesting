@@ -56,7 +56,7 @@ namespace trading::triple_ema {
 
     public:
         explicit trade_manager(const amount_t& buy_size, storage& storage)
-                :buy_size_(validate_buy_size(buy_size)), trading::trade_manager<Trade>(storage) { }
+                :trading::trade_manager<Trade>(storage), buy_size_(validate_buy_size(buy_size)) { }
     };
 }
 
