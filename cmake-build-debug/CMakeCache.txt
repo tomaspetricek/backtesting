@@ -17,7 +17,7 @@
 Boost_DATE_TIME_LIBRARY_RELEASE:STRING=/usr/local/lib/libboost_date_time-mt.dylib
 
 //The directory containing a CMake configuration file for Boost.
-Boost_DIR:PATH=/usr/local/lib/cmake/Boost-1.78.0
+Boost_DIR:PATH=/usr/local/lib/cmake/Boost-1.79.0
 
 //Path to a file.
 Boost_INCLUDE_DIR:PATH=/usr/local/include
@@ -245,10 +245,10 @@ backtesting_BINARY_DIR:STATIC=/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova
 backtesting_SOURCE_DIR:STATIC=/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting
 
 //The directory containing a CMake configuration file for boost_date_time.
-boost_date_time_DIR:PATH=/usr/local/lib/cmake/boost_date_time-1.78.0
+boost_date_time_DIR:PATH=/usr/local/lib/cmake/boost_date_time-1.79.0
 
 //The directory containing a CMake configuration file for boost_headers.
-boost_headers_DIR:PATH=/usr/local/lib/cmake/boost_headers-1.78.0
+boost_headers_DIR:PATH=/usr/local/lib/cmake/boost_headers-1.79.0
 
 
 ########################
@@ -399,7 +399,7 @@ CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding Boost
-FIND_PACKAGE_MESSAGE_DETAILS_Boost:INTERNAL=[/usr/local/lib/cmake/Boost-1.78.0/BoostConfig.cmake][cfound components: date_time ][v1.78.0()]
+FIND_PACKAGE_MESSAGE_DETAILS_Boost:INTERNAL=[/usr/local/lib/cmake/Boost-1.79.0/BoostConfig.cmake][cfound components: date_time ][v1.79.0()]
 //ADVANCED property for variable: ProcessorCount_cmd_sysctl
 ProcessorCount_cmd_sysctl-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: boost_date_time_DIR

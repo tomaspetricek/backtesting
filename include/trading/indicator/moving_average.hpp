@@ -5,10 +5,9 @@
 #ifndef EMASTRATEGY_MOVING_AVERAGE_HPP
 #define EMASTRATEGY_MOVING_AVERAGE_HPP
 
-#include <trading/indicator/base.hpp>
 
 namespace trading::indicator {
-class moving_average : public indicator::base {
+class moving_average {
         static int validate_period(size_t period)
         {
             if (period<min_period)

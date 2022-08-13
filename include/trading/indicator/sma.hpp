@@ -8,6 +8,7 @@
 #include <queue>
 
 #include <trading/indicator/moving_average.hpp>
+#include <trading/indicator/interface.hpp>
 
 namespace trading::indicator {
 
@@ -21,7 +22,7 @@ namespace trading::indicator {
         explicit sma(size_t period = min_period)
                 :moving_average(period) { }
 
-        sma& operator()(double sample) override
+        sma& operator()(double sample)
         {
             sum_samples_ += sample;
             samples_.push(sample);
@@ -39,7 +40,7 @@ namespace trading::indicator {
             return *this;
         }
 
-        explicit operator double() const override
+        explicit operator double() const
         {
             if (!ready_)
                 throw not_ready("Not enough initial prices yet. Need "
@@ -48,6 +49,8 @@ namespace trading::indicator {
             return sum_samples_/samples_.size();
         }
     };
+
+    static_assert(indicator::interface<sma>);
 }
 
 #endif //EMASTRATEGY_SMA_HPP

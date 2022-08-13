@@ -11,6 +11,7 @@
 #include <trading/price_t.hpp>
 #include <trading/indicator/moving_average.hpp>
 #include <trading/indicator/sma.hpp>
+#include <trading/indicator/interface.hpp>
 
 namespace trading::indicator {
 
@@ -20,7 +21,7 @@ namespace trading::indicator {
         indicator::sma sma;
         double prev_val_ = 0;
         int smoothing_ = 2;
-        double weighting_factor_ = static_cast<double>(smoothing_)/(period_+1);
+        double weighting_factor_ = static_cast<double>(smoothing_)/static_cast<double>(period_+1);
 
         static int validate_smoothing(int smoothing)
         {
@@ -34,7 +35,7 @@ namespace trading::indicator {
         explicit ema(int period = min_period, int smoothing = 2)
                 :moving_average(period), sma(period), smoothing_(validate_smoothing(smoothing)){ }
 
-        ema& operator()(double sample) override
+        ema& operator()(double sample)
         {
             if (!sma.is_ready()) {
                 sma(sample);
@@ -50,7 +51,7 @@ namespace trading::indicator {
             return *this;
         }
 
-        explicit operator double() const override
+        explicit operator double() const
         {
             if (!ready_)
                 throw not_ready("Not enough prices to calculate initial ema");
@@ -58,6 +59,8 @@ namespace trading::indicator {
             return prev_val_;
         }
     };
+
+    static_assert(indicator::interface<ema>);
 }
 
 #endif //EMASTRATEGY_EMA_HPP

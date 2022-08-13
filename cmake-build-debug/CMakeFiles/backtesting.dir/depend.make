@@ -15,8 +15,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../include/trading/currency.hpp
 CMakeFiles/backtesting.dir/src/main.cpp.o: ../include/trading/exception.hpp
 CMakeFiles/backtesting.dir/src/main.cpp.o: ../include/trading/fraction.hpp
 CMakeFiles/backtesting.dir/src/main.cpp.o: ../include/trading/function.hpp
-CMakeFiles/backtesting.dir/src/main.cpp.o: ../include/trading/indicator/base.hpp
 CMakeFiles/backtesting.dir/src/main.cpp.o: ../include/trading/indicator/ema.hpp
+CMakeFiles/backtesting.dir/src/main.cpp.o: ../include/trading/indicator/interface.hpp
 CMakeFiles/backtesting.dir/src/main.cpp.o: ../include/trading/indicator/moving_average.hpp
 CMakeFiles/backtesting.dir/src/main.cpp.o: ../include/trading/indicator/sma.hpp
 CMakeFiles/backtesting.dir/src/main.cpp.o: ../include/trading/long_position.hpp

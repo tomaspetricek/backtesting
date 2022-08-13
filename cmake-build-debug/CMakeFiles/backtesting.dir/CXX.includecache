@@ -166,8 +166,6 @@ trading/validator/interval.hpp
 functional
 -
 
-../include/trading/indicator/base.hpp
-
 ../include/trading/indicator/ema.hpp
 numeric
 -
@@ -179,15 +177,19 @@ trading/indicator/moving_average.hpp
 -
 trading/indicator/sma.hpp
 -
+trading/indicator/interface.hpp
+-
+
+../include/trading/indicator/interface.hpp
 
 ../include/trading/indicator/moving_average.hpp
-trading/indicator/base.hpp
--
 
 ../include/trading/indicator/sma.hpp
 queue
 -
 trading/indicator/moving_average.hpp
+-
+trading/indicator/interface.hpp
 -
 
 ../include/trading/long_position.hpp
