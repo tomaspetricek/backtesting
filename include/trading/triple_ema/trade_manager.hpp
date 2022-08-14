@@ -19,7 +19,9 @@
 
 namespace trading::triple_ema {
     template<typename Trade>
-    class trade_manager : public trading::trade_manager<Trade> {
+    class trade_manager : public trading::trade_manager<Trade, triple_ema::trade_manager<Trade>> {
+        // necessary for use of CRTP (The Curiously Recurring Template Pattern)
+        friend class trading::trade_manager<Trade, triple_ema::trade_manager<Trade>>;
         amount_t buy_size_;
 
         static amount_t validate_buy_size(amount_t buy_size)
@@ -30,7 +32,7 @@ namespace trading::triple_ema {
             return buy_size;
         }
 
-        void buy(const price_point& point) override
+        void buy_impl(const price_point& point)
         {
             if (!this->active_) {
                 auto pos = Trade::create_open_position(buy_size_, point.price, point.time);
@@ -42,13 +44,13 @@ namespace trading::triple_ema {
             }
         }
 
-        void sell(const price_point& point) override
+        void sell_impl(const price_point& point)
         {
             auto pos = Trade::create_close_position(this->active_->size(), point.price, point.time);
             this->active_->add_closed(pos);
         }
 
-        void sell_all(const price_point& point) override
+        void sell_all_impl(const price_point& point)
         {
             auto pos = Trade::create_close_position(this->active_->size(), point.price, point.time);
             this->active_->add_closed(pos);
@@ -56,7 +58,8 @@ namespace trading::triple_ema {
 
     public:
         explicit trade_manager(const amount_t& buy_size, storage& storage)
-                :trading::trade_manager<Trade>(storage), buy_size_(validate_buy_size(buy_size)) { }
+                :trading::trade_manager<Trade, triple_ema::trade_manager<Trade>>(storage),
+                 buy_size_(validate_buy_size(buy_size)) { }
     };
 }
 

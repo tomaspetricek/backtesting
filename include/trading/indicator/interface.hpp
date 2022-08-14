@@ -6,6 +6,8 @@
 #define BACKTESTING_INTERFACE_HPP
 
 namespace trading::indicator {
+    // used to avoid virtual functions using concepts
+    // src: https://www.cppfiddler.com/2019/06/09/concept-based-interfaces/
     template<typename T>
     concept interface = requires(T indicator, double sample)
     {

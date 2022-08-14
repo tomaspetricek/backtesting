@@ -10,9 +10,10 @@
 #include <trading/storage.hpp>
 
 namespace trading {
-    template<typename Trade>
+    // to avoid use of virtual functions CRTP is used
+    // src: https://www.fluentcpp.com/2017/05/12/curiously-recurring-template-pattern/
+    template<typename Trade, typename ConcreteTradeManager>
     class trade_manager {
-    private:
         void try_saving_active_trade()
         {
             if (active_) {
@@ -30,26 +31,20 @@ namespace trading {
         explicit trade_manager(storage& storage)
                 :storage_(storage) { }
 
-        virtual void buy(const price_point& point) = 0;
-
-        virtual void sell(const price_point& point) = 0;
-
-        virtual void sell_all(const price_point& point) = 0;
-
     public:
         void update_active_trade(const action& action, const price_point& point)
         {
             // act
             switch (action) {
             case action::buy:
-                buy(point);
+                static_cast<ConcreteTradeManager*>(this)->buy_impl(point);
                 break;
             case action::sell:
-                sell(point);
+                static_cast<ConcreteTradeManager*>(this)->sell_impl(point);
                 try_saving_active_trade();
                 break;
             case action::sell_all:
-                sell_all(point);
+                static_cast<ConcreteTradeManager*>(this)->sell_all_impl(point);
                 try_saving_active_trade();
                 break;
             case action::do_nothing:
@@ -60,7 +55,7 @@ namespace trading {
         void try_closing_active_trade(const price_point& point)
         {
             if (active_) {
-                sell_all(point);
+                static_cast<ConcreteTradeManager*>(this)->sell_all_impl(point);
                 storage_.save_closed_trade(*active_);
                 active_ = std::nullopt;
             }
