@@ -46,10 +46,10 @@ void run()
             price_points, manager, storage);
 
     // use optimizer
-    int min_short_period{2};
-    int step{7};
-    int shift{2};
-    int max_short_period{2102+step}; // make inclusive
+    int min_short_period{1};
+    int step{1};
+    int shift{1};
+    int max_short_period{150+step}; // make inclusive
     sliding::search_space space{range<int>(min_short_period, max_short_period, step), shift};
     sliding::brute_force<int, 3> optim{space, std::move(box)};
     std::cout << "sliding, brute force:" << std::endl;
