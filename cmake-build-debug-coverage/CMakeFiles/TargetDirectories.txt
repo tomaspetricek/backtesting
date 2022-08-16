@@ -1,0 +1,3 @@
+/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug-coverage/CMakeFiles/backtesting.dir
+/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug-coverage/CMakeFiles/edit_cache.dir
+/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug-coverage/CMakeFiles/rebuild_cache.dir

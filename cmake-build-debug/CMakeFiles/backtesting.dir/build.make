@@ -80,15 +80,15 @@ include CMakeFiles/backtesting.dir/flags.make
 CMakeFiles/backtesting.dir/src/main.cpp.o: CMakeFiles/backtesting.dir/flags.make
 CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/backtesting.dir/src/main.cpp.o"
-	/usr/bin/clang++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/backtesting.dir/src/main.cpp.o -c /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/src/main.cpp
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/backtesting.dir/src/main.cpp.o -c /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/src/main.cpp
 
 CMakeFiles/backtesting.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/backtesting.dir/src/main.cpp.i"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/src/main.cpp > CMakeFiles/backtesting.dir/src/main.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/src/main.cpp > CMakeFiles/backtesting.dir/src/main.cpp.i
 
 CMakeFiles/backtesting.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/backtesting.dir/src/main.cpp.s"
-	/usr/bin/clang++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/src/main.cpp -o CMakeFiles/backtesting.dir/src/main.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/src/main.cpp -o CMakeFiles/backtesting.dir/src/main.cpp.s
 
 # Object files for target backtesting
 backtesting_OBJECTS = \

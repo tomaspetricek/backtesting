@@ -130,17 +130,21 @@ void use_optimizer()
 void use_bazooka()
 {
     constexpr int n_levels{4};
-    std::array<indicator::ema, n_levels> levels;
+    std::array<fraction, n_levels> levels;
+    levels[0] = fraction{1.0-0.04};
+    levels[1] = fraction{1.0-0.07};
+    levels[2] = fraction{1.0-0.1};
+    levels[3] = fraction{1.0-0.15};
+
+    indicator::sma entry_sma{30};
+    const indicator::sma& exit_sma{entry_sma};
+
+    bazooka::long_strategy<indicator::sma, indicator::sma, n_levels> strategy{entry_sma, exit_sma, levels};
 }
 
 void use_fraction()
 {
-    fraction<7> frac1(2);
-    fraction<7> frac2(5);
-    std::cout << "fractions:" << std::endl
-              << static_cast<double>(frac1) << std::endl
-              << static_cast<double>(frac2) << std::endl;
-    std::cout << "makes whole: " << std::boolalpha << fraction<7>::makes_whole({frac1, frac2}) << std::endl;
+    fraction frac(0.9);
 }
 
 int main()
@@ -151,6 +155,7 @@ int main()
     use_indicators();
     use_interval();
     use_optimizer();
+    use_bazooka();
 
     // run program
     try {

@@ -9,21 +9,25 @@
 
 #include <trading/triple_ema/strategy.hpp>
 #include <trading/action.hpp>
+#include <trading/indicator/ema.hpp>
+#include <trading/interface/strategy_like.hpp>
 
 namespace trading::triple_ema {
-    class long_strategy : public strategy {
+    class long_strategy : public strategy<long_strategy> {
+        friend class strategy<long_strategy>;
+
     public:
         long_strategy() = default;
 
         explicit long_strategy(const indicator::ema& short_ema, const indicator::ema& middle_ema,
                 const indicator::ema& long_ema)
-                :strategy(short_ema, middle_ema, long_ema) { }
+                :strategy<long_strategy>(short_ema, middle_ema, long_ema) { }
 
         long_strategy(int short_period, int middle_period, int long_period)
-                :strategy(short_period, middle_period, long_period) { }
+                :strategy<long_strategy>(short_period, middle_period, long_period) { }
 
     private:
-        bool should_buy() override
+        bool should_buy_impl()
         {
             auto curr_short = static_cast<double>(short_ema_);
             auto curr_middle = static_cast<double>(middle_ema_);
@@ -32,7 +36,7 @@ namespace trading::triple_ema {
             return curr_middle>curr_long && curr_middle<curr_short && !pos_opened_;
         }
 
-        bool should_sell() override
+        bool should_sell_impl()
         {
             auto curr_short = static_cast<double>(short_ema_);
             auto curr_middle = static_cast<double>(middle_ema_);
@@ -40,6 +44,8 @@ namespace trading::triple_ema {
             return curr_short<curr_middle && pos_opened_;
         }
     };
+
+    static_assert(trading::interface::strategy_like<long_strategy>);
 }
 
 #endif //EMASTRATEGY_LONG_STRATEGY_HPP

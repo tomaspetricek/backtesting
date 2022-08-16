@@ -11,7 +11,7 @@
 #include <trading/price_t.hpp>
 #include <trading/indicator/moving_average.hpp>
 #include <trading/indicator/sma.hpp>
-#include <trading/indicator/interface.hpp>
+#include <trading/interface/indicator_like.hpp>
 
 namespace trading::indicator {
 
@@ -60,7 +60,7 @@ namespace trading::indicator {
         }
     };
 
-    static_assert(indicator::interface<ema>);
+    static_assert(interface::indicator_like<ema>);
 }
 
 #endif //EMASTRATEGY_EMA_HPP

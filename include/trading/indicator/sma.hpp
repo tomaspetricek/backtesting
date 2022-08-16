@@ -8,7 +8,7 @@
 #include <queue>
 
 #include <trading/indicator/moving_average.hpp>
-#include <trading/indicator/interface.hpp>
+#include <trading/interface/indicator_like.hpp>
 
 namespace trading::indicator {
 
@@ -46,11 +46,11 @@ namespace trading::indicator {
                 throw not_ready("Not enough initial prices yet. Need "
                         +std::to_string(period_-samples_.size())+" more");
 
-            return sum_samples_/samples_.size();
+            return sum_samples_/static_cast<double>(samples_.size());
         }
     };
 
-    static_assert(indicator::interface<sma>);
+    static_assert(interface::indicator_like<sma>);
 }
 
 #endif //EMASTRATEGY_SMA_HPP

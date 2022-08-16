@@ -7,7 +7,7 @@
 
 #include <trading/amount/long_stats.hpp>
 #include <trading/bazooka/trade_manager.hpp>
-#include <trading/bazooka/strategy.hpp>
+#include <trading/bazooka/long_strategy.hpp>
 #include <trading/binance/spot/market.hpp>
 #include <trading/indicator/ema.hpp>
 #include <trading/indicator/moving_average.hpp>

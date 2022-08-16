@@ -7,11 +7,11 @@
 
 #include <trading/action.hpp>
 #include <utility>
-#include <trading/strategy.hpp>
 
 namespace trading::triple_ema {
-// source: https://python.plainenglish.io/triple-moving-average-trading-strategy-aaa44d96d532
-    class strategy : public trading::strategy {
+    // source: https://python.plainenglish.io/triple-moving-average-trading-strategy-aaa44d96d532
+    template<typename ConcreteStrategy>
+    class strategy {
     protected:
         indicator::ema short_ema_; // fast moving
         indicator::ema middle_ema_; // slow
@@ -46,25 +46,19 @@ namespace trading::triple_ema {
                 indics_ready_ = true;
         }
 
-    private:
-        bool should_sell_all() override
-        {
-            return false;
-        }
-
     public:
-        action operator()(const price_t& curr) override
+        action operator()(const price_t& curr)
         {
             update_indicators(curr);
 
             if (!indics_ready_)
                 return action::do_nothing;
 
-            if (should_buy()) {
+            if (static_cast<ConcreteStrategy*>(this)->should_buy_impl()) {
                 pos_opened_ = true;
                 return action::buy;
             }
-            else if (should_sell()) {
+            else if (static_cast<ConcreteStrategy*>(this)->should_sell_impl()) {
                 pos_opened_ = false;
                 return action::sell;
             }
@@ -75,4 +69,4 @@ namespace trading::triple_ema {
     };
 }
 
-#endif //EMASTRATEGY_STRATEGY_HPP
+#endif //EMASTRATEGY_TRIPLE_EMA_STRATEGY_HPP
