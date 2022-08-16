@@ -5,19 +5,21 @@
 #ifndef EMASTRATEGY_TRIPLE_EMA_STRATEGY_HPP
 #define EMASTRATEGY_TRIPLE_EMA_STRATEGY_HPP
 
-#include <trading/action.hpp>
 #include <utility>
+
+#include <trading/action.hpp>
+#include <trading/strategy.hpp>
 
 namespace trading::triple_ema {
     // source: https://python.plainenglish.io/triple-moving-average-trading-strategy-aaa44d96d532
-    template<typename ConcreteStrategy>
-    class strategy {
+    template<typename ConcreteTripleEmaStrategy>
+    class strategy : public trading::strategy<triple_ema::strategy<ConcreteTripleEmaStrategy>> {
+        friend class trading::strategy<triple_ema::strategy<ConcreteTripleEmaStrategy>>;
     protected:
         indicator::ema short_ema_; // fast moving
         indicator::ema middle_ema_; // slow
         indicator::ema long_ema_; // low moving
         bool pos_opened_ = false;
-        bool indics_ready_ = false;
 
         strategy() = default;
 
@@ -35,6 +37,7 @@ namespace trading::triple_ema {
                 :strategy{indicator::ema{short_period}, indicator::ema{middle_period},
                           indicator::ema{long_period}} { }
 
+    private:
         void update_indicators(const price_t& curr)
         {
             auto curr_val = value_of(curr);
@@ -43,28 +46,22 @@ namespace trading::triple_ema {
             long_ema_(curr_val);
 
             if (long_ema_.is_ready())
-                indics_ready_ = true;
+                this->indics_ready_ = true;
         }
 
-    public:
-        action operator()(const price_t& curr)
+        bool should_buy()
         {
-            update_indicators(curr);
+            return static_cast<ConcreteTripleEmaStrategy*>(this)->should_buy_impl();
+        }
 
-            if (!indics_ready_)
-                return action::do_nothing;
+        bool should_sell()
+        {
+            return static_cast<ConcreteTripleEmaStrategy*>(this)->should_sell_impl();
+        }
 
-            if (static_cast<ConcreteStrategy*>(this)->should_buy_impl()) {
-                pos_opened_ = true;
-                return action::buy;
-            }
-            else if (static_cast<ConcreteStrategy*>(this)->should_sell_impl()) {
-                pos_opened_ = false;
-                return action::sell;
-            }
-            else {
-                return action::do_nothing;
-            }
+        bool should_sell_all()
+        {
+            return false;
         }
     };
 }

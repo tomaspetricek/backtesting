@@ -15,7 +15,7 @@ namespace trading {
 
         ~not_ready() noexcept override = default;
 
-        const char* what() const _NOEXCEPT override
+        const char* what() const noexcept override
         {
             return logic_error::what();
         }
@@ -28,7 +28,7 @@ namespace trading {
 
         ~bad_formatting() noexcept override = default;
 
-        const char* what() const _NOEXCEPT override
+        const char* what() const noexcept override
         {
             return runtime_error::what();
         }
@@ -42,7 +42,7 @@ namespace trading {
 
         ~currency_mismatch_error() noexcept override = default;
 
-        const char* what() const _NOEXCEPT override
+        const char* what() const noexcept override
         {
             return runtime_error::what();
         }

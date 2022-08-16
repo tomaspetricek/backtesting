@@ -49,7 +49,7 @@ void run()
     int min_short_period{1};
     int step{1};
     int shift{1};
-    int max_short_period{150+step}; // make inclusive
+    int max_short_period{50+step}; // make inclusive
     sliding::search_space space{range<int>(min_short_period, max_short_period, step), shift};
     sliding::brute_force<int, 3> optim{space, std::move(box)};
     std::cout << "sliding, brute force:" << std::endl;

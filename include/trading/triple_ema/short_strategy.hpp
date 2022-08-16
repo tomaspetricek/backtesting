@@ -32,7 +32,12 @@ namespace trading::triple_ema {
             auto curr_middle = static_cast<double>(middle_ema_);
             auto curr_long = static_cast<double>(long_ema_);
 
-            return curr_middle<curr_long && curr_middle>curr_short && !pos_opened_;
+            if (curr_middle<curr_long && curr_middle>curr_short && !pos_opened_) {
+                pos_opened_ = true;
+                return true;
+            }
+
+            return false;
         }
 
         bool should_sell_impl()
@@ -40,7 +45,12 @@ namespace trading::triple_ema {
             auto curr_short = static_cast<double>(short_ema_);
             auto curr_middle = static_cast<double>(middle_ema_);
 
-            return curr_short>curr_middle && pos_opened_;
+            if (curr_short>curr_middle && pos_opened_) {
+                pos_opened_=false;
+                return true;
+            }
+
+            return false;
         }
     };
 

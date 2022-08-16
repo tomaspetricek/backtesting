@@ -10,7 +10,7 @@
 namespace trading {
     class fraction {
         double value_;
-        static constexpr validator::closed_interval<0, 1> validate_;
+        static constexpr validator::closed_interval<0, 1> validate_{};
 
     public:
         explicit fraction(double value = 0)

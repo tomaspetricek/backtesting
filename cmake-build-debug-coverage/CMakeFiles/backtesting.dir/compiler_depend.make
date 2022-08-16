@@ -540,6 +540,7 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/trading/price_point.hpp \
   ../include/trading/action.hpp \
   ../include/trading/bazooka/long_strategy.hpp \
+  ../include/trading/strategy.hpp \
   ../include/trading/indicator/moving_average.hpp \
   ../include/trading/binance/spot/market.hpp \
   ../include/trading/indicator/ema.hpp \
@@ -1366,6 +1367,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/local/include/boost/mpl/aux_/config/bcc.hpp:
 
+/usr/local/include/boost/mpl/aux_/has_type.hpp:
+
 /usr/local/include/boost/mpl/quote.hpp:
 
 /usr/local/include/boost/mpl/next_prior.hpp:
@@ -1570,8 +1573,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/local/include/boost/preprocessor/list/fold_right.hpp:
 
-/usr/local/include/boost/preprocessor/detail/check.hpp:
-
 /usr/local/include/boost/preprocessor/control/expr_iif.hpp:
 
 /usr/local/include/boost/config/no_tr1/cmath.hpp:
@@ -1759,6 +1760,14 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/numeric:
 
 ../include/trading/indicator/ema.hpp:
+
+/usr/local/include/boost/preprocessor/detail/check.hpp:
+
+/usr/local/include/boost/algorithm/string/detail/finder.hpp:
+
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/_pthread/_pthread_condattr_t.h:
+
+../include/trading/strategy.hpp:
 
 /usr/local/include/boost/preprocessor/seq/seq.hpp:
 
@@ -2055,8 +2064,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/_types/_timespec.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__algorithm/merge.h:
-
-/usr/local/include/boost/mpl/aux_/has_type.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__functional/unary_negate.h:
 
@@ -2479,10 +2486,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__random/uniform_int_distribution.h:
 
 /usr/local/include/boost/mpl/aux_/arity_spec.hpp:
-
-/usr/local/include/boost/algorithm/string/detail/finder.hpp:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/_pthread/_pthread_condattr_t.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/xlocale/_stdio.h:
 
