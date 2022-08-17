@@ -9,6 +9,7 @@
 #include <trading/bazooka/trade_manager.hpp>
 #include <trading/bazooka/long_strategy.hpp>
 #include <trading/binance/spot/market.hpp>
+#include <trading/const_size/trade_manager.hpp>
 #include <trading/indicator/ema.hpp>
 #include <trading/indicator/moving_average.hpp>
 #include <trading/indicator/sma.hpp>
@@ -17,7 +18,6 @@
 #include <trading/percent/formula.hpp>
 #include <trading/percent/long_stats.hpp>
 #include <trading/triple_ema/long_strategy.hpp>
-#include <trading/triple_ema/trade_manager.hpp>
 #include <trading/triple_ema/short_strategy.hpp>
 #include <trading/triple_ema/strategy.hpp>
 #include <trading/validator/interval.hpp>

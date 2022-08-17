@@ -31,7 +31,7 @@ void run()
     std::vector<price_point> price_points;
     price_points.reserve(candles.size());
 
-    for (const auto& candle : candles)
+    for (const auto& candle: candles)
         price_points.emplace_back(candle.opened(), trading::candle::ohlc4(candle));
 
     // create storage
@@ -39,10 +39,11 @@ void run()
 
     // create trade manager
     amount_t buy_size{25};
-    triple_ema::trade_manager<long_trade> manager{buy_size, storage};
+    fraction sell_frac{1};
+    const_size::trade_manager<long_trade> manager{buy_size, sell_frac, storage};
 
     // create test box
-    auto box = test_box<triple_ema::long_strategy, triple_ema::trade_manager<long_trade>, percent::long_stats>(
+    auto box = test_box<triple_ema::long_strategy, const_size::trade_manager<long_trade>, percent::long_stats>(
             price_points, manager, storage);
 
     // use optimizer
@@ -59,7 +60,7 @@ void run()
 template<typename Indicator>
 void print_vals(Indicator indic, const std::vector<double>& samples)
 {
-    for (const double& val : samples) {
+    for (const double& val: samples) {
         indic(val);
 
         if (indic.is_ready())
@@ -142,9 +143,10 @@ void use_bazooka()
     bazooka::long_strategy<indicator::sma, indicator::sma, n_levels> strategy{entry_sma, exit_sma, levels};
 
     // create manager
-    amount_t pos_size{200.0};
+    amount_t buy_size{200.0};
+    fraction sell_frac{1};
     trading::storage storage;
-    triple_ema::trade_manager<long_trade> manager{pos_size, storage};
+    const_size::trade_manager<long_trade> manager{buy_size, sell_frac, storage};
 }
 
 void use_fraction()

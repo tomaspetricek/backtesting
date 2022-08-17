@@ -8,9 +8,11 @@
 #include <vector>
 #include <cmath>
 
+#include <strong_type.hpp>
 #include <trading/long_position.hpp>
 #include <trading/fraction.hpp>
 #include <trading/amount_t.hpp>
+#include <trading/fraction.hpp>
 
 namespace trading {
     class long_trade {
@@ -48,6 +50,11 @@ namespace trading {
 
             // check if closed
             if (size_==amount_t{0}) is_opened_ = false;
+        }
+
+        amount_t calculate_position_size(const fraction& trade_frac)
+        {
+            return amount_t{value_of(size_)*static_cast<double>(trade_frac)};
         }
 
         static long_position

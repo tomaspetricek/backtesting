@@ -423,6 +423,7 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/cmath \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/math.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/math.h \
+  ../include/strong_type.hpp \
   ../include/trading/long_position.hpp \
   ../include/trading/position.hpp \
   /usr/local/include/boost/date_time/posix_time/ptime.hpp \
@@ -529,7 +530,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/trading/currency.hpp \
   ../include/trading/price_t.hpp \
   ../include/trading/exception.hpp \
-  ../include/strong_type.hpp \
   ../include/trading/amount_t.hpp \
   ../include/trading/fraction.hpp \
   ../include/trading/validator/interval.hpp \
@@ -539,10 +539,13 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/array \
   ../include/trading/price_point.hpp \
   ../include/trading/action.hpp \
+  ../include/trading/trade_manager.hpp \
+  ../include/trading/storage.hpp \
   ../include/trading/bazooka/long_strategy.hpp \
   ../include/trading/strategy.hpp \
   ../include/trading/indicator/moving_average.hpp \
   ../include/trading/binance/spot/market.hpp \
+  ../include/trading/const_size/trade_manager.hpp \
   ../include/trading/indicator/ema.hpp \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/numeric \
   ../include/trading/indicator/sma.hpp \
@@ -565,11 +568,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/trading/triple_ema/long_strategy.hpp \
   ../include/trading/triple_ema/strategy.hpp \
   ../include/trading/interface/strategy_like.hpp \
-  ../include/trading/triple_ema/trade_manager.hpp \
-  ../include/trading/money.hpp \
-  ../include/trading/storage.hpp \
-  ../include/trading/trade_manager.hpp \
   ../include/trading/triple_ema/short_strategy.hpp \
+  ../include/trading/money.hpp \
   ../include/trading/candle.hpp \
   /usr/local/include/boost/date_time/posix_time/posix_time.hpp \
   /usr/local/include/boost/date_time/posix_time/date_duration_operators.hpp \
@@ -1705,16 +1705,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/local/include/boost/date_time/posix_time/time_formatters.hpp:
 
-/usr/local/include/boost/date_time/period_parser.hpp:
-
-../include/trading/trade_manager.hpp:
-
-../include/trading/tuple.hpp:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/_types/_u_char.h:
-
-../include/trading/triple_ema/trade_manager.hpp:
-
 /usr/local/include/boost/config/detail/select_compiler_config.hpp:
 
 ../include/trading/interface/strategy_like.hpp:
@@ -1761,6 +1751,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 ../include/trading/indicator/ema.hpp:
 
+../include/trading/const_size/trade_manager.hpp:
+
 /usr/local/include/boost/preprocessor/detail/check.hpp:
 
 /usr/local/include/boost/algorithm/string/detail/finder.hpp:
@@ -1772,6 +1764,10 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/local/include/boost/preprocessor/seq/seq.hpp:
 
 ../include/trading/bazooka/long_strategy.hpp:
+
+/usr/local/include/boost/date_time/period_parser.hpp:
+
+../include/trading/trade_manager.hpp:
 
 ../include/trading/price_point.hpp:
 
@@ -2040,6 +2036,10 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 ../include/trading/optimizer/cartesian_product/search_space.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__utility/as_const.h:
+
+../include/trading/tuple.hpp:
+
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/_types/_u_char.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/locale.h:
 
