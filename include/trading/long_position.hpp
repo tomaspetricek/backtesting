@@ -18,13 +18,15 @@ namespace trading {
         static long_position
         create_close(amount_t sold, const trading::price_t& price, const boost::posix_time::ptime& created)
         {
-            return long_position(sold, amount_t{value_of(sold)*value_of(price)}, price, created);
+            assert((sold>amount_t{0}, "Amount sold has to be greater than 0"));
+            return {sold, amount_t{value_of(sold)*value_of(price)}, price, created};
         }
 
         static long_position
         create_open(amount_t sold, const trading::price_t& price, const boost::posix_time::ptime& created)
         {
-            return long_position{sold, amount_t{value_of(sold)/value_of(price)}, price, created};
+            assert((sold>amount_t{0}, "Amount sold has to be greater than 0"));
+            return {sold, amount_t{value_of(sold)/value_of(price)}, price, created};
         }
     };
 

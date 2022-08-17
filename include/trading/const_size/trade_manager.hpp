@@ -38,8 +38,7 @@ namespace trading::const_size {
 
         void sell_impl(const price_point& point)
         {
-            if (!this->active_)
-                throw std::runtime_error("No active trade to sell");
+            assert((!this->active_, "No active trade to sell"));
 
             auto sell_size = this->active_->calculate_position_size(sell_frac_);
             auto pos = Trade::create_close_position(sell_size, point.price, point.time);
@@ -48,8 +47,7 @@ namespace trading::const_size {
 
         void sell_all_impl(const price_point& point)
         {
-            if (!this->active_)
-                throw std::runtime_error("No active trade to sell");
+            assert((!this->active_, "No active trade to sell"));
 
             auto pos = Trade::create_close_position(this->active_->size(), point.price, point.time);
             this->active_->add_closed(pos);
