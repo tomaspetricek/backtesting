@@ -136,10 +136,15 @@ void use_bazooka()
     levels[2] = fraction{1.0-0.1};
     levels[3] = fraction{1.0-0.15};
 
+    // create strategy
     indicator::sma entry_sma{30};
     const indicator::sma& exit_sma{entry_sma};
-
     bazooka::long_strategy<indicator::sma, indicator::sma, n_levels> strategy{entry_sma, exit_sma, levels};
+
+    // create manager
+    amount_t pos_size{200.0};
+    trading::storage storage;
+    triple_ema::trade_manager<long_trade> manager{pos_size, storage};
 }
 
 void use_fraction()

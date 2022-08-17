@@ -49,17 +49,17 @@ namespace trading::triple_ema {
                 this->indics_ready_ = true;
         }
 
-        bool should_buy()
+        bool should_buy(const price_t& curr)
         {
-            return static_cast<ConcreteTripleEmaStrategy*>(this)->should_buy_impl();
+            return static_cast<ConcreteTripleEmaStrategy*>(this)->should_buy_impl(curr);
         }
 
-        bool should_sell()
+        bool should_sell(const price_t& curr)
         {
-            return static_cast<ConcreteTripleEmaStrategy*>(this)->should_sell_impl();
+            return static_cast<ConcreteTripleEmaStrategy*>(this)->should_sell_impl(curr);
         }
 
-        bool should_sell_all()
+        bool should_sell_all(const price_t& curr)
         {
             return false;
         }

@@ -22,13 +22,13 @@ namespace trading {
             if (!indics_ready_)
                 return action::do_nothing;
 
-            if (static_cast<ConcreteStrategy*>(this)->should_buy()) {
+            if (static_cast<ConcreteStrategy*>(this)->should_buy(curr)) {
                 return action::buy;
             }
-            else if (static_cast<ConcreteStrategy*>(this)->should_sell()) {
+            else if (static_cast<ConcreteStrategy*>(this)->should_sell(curr)) {
                 return action::sell;
             }
-            else if (static_cast<ConcreteStrategy*>(this)->should_sell_all()) {
+            else if (static_cast<ConcreteStrategy*>(this)->should_sell_all(curr)) {
                 return action::sell_all;
             }
             else {

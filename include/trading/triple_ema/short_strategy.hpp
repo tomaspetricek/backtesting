@@ -26,7 +26,7 @@ namespace trading::triple_ema {
                 :strategy<short_strategy>(short_period, middle_period, long_period) { }
 
     private:
-        bool should_buy_impl()
+        bool should_buy_impl(const price_t& curr)
         {
             auto curr_short = static_cast<double>(short_ema_);
             auto curr_middle = static_cast<double>(middle_ema_);
@@ -40,7 +40,7 @@ namespace trading::triple_ema {
             return false;
         }
 
-        bool should_sell_impl()
+        bool should_sell_impl(const price_t& curr)
         {
             auto curr_short = static_cast<double>(short_ema_);
             auto curr_middle = static_cast<double>(middle_ema_);
