@@ -8,6 +8,7 @@
 #include <optional>
 
 #include <trading/storage.hpp>
+#include <trading/price_point.hpp>
 
 namespace trading {
     // to avoid use of virtual functions CRTP is used
@@ -40,10 +41,12 @@ namespace trading {
                 static_cast<ConcreteTradeManager*>(this)->buy_impl(point);
                 break;
             case action::sell:
+                assert((!this->active_, "No active trade to sell"));
                 static_cast<ConcreteTradeManager*>(this)->sell_impl(point);
                 try_saving_active_trade();
                 break;
             case action::sell_all:
+                assert((!this->active_, "No active trade to sell"));
                 static_cast<ConcreteTradeManager*>(this)->sell_all_impl(point);
                 try_saving_active_trade();
                 break;

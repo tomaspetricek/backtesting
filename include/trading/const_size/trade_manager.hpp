@@ -38,8 +38,6 @@ namespace trading::const_size {
 
         void sell_impl(const price_point& point)
         {
-            assert((!this->active_, "No active trade to sell"));
-
             auto sell_size = this->active_->calculate_position_size(sell_frac_);
             auto pos = Trade::create_close_position(sell_size, point.price, point.time);
             this->active_->add_closed(pos);
@@ -47,8 +45,6 @@ namespace trading::const_size {
 
         void sell_all_impl(const price_point& point)
         {
-            assert((!this->active_, "No active trade to sell"));
-
             auto pos = Trade::create_close_position(this->active_->size(), point.price, point.time);
             this->active_->add_closed(pos);
         }
@@ -57,7 +53,6 @@ namespace trading::const_size {
         explicit trade_manager(const amount_t& buy_size, const fraction& sell_frac, storage& storage)
                 :trading::trade_manager<Trade, const_size::trade_manager<Trade>>(storage),
                  buy_size_(validate_pos_size(buy_size)), sell_frac_(sell_frac) { }
-
     };
 }
 
