@@ -28,11 +28,14 @@ namespace trading::triple_ema {
     private:
         bool should_buy_impl(const price_t& curr)
         {
+            // position already opened
+            if (pos_opened_) return false;
+
             auto curr_short = static_cast<double>(short_ema_);
             auto curr_middle = static_cast<double>(middle_ema_);
             auto curr_long = static_cast<double>(long_ema_);
 
-            if (curr_middle>curr_long && curr_middle<curr_short && !pos_opened_) {
+            if (curr_middle>curr_long && curr_middle<curr_short) {
                 pos_opened_ = true;
                 return true;
             }
@@ -42,10 +45,13 @@ namespace trading::triple_ema {
 
         bool should_sell_impl(const price_t& curr)
         {
+            // position is not open yet, so there is nothing to sell
+            if (!pos_opened_) return false;
+
             auto curr_short = static_cast<double>(short_ema_);
             auto curr_middle = static_cast<double>(middle_ema_);
 
-            if (curr_short<curr_middle && pos_opened_) {
+            if (curr_short<curr_middle) {
                 pos_opened_ = false;
                 return true;
             }
