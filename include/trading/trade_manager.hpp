@@ -47,12 +47,12 @@ namespace trading {
                 static_cast<ConcreteTradeManager*>(this)->buy_impl(point);
                 break;
             case action::sell:
-                assert((!active_, "No active trade to sell"));
+                assert(active_);
                 static_cast<ConcreteTradeManager*>(this)->sell_impl(point);
                 if (active_->is_closed()) save_closed_active_trade();
                 break;
             case action::sell_all:
-                assert((!active_, "No active trade to sell"));
+                assert(active_);
                 sell_all(point);
                 save_closed_active_trade();
                 break;

@@ -33,7 +33,7 @@ namespace trading {
 
         std::vector<candle> candles;
         std::string line, data;
-        std::time_t curr_opened, bef_opened = 0;
+        std::time_t curr_opened{0}, bef_opened{0};
         double open, high, low, close;
         boost::posix_time::ptime opened;
 

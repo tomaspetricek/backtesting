@@ -45,9 +45,9 @@ void run()
     trading::storage storage;
 
     // create trade manager
-    amount_t buy_size{25};
+    amount_t buy_amount{25};
     fraction sell_frac{1};
-    const_size::long_trade_manager manager{buy_size, sell_frac, storage};
+    const_size::long_trade_manager manager{buy_amount, sell_frac, storage};
 
     // create initializer
     auto initializer = [](int short_period, int middle_period, int long_period) {
@@ -157,10 +157,16 @@ void use_bazooka()
     levels[3] = fraction{1.0-0.15};
 
     // create manager
-    std::array<amount_t, n_levels> buy_amounts{amount_t{100}, amount_t{50}, amount_t{20}, amount_t{10}};
-    std::array<fraction, 1> sell_fracs{fraction{1}};
+    std::array<amount_t, n_levels> buy_amounts{
+            amount_t{100},
+            amount_t{50},
+            amount_t{20},
+            amount_t{10}
+    };
+    constexpr std::size_t n_sell_fracs{0}; // uses sell all so no sell fractions are needed
+    std::array<fraction, n_sell_fracs> sell_fracs{};
     trading::storage storage;
-    varying_size::trade_manager<long_trade, n_levels, 1> manager{buy_amounts, sell_fracs, storage};
+    varying_size::long_trade_manager<n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs, storage};
 
     // create initializer
     auto initializer = [levels](std::size_t period) {
@@ -171,7 +177,7 @@ void use_bazooka()
 
     // create test box
     auto box = test_box<bazooka::long_strategy<sma, sma, n_levels>,
-            varying_size::trade_manager<long_trade, n_levels, 1>,
+            varying_size::long_trade_manager<n_levels, n_sell_fracs>,
             percent::long_stats, std::size_t>(points, manager, storage, initializer);
 
     // use test box

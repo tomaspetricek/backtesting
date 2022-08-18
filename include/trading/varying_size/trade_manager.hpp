@@ -65,6 +65,9 @@ namespace trading::varying_size {
                 :trading::trade_manager<Trade, trade_manager<Trade, n_buy_amounts, n_sell_fracs>>(storage),
                  buy_amounts_(buy_amounts), sell_fracs_(sell_fracs) { }
     };
+
+    template<std::size_t n_buy_amounts, std::size_t n_sell_fracs> using long_trade_manager =
+            trade_manager<long_trade, n_buy_amounts, n_sell_fracs>;
 }
 
 #endif //BACKTESTING_VARYING_SIZE_TRADE_MANAGER_HPP

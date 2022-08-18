@@ -14,10 +14,10 @@ namespace trading::const_size {
     class trade_manager : public trading::trade_manager<Trade, const_size::trade_manager<Trade>> {
         // necessary for use of CRTP (The Curiously Recurring Template Pattern)
         friend class trading::trade_manager<Trade, const_size::trade_manager<Trade>>;
-        amount_t buy_size_;
+        amount_t buy_amount_;
         fraction sell_frac_;
 
-        static amount_t validate_pos_size(amount_t pos_size)
+        static amount_t validate_buy_amount(amount_t pos_size)
         {
             if (pos_size<=amount_t{0.0})
                 throw std::invalid_argument("Buy size has to be greater than 0");
@@ -31,11 +31,11 @@ namespace trading::const_size {
         void buy_impl(const price_point& point)
         {
             if (!this->active_) {
-                auto pos = Trade::create_open_position(buy_size_, point.price, point.time);
+                auto pos = Trade::create_open_position(buy_amount_, point.price, point.time);
                 this->active_ = std::make_optional(long_trade(pos));
             }
             else {
-                auto pos = Trade::create_open_position(buy_size_, point.price, point.time);
+                auto pos = Trade::create_open_position(buy_amount_, point.price, point.time);
                 this->active_->add_opened(pos);
             }
         }
@@ -48,9 +48,9 @@ namespace trading::const_size {
         }
 
     public:
-        explicit trade_manager(const amount_t& buy_size, const fraction& sell_frac, storage& storage)
+        explicit trade_manager(const amount_t& buy_amount, const fraction& sell_frac, storage& storage)
                 :trading::trade_manager<Trade, const_size::trade_manager<Trade>>(storage),
-                 buy_size_(validate_pos_size(buy_size)), sell_frac_(sell_frac) { }
+                 buy_amount_(validate_buy_amount(buy_amount)), sell_frac_(sell_frac) { }
     };
 
     typedef trade_manager<long_trade> long_trade_manager;
