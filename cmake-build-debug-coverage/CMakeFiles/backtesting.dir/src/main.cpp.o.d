@@ -566,6 +566,7 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/triple_ema/strategy.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/interface/strategy_like.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/triple_ema/short_strategy.hpp \
+  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/varying_size/trade_manager.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/money.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/candle.hpp \
   /usr/local/include/boost/date_time/posix_time/posix_time.hpp \

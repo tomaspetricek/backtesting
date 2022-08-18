@@ -15,14 +15,20 @@ namespace trading {
     // src: https://www.fluentcpp.com/2017/05/12/curiously-recurring-template-pattern/
     template<typename Trade, typename ConcreteTradeManager>
     class trade_manager {
-        void try_saving_active_trade()
+        void save_closed_active_trade()
         {
-            if (active_) {
-                if (active_->is_closed()) {
-                    storage_.save_closed_trade(*active_);
-                    active_ = std::nullopt;
-                }
-            }
+            assert(active_);
+            assert(active_->is_closed());
+
+            storage_.save_closed_trade(*active_);
+            active_ = std::nullopt;
+            static_cast<ConcreteTradeManager*>(this)->reset_state_impl();
+        }
+
+        void sell_all(const price_point& point)
+        {
+            auto pos = Trade::create_close_position(this->active_->size(), point.price, point.time);
+            this->active_->add_closed(pos);
         }
 
     protected:
@@ -41,26 +47,26 @@ namespace trading {
                 static_cast<ConcreteTradeManager*>(this)->buy_impl(point);
                 break;
             case action::sell:
-                assert((!this->active_, "No active trade to sell"));
+                assert((!active_, "No active trade to sell"));
                 static_cast<ConcreteTradeManager*>(this)->sell_impl(point);
-                try_saving_active_trade();
+                if (active_->is_closed()) save_closed_active_trade();
                 break;
             case action::sell_all:
-                assert((!this->active_, "No active trade to sell"));
-                static_cast<ConcreteTradeManager*>(this)->sell_all_impl(point);
-                try_saving_active_trade();
+                assert((!active_, "No active trade to sell"));
+                sell_all(point);
+                save_closed_active_trade();
                 break;
             case action::do_nothing:
                 break;
             }
         }
 
+        // it closes active trade, if there is one
         void try_closing_active_trade(const price_point& point)
         {
             if (active_) {
-                static_cast<ConcreteTradeManager*>(this)->sell_all_impl(point);
-                storage_.save_closed_trade(*active_);
-                active_ = std::nullopt;
+                sell_all(point);
+                save_closed_active_trade();
             }
         }
     };

@@ -20,6 +20,7 @@
 #include <trading/triple_ema/short_strategy.hpp>
 #include <trading/triple_ema/strategy.hpp>
 #include <trading/validator/interval.hpp>
+#include <trading/varying_size/trade_manager.hpp>
 #include <trading/action.hpp>
 #include <trading/money.hpp>
 #include <trading/candle.hpp>

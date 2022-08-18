@@ -535,17 +535,16 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/trading/validator/interval.hpp \
   ../include/trading/long_stats.hpp \
   ../include/trading/amount/formula.hpp \
-  ../include/trading/bazooka/trade_manager.hpp \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/array \
-  ../include/trading/price_point.hpp \
-  ../include/trading/action.hpp \
-  ../include/trading/trade_manager.hpp \
-  ../include/trading/storage.hpp \
   ../include/trading/bazooka/long_strategy.hpp \
+  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/array \
   ../include/trading/strategy.hpp \
+  ../include/trading/action.hpp \
   ../include/trading/indicator/moving_average.hpp \
   ../include/trading/binance/spot/market.hpp \
   ../include/trading/const_size/trade_manager.hpp \
+  ../include/trading/trade_manager.hpp \
+  ../include/trading/storage.hpp \
+  ../include/trading/price_point.hpp \
   ../include/trading/indicator/ema.hpp \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/numeric \
   ../include/trading/indicator/sma.hpp \
@@ -569,6 +568,7 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/trading/triple_ema/strategy.hpp \
   ../include/trading/interface/strategy_like.hpp \
   ../include/trading/triple_ema/short_strategy.hpp \
+  ../include/trading/varying_size/trade_manager.hpp \
   ../include/trading/money.hpp \
   ../include/trading/candle.hpp \
   /usr/local/include/boost/date_time/posix_time/posix_time.hpp \
@@ -1617,6 +1617,12 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/local/include/boost/mpl/aux_/template_arity_fwd.hpp:
 
+/usr/local/include/boost/date_time/dst_rules.hpp:
+
+/usr/local/include/boost/mpl/limits/arity.hpp:
+
+/usr/local/include/boost/mpl/aux_/lambda_arity_param.hpp:
+
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/cassert:
 
 /usr/local/include/boost/preprocessor/array/size.hpp:
@@ -1751,6 +1757,12 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 ../include/trading/indicator/ema.hpp:
 
+../include/trading/price_point.hpp:
+
+/usr/local/include/boost/date_time/period_parser.hpp:
+
+../include/trading/trade_manager.hpp:
+
 ../include/trading/const_size/trade_manager.hpp:
 
 /usr/local/include/boost/preprocessor/detail/check.hpp:
@@ -1764,20 +1776,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/local/include/boost/preprocessor/seq/seq.hpp:
 
 ../include/trading/bazooka/long_strategy.hpp:
-
-/usr/local/include/boost/date_time/period_parser.hpp:
-
-../include/trading/trade_manager.hpp:
-
-../include/trading/price_point.hpp:
-
-/usr/local/include/boost/date_time/dst_rules.hpp:
-
-/usr/local/include/boost/mpl/limits/arity.hpp:
-
-/usr/local/include/boost/mpl/aux_/lambda_arity_param.hpp:
-
-../include/trading/bazooka/trade_manager.hpp:
 
 ../include/trading/triple_ema/short_strategy.hpp:
 
@@ -2820,6 +2818,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/_types/_dev_t.h:
 
 /usr/local/include/boost/preprocessor/repetition/enum_trailing_params.hpp:
+
+../include/trading/varying_size/trade_manager.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/malloc/_malloc.h:
 

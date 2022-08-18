@@ -17,32 +17,34 @@
 #include <trading/currency.hpp>
 
 namespace trading {
-    template<typename Strategy, typename TradeManager, typename Stats>
+    template<class Strategy, class TradeManager, class Stats, typename ...Args>
     class test_box {
     private:
         std::vector<price_point> price_points_;
         TradeManager manager_;
         storage& storage_;
+        std::function<Strategy(Args...)> initializer_;
 
     public:
-        explicit test_box(std::vector<price_point> price_points, TradeManager manager, storage& storage)
-                :price_points_(std::move(price_points)), manager_(manager), storage_(storage) { }
+        explicit test_box(std::vector<price_point> price_points, TradeManager manager, storage& storage,
+                std::function<Strategy(Args...)> initializer)
+                :price_points_(std::move(price_points)), manager_(manager), storage_(storage),
+                 initializer_(initializer) { }
 
-        template<typename ...Args>
         void operator()(Args... args)
         {
             Strategy strategy;
 
             // create strategy
             try {
-                strategy = Strategy(args...);
+                strategy = initializer_(args...);
             }
             catch (...) {
                 std::throw_with_nested(std::runtime_error("Cannot create strategy"));
             }
 
             // collect trades
-            for (const auto& point : price_points_) {
+            for (const auto& point: price_points_) {
                 auto action = strategy(point.price);
                 manager_.update_active_trade(action, point);
             }

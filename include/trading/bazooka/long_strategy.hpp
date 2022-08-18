@@ -57,7 +57,7 @@ namespace trading::bazooka {
             // all levels passed
             if (curr_level_==n_levels)
                 return false;
-            assert(curr_level_>n_levels);
+            assert(curr_level_<=n_levels);
 
             auto baseline = static_cast<double>(entry_ma_);
             // move baseline down
@@ -97,9 +97,11 @@ namespace trading::bazooka {
         }
 
     public:
-        long_strategy(OpenMovingAverage entry_ma, CloseMovingAverage exit_ma,
+        explicit long_strategy(OpenMovingAverage entry_ma, CloseMovingAverage exit_ma,
                 const std::array<fraction, n_levels>& entry_levels)
                 :entry_ma_(entry_ma), exit_ma_(exit_ma), entry_levels_(validate_entry_levels(entry_levels)) { }
+
+        long_strategy() = default;
     };
 }
 

@@ -7,16 +7,12 @@
 using namespace trading;
 using namespace currency;
 using namespace optimizer;
+using namespace indicator;
 
-void run()
+std::vector<price_point> get_price_points(const std::filesystem::path& candle_csv, std::chrono::seconds period)
 {
-    currency::pair pair{crypto::BTC, crypto::USDT};
-
     // read candles
-    std::filesystem::path candle_csv("../data/btc-usdt-30-min.csv");
-    std::chrono::seconds period = std::chrono::minutes(30);
     std::vector<candle> candles;
-
     try {
         candles = read_candles(candle_csv, ';', period);
     }
@@ -34,24 +30,40 @@ void run()
     for (const auto& candle: candles)
         price_points.emplace_back(candle.opened(), trading::candle::ohlc4(candle));
 
+    return price_points;
+}
+
+void run()
+{
+    // get price points
+    currency::pair pair{crypto::BTC, crypto::USDT};
+    std::filesystem::path candle_csv("../data/btc-usdt-30-min.csv");
+    std::chrono::seconds period = std::chrono::minutes(30);
+    auto points = get_price_points(candle_csv, period);
+
     // create storage
     trading::storage storage;
 
     // create trade manager
     amount_t buy_size{25};
     fraction sell_frac{1};
-    const_size::trade_manager<long_trade> manager{buy_size, sell_frac, storage};
+    const_size::long_trade_manager manager{buy_size, sell_frac, storage};
+
+    // create initializer
+    auto initializer = [](int short_period, int middle_period, int long_period) {
+        return triple_ema::long_strategy{short_period, middle_period, long_period};
+    };
 
     // create test box
-    auto box = test_box<triple_ema::long_strategy, const_size::trade_manager<long_trade>, percent::long_stats>(
-            price_points, manager, storage);
+    auto box = test_box<triple_ema::long_strategy, const_size::long_trade_manager,
+            percent::long_stats, int, int, int>(points, manager, storage, initializer);
 
     // use optimizer
     int min_short_period{1};
     int step{1};
     int shift{1};
-    int max_short_period{50+step}; // make inclusive
-    sliding::search_space space{range<int>(min_short_period, max_short_period, step), shift};
+    int max_short_period{100+step}; // make inclusive
+    sliding::search_space space{range(min_short_period, max_short_period, step), shift};
     sliding::brute_force<int, 3> optim{space, std::move(box)};
     std::cout << "sliding, brute force:" << std::endl;
     optim();
@@ -130,6 +142,13 @@ void use_optimizer()
 
 void use_bazooka()
 {
+    // get price points
+    currency::pair pair{crypto::BTC, crypto::USDT};
+    std::filesystem::path candle_csv("../data/btc-usdt-30-min.csv");
+    std::chrono::seconds period = std::chrono::minutes(30);
+    auto points = get_price_points(candle_csv, period);
+
+    // create levels
     constexpr int n_levels{4};
     std::array<fraction, n_levels> levels;
     levels[0] = fraction{1.0-0.04};
@@ -137,27 +156,31 @@ void use_bazooka()
     levels[2] = fraction{1.0-0.1};
     levels[3] = fraction{1.0-0.15};
 
-    // create strategy
-    indicator::sma entry_sma{30};
-    const indicator::sma& exit_sma{entry_sma};
-    bazooka::long_strategy<indicator::sma, indicator::sma, n_levels> strategy{entry_sma, exit_sma, levels};
-
     // create manager
-    amount_t buy_size{200.0};
-    fraction sell_frac{1};
+    std::array<amount_t, n_levels> buy_amounts{amount_t{100}, amount_t{50}, amount_t{20}, amount_t{10}};
+    std::array<fraction, 1> sell_fracs{fraction{1}};
     trading::storage storage;
-    const_size::trade_manager<long_trade> manager{buy_size, sell_frac, storage};
-}
+    varying_size::trade_manager<long_trade, n_levels, 1> manager{buy_amounts, sell_fracs, storage};
 
-void use_fraction()
-{
-    fraction frac(0.9);
+    // create initializer
+    auto initializer = [levels](std::size_t period) {
+        indicator::sma entry_sma{period};
+        const indicator::sma& exit_sma{entry_sma};
+        return bazooka::long_strategy<sma, sma, n_levels>{entry_sma, exit_sma, levels};
+    };
+
+    // create test box
+    auto box = test_box<bazooka::long_strategy<sma, sma, n_levels>,
+            varying_size::trade_manager<long_trade, n_levels, 1>,
+            percent::long_stats, std::size_t>(points, manager, storage, initializer);
+
+    // use test box
+    box(30);
 }
 
 int main()
 {
     // show demo
-    use_fraction();
     use_formulas();
     use_indicators();
     use_interval();

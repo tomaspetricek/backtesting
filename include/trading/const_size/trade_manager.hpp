@@ -7,6 +7,7 @@
 
 #include <trading/trade_manager.hpp>
 #include <trading/price_point.hpp>
+#include <trading/long_trade.hpp>
 
 namespace trading::const_size {
     template<typename Trade>
@@ -23,6 +24,9 @@ namespace trading::const_size {
 
             return pos_size;
         }
+
+        // does not have state
+        void reset_state_impl() { }
 
         void buy_impl(const price_point& point)
         {
@@ -43,17 +47,13 @@ namespace trading::const_size {
             this->active_->add_closed(pos);
         }
 
-        void sell_all_impl(const price_point& point)
-        {
-            auto pos = Trade::create_close_position(this->active_->size(), point.price, point.time);
-            this->active_->add_closed(pos);
-        }
-
     public:
         explicit trade_manager(const amount_t& buy_size, const fraction& sell_frac, storage& storage)
                 :trading::trade_manager<Trade, const_size::trade_manager<Trade>>(storage),
                  buy_size_(validate_pos_size(buy_size)), sell_frac_(sell_frac) { }
     };
+
+    typedef trade_manager<long_trade> long_trade_manager;
 }
 
 #endif //BACKTESTING_TRADE_MANAGER_HPP

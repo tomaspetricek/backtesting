@@ -6,5 +6,5 @@ CXX_DEFINES = -DBOOST_DATE_TIME_DYN_LINK -DBOOST_DATE_TIME_NO_LIB
 
 CXX_INCLUDES = -I/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include -isystem /usr/local/include
 
-CXX_FLAGS = -fprofile-instr-generate -fcoverage-mapping -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk -std=gnu++20
+CXX_FLAGS = -O3 -Wall -Wextra -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk -std=gnu++20
 
