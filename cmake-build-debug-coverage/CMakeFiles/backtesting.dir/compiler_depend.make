@@ -539,7 +539,9 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/array \
   ../include/trading/strategy.hpp \
   ../include/trading/action.hpp \
+  ../include/trading/bazooka/strategy.hpp \
   ../include/trading/indicator/moving_average.hpp \
+  ../include/trading/bazooka/short_strategy.hpp \
   ../include/trading/binance/spot/market.hpp \
   ../include/trading/const_size/trade_manager.hpp \
   ../include/trading/trade_manager.hpp \
@@ -1369,6 +1371,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/local/include/boost/mpl/aux_/has_type.hpp:
 
+/usr/local/include/boost/mpl/void.hpp:
+
 /usr/local/include/boost/mpl/quote.hpp:
 
 /usr/local/include/boost/mpl/next_prior.hpp:
@@ -1764,6 +1768,10 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 ../include/trading/trade_manager.hpp:
 
 ../include/trading/const_size/trade_manager.hpp:
+
+../include/trading/bazooka/short_strategy.hpp:
+
+../include/trading/bazooka/strategy.hpp:
 
 /usr/local/include/boost/preprocessor/detail/check.hpp:
 
@@ -2554,8 +2562,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__algorithm/is_sorted_until.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/_pthread/_pthread_cond_t.h:
-
-/usr/local/include/boost/mpl/void.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/stdint.h:
 
