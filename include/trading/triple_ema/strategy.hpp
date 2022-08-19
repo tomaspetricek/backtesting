@@ -12,17 +12,67 @@
 
 namespace trading::triple_ema {
     // source: https://python.plainenglish.io/triple-moving-average-trading-strategy-aaa44d96d532
-    template<typename ConcreteTripleEmaStrategy>
-    class strategy : public trading::strategy<triple_ema::strategy<ConcreteTripleEmaStrategy>> {
-        friend class trading::strategy<triple_ema::strategy<ConcreteTripleEmaStrategy>>;
-    protected:
+    template<class LongComp, class ShortComp>
+    class strategy : public trading::strategy<triple_ema::strategy<LongComp, ShortComp>> {
+        friend class trading::strategy<triple_ema::strategy<LongComp, ShortComp>>;
+    private:
         indicator::ema short_ema_; // fast moving
         indicator::ema middle_ema_; // slow
         indicator::ema long_ema_; // low moving
         bool pos_opened_ = false;
+        static constexpr LongComp long_comp_;
+        static constexpr ShortComp short_comp_;
 
-        strategy() = default;
+        void update_indicators(const price_t& curr)
+        {
+            auto curr_val = value_of(curr);
+            short_ema_(curr_val);
+            middle_ema_(curr_val);
+            long_ema_(curr_val);
 
+            if (long_ema_.is_ready())
+                this->indics_ready_ = true;
+        }
+
+        bool should_buy_impl(const price_t& curr)
+        {
+            // position already opened
+            if (pos_opened_) return false;
+
+            auto curr_short = static_cast<double>(short_ema_);
+            auto curr_middle = static_cast<double>(middle_ema_);
+            auto curr_long = static_cast<double>(long_ema_);
+
+            if (long_comp_(curr_middle, curr_long) && short_comp_(curr_middle, curr_short)) {
+                pos_opened_ = true;
+                return true;
+            }
+
+            return false;
+        }
+
+        bool should_sell_impl(const price_t& curr)
+        {
+            // position is not open yet, so there is nothing to sell
+            if (!pos_opened_) return false;
+
+            auto curr_short = static_cast<double>(short_ema_);
+            auto curr_middle = static_cast<double>(middle_ema_);
+
+            if (short_comp_(curr_short, curr_middle)) {
+                pos_opened_ = false;
+                return true;
+            }
+
+            return false;
+        }
+
+        bool should_sell_all_impl(const price_t& curr)
+        {
+            return false;
+        }
+
+    protected:
         explicit strategy(indicator::ema short_ema, indicator::ema middle_ema, indicator::ema long_ema)
                 :short_ema_(std::move(short_ema)), middle_ema_(std::move(middle_ema)), long_ema_(std::move(long_ema))
         {
@@ -37,32 +87,7 @@ namespace trading::triple_ema {
                 :strategy{indicator::ema{short_period}, indicator::ema{middle_period},
                           indicator::ema{long_period}} { }
 
-    private:
-        void update_indicators(const price_t& curr)
-        {
-            auto curr_val = value_of(curr);
-            short_ema_(curr_val);
-            middle_ema_(curr_val);
-            long_ema_(curr_val);
-
-            if (long_ema_.is_ready())
-                this->indics_ready_ = true;
-        }
-
-        bool should_buy(const price_t& curr)
-        {
-            return static_cast<ConcreteTripleEmaStrategy*>(this)->should_buy_impl(curr);
-        }
-
-        bool should_sell(const price_t& curr)
-        {
-            return static_cast<ConcreteTripleEmaStrategy*>(this)->should_sell_impl(curr);
-        }
-
-        bool should_sell_all(const price_t& curr)
-        {
-            return false;
-        }
+        strategy() = default;
     };
 }
 

@@ -54,7 +54,7 @@ namespace trading::bazooka {
                 this->indics_ready_ = true;
         }
 
-        bool should_buy(const price_t& curr)
+        bool should_buy_impl(const price_t& curr)
         {
             // all levels passed
             if (curr_level_==n_levels)
@@ -76,12 +76,12 @@ namespace trading::bazooka {
         }
 
         // it does not sell fractions, so it's always false
-        bool should_sell(const price_t& curr)
+        bool should_sell_impl(const price_t& curr)
         {
             return false;
         }
 
-        bool should_sell_all(const price_t& curr)
+        bool should_sell_all_impl(const price_t& curr)
         {
             // hasn't opened any positions yet
             if (!curr_level_)
