@@ -127,10 +127,9 @@ namespace trading::bazooka {
             std::get<1>(vals) = static_cast<double>(exit_ma_);
 
             // fill level values
-            auto fill_levels = [&](double& val, index_t i) {
+            for_each(vals, [&](double& val, index_t i) {
                 if (i>=2) val = get_level_value(i-2);
-            };
-            for_each(vals, fill_levels);
+            });
 
             return vals;
         }
