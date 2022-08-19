@@ -20,7 +20,7 @@ namespace trading::bazooka {
     class strategy
             : public trading::strategy<strategy<OpenMovingAverage, CloseMovingAverage, EntryComp, ExitComp, n_levels>> {
         friend class trading::strategy<strategy<OpenMovingAverage, CloseMovingAverage, EntryComp, ExitComp, n_levels>>;
-    private:
+
         OpenMovingAverage entry_ma_;
         CloseMovingAverage exit_ma_;
         std::array<fraction, n_levels> entry_levels_;
@@ -61,10 +61,9 @@ namespace trading::bazooka {
                 return false;
             assert(curr_level_<=n_levels);
 
+            // move baseline
             auto baseline = static_cast<double>(entry_ma_);
-            // move baseline down
             auto level = baseline*static_cast<double>(entry_levels_[curr_level_]);
-            assert(baseline>level); // check if the current level is below the baseline
 
             // passed current level
             if (entry_comp_(value_of(curr), level)) {

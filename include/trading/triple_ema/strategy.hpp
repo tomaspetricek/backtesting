@@ -15,7 +15,7 @@ namespace trading::triple_ema {
     template<class LongComp, class ShortComp>
     class strategy : public trading::strategy<triple_ema::strategy<LongComp, ShortComp>> {
         friend class trading::strategy<triple_ema::strategy<LongComp, ShortComp>>;
-    private:
+
         indicator::ema short_ema_; // fast moving
         indicator::ema middle_ema_; // slow
         indicator::ema long_ema_; // low moving
