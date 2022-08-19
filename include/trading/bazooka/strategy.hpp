@@ -13,14 +13,18 @@
 #include <trading/fraction.hpp>
 #include <trading/strategy.hpp>
 #include <trading/indicator/moving_average.hpp>
+#include <trading/tuple.hpp>
+#include <trading/interface/strategy_like.hpp>
+#include <trading/exception.hpp>
 
 namespace trading::bazooka {
     // entry levels: 0 - first level, n_levels-1 - last level
     template<class OpenMovingAverage, class CloseMovingAverage, class EntryComp, class ExitComp, std::size_t n_levels>
     class strategy
             : public trading::strategy<strategy<OpenMovingAverage, CloseMovingAverage, EntryComp, ExitComp, n_levels>> {
+        // must be at least one level
+        static_assert(n_levels>0);
         friend class trading::strategy<strategy<OpenMovingAverage, CloseMovingAverage, EntryComp, ExitComp, n_levels>>;
-
         OpenMovingAverage entry_ma_;
         CloseMovingAverage exit_ma_;
         std::array<fraction, n_levels> entry_levels_;
@@ -54,6 +58,15 @@ namespace trading::bazooka {
                 this->indics_ready_ = true;
         }
 
+        double get_level_value(index_t level)
+        {
+            assert(level>=0 && level<n_levels);
+
+            // move baseline
+            auto baseline = static_cast<double>(entry_ma_);
+            return baseline*static_cast<double>(entry_levels_[level]);
+        }
+
         bool should_buy_impl(const price_t& curr)
         {
             // all levels passed
@@ -62,8 +75,7 @@ namespace trading::bazooka {
             assert(curr_level_<=n_levels);
 
             // move baseline
-            auto baseline = static_cast<double>(entry_ma_);
-            auto level = baseline*static_cast<double>(entry_levels_[curr_level_]);
+            auto level = get_level_value(curr_level_);
 
             // passed current level
             if (entry_comp_(value_of(curr), level)) {
@@ -103,6 +115,25 @@ namespace trading::bazooka {
                 :entry_ma_(entry_ma), exit_ma_(exit_ma), entry_levels_(validate_entry_levels(entry_levels)) { }
 
         strategy() = default;
+
+    public:
+        tuple_of<double, 2+n_levels> indicators_values()
+        {
+            if (!this->indics_ready_)
+                throw not_ready{"Indicators are not ready yet"};
+
+            tuple_of<double, 2+n_levels> vals;
+            std::get<0>(vals) = static_cast<double>(entry_ma_);
+            std::get<1>(vals) = static_cast<double>(exit_ma_);
+
+            // fill level values
+            auto fill_levels = [&](double& val, index_t i) {
+                if (i>=2) val = get_level_value(i-2);
+            };
+            for_each(vals, fill_levels);
+
+            return vals;
+        }
     };
 }
 

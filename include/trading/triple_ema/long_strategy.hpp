@@ -24,6 +24,9 @@ namespace trading::triple_ema {
         long_strategy(int short_period, int middle_period, int long_period)
                 :strategy<std::greater<>, std::less<>>(short_period, middle_period, long_period) { }
     };
+
+    // check if satisfies interface
+    static_assert(interface::strategy_like<long_strategy>);
 }
 
 #endif //EMASTRATEGY_LONG_STRATEGY_HPP

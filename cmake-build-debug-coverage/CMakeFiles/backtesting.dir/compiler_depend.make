@@ -541,6 +541,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/trading/action.hpp \
   ../include/trading/bazooka/strategy.hpp \
   ../include/trading/indicator/moving_average.hpp \
+  ../include/trading/tuple.hpp \
+  ../include/trading/interface/strategy_like.hpp \
   ../include/trading/bazooka/short_strategy.hpp \
   ../include/trading/binance/spot/market.hpp \
   ../include/trading/const_size/trade_manager.hpp \
@@ -555,7 +557,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/trading/interface/indicator_like.hpp \
   ../include/trading/optimizer/cartesian_product/brute_force.hpp \
   ../include/trading/range.hpp \
-  ../include/trading/tuple.hpp \
   ../include/trading/function.hpp \
   ../include/trading/optimizer/brute_force.hpp \
   ../include/trading/optimizer/base.hpp \
@@ -568,7 +569,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/trading/percent/long_stats.hpp \
   ../include/trading/triple_ema/long_strategy.hpp \
   ../include/trading/triple_ema/strategy.hpp \
-  ../include/trading/interface/strategy_like.hpp \
   ../include/trading/triple_ema/short_strategy.hpp \
   ../include/trading/varying_size/trade_manager.hpp \
   ../include/trading/money.hpp \
@@ -1715,10 +1715,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/local/include/boost/date_time/posix_time/time_formatters.hpp:
 
-/usr/local/include/boost/config/detail/select_compiler_config.hpp:
-
-../include/trading/interface/strategy_like.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/libkern/_OSByteOrder.h:
 
 ../include/trading/triple_ema/strategy.hpp:
@@ -1770,6 +1766,10 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 ../include/trading/const_size/trade_manager.hpp:
 
 ../include/trading/bazooka/short_strategy.hpp:
+
+/usr/local/include/boost/config/detail/select_compiler_config.hpp:
+
+../include/trading/interface/strategy_like.hpp:
 
 ../include/trading/bazooka/strategy.hpp:
 

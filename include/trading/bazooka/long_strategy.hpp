@@ -8,6 +8,7 @@
 #include <array>
 #include <trading/strategy.hpp>
 #include <trading/bazooka/strategy.hpp>
+#include <trading/interface/strategy_like.hpp>
 
 namespace trading::bazooka {
     template<class OpenMovingAverage, class CloseMovingAverage, std::size_t n_levels>
@@ -21,6 +22,9 @@ namespace trading::bazooka {
 
         long_strategy() = default;
     };
+
+    // check if satisfies interface
+    // static_assert(interface::strategy_like<long_strategy<OpenMovingAverage, CloseMovingAverage, n_levels>>);
 }
 
 #endif //EMASTRATEGY_BAZOOKA_LONG_STRATEGY_HPP

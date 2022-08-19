@@ -539,6 +539,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/action.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/bazooka/strategy.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/indicator/moving_average.hpp \
+  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/tuple.hpp \
+  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/interface/strategy_like.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/bazooka/short_strategy.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/binance/spot/market.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/const_size/trade_manager.hpp \
@@ -553,7 +555,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/interface/indicator_like.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/optimizer/cartesian_product/brute_force.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/range.hpp \
-  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/tuple.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/function.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/optimizer/brute_force.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/optimizer/base.hpp \
@@ -566,7 +567,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/percent/long_stats.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/triple_ema/long_strategy.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/triple_ema/strategy.hpp \
-  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/interface/strategy_like.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/triple_ema/short_strategy.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/varying_size/trade_manager.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/money.hpp \

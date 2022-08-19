@@ -21,6 +21,9 @@ namespace trading::bazooka {
 
         short_strategy() = default;
     };
+
+    // check if satisfies interface
+    // static_assert(interface::strategy_like<short_strategy<OpenMovingAverage, CloseMovingAverage, n_levels>>);
 }
 
 #endif //BACKTESTING_BAZOOKA_SHORT_STRATEGY_HPP

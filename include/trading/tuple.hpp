@@ -46,6 +46,19 @@ namespace trading {
         template<typename...Args> using type = std::tuple<Args...>;
     };
     template<typename Type, std::size_t size> using tuple_of = typename tuple_n<Type, size>::template type<>;
+
+    // https://stackoverflow.com/questions/1198260/how-can-you-iterate-over-the-elements-of-an-stdtuple
+    template<std::size_t I = 0, typename Func, typename... Tp>
+    inline typename std::enable_if<I == sizeof...(Tp), void>::type
+    for_each(std::tuple<Tp...> &, Func) { }
+
+    template<std::size_t I = 0, typename Func, typename... Tp>
+    inline typename std::enable_if<I < sizeof...(Tp), void>::type
+    for_each(std::tuple<Tp...>& t, Func f)
+    {
+        f(std::get<I>(t), I);
+        for_each<I + 1, Func, Tp...>(t, f);
+    }
 }
 
 #endif //EMASTRATEGY_TUPLE_HPP
