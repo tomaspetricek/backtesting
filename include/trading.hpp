@@ -22,7 +22,7 @@
 #include <trading/triple_ema/strategy.hpp>
 #include <trading/validator/interval.hpp>
 #include <trading/varying_size/trade_manager.hpp>
-#include <trading/view/candle_initializer.hpp>
+#include <trading/view/candle_deserializer.hpp>
 #include <trading/action.hpp>
 #include <trading/money.hpp>
 #include <trading/candle.hpp>

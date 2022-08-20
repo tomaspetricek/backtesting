@@ -2,13 +2,13 @@
 // Created by Tomáš Petříček on 20.08.2022.
 //
 
-#ifndef BACKTESTING_CANDLE_INITIALIZER_HPP
-#define BACKTESTING_CANDLE_INITIALIZER_HPP
+#ifndef BACKTESTING_CANDLE_DESERIALIZER_HPP
+#define BACKTESTING_CANDLE_DESERIALIZER_HPP
 
 #include <trading/candle.hpp>
 
 namespace trading::view {
-    auto candle_initializer = [](long opened, double open, double high, double low, double close) {
+    auto candle_deserializer = [](long opened, double open, double high, double low, double close) {
         if (opened<0)
             throw std::invalid_argument("Candle time has to greater or equal to 0");
 
@@ -28,4 +28,4 @@ namespace trading::view {
     };
 }
 
-#endif //BACKTESTING_CANDLE_INITIALIZER_HPP
+#endif //BACKTESTING_CANDLE_DESERIALIZER_HPP

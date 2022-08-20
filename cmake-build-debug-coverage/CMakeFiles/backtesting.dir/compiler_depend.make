@@ -572,7 +572,7 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/trading/triple_ema/strategy.hpp \
   ../include/trading/triple_ema/short_strategy.hpp \
   ../include/trading/varying_size/trade_manager.hpp \
-  ../include/trading/view/candle_initializer.hpp \
+  ../include/trading/view/candle_deserializer.hpp \
   ../include/trading/candle.hpp \
   /usr/local/include/boost/date_time/posix_time/posix_time.hpp \
   /usr/local/include/boost/date_time/posix_time/date_duration_operators.hpp \
@@ -1505,8 +1505,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/local/include/boost/mpl/aux_/config/integral.hpp:
 
-../include/trading/view/candle_initializer.hpp:
-
 /usr/local/include/boost/mpl/if.hpp:
 
 /usr/local/include/boost/mpl/integral_c.hpp:
@@ -1770,6 +1768,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/numeric:
 
 ../include/trading/indicator/ema.hpp:
+
+../include/trading/view/candle_deserializer.hpp:
 
 ../include/trading/price_point.hpp:
 

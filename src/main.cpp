@@ -38,10 +38,10 @@ void run()
 {
     // get price points
     currency::pair pair{crypto::BTC, crypto::USDT};
-    std::filesystem::path candle_csv("../data/btc-usdt-30-min.csv");
+    std::filesystem::path candle_csv("../data/in/btc-usdt-30-min.csv");
     std::chrono::seconds period = std::chrono::minutes(30);
     io::csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';',
-                                                                        trading::view::candle_initializer};
+                                                                         trading::view::candle_deserializer};
     auto points = get_price_points(reader);
 
     // create storage
@@ -147,10 +147,10 @@ void use_bazooka()
 {
     // get price points
     currency::pair pair{crypto::BTC, crypto::USDT};
-    std::filesystem::path candle_csv("../data/btc-usdt-30-min.csv");
+    std::filesystem::path candle_csv("../data/in/btc-usdt-30-min.csv");
     std::chrono::seconds period = std::chrono::minutes(30);
     io::csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';',
-                                                                        trading::view::candle_initializer};
+                                                                         trading::view::candle_deserializer};
     auto points = get_price_points(reader);
 
     // create levels
@@ -180,13 +180,21 @@ void use_bazooka()
         return bazooka::long_strategy<sma, sma, n_levels>{entry_sma, exit_sma, levels};
     };
 
-    // create test box
+    // use test box
     auto box = test_box<bazooka::long_strategy<sma, sma, n_levels>,
             varying_size::long_trade_manager<n_levels, n_sell_fracs>,
             percent::long_stats, std::size_t>(points, manager, storage, initializer);
-
-    // use test box
     box(30);
+
+    // save points to csv
+    std::array<std::string, 2> col_names{"time", "ohlc4"};
+    std::filesystem::path points_path("../data/out/price_points.csv");
+    io::csv::writer<price_point, long, double> writer{points_path, [](const price_point& point) {
+        long time = boost::posix_time::to_time_t(point.time);
+        double price = value_of(point.price);
+        return std::make_tuple(time, price);
+    }};
+    writer(col_names, points);
 }
 
 int main()

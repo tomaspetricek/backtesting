@@ -11,55 +11,35 @@
 #include "trading/table.hpp"
 
 namespace trading::io::csv {
-    template<class ...Types>
+    template<class Output, class ...ColumnTypes>
     class writer final {
         std::ofstream file_;
         const std::filesystem::path path_;
         const char delim_;
         std::ios_base::openmode mode_;
+        std::function<std::tuple<ColumnTypes...>(Output)> serializer_;
+        static constexpr int n_cols_ = sizeof...(ColumnTypes);
 
-        template<typename T>
-        void write_element(T el)
+        template<int col_idx = 0>
+        void write_row(const std::tuple<ColumnTypes...>& row)
         {
-            file_ << el;
-        }
+            file_ << std::get<col_idx>(row);
 
-        template<typename T>
-        void write_element(std::vector<T> vec)
-        {
-            std::ostringstream oss;
-
-            if (!vec.empty()) {
-                std::copy(vec.begin(), vec.end()-1,
-                        std::ostream_iterator<T>(oss, " "));
-
-                oss << vec.back();
-            }
-
-            file_ << oss.str();
-        }
-
-        template<int col_idx = 0, class ...T_s>
-        void write_row(const std::tuple<T_s...>& row)
-        {
-            write_element(file_, std::get<col_idx>(row));
-
-            if (col_idx<sizeof...(T_s)-1) {
+            if (col_idx<n_cols_-1) {
                 file_ << delim_;
             }
             else {
                 file_ << "\n";
             }
 
-            if constexpr(col_idx+1!=sizeof...(T_s)) {
-                write_row<col_idx+1>(file_, row);
+            if constexpr (col_idx+1!=n_cols_) {
+                write_row<col_idx+1>(row);
             }
         }
 
-        template<int N, typename Type>
-        void write_row(const std::array<Type, N>& row)
+        void write_header(const std::array<std::string, n_cols_>& row)
         {
-            for (int row_idx{0}; row_idx<row.size(); row_idx++) {
+            for (index_t row_idx{0}; row_idx<row.size(); row_idx++) {
                 file_ << row[row_idx];
 
                 if (row_idx<row.size()-1) {
@@ -72,8 +52,9 @@ namespace trading::io::csv {
         }
 
     public:
-        explicit writer(std::filesystem::path path, char delim = ',')
-                :path_{std::move(path)}, delim_{delim}
+        explicit writer(const std::filesystem::path& path,
+                const std::function<std::tuple<ColumnTypes...>(Output)>& serializer, char delim = ',')
+                :path_(path), delim_(delim), serializer_(serializer)
         {
             if (std::filesystem::exists(path_.string())) {
                 mode_ = std::ios_base::app;
@@ -83,17 +64,16 @@ namespace trading::io::csv {
             }
         }
 
-        void write(const trading::table<Types...> tab)
+        void operator()(const std::array<std::string, n_cols_>& col_names, const std::vector<Output>& outputs)
         {
             file_ = std::ofstream{path_.string(), mode_};
 
             if (file_.is_open()) {
                 if (mode_!=std::ios_base::app)
-                    // write header
-                    write_row<tab.n_cols(), std::string>(tab.col_names());
+                    write_header(col_names);
 
-                for (const auto& row : tab.rows())
-                    write_row(row);
+                for (const auto& out: outputs)
+                    write_row(serializer_(out));
 
                 file_.close();
             }

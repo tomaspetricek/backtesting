@@ -573,7 +573,7 @@ CMakeFiles/backtesting.dir/src/main.cpp.o
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/triple_ema/strategy.hpp
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/triple_ema/short_strategy.hpp
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/varying_size/trade_manager.hpp
- /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/view/candle_initializer.hpp
+ /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/view/candle_deserializer.hpp
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/candle.hpp
  /usr/local/include/boost/date_time/posix_time/posix_time.hpp
  /usr/local/include/boost/date_time/posix_time/date_duration_operators.hpp

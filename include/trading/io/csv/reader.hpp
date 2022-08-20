@@ -19,13 +19,13 @@
 #include "trading/tuple.hpp"
 
 namespace trading::io::csv {
-    template<class Input, class ...Args>
+    template<class Input, class ...ColumnTypes>
     class reader final {
         std::ifstream file_;
         std::filesystem::path path_;
         char delim_;
-        std::function<Input(Args...)> initializer_;
-        std::tuple<Args...> args_;
+        std::function<Input(ColumnTypes...)> deserializer_;
+        std::tuple<ColumnTypes...> args_;
 
         template<class T>
         requires std::same_as<T, long>
@@ -42,17 +42,17 @@ namespace trading::io::csv {
         }
 
         template<std::size_t I = 0>
-        inline typename std::enable_if<I==sizeof...(Args), void>::type
+        inline typename std::enable_if<I==sizeof...(ColumnTypes), void>::type
         parse_line(std::stringstream&) { }
 
         template<std::size_t I = 0>
-        inline typename std::enable_if<I<sizeof...(Args), void>::type
+        inline typename std::enable_if<I<sizeof...(ColumnTypes), void>::type
         parse_line(std::stringstream& line)
         {
             try {
                 std::string data;
                 std::getline(line, data, delim_);
-                std::get<I>(args_) = parse<get_type<I, Args...>>(data);
+                std::get<I>(args_) = parse<get_type<I, ColumnTypes...>>(data);
             }
             catch (...) {
                 std::throw_with_nested(bad_formatting("Cannot parse line"));
@@ -63,8 +63,8 @@ namespace trading::io::csv {
         }
 
     public:
-        explicit reader(const std::filesystem::path& path, char delim, const std::function<Input(Args...)>& initializer)
-                :path_(path), delim_(delim), initializer_(initializer)
+        explicit reader(const std::filesystem::path& path, char delim, const std::function<Input(ColumnTypes...)>& deserializer)
+                :path_(path), delim_(delim), deserializer_(deserializer)
         {
             if (!std::filesystem::exists(path_))
                 throw std::invalid_argument("File does not exist");
@@ -94,7 +94,7 @@ namespace trading::io::csv {
                 parse_line(ss);
 
                 // add input
-                inputs.emplace_back(call(initializer_, args_));
+                inputs.emplace_back(call(deserializer_, args_));
             }
 
             return inputs;
