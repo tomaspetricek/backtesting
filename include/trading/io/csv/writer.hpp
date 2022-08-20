@@ -10,8 +10,9 @@
 #include <utility>
 #include "trading/table.hpp"
 
-namespace trading::io {
-    class cvs_writer final {
+namespace trading::io::csv {
+    template<class ...Types>
+    class writer final {
         std::ofstream file_;
         const std::filesystem::path path_;
         const char delim_;
@@ -71,7 +72,7 @@ namespace trading::io {
         }
 
     public:
-        explicit cvs_writer(std::filesystem::path path, char delim = ',')
+        explicit writer(std::filesystem::path path, char delim = ',')
                 :path_{std::move(path)}, delim_{delim}
         {
             if (std::filesystem::exists(path_.string())) {
@@ -82,8 +83,7 @@ namespace trading::io {
             }
         }
 
-        template<class ...T_s>
-        void write(const trading::table<T_s...> tab)
+        void write(const trading::table<Types...> tab)
         {
             file_ = std::ofstream{path_.string(), mode_};
 

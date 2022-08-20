@@ -9,11 +9,11 @@ using namespace currency;
 using namespace optimizer;
 using namespace indicator;
 
-std::vector<price_point> get_price_points(const std::filesystem::path& candle_csv, std::chrono::seconds period)
+std::vector<price_point> get_price_points(io::csv::reader<candle, long, double, double, double, double>& reader)
 {
     // read candles
     std::vector<candle> candles;
-    io::candle_reader reader{candle_csv, ';', period};
+
     try {
         candles = reader();
     }
@@ -40,7 +40,9 @@ void run()
     currency::pair pair{crypto::BTC, crypto::USDT};
     std::filesystem::path candle_csv("../data/btc-usdt-30-min.csv");
     std::chrono::seconds period = std::chrono::minutes(30);
-    auto points = get_price_points(candle_csv, period);
+    io::csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';',
+                                                                        trading::view::candle_initializer};
+    auto points = get_price_points(reader);
 
     // create storage
     trading::storage storage;
@@ -147,7 +149,9 @@ void use_bazooka()
     currency::pair pair{crypto::BTC, crypto::USDT};
     std::filesystem::path candle_csv("../data/btc-usdt-30-min.csv");
     std::chrono::seconds period = std::chrono::minutes(30);
-    auto points = get_price_points(candle_csv, period);
+    io::csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';',
+                                                                        trading::view::candle_initializer};
+    auto points = get_price_points(reader);
 
     // create levels
     constexpr int n_levels{4};

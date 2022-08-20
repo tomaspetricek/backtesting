@@ -534,6 +534,7 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/trading/fraction.hpp \
   ../include/trading/validator/interval.hpp \
   ../include/trading/long_stats.hpp \
+  ../include/trading/index_t.hpp \
   ../include/trading/amount/formula.hpp \
   ../include/trading/bazooka/long_strategy.hpp \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/array \
@@ -571,7 +572,7 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/trading/triple_ema/strategy.hpp \
   ../include/trading/triple_ema/short_strategy.hpp \
   ../include/trading/varying_size/trade_manager.hpp \
-  ../include/trading/money.hpp \
+  ../include/trading/view/candle_initializer.hpp \
   ../include/trading/candle.hpp \
   /usr/local/include/boost/date_time/posix_time/posix_time.hpp \
   /usr/local/include/boost/date_time/posix_time/date_duration_operators.hpp \
@@ -1052,24 +1053,25 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/local/include/boost/date_time/posix_time/conversion.hpp \
   /usr/local/include/boost/date_time/filetime_functions.hpp \
   /usr/local/include/boost/date_time/posix_time/time_parsers.hpp \
-  ../include/trading/io/cvs_writer.hpp \
+  ../include/trading/money.hpp \
+  ../include/trading/io/csv/writer.hpp \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/stack \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/fstream \
   ../include/trading/table.hpp \
-  ../include/trading/io/candle_reader.hpp \
+  ../include/trading/io/csv/reader.hpp \
   ../include/trading/side.hpp \
   ../include/trading/test_box.hpp
 
 
 ../include/trading/side.hpp:
 
-../include/trading/io/candle_reader.hpp:
-
 ../include/trading/table.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/fstream:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/stack:
+
+../include/trading/money.hpp:
 
 /usr/local/include/boost/date_time/posix_time/time_parsers.hpp:
 
@@ -1321,6 +1323,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/local/include/boost/preprocessor/seq/limits/elem_256.hpp:
 
+../include/trading/io/csv/reader.hpp:
+
 /usr/local/include/boost/type.hpp:
 
 /usr/local/include/boost/preprocessor/seq/enum.hpp:
@@ -1380,6 +1384,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/local/include/boost/mpl/void.hpp:
 
 /usr/local/include/boost/mpl/quote.hpp:
+
+/usr/local/include/boost/mpl/aux_/full_lambda.hpp:
 
 /usr/local/include/boost/mpl/next_prior.hpp:
 
@@ -1498,6 +1504,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/local/include/boost/mpl/arg.hpp:
 
 /usr/local/include/boost/mpl/aux_/config/integral.hpp:
+
+../include/trading/view/candle_initializer.hpp:
 
 /usr/local/include/boost/mpl/if.hpp:
 
@@ -1818,8 +1826,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/local/include/boost/date_time/time_system_counted.hpp:
 
 /usr/local/include/boost/date_time/date_iterator.hpp:
-
-/usr/local/include/boost/mpl/aux_/full_lambda.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/time.h:
 
@@ -2179,8 +2185,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/local/include/boost/preprocessor/logical/compl.hpp:
 
-../include/trading/io/cvs_writer.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__algorithm/partition_point.h:
 
 /usr/local/include/boost/mpl/int_fwd.hpp:
@@ -2276,6 +2280,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__algorithm/for_each_n.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__algorithm/for_each.h:
+
+../include/trading/io/csv/writer.hpp:
 
 /usr/local/include/boost/date_time/time_clock.hpp:
 
@@ -2510,8 +2516,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__utility/pair.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/i386/limits.h:
-
-../include/trading/money.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__functional/hash.h:
 
@@ -3018,6 +3022,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/local/include/boost/preprocessor/punctuation/detail/is_begin_parens.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/_types.h:
+
+../include/trading/index_t.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__algorithm/generate.h:
 

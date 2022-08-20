@@ -6,10 +6,9 @@
 #define EMASTRATEGY_LONG_STATS_HPP
 
 #include <trading/amount_t.hpp>
+#include <trading/index_t.hpp>
 
 namespace trading {
-    typedef std::size_t index_t;
-
     template<typename Unit, Unit(* ProfitFormula)(amount_t, amount_t)>
     class long_stats {
     public:

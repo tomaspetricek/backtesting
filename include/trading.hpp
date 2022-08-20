@@ -22,6 +22,7 @@
 #include <trading/triple_ema/strategy.hpp>
 #include <trading/validator/interval.hpp>
 #include <trading/varying_size/trade_manager.hpp>
+#include <trading/view/candle_initializer.hpp>
 #include <trading/action.hpp>
 #include <trading/money.hpp>
 #include <trading/candle.hpp>
@@ -36,8 +37,8 @@
 #include <trading/position.hpp>
 #include <trading/price_t.hpp>
 #include <trading/range.hpp>
-#include "trading/io/cvs_writer.hpp"
-#include <trading/io/candle_reader.hpp>
+#include "trading/io/csv/writer.hpp"
+#include "trading/io/csv/reader.hpp"
 #include <trading/side.hpp>
 #include <trading/table.hpp>
 #include <trading/test_box.hpp>

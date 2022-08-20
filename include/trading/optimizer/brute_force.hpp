@@ -23,7 +23,7 @@ namespace trading::optimizer {
                 // update curr
                 std::get<idx>(this->curr_) = val;
 
-                // reached inner most loop
+                // reached innermost loop
                 if constexpr(Depth==1) {
                     this->make_call();
                 }
