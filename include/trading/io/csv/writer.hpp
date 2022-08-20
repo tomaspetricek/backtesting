@@ -16,7 +16,7 @@ namespace trading::io::csv {
         std::ofstream file_;
         const std::filesystem::path path_;
         const char delim_;
-        std::ios_base::openmode mode_;
+        std::ios_base::openmode mode_{std::ios_base::out};
         std::function<std::tuple<ColumnTypes...>(Output)> serializer_;
         static constexpr int n_cols_ = sizeof...(ColumnTypes);
 
@@ -54,15 +54,7 @@ namespace trading::io::csv {
     public:
         explicit writer(const std::filesystem::path& path,
                 const std::function<std::tuple<ColumnTypes...>(Output)>& serializer, char delim = ',')
-                :path_(path), delim_(delim), serializer_(serializer)
-        {
-            if (std::filesystem::exists(path_.string())) {
-                mode_ = std::ios_base::app;
-            }
-            else {
-                mode_ = std::ios_base::out;
-            }
-        }
+                :path_(path), delim_(delim), serializer_(serializer) { }
 
         void operator()(const std::array<std::string, n_cols_>& col_names, const std::vector<Output>& outputs)
         {

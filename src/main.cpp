@@ -8,8 +8,9 @@ using namespace trading;
 using namespace currency;
 using namespace optimizer;
 using namespace indicator;
+using namespace io;
 
-std::vector<price_point> get_price_points(io::csv::reader<candle, long, double, double, double, double>& reader)
+std::vector<price_point> get_price_points(csv::reader<candle, long, double, double, double, double>& reader)
 {
     // read candles
     std::vector<candle> candles;
@@ -40,8 +41,8 @@ void run()
     currency::pair pair{crypto::BTC, crypto::USDT};
     std::filesystem::path candle_csv("../data/in/btc-usdt-30-min.csv");
     std::chrono::seconds period = std::chrono::minutes(30);
-    io::csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';',
-                                                                         trading::view::candle_deserializer};
+    csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';',
+                                                                     trading::view::candle_deserializer};
     auto points = get_price_points(reader);
 
     // create storage
@@ -149,8 +150,7 @@ void use_bazooka()
     currency::pair pair{crypto::BTC, crypto::USDT};
     std::filesystem::path candle_csv("../data/in/btc-usdt-30-min.csv");
     std::chrono::seconds period = std::chrono::minutes(30);
-    io::csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';',
-                                                                         trading::view::candle_deserializer};
+    csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';', view::candle_deserializer};
     auto points = get_price_points(reader);
 
     // create levels
@@ -173,25 +173,71 @@ void use_bazooka()
     trading::storage storage;
     varying_size::long_trade_manager<n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs, storage};
 
+
     // use test box
-    auto box = test_box<bazooka::long_strategy<sma, sma, n_levels>,
-            varying_size::long_trade_manager<n_levels, n_sell_fracs>,
-            percent::long_stats, std::size_t>(points, manager, storage, [levels](std::size_t period) {
+    auto initializer = [levels](std::size_t period) {
         indicator::sma entry_sma{period};
         const indicator::sma& exit_sma{entry_sma};
         return bazooka::long_strategy<sma, sma, n_levels>{entry_sma, exit_sma, levels};
-    });
+    };
+    auto box = test_box<bazooka::long_strategy<sma, sma, n_levels>, varying_size::long_trade_manager<n_levels, n_sell_fracs>,
+            percent::long_stats, std::size_t>(points, manager, storage, initializer);
     box(30);
 
     // save points to csv
-    std::array<std::string, 2> col_names{"time", "ohlc4"};
-    std::filesystem::path points_path("../data/out/price_points.csv");
-    io::csv::writer<price_point, long, double> writer{points_path, [](const price_point& point) {
+    auto points_serializer = [](const price_point& point) {
         long time = boost::posix_time::to_time_t(point.time);
         double price = value_of(point.price);
         return std::make_tuple(time, price);
-    }};
-    writer(col_names, points);
+    };
+    std::filesystem::path points_path("../data/out/price_points.csv");
+    csv::writer<price_point, long, double> points_writer{points_path, points_serializer};
+    points_writer({"time", "ohlc4"}, points);
+
+    // create strategy
+    indicator::sma entry_sma{30};
+    const indicator::sma& exit_sma{entry_sma};
+    bazooka::long_strategy<sma, sma, n_levels> strategy{entry_sma, exit_sma, levels};
+
+    // collect indicator value
+    std::vector<std::pair<boost::posix_time::ptime, bazooka::indicator_values<n_levels>>> indics_values;
+    for (const auto& point: points) {
+        strategy(point.price);
+
+        if (strategy.indicators_ready())
+            indics_values.emplace_back(point.time, strategy.get_indicator_values());
+    }
+
+    // save indicator values
+    constexpr int n_cols{7};
+    std::array<std::string, n_cols> col_names{
+            "time",
+            "entry sma(30)",
+            "entry level 1",
+            "entry level 2",
+            "entry level 3",
+            "entry level 4",
+            "exit sma(30)"
+    };
+    auto indic_serializer = [](const std::pair<boost::posix_time::ptime, bazooka::indicator_values<n_levels>>& point) {
+        std::tuple<time_t, double, double, double, double, double, double> row;
+        std::get<0>(row) = boost::posix_time::to_time_t(point.first);
+        auto indics_vals = point.second;
+
+        std::get<1>(row) = indics_vals.entry_ma;
+        std::get<n_cols-1>(row) = indics_vals.exit_ma;
+
+        // fill levels
+        for_each(row, [&](auto& val, index_t i) {
+            if (i>=2 && i<n_cols-1) val = indics_vals.entry_levels[i-2];
+        });
+
+        return row;
+    };
+    csv::writer<std::pair<boost::posix_time::ptime, bazooka::indicator_values<n_levels>>,
+            time_t, double, double, double, double, double, double> indics_writer{
+            {"../data/out/indicator_values.csv"}, indic_serializer};
+    indics_writer(col_names, indics_values);
 }
 
 int main()

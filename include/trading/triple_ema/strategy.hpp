@@ -10,6 +10,7 @@
 #include <trading/action.hpp>
 #include <trading/strategy.hpp>
 #include <trading/tuple.hpp>
+#include <trading/triple_ema/indicator_values.hpp>
 
 namespace trading::triple_ema {
     // source: https://python.plainenglish.io/triple-moving-average-trading-strategy-aaa44d96d532
@@ -91,16 +92,12 @@ namespace trading::triple_ema {
         strategy() = default;
 
     public:
-        tuple_of<double, 3> indicators_values()
+        indicator_values get_indicator_values()
         {
             if (!this->indics_ready_)
                 throw not_ready{"Indicators are not ready yet"};
 
-            tuple_of<double, 3> vals;
-            std::get<0>(vals) = static_cast<double>(short_ema_);
-            std::get<1>(vals) = static_cast<double>(middle_ema_);
-            std::get<2>(vals) = static_cast<double>(long_ema_);
-            return vals;
+            return indicator_values{static_cast<double>(short_ema_), static_cast<double>(middle_ema_), static_cast<double>(long_ema_)};
         }
     };
 }

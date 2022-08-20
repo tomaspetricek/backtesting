@@ -35,6 +35,11 @@ namespace trading {
                 return action::do_nothing;
             }
         }
+
+        bool indicators_ready() const
+        {
+            return indics_ready_;
+        }
     };
 }
 

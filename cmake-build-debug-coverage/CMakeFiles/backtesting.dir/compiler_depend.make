@@ -544,6 +544,7 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/trading/indicator/moving_average.hpp \
   ../include/trading/tuple.hpp \
   ../include/trading/interface/strategy_like.hpp \
+  ../include/trading/bazooka/indicator_values.hpp \
   ../include/trading/bazooka/short_strategy.hpp \
   ../include/trading/binance/spot/market.hpp \
   ../include/trading/const_size/trade_manager.hpp \
@@ -570,6 +571,7 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/trading/percent/long_stats.hpp \
   ../include/trading/triple_ema/long_strategy.hpp \
   ../include/trading/triple_ema/strategy.hpp \
+  ../include/trading/triple_ema/indicator_values.hpp \
   ../include/trading/triple_ema/short_strategy.hpp \
   ../include/trading/varying_size/trade_manager.hpp \
   ../include/trading/view/candle_deserializer.hpp \
@@ -1387,6 +1389,10 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/local/include/boost/mpl/aux_/full_lambda.hpp:
 
+/usr/local/include/boost/mpl/aux_/preprocessed/gcc/bind.hpp:
+
+/usr/local/include/boost/mpl/protect.hpp:
+
 /usr/local/include/boost/mpl/next_prior.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/sys/_types/_u_int64_t.h:
@@ -1780,6 +1786,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 ../include/trading/const_size/trade_manager.hpp:
 
 ../include/trading/bazooka/short_strategy.hpp:
+
+../include/trading/bazooka/indicator_values.hpp:
 
 /usr/local/include/boost/config/detail/select_compiler_config.hpp:
 
@@ -2264,8 +2272,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__algorithm/is_heap_until.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__algorithm/is_heap.h:
-
-/usr/local/include/boost/mpl/protect.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__algorithm/min.h:
 
@@ -2771,8 +2777,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__thread/poll_with_backoff.h:
 
-/usr/local/include/boost/mpl/aux_/preprocessed/gcc/bind.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__functional/binary_negate.h:
 
 /usr/local/include/boost/date_time/locale_config.hpp:
@@ -3100,6 +3104,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__algorithm/remove_copy_if.h:
 
 /usr/local/include/boost/mpl/aux_/arity.hpp:
+
+../include/trading/triple_ema/indicator_values.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__utility/piecewise_construct.h:
 

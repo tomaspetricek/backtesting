@@ -16,6 +16,7 @@
 #include <trading/tuple.hpp>
 #include <trading/interface/strategy_like.hpp>
 #include <trading/exception.hpp>
+#include <trading/bazooka/indicator_values.hpp>
 
 namespace trading::bazooka {
     // entry levels: 0 - first level, n_levels-1 - last level
@@ -117,21 +118,17 @@ namespace trading::bazooka {
         strategy() = default;
 
     public:
-        tuple_of<double, 2+n_levels> indicators_values()
+        indicator_values<n_levels> get_indicator_values()
         {
             if (!this->indics_ready_)
                 throw not_ready{"Indicators are not ready yet"};
 
-            tuple_of<double, 2+n_levels> vals;
-            std::get<0>(vals) = static_cast<double>(entry_ma_);
-            std::get<1>(vals) = static_cast<double>(exit_ma_);
+            std::array<double, n_levels> levels;
 
-            // fill level values
-            for_each(vals, [&](double& val, index_t i) {
-                if (i>=2) val = get_level_value(i-2);
-            });
+            for (index_t i{0}; i<n_levels; i++)
+                levels[i] = get_level_value(i);
 
-            return vals;
+            return indicator_values<n_levels>{static_cast<double>(entry_ma_), static_cast<double>(exit_ma_), levels};
         }
     };
 }
