@@ -13,8 +13,9 @@ std::vector<price_point> get_price_points(const std::filesystem::path& candle_cs
 {
     // read candles
     std::vector<candle> candles;
+    io::candle_reader reader{candle_csv, ';', period};
     try {
-        candles = read_candles(candle_csv, ';', period);
+        candles = reader();
     }
     catch (...) {
         std::throw_with_nested(std::runtime_error("Cannot read candles"));

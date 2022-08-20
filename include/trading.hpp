@@ -36,8 +36,10 @@
 #include <trading/position.hpp>
 #include <trading/price_t.hpp>
 #include <trading/range.hpp>
-#include <trading/read.hpp>
+#include "trading/io/cvs_writer.hpp"
+#include <trading/io/candle_reader.hpp>
 #include <trading/side.hpp>
+#include <trading/table.hpp>
 #include <trading/test_box.hpp>
 #include <trading/long_trade.hpp>
 #include <trading/tuple.hpp>

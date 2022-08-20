@@ -1052,14 +1052,20 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   /usr/local/include/boost/date_time/posix_time/conversion.hpp \
   /usr/local/include/boost/date_time/filetime_functions.hpp \
   /usr/local/include/boost/date_time/posix_time/time_parsers.hpp \
-  ../include/trading/read.hpp \
+  ../include/trading/io/cvs_writer.hpp \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/stack \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/fstream \
+  ../include/trading/table.hpp \
+  ../include/trading/io/candle_reader.hpp \
   ../include/trading/side.hpp \
   ../include/trading/test_box.hpp
 
 
 ../include/trading/side.hpp:
+
+../include/trading/io/candle_reader.hpp:
+
+../include/trading/table.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/fstream:
 
@@ -2173,6 +2179,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/local/include/boost/preprocessor/logical/compl.hpp:
 
+../include/trading/io/cvs_writer.hpp:
+
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__algorithm/partition_point.h:
 
 /usr/local/include/boost/mpl/int_fwd.hpp:
@@ -2878,8 +2886,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/limits.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__algorithm/includes.h:
-
-../include/trading/read.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/stdint.h:
 
