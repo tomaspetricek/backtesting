@@ -173,17 +173,14 @@ void use_bazooka()
     trading::storage storage;
     varying_size::long_trade_manager<n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs, storage};
 
-    // create initializer
-    auto initializer = [levels](std::size_t period) {
-        indicator::sma entry_sma{period};
-        const indicator::sma& exit_sma{entry_sma};
-        return bazooka::long_strategy<sma, sma, n_levels>{entry_sma, exit_sma, levels};
-    };
-
     // use test box
     auto box = test_box<bazooka::long_strategy<sma, sma, n_levels>,
             varying_size::long_trade_manager<n_levels, n_sell_fracs>,
-            percent::long_stats, std::size_t>(points, manager, storage, initializer);
+            percent::long_stats, std::size_t>(points, manager, storage, [levels](std::size_t period) {
+        indicator::sma entry_sma{period};
+        const indicator::sma& exit_sma{entry_sma};
+        return bazooka::long_strategy<sma, sma, n_levels>{entry_sma, exit_sma, levels};
+    });
     box(30);
 
     // save points to csv
