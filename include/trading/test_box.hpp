@@ -13,7 +13,7 @@
 #include <trading/position.hpp>
 #include <trading/long_trade.hpp>
 #include <trading/fraction.hpp>
-#include <trading/price_point.hpp>
+#include <trading/data_point.hpp>
 #include <trading/currency.hpp>
 
 namespace trading {
@@ -45,7 +45,7 @@ namespace trading {
 
             // collect trades
             for (const auto& point: price_points_) {
-                auto action = strategy(point.price);
+                auto action = strategy(point.data);
                 manager_.update_active_trade(action, point);
             }
 

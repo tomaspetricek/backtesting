@@ -551,7 +551,7 @@ CMakeFiles/backtesting.dir/src/main.cpp.o
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/const_size/trade_manager.hpp
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/trade_manager.hpp
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/storage.hpp
- /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/price_point.hpp
+ /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/data_point.hpp
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/indicator/ema.hpp
  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/numeric
  /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/indicator/sma.hpp

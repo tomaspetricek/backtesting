@@ -550,7 +550,7 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
   ../include/trading/const_size/trade_manager.hpp \
   ../include/trading/trade_manager.hpp \
   ../include/trading/storage.hpp \
-  ../include/trading/price_point.hpp \
+  ../include/trading/data_point.hpp \
   ../include/trading/indicator/ema.hpp \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/numeric \
   ../include/trading/indicator/sma.hpp \
@@ -1733,6 +1733,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/local/include/boost/date_time/posix_time/time_formatters.hpp:
 
+../include/trading/view/candle_deserializer.hpp:
+
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/libkern/_OSByteOrder.h:
 
 ../include/trading/triple_ema/strategy.hpp:
@@ -1774,10 +1776,6 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/numeric:
 
 ../include/trading/indicator/ema.hpp:
-
-../include/trading/view/candle_deserializer.hpp:
-
-../include/trading/price_point.hpp:
 
 /usr/local/include/boost/date_time/period_parser.hpp:
 
@@ -2824,6 +2822,8 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: ../src/main.cpp \
 /usr/local/include/boost/preprocessor/seq/detail/is_empty.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/__threading_support:
+
+../include/trading/data_point.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/machine/_types.h:
 

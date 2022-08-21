@@ -8,7 +8,7 @@
 #include <optional>
 
 #include <trading/storage.hpp>
-#include <trading/price_point.hpp>
+#include <trading/data_point.hpp>
 
 namespace trading {
     // to avoid use of virtual functions CRTP is used
@@ -27,7 +27,7 @@ namespace trading {
 
         void sell_all(const price_point& point)
         {
-            auto pos = Trade::create_close_position(this->active_->size(), point.price, point.time);
+            auto pos = Trade::create_close_position(this->active_->size(), point.data, point.time);
             this->active_->add_closed(pos);
         }
 

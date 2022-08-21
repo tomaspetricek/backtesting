@@ -187,7 +187,7 @@ void use_bazooka()
     // save points to csv
     auto points_serializer = [](const price_point& point) {
         long time = boost::posix_time::to_time_t(point.time);
-        double price = value_of(point.price);
+        double price = value_of(point.data);
         return std::make_tuple(time, price);
     };
     std::filesystem::path points_path("../data/out/price_points.csv");
@@ -200,9 +200,9 @@ void use_bazooka()
     bazooka::long_strategy<sma, sma, n_levels> strategy{entry_sma, exit_sma, levels};
 
     // collect indicator value
-    std::vector<std::pair<boost::posix_time::ptime, bazooka::indicator_values<n_levels>>> indics_values;
+    std::vector<data_point<bazooka::indicator_values<n_levels>>> indics_values;
     for (const auto& point: points) {
-        strategy(point.price);
+        strategy(point.data);
 
         if (strategy.indicators_ready())
             indics_values.emplace_back(point.time, strategy.get_indicator_values());
@@ -219,10 +219,10 @@ void use_bazooka()
             "entry level 4",
             "exit sma(30)"
     };
-    auto indic_serializer = [](const std::pair<boost::posix_time::ptime, bazooka::indicator_values<n_levels>>& point) {
+    auto indic_serializer = [](const data_point<bazooka::indicator_values<n_levels>>& point) {
         std::tuple<time_t, double, double, double, double, double, double> row;
-        std::get<0>(row) = boost::posix_time::to_time_t(point.first);
-        auto indics_vals = point.second;
+        std::get<0>(row) = boost::posix_time::to_time_t(point.time);
+        auto indics_vals = point.data;
 
         std::get<1>(row) = indics_vals.entry_ma;
         std::get<n_cols-1>(row) = indics_vals.exit_ma;
@@ -234,7 +234,7 @@ void use_bazooka()
 
         return row;
     };
-    csv::writer<std::pair<boost::posix_time::ptime, bazooka::indicator_values<n_levels>>,
+    csv::writer<data_point<bazooka::indicator_values<n_levels>>,
             time_t, double, double, double, double, double, double> indics_writer{
             {"../data/out/indicator_values.csv"}, indic_serializer};
     indics_writer(col_names, indics_values);

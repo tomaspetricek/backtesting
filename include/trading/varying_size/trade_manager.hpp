@@ -8,7 +8,7 @@
 #include <cassert>
 
 #include <trading/trade_manager.hpp>
-#include <trading/price_point.hpp>
+#include <trading/data_point.hpp>
 
 typedef std::size_t index_t;
 
@@ -42,11 +42,11 @@ namespace trading::varying_size {
             amount_t buy_amount = buy_amounts_[curr_buy_++];
 
             if (!this->active_) {
-                auto pos = Trade::create_open_position(buy_amount, point.price, point.time);
+                auto pos = Trade::create_open_position(buy_amount, point.data, point.time);
                 this->active_ = std::make_optional(long_trade(pos));
             }
             else {
-                auto pos = Trade::create_open_position(buy_amount, point.price, point.time);
+                auto pos = Trade::create_open_position(buy_amount, point.data, point.time);
                 this->active_->add_opened(pos);
             }
         }
@@ -55,7 +55,7 @@ namespace trading::varying_size {
         {
             assert(curr_sell_<n_sell_fracs);
             auto sell_size = this->active_->calculate_position_size(sell_fracs_[curr_sell_++]);
-            auto pos = Trade::create_close_position(sell_size, point.price, point.time);
+            auto pos = Trade::create_close_position(sell_size, point.data, point.time);
             this->active_->add_closed(pos);
         }
 

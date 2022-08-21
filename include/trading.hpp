@@ -27,7 +27,7 @@
 #include <trading/money.hpp>
 #include <trading/candle.hpp>
 #include <trading/currency.hpp>
-#include <trading/price_point.hpp>
+#include <trading/data_point.hpp>
 #include <trading/exception.hpp>
 #include <trading/amount/formula.hpp>
 #include <trading/fraction.hpp>

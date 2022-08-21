@@ -6,8 +6,8 @@
 #define BACKTESTING_TRADE_MANAGER_HPP
 
 #include <trading/trade_manager.hpp>
-#include <trading/price_point.hpp>
 #include <trading/long_trade.hpp>
+#include <trading/data_point.hpp>
 
 namespace trading::const_size {
     template<typename Trade>
@@ -31,11 +31,11 @@ namespace trading::const_size {
         void buy_impl(const price_point& point)
         {
             if (!this->active_) {
-                auto pos = Trade::create_open_position(buy_amount_, point.price, point.time);
+                auto pos = Trade::create_open_position(buy_amount_, point.data, point.time);
                 this->active_ = std::make_optional(long_trade(pos));
             }
             else {
-                auto pos = Trade::create_open_position(buy_amount_, point.price, point.time);
+                auto pos = Trade::create_open_position(buy_amount_, point.data, point.time);
                 this->active_->add_opened(pos);
             }
         }
@@ -43,7 +43,7 @@ namespace trading::const_size {
         void sell_impl(const price_point& point)
         {
             auto sell_size = this->active_->calculate_position_size(sell_frac_);
-            auto pos = Trade::create_close_position(sell_size, point.price, point.time);
+            auto pos = Trade::create_close_position(sell_size, point.data, point.time);
             this->active_->add_closed(pos);
         }
 
