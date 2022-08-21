@@ -173,27 +173,6 @@ void use_bazooka()
     trading::storage storage;
     varying_size::long_trade_manager<n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs, storage};
 
-
-    // use test box
-    auto initializer = [levels](std::size_t period) {
-        indicator::sma entry_sma{period};
-        const indicator::sma& exit_sma{entry_sma};
-        return bazooka::long_strategy<sma, sma, n_levels>{entry_sma, exit_sma, levels};
-    };
-    auto box = test_box<bazooka::long_strategy<sma, sma, n_levels>, varying_size::long_trade_manager<n_levels, n_sell_fracs>,
-            percent::long_stats, std::size_t>(points, manager, storage, initializer);
-    box(30);
-
-    // save points to csv
-    auto points_serializer = [](const price_point& point) {
-        long time = boost::posix_time::to_time_t(point.time);
-        double price = value_of(point.data);
-        return std::make_tuple(time, price);
-    };
-    std::filesystem::path points_path("../data/out/price_points.csv");
-    csv::writer<price_point, long, double> points_writer{points_path, points_serializer};
-    points_writer({"time", "ohlc4"}, points);
-
     // create strategy
     indicator::sma entry_sma{30};
     const indicator::sma& exit_sma{entry_sma};
@@ -201,16 +180,34 @@ void use_bazooka()
 
     // collect indicator value
     std::vector<data_point<bazooka::indicator_values<n_levels>>> indics_values;
+
     for (const auto& point: points) {
-        strategy(point.data);
+        auto action = strategy(point.data);
+        manager.update_active_trade(action, point);
 
         if (strategy.indicators_ready())
             indics_values.emplace_back(point.time, strategy.get_indicator_values());
     }
 
+    // close active trade
+    manager.try_closing_active_trade(points.back());
+
+    // retrieve closed trades
+    std::vector<long_trade> closed_trades = storage.retrieve_closed_trades();
+
+    // save points to csv
+    auto point_serializer = [](const price_point& point) {
+        time_t time = boost::posix_time::to_time_t(point.time);
+        double price = value_of(point.data);
+        return std::make_tuple(time, price);
+    };
+    std::filesystem::path points_path("../data/out/price_points.csv");
+    csv::writer<price_point, time_t, double> points_writer{points_path, point_serializer};
+    points_writer({"time", "ohlc4"}, points);
+
     // save indicator values
-    constexpr int n_cols{7};
-    std::array<std::string, n_cols> col_names{
+    constexpr int indics_n_cols{7};
+    std::array<std::string, indics_n_cols> indics_col_names{
             "time",
             "entry sma(30)",
             "entry level 1",
@@ -225,11 +222,11 @@ void use_bazooka()
         auto indics_vals = point.data;
 
         std::get<1>(row) = indics_vals.entry_ma;
-        std::get<n_cols-1>(row) = indics_vals.exit_ma;
+        std::get<indics_n_cols-1>(row) = indics_vals.exit_ma;
 
         // fill levels
         for_each(row, [&](auto& val, index_t i) {
-            if (i>=2 && i<n_cols-1) val = indics_vals.entry_levels[i-2];
+            if (i>=2 && i<indics_n_cols-1) val = indics_vals.entry_levels[i-2];
         });
 
         return row;
@@ -237,7 +234,32 @@ void use_bazooka()
     csv::writer<data_point<bazooka::indicator_values<n_levels>>,
             time_t, double, double, double, double, double, double> indics_writer{
             {"../data/out/indicator_values.csv"}, indic_serializer};
-    indics_writer(col_names, indics_values);
+    indics_writer(indics_col_names, indics_values);
+
+    // save position points
+    std::vector<price_point> open_points;
+    std::vector<price_point> closed_points;
+
+    // extract price points
+    for (const auto& close_trade: closed_trades) {
+        for (const auto& open_position: close_trade.get_open_positions())
+            open_points.emplace_back(open_position.created(), open_position.price());
+
+        for (const auto& close_position: close_trade.get_closed_positions())
+            closed_points.emplace_back(close_position.created(), close_position.price());
+    }
+
+    std::array<std::string, 2> pos_col_names{{"time", "price"}};
+
+    // save open points
+    std::filesystem::path open_points_path("../data/out/open_points.csv");
+    csv::writer<price_point, time_t, double> open_points_writer{open_points_path, point_serializer};
+    open_points_writer(pos_col_names, open_points);
+
+    // save closed points
+    std::filesystem::path closed_points_path("../data/out/closed_points.csv");
+    csv::writer<price_point, time_t, double> closed_points_writer{closed_points_path, point_serializer};
+    closed_points_writer(pos_col_names, closed_points);
 }
 
 int main()

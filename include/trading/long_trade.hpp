@@ -88,6 +88,16 @@ namespace trading {
         {
             return total_bought_;
         }
+
+        const std::vector<long_position>& get_open_positions() const
+        {
+            return opened_;
+        }
+
+        const std::vector<long_position>& get_closed_positions() const
+        {
+            return closed_;
+        }
     };
 }
 
