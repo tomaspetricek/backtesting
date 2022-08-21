@@ -201,7 +201,7 @@ void use_bazooka()
         double price = value_of(point.data);
         return std::make_tuple(time, price);
     };
-    std::filesystem::path points_path("../data/out/price_points.csv");
+    std::filesystem::path points_path("../data/out/mean_price_points.csv");
     csv::writer<price_point, time_t, double> points_writer{points_path, point_serializer};
     points_writer({"time", "ohlc4"}, points);
 
