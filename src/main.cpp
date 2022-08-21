@@ -10,7 +10,7 @@ using namespace optimizer;
 using namespace indicator;
 using namespace io;
 
-std::vector<price_point> get_price_points(csv::reader<candle, long, double, double, double, double>& reader)
+std::vector<price_point> get_mean_price_points(csv::reader<candle, long, double, double, double, double>& reader)
 {
     // read candles
     std::vector<candle> candles;
@@ -26,24 +26,24 @@ std::vector<price_point> get_price_points(csv::reader<candle, long, double, doub
         throw std::runtime_error("No candles read");
 
     // prepare price points
-    std::vector<price_point> price_points;
-    price_points.reserve(candles.size());
+    std::vector<price_point> mean_points;
+    mean_points.reserve(candles.size());
 
     for (const auto& candle: candles)
-        price_points.emplace_back(candle.opened(), trading::candle::ohlc4(candle));
+        mean_points.emplace_back(candle.opened(), trading::candle::ohlc4(candle));
 
-    return price_points;
+    return mean_points;
 }
 
 void run()
 {
     // get price points
     currency::pair pair{crypto::BTC, crypto::USDT};
-    std::filesystem::path candle_csv("../data/in/btc-usdt-30-min.csv");
     std::chrono::seconds period = std::chrono::minutes(30);
+    std::filesystem::path candle_csv("../data/in/btc-usdt-30-min.csv");
     csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';',
                                                                      trading::view::candle_deserializer};
-    auto points = get_price_points(reader);
+    auto points = get_mean_price_points(reader);
 
     // create storage
     trading::storage storage;
@@ -148,10 +148,10 @@ void use_bazooka()
 {
     // get price points
     currency::pair pair{crypto::BTC, crypto::USDT};
-    std::filesystem::path candle_csv("../data/in/btc-usdt-30-min.csv");
     std::chrono::seconds period = std::chrono::minutes(30);
+    std::filesystem::path candle_csv("../data/in/btc-usdt-30-min.csv");
     csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';', view::candle_deserializer};
-    auto points = get_price_points(reader);
+    auto mean_points = get_mean_price_points(reader);
 
     // create levels
     constexpr int n_levels{4};
@@ -181,7 +181,7 @@ void use_bazooka()
     // collect indicator value
     std::vector<data_point<bazooka::indicator_values<n_levels>>> indics_values;
 
-    for (const auto& point: points) {
+    for (const auto& point: mean_points) {
         auto action = strategy(point.data);
         manager.update_active_trade(action, point);
 
@@ -190,23 +190,23 @@ void use_bazooka()
     }
 
     // close active trade
-    manager.try_closing_active_trade(points.back());
+    manager.try_closing_active_trade(mean_points.back());
 
     // retrieve closed trades
     std::vector<long_trade> closed_trades = storage.retrieve_closed_trades();
 
-    // save points to csv
+    // save mean price points
     auto point_serializer = [](const price_point& point) {
         time_t time = boost::posix_time::to_time_t(point.time);
         double price = value_of(point.data);
         return std::make_tuple(time, price);
     };
-    std::filesystem::path points_path("../data/out/mean_price_points.csv");
-    csv::writer<price_point, time_t, double> points_writer{points_path, point_serializer};
-    points_writer({"time", "ohlc4"}, points);
+    std::filesystem::path mean_points_path("../data/out/mean_price_points.csv");
+    csv::writer<price_point, time_t, double> mean_points_writer{mean_points_path, point_serializer};
+    mean_points_writer({"time", "ohlc4"}, mean_points);
 
     // save indicator values
-    constexpr int indics_n_cols{7};
+    constexpr int indics_n_cols{bazooka::indicator_values<n_levels>::size+1};
     std::array<std::string, indics_n_cols> indics_col_names{
             "time",
             "entry sma(30)",
@@ -249,7 +249,7 @@ void use_bazooka()
             closed_points.emplace_back(close_position.created(), close_position.price());
     }
 
-    std::array<std::string, 2> pos_col_names{{"time", "price"}};
+    std::array<std::string, 2> pos_col_names{"time", "price"};
 
     // save open points
     std::filesystem::path open_points_path("../data/out/open_points.csv");

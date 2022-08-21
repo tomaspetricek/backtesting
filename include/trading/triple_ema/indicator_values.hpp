@@ -10,6 +10,7 @@ namespace trading::triple_ema {
         double short_ema;
         double middle_ema;
         double long_ema;
+        static constexpr std::size_t size{3};
 
         explicit indicator_values(double short_ema, double middle_ema, double long_ema)
                 :short_ema(short_ema), middle_ema(middle_ema), long_ema(long_ema) { }
