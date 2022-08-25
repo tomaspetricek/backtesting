@@ -6,6 +6,8 @@
 #define EMASTRATEGY_TRADING_HPP
 
 #include <trading/amount/long_stats.hpp>
+#include <trading/bazooka/indicator_values.hpp>
+#include <trading/bazooka/indicator_values_writer.hpp>
 #include <trading/bazooka/long_strategy.hpp>
 #include <trading/bazooka/short_strategy.hpp>
 #include <trading/binance/spot/market.hpp>
@@ -32,6 +34,8 @@
 #include <trading/amount/formula.hpp>
 #include <trading/fraction.hpp>
 #include <trading/function.hpp>
+#include <trading/index_t.hpp>
+#include <trading/labels.hpp>
 #include <trading/long_position.hpp>
 #include <trading/pack.hpp>
 #include <trading/position.hpp>

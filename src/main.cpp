@@ -147,25 +147,6 @@ void use_optimizer()
     optim();
 }
 
-std::string label(const indicator::ema& ema)
-{
-    std::size_t period = ema.period();
-    return fmt::format("ema({})", period);
-}
-
-std::string label(const indicator::sma& sma)
-{
-    std::size_t period = sma.period();
-    return fmt::format("sma({})", period);
-}
-
-template<class T>
-requires std::same_as<T, decltype(candle::ohlc4)>
-std::string label(const T&)
-{
-    return "ohlc4";
-}
-
 void use_bazooka()
 {
     // get price points
@@ -230,35 +211,8 @@ void use_bazooka()
     mean_points_writer({"time", mean_price_label}, mean_points);
 
     // save indicator values
-    constexpr int indics_n_cols{bazooka::indicator_values<n_levels>::size+1};
-    std::array<std::string, indics_n_cols> indics_col_names{
-            "time",
-            label(strategy.entry_ma()),
-            "entry level 1",
-            "entry level 2",
-            "entry level 3",
-            "entry level 4",
-            label(strategy.exit_ma()),
-    };
-    auto indic_serializer = [](const data_point<bazooka::indicator_values<n_levels>>& point) {
-        std::tuple<time_t, double, double, double, double, double, double> row;
-        std::get<0>(row) = boost::posix_time::to_time_t(point.time);
-        auto indics_vals = point.data;
-
-        std::get<1>(row) = indics_vals.entry_ma;
-        std::get<indics_n_cols-1>(row) = indics_vals.exit_ma;
-
-        // fill levels
-        for_each(row, [&](auto& val, index_t i) {
-            if (i>=2 && i<indics_n_cols-1) val = indics_vals.entry_levels[i-2];
-        });
-
-        return row;
-    };
-    csv::writer<data_point<bazooka::indicator_values<n_levels>>,
-            time_t, double, double, double, double, double, double> indics_writer{
-            {"../data/out/indicator_values.csv"}, indic_serializer};
-    indics_writer(indics_col_names, indics_values);
+    bazooka::indicator_values_writer<n_levels> indics_writer{{"../data/out/indicator_values.csv"}};
+    indics_writer(strategy, indics_values);
 
     // save position points
     std::vector<price_point> open_points;
