@@ -12,7 +12,8 @@ using namespace optimizer;
 using namespace indicator;
 using namespace io;
 
-std::vector<price_point> get_mean_price_points(csv::reader<candle, long, double, double, double, double>& reader)
+std::vector<price_point> get_mean_price_points(csv::reader<candle, long, double, double, double, double>& reader,
+        const std::function<price_t(candle)>& mean_price)
 {
     // read candles
     std::vector<candle> candles;
@@ -32,7 +33,7 @@ std::vector<price_point> get_mean_price_points(csv::reader<candle, long, double,
     mean_points.reserve(candles.size());
 
     for (const auto& candle: candles)
-        mean_points.emplace_back(candle.opened(), trading::candle::ohlc4(candle));
+        mean_points.emplace_back(candle.opened(), mean_price(candle));
 
     return mean_points;
 }
@@ -45,7 +46,7 @@ void run()
     std::filesystem::path candle_csv("../data/in/btc-usdt-30-min.csv");
     csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';',
                                                                      trading::view::candle_deserializer};
-    auto points = get_mean_price_points(reader);
+    auto points = get_mean_price_points(reader, candle::ohlc4);
 
     // create storage
     trading::storage storage;
@@ -158,6 +159,13 @@ std::string label(const indicator::sma& sma)
     return fmt::format("sma({})", period);
 }
 
+template<class T>
+requires std::same_as<T, decltype(candle::ohlc4)>
+std::string label(const T& func)
+{
+    return "ohlc4";
+}
+
 void use_bazooka()
 {
     // get price points
@@ -165,7 +173,9 @@ void use_bazooka()
     std::chrono::seconds period = std::chrono::minutes(30);
     std::filesystem::path candle_csv("../data/in/btc-usdt-30-min.csv");
     csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';', view::candle_deserializer};
-    auto mean_points = get_mean_price_points(reader);
+
+    std::function<price_t(candle)> mean_price = candle::ohlc4;
+    auto mean_points = get_mean_price_points(reader, mean_price);
 
     // create levels
     constexpr int n_levels{4};
@@ -217,7 +227,8 @@ void use_bazooka()
     };
     std::filesystem::path mean_points_path("../data/out/mean_price_points.csv");
     csv::writer<price_point, time_t, double> mean_points_writer{mean_points_path, point_serializer};
-    mean_points_writer({"time", "ohlc4"}, mean_points);
+    std::string mean_price_label = label(*(mean_price.target<price_t(const candle&)>()));
+    mean_points_writer({"time", mean_price_label}, mean_points);
 
     // save indicator values
     constexpr int indics_n_cols{bazooka::indicator_values<n_levels>::size+1};
@@ -285,14 +296,14 @@ int main()
     use_optimizer();
     use_bazooka();
 
-    // run program
-    try {
-        run();
-    }
-        // show exceptions
-    catch (const std::exception& ex) {
-        print_exception(ex);
-    }
+//    // run program
+//    try {
+//        run();
+//    }
+//        // show exceptions
+//    catch (const std::exception& ex) {
+//        print_exception(ex);
+//    }
 
     return 0;
 }
