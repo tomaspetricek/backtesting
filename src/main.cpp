@@ -13,7 +13,7 @@ using namespace indicator;
 using namespace io;
 
 std::vector<price_point> get_mean_price_points(csv::reader<candle, long, double, double, double, double>& reader,
-        const std::function<price_t(candle)>& mean_price)
+        const std::function<price_t(candle)>& mean_pricer)
 {
     // read candles
     std::vector<candle> candles;
@@ -33,7 +33,7 @@ std::vector<price_point> get_mean_price_points(csv::reader<candle, long, double,
     mean_points.reserve(candles.size());
 
     for (const auto& candle: candles)
-        mean_points.emplace_back(candle.opened(), mean_price(candle));
+        mean_points.emplace_back(candle.opened(), mean_pricer(candle));
 
     return mean_points;
 }
@@ -161,7 +161,7 @@ std::string label(const indicator::sma& sma)
 
 template<class T>
 requires std::same_as<T, decltype(candle::ohlc4)>
-std::string label(const T& func)
+std::string label(const T&)
 {
     return "ohlc4";
 }
@@ -173,9 +173,8 @@ void use_bazooka()
     std::chrono::seconds period = std::chrono::minutes(30);
     std::filesystem::path candle_csv("../data/in/btc-usdt-30-min.csv");
     csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';', view::candle_deserializer};
-
-    std::function<price_t(candle)> mean_price = candle::ohlc4;
-    auto mean_points = get_mean_price_points(reader, mean_price);
+    std::function<price_t(candle)> mean_pricer = candle::ohlc4;
+    auto mean_points = get_mean_price_points(reader, mean_pricer);
 
     // create levels
     constexpr int n_levels{4};
@@ -227,7 +226,7 @@ void use_bazooka()
     };
     std::filesystem::path mean_points_path("../data/out/mean_price_points.csv");
     csv::writer<price_point, time_t, double> mean_points_writer{mean_points_path, point_serializer};
-    std::string mean_price_label = label(*(mean_price.target<price_t(const candle&)>()));
+    std::string mean_price_label = label(*(mean_pricer.target<price_t(const candle&)>()));
     mean_points_writer({"time", mean_price_label}, mean_points);
 
     // save indicator values
@@ -296,14 +295,14 @@ int main()
     use_optimizer();
     use_bazooka();
 
-//    // run program
-//    try {
-//        run();
-//    }
-//        // show exceptions
-//    catch (const std::exception& ex) {
-//        print_exception(ex);
-//    }
+    // run program
+    try {
+        run();
+    }
+        // show exceptions
+    catch (const std::exception& ex) {
+        print_exception(ex);
+    }
 
     return 0;
 }
