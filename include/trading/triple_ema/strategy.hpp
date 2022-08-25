@@ -99,6 +99,21 @@ namespace trading::triple_ema {
 
             return indicator_values{static_cast<double>(short_ema_), static_cast<double>(middle_ema_), static_cast<double>(long_ema_)};
         }
+
+        const indicator::ema& short_ema() const
+        {
+            return short_ema_;
+        }
+
+        const indicator::ema& middle_ema() const
+        {
+            return middle_ema_;
+        }
+
+        const indicator::ema& long_ema() const
+        {
+            return long_ema_;
+        }
     };
 }
 

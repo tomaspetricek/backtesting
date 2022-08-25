@@ -19,11 +19,11 @@
 namespace trading::bazooka {
     template<std::size_t n_levels>
     class indicator_values_writer {
-        static constexpr std::size_t n_cols_{bazooka::indicator_values<n_levels>::size+1};
-        io::csv::writer<data_point<bazooka::indicator_values<n_levels>>,
+        static constexpr std::size_t n_cols_{indicator_values<n_levels>::size+1};
+        io::csv::writer<data_point<indicator_values<n_levels>>,
                 time_t, double, double, double, double, double, double> writer_;
 
-        static constexpr auto serializer = [](const data_point<bazooka::indicator_values<n_levels>>& point) {
+        static constexpr auto serializer = [](const data_point<indicator_values<n_levels>>& point) {
             std::tuple<time_t, double, double, double, double, double, double> row;
             std::get<0>(row) = boost::posix_time::to_time_t(point.time);
             auto indics_vals = point.data;
@@ -45,7 +45,7 @@ namespace trading::bazooka {
 
         template<typename BazookaStrategy>
         void operator()(const BazookaStrategy& strategy,
-                const std::vector<data_point<bazooka::indicator_values<n_levels>>>& indic_vals)
+                const std::vector<data_point<indicator_values<n_levels>>>& indic_vals)
         {
             std::array<std::string, n_cols_> col_names;
             col_names[0] = "time";

@@ -19,6 +19,8 @@
 #include <trading/optimizer/sliding/brute_force.hpp>
 #include <trading/percent/formula.hpp>
 #include <trading/percent/long_stats.hpp>
+#include <trading/triple_ema/indicator_values.hpp>
+#include <trading/triple_ema/indicator_values_writer.hpp>
 #include <trading/triple_ema/long_strategy.hpp>
 #include <trading/triple_ema/short_strategy.hpp>
 #include <trading/triple_ema/strategy.hpp>

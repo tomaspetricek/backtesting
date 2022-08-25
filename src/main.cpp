@@ -152,7 +152,7 @@ void use_bazooka()
     // get price points
     currency::pair pair{crypto::BTC, crypto::USDT};
     std::chrono::seconds period = std::chrono::minutes(30);
-    std::filesystem::path candle_csv("../data/in/btc-usdt-30-min.csv");
+    std::filesystem::path candle_csv{"../data/in/btc-usdt-30-min.csv"};
     csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';', view::candle_deserializer};
     std::function<price_t(candle)> mean_pricer = candle::ohlc4;
     auto mean_points = get_mean_price_points(reader, mean_pricer);
@@ -199,14 +199,16 @@ void use_bazooka()
     // retrieve closed trades
     std::vector<long_trade> closed_trades = storage.retrieve_closed_trades();
 
-    // save mean price points
+    // create point serializer
     auto point_serializer = [](const price_point& point) {
         time_t time = boost::posix_time::to_time_t(point.time);
         double price = value_of(point.data);
         return std::make_tuple(time, price);
     };
-    std::filesystem::path mean_points_path("../data/out/mean_price_points.csv");
-    csv::writer<price_point, time_t, double> mean_points_writer{mean_points_path, point_serializer};
+
+    // save mean price points
+    csv::writer<price_point, time_t, double> mean_points_writer{{"../data/out/mean_price_points.csv"},
+                                                                point_serializer};
     std::string mean_price_label = label(*(mean_pricer.target<price_t(const candle&)>()));
     mean_points_writer({"time", mean_price_label}, mean_points);
 
@@ -230,13 +232,11 @@ void use_bazooka()
     std::array<std::string, 2> pos_col_names{"time", "price"};
 
     // save open points
-    std::filesystem::path open_points_path("../data/out/open_points.csv");
-    csv::writer<price_point, time_t, double> open_points_writer{open_points_path, point_serializer};
+    csv::writer<price_point, time_t, double> open_points_writer{{"../data/out/open_points.csv"}, point_serializer};
     open_points_writer(pos_col_names, open_points);
 
     // save closed points
-    std::filesystem::path closed_points_path("../data/out/closed_points.csv");
-    csv::writer<price_point, time_t, double> closed_points_writer{closed_points_path, point_serializer};
+    csv::writer<price_point, time_t, double> closed_points_writer{{"../data/out/closed_points.csv"}, point_serializer};
     closed_points_writer(pos_col_names, closed_points);
 }
 
