@@ -422,6 +422,7 @@ CMakeFiles/backtesting.dir/src/main.cpp.o: \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/c++/v1/math.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/include/math.h \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/strong_type.hpp \
+  /usr/local/include/fmt/format.h /usr/local/include/fmt/core.h \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/long_position.hpp \
   /Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/include/trading/position.hpp \
   /usr/local/include/boost/date_time/posix_time/ptime.hpp \

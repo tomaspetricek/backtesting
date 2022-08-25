@@ -95,7 +95,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug-coverage"
+			"value" : "/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -234,7 +234,7 @@
 					"value" : "CXX compiler"
 				}
 			],
-			"type" : "STRING",
+			"type" : "FILEPATH",
 			"value" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++"
 		},
 		{
@@ -251,7 +251,7 @@
 				}
 			],
 			"type" : "STRING",
-			"value" : "-fprofile-instr-generate -fcoverage-mapping"
+			"value" : ""
 		},
 		{
 			"name" : "CMAKE_CXX_FLAGS_DEBUG",
@@ -330,7 +330,7 @@
 					"value" : "C compiler"
 				}
 			],
-			"type" : "STRING",
+			"type" : "FILEPATH",
 			"value" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc"
 		},
 		{
@@ -347,7 +347,7 @@
 				}
 			],
 			"type" : "STRING",
-			"value" : "-fprofile-instr-generate -fcoverage-mapping"
+			"value" : ""
 		},
 		{
 			"name" : "CMAKE_C_FLAGS_DEBUG",
@@ -438,7 +438,7 @@
 					"value" : "Executable file format"
 				}
 			],
-			"type" : "STRING",
+			"type" : "INTERNAL",
 			"value" : "MACHO"
 		},
 		{
@@ -1259,7 +1259,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug-coverage"
+			"value" : "/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug"
 		},
 		{
 			"name" : "backtesting_IS_TOP_LEVEL",
