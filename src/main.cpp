@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <type_traits>
 
 #include <fmt/core.h>
 
@@ -147,43 +148,20 @@ void use_optimizer()
     optim();
 }
 
-void use_bazooka()
+template<class Factory, class Strategy, class TradeManager>
+void save_results(Strategy strategy, TradeManager manager, storage& storage)
 {
     // get price points
     currency::pair pair{crypto::BTC, crypto::USDT};
     std::chrono::seconds period = std::chrono::minutes(30);
     std::filesystem::path candle_csv{"../data/in/btc-usdt-30-min.csv"};
-    csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';', view::candle_deserializer};
+    csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';',
+                                                                     trading::view::candle_deserializer};
     std::function<price_t(candle)> mean_pricer = candle::ohlc4;
     auto mean_points = get_mean_price_points(reader, mean_pricer);
 
-    // create levels
-    constexpr int n_levels{4};
-    std::array<fraction, n_levels> levels;
-    levels[0] = fraction{1.0-0.04};
-    levels[1] = fraction{1.0-0.07};
-    levels[2] = fraction{1.0-0.1};
-    levels[3] = fraction{1.0-0.15};
-
-    // create manager
-    std::array<amount_t, n_levels> buy_amounts{
-            amount_t{100},
-            amount_t{50},
-            amount_t{20},
-            amount_t{10}
-    };
-    constexpr std::size_t n_sell_fracs{0}; // uses sell all so no sell fractions are needed
-    std::array<fraction, n_sell_fracs> sell_fracs{};
-    trading::storage storage;
-    varying_size::long_trade_manager<n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs, storage};
-
-    // create strategy
-    indicator::sma entry_sma{30};
-    const indicator::sma& exit_sma{entry_sma};
-    bazooka::long_strategy<sma, sma, n_levels> strategy{entry_sma, exit_sma, levels};
-
     // collect indicator value
-    std::vector<data_point<bazooka::indicator_values<n_levels>>> indics_values;
+    std::vector<data_point<typename Factory::indicator_values_type>> indics_values;
 
     for (const auto& point: mean_points) {
         auto action = strategy(point.data);
@@ -209,11 +187,12 @@ void use_bazooka()
     // save mean price points
     csv::writer<price_point, time_t, double> mean_points_writer{{"../data/out/mean_price_points.csv"},
                                                                 point_serializer};
-    std::string mean_price_label = label(*(mean_pricer.target<price_t(const candle&)>()));
+    std::string mean_price_label = label(*(mean_pricer.target<price_t(
+    const candle&)>()));
     mean_points_writer({"time", mean_price_label}, mean_points);
 
     // save indicator values
-    bazooka::indicator_values_writer<n_levels> indics_writer{{"../data/out/indicator_values.csv"}};
+    auto indics_writer{Factory::create_indicator_values_writer({"../data/out/indicator_values.csv"})};
     indics_writer(strategy, indics_values);
 
     // save position points
@@ -247,7 +226,32 @@ int main()
     use_indicators();
     use_interval();
     use_optimizer();
-    use_bazooka();
+
+    // create levels
+    constexpr int n_levels{4};
+    std::array<fraction, n_levels> levels;
+    levels[0] = fraction{1.0-0.04};
+    levels[1] = fraction{1.0-0.07};
+    levels[2] = fraction{1.0-0.1};
+    levels[3] = fraction{1.0-0.15};
+
+    // create manager
+    std::array<amount_t, n_levels> buy_amounts{
+            amount_t{100},
+            amount_t{50},
+            amount_t{20},
+            amount_t{10}
+    };
+    constexpr std::size_t n_sell_fracs{0}; // uses sell all so no sell fractions are needed
+    std::array<fraction, n_sell_fracs> sell_fracs{};
+    trading::storage storage;
+    varying_size::long_trade_manager<n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs, storage};
+
+    // create strategy
+    indicator::sma entry_sma{30};
+    const indicator::sma& exit_sma{entry_sma};
+    bazooka::long_strategy<sma, sma, n_levels> strategy{entry_sma, exit_sma, levels};
+    save_results<bazooka::factory<n_levels>>(strategy, manager, storage);
 
     // run program
     try {

@@ -36,9 +36,9 @@ namespace trading::triple_ema {
         {
             std::array<std::string, n_cols_> col_names;
             col_names[0] = "time";
-            col_names[1] = fmt::format("short {}", strategy.short_ema());
-            col_names[2] = fmt::format("middle {}", strategy.middle_ema());
-            col_names[3] = fmt::format("long {}", strategy.long_ema());
+            col_names[1] = fmt::format("short {}", label(strategy.short_ema()));
+            col_names[2] = fmt::format("middle {}", label(strategy.middle_ema()));
+            col_names[3] = fmt::format("long {}", label(strategy.long_ema()));
             writer_(col_names, indic_vals);
         }
     };

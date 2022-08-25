@@ -6,6 +6,7 @@
 #define EMASTRATEGY_TRADING_HPP
 
 #include <trading/amount/long_stats.hpp>
+#include <trading/bazooka/factory.hpp>
 #include <trading/bazooka/indicator_values.hpp>
 #include <trading/bazooka/indicator_values_writer.hpp>
 #include <trading/bazooka/long_strategy.hpp>
@@ -19,6 +20,7 @@
 #include <trading/optimizer/sliding/brute_force.hpp>
 #include <trading/percent/formula.hpp>
 #include <trading/percent/long_stats.hpp>
+#include <trading/triple_ema/factory.hpp>
 #include <trading/triple_ema/indicator_values.hpp>
 #include <trading/triple_ema/indicator_values_writer.hpp>
 #include <trading/triple_ema/long_strategy.hpp>

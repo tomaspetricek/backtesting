@@ -40,7 +40,7 @@ namespace trading::bazooka {
         };
 
     public:
-        explicit indicator_values_writer(const std::filesystem::path& path)
+        indicator_values_writer(const std::filesystem::path& path)
                 :writer_{path, serializer} { }
 
         template<typename BazookaStrategy>
