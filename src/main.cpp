@@ -158,10 +158,6 @@ std::string label(const indicator::sma& sma)
     return fmt::format("sma({})", period);
 }
 
-std::string label(const candle::ohlc4& func) {
-    
-}
-
 void use_bazooka()
 {
     // get price points
