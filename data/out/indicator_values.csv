@@ -1,4 +1,4 @@
-time,entry sma(30),entry level 1,entry level 2,entry level 3,entry level 4,exit sma(30)
+time,sma(30),entry level 1,entry level 2,entry level 3,entry level 4,sma(30)
 1609511400,29215.4,28046.8,27170.3,26293.9,24833.1,29215.4
 1609513200,29230.2,28061,27184.1,26307.2,24845.7,29230.2
 1609515000,29239.5,28069.9,27192.7,26315.5,24853.5,29239.5

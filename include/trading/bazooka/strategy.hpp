@@ -130,6 +130,15 @@ namespace trading::bazooka {
 
             return indicator_values<n_levels>{static_cast<double>(entry_ma_), static_cast<double>(exit_ma_), levels};
         }
+
+        OpenMovingAverage entry_ma() const
+        {
+            return entry_ma_;
+        }
+        CloseMovingAverage exit_ma() const
+        {
+            return exit_ma_;
+        }
     };
 }
 

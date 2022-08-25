@@ -93,6 +93,7 @@ backtesting_EXTERNAL_OBJECTS =
 backtesting: CMakeFiles/backtesting.dir/src/main.cpp.o
 backtesting: CMakeFiles/backtesting.dir/build.make
 backtesting: /usr/local/lib/libboost_date_time-mt.dylib
+backtesting: /usr/local/lib/libfmt.8.1.1.dylib
 backtesting: CMakeFiles/backtesting.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova-prace/backtesting/cmake-build-debug-coverage/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable backtesting"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/backtesting.dir/link.txt --verbose=$(VERBOSE)

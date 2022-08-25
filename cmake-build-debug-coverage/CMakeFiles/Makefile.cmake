@@ -49,6 +49,10 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/local/lib/cmake/boost_date_time-1.79.0/libboost_date_time-variant-static.cmake"
   "/usr/local/lib/cmake/boost_headers-1.79.0/boost_headers-config-version.cmake"
   "/usr/local/lib/cmake/boost_headers-1.79.0/boost_headers-config.cmake"
+  "/usr/local/lib/cmake/fmt/fmt-config-version.cmake"
+  "/usr/local/lib/cmake/fmt/fmt-config.cmake"
+  "/usr/local/lib/cmake/fmt/fmt-targets-release.cmake"
+  "/usr/local/lib/cmake/fmt/fmt-targets.cmake"
   )
 
 # The corresponding makefile is:

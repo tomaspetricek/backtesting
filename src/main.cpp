@@ -2,6 +2,8 @@
 #include <vector>
 #include <memory>
 
+#include <fmt/core.h>
+
 #include <trading.hpp>
 
 using namespace trading;
@@ -144,6 +146,22 @@ void use_optimizer()
     optim();
 }
 
+std::string label(const indicator::ema& ema)
+{
+    std::size_t period = ema.period();
+    return fmt::format("ema({})", period);
+}
+
+std::string label(const indicator::sma& sma)
+{
+    std::size_t period = sma.period();
+    return fmt::format("sma({})", period);
+}
+
+std::string label(const candle::ohlc4& func) {
+    
+}
+
 void use_bazooka()
 {
     // get price points
@@ -209,12 +227,12 @@ void use_bazooka()
     constexpr int indics_n_cols{bazooka::indicator_values<n_levels>::size+1};
     std::array<std::string, indics_n_cols> indics_col_names{
             "time",
-            "entry sma(30)",
+            label(strategy.entry_ma()),
             "entry level 1",
             "entry level 2",
             "entry level 3",
             "entry level 4",
-            "exit sma(30)"
+            label(strategy.exit_ma()),
     };
     auto indic_serializer = [](const data_point<bazooka::indicator_values<n_levels>>& point) {
         std::tuple<time_t, double, double, double, double, double, double> row;

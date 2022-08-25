@@ -241,8 +241,14 @@ backtesting_SOURCE_DIR:STATIC=/Users/tomaspetricek/CVUT/cvut-2022-2023/diplomova
 //The directory containing a CMake configuration file for boost_date_time.
 boost_date_time_DIR:PATH=/usr/local/lib/cmake/boost_date_time-1.79.0
 
+//The directory containing a CMake configuration file for boost_fmt.
+boost_fmt_DIR:PATH=boost_fmt_DIR-NOTFOUND
+
 //The directory containing a CMake configuration file for boost_headers.
 boost_headers_DIR:PATH=/usr/local/lib/cmake/boost_headers-1.79.0
+
+//The directory containing a CMake configuration file for fmt.
+fmt_DIR:PATH=/usr/local/lib/cmake/fmt
 
 
 ########################
