@@ -11,16 +11,15 @@ namespace trading::optimizer {
     template<class ...Args>
     class brute_force {
         using config = std::tuple<Args...>;
-        config curr_;
         std::function<void(Args...)> objective_func_;
         std::function<cppcoro::generator<config>()> search_space_;
 
-        void make_call()
+        void make_call(const config& curr)
         {
-            print(curr_);
+            print(curr);
 
             try {
-                call(objective_func_, curr_);
+                call(objective_func_, curr);
             }
             catch (...) {
                 std::throw_with_nested(std::runtime_error("Exception thrown while calling a function"));
@@ -28,16 +27,14 @@ namespace trading::optimizer {
         }
 
     public:
-        explicit brute_force(std::function<void(Args...)>&& func,
+        explicit brute_force(const std::function<void(Args...)>& func,
                 std::function<cppcoro::generator<config>()> search_space)
                 :objective_func_(std::move(func)), search_space_{search_space} { }
 
         void operator()()
         {
-            for (const config& point: search_space_()) {
-                curr_ = point;
-                make_call();
-            }
+            for (const config& curr: search_space_())
+                make_call(curr);
         }
     };
 }

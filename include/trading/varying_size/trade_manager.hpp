@@ -61,9 +61,8 @@ namespace trading::varying_size {
 
     public:
         explicit trade_manager(std::array<amount_t, n_buy_amounts> buy_amounts,
-                std::array<fraction, n_sell_fracs> sell_fracs, storage& storage)
-                :trading::trade_manager<Trade, trade_manager<Trade, n_buy_amounts, n_sell_fracs>>(storage),
-                 buy_amounts_(buy_amounts), sell_fracs_(sell_fracs) { }
+                std::array<fraction, n_sell_fracs> sell_fracs)
+                :buy_amounts_(buy_amounts), sell_fracs_(sell_fracs) { }
     };
 
     template<std::size_t n_buy_amounts, std::size_t n_sell_fracs> using long_trade_manager =

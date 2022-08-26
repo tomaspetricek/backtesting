@@ -22,13 +22,12 @@ namespace trading {
     private:
         std::vector<price_point> price_points_;
         TradeManager manager_;
-        storage& storage_;
         std::function<Strategy(Args...)> initializer_;
 
     public:
-        explicit test_box(std::vector<price_point> price_points, TradeManager manager, storage& storage,
+        explicit test_box(std::vector<price_point> price_points, TradeManager manager,
                 std::function<Strategy(Args...)> initializer)
-                :price_points_(std::move(price_points)), manager_(manager), storage_(storage),
+                :price_points_(std::move(price_points)), manager_(manager),
                  initializer_(initializer) { }
 
         void operator()(Args... args)
@@ -53,7 +52,7 @@ namespace trading {
             manager_.try_closing_active_trade(price_points_.back());
 
             // create stats
-            Stats stats(storage_.retrieve_closed_trades());
+            Stats stats(manager_.retrieve_closed_trades());
             std::cout << "min profit: " << value_of(stats.min_profit())
                       << " %, max profit: " << value_of(stats.max_profit())
                       << " %, n closed trades: " << stats.n_closed_trades() << std::endl;

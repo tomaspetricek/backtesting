@@ -49,13 +49,10 @@ void run()
                                                                      trading::view::candle_deserializer};
     auto points = get_mean_price_points(reader, candle::ohlc4);
 
-    // create storage
-    trading::storage storage;
-
     // create trade manager
     amount_t buy_amount{25};
     fraction sell_frac{1};
-    const_size::long_trade_manager manager{buy_amount, sell_frac, storage};
+    const_size::long_trade_manager manager{buy_amount, sell_frac};
 
     // create initializer
     auto initializer = [](int short_period, int middle_period, int long_period) {
@@ -64,23 +61,26 @@ void run()
 
     // create test box
     auto box = test_box<triple_ema::long_strategy, const_size::long_trade_manager,
-            percent::long_stats, int, int, int>(points, manager, storage, initializer);
+            percent::long_stats, int, int, int>(points, manager, initializer);
 
     // create search space
     int min_short_period{1}, step{1}, shift{1};
     int max_short_period{50+step}; // make inclusive
+
     auto sliding_search_space = [min_short_period, max_short_period, step, shift]() -> cppcoro::generator<std::tuple<int, int, int>> {
         int max_middle_period{max_short_period+shift};
         int max_long_period{max_short_period+2*shift};
 
         for (const auto& short_period: range<int>{min_short_period, max_short_period, step})
             for (const auto& middle_period: range<int>{short_period+shift, max_middle_period, step})
-                for (const auto& long_period: range<int>{middle_period+shift, max_long_period, step})
+                for (const auto& long_period: range<int>{middle_period+shift, max_long_period, step}) {
+                    //#pragma omp task
                     co_yield {short_period, middle_period, long_period};
+                }
     };
 
     // create optimizer
-    optimizer::brute_force<int, int, int> optim{std::move(box), sliding_search_space};
+    optimizer::brute_force<int, int, int> optim{box, sliding_search_space};
     std::cout << "sliding, brute force:" << std::endl;
     optim();
 }
@@ -148,7 +148,10 @@ void use_optimizer()
 
     // create objective function
     auto volume = [](int len, int width, int depth) {
-        std::cout << len*width*depth << std::endl;
+        #pragma omp critical
+        {
+            std::cout << len*width*depth << std::endl;
+        }
     };
 
     // create search space
@@ -160,13 +163,13 @@ void use_optimizer()
     };
 
     // create optimizer
-    optimizer::brute_force<int, int, int> optim{std::move(volume), cartesian_product};
+    optimizer::brute_force<int, int, int> optim{volume, cartesian_product};
     std::cout << "cartesian product, brute force:" << std::endl;
     optim();
 }
 
 template<class Factory, class Strategy, class TradeManager>
-void save_results(Strategy strategy, TradeManager manager, storage& storage)
+void save_results(Strategy strategy, TradeManager manager)
 {
     // get price points
     currency::pair pair{crypto::BTC, crypto::USDT};
@@ -192,7 +195,7 @@ void save_results(Strategy strategy, TradeManager manager, storage& storage)
     manager.try_closing_active_trade(mean_points.back());
 
     // retrieve closed trades
-    std::vector<long_trade> closed_trades = storage.retrieve_closed_trades();
+    std::vector<long_trade> closed_trades = manager.retrieve_closed_trades();
 
     // create point serializer
     auto point_serializer = [](const price_point& point) {
@@ -204,9 +207,7 @@ void save_results(Strategy strategy, TradeManager manager, storage& storage)
     // save mean price points
     csv::writer<price_point, time_t, double> mean_points_writer{{"../data/out/mean_price_points.csv"},
                                                                 point_serializer};
-    std::string
-    mean_price_label = label(*(mean_pricer.target<price_t(
-    const candle&)>()));
+    std::string mean_price_label = label(*(mean_pricer.target<price_t(const candle&)>()));
     mean_points_writer({"time", mean_price_label}, mean_points);
 
     // save indicator values
@@ -262,8 +263,7 @@ int main()
     };
     constexpr std::size_t n_sell_fracs{0}; // uses sell all so no sell fractions are needed
     std::array<fraction, n_sell_fracs> sell_fracs{};
-    trading::storage storage;
-    varying_size::long_trade_manager<n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs, storage};
+    varying_size::long_trade_manager<n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs};
 
     // create strategy
     indicator::sma entry_sma{30};
@@ -271,7 +271,7 @@ int main()
     bazooka::long_strategy<sma, sma, n_levels> strategy{entry_sma, exit_sma, levels};
 
     // call func
-    save_results<bazooka::factory<n_levels>>(strategy, manager, storage);
+    save_results<bazooka::factory<n_levels>>(strategy, manager);
 
     // run program
     try {

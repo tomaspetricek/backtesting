@@ -16,5 +16,6 @@ add_executable(backtesting src/main.cpp)
 # add libraries
 find_package(Boost REQUIRED COMPONENTS date_time)
 find_package(fmt)
+find_package(OpenMP REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
-target_link_libraries(backtesting PUBLIC ${Boost_LIBRARIES} fmt::fmt)
+target_link_libraries(backtesting PUBLIC ${Boost_LIBRARIES} fmt::fmt OpenMP::OpenMP_CXX)

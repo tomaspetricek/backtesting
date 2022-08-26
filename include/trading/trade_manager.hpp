@@ -7,7 +7,6 @@
 
 #include <optional>
 
-#include <trading/storage.hpp>
 #include <trading/data_point.hpp>
 
 namespace trading {
@@ -20,7 +19,7 @@ namespace trading {
             assert(active_);
             assert(active_->is_closed());
 
-            storage_.save_closed_trade(*active_);
+            save_closed_trade(*active_);
             active_ = std::nullopt;
             static_cast<ConcreteTradeManager*>(this)->reset_state_impl();
         }
@@ -33,10 +32,14 @@ namespace trading {
 
     protected:
         std::optional<Trade> active_;
-        storage& storage_;
+        std::vector<Trade> closed_;
 
-        explicit trade_manager(storage& storage)
-                :storage_(storage) { }
+        explicit trade_manager() = default;
+
+        void save_closed_trade(const Trade& closed)
+        {
+            closed_.emplace_back(closed);
+        }
 
     public:
         void update_active_trade(const action& action, const price_point& point)
@@ -68,6 +71,11 @@ namespace trading {
                 sell_all(point);
                 save_closed_active_trade();
             }
+        }
+
+        std::vector<Trade> retrieve_closed_trades()
+        {
+            return std::move(closed_);
         }
     };
 }
