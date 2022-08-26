@@ -16,7 +16,10 @@ namespace trading::optimizer {
 
         void make_call(const config& curr)
         {
-            print(curr);
+            #pragma omp critical
+            {
+                print(curr);
+            }
 
             try {
                 call(objective_func_, curr);
@@ -33,8 +36,18 @@ namespace trading::optimizer {
 
         void operator()()
         {
-            for (const config& curr: search_space_())
-                make_call(curr);
+            #pragma omp parallel
+            {
+                #pragma omp single
+                {
+                    for (const config& curr: search_space_()) {
+                        #pragma omp task
+                        {
+                            make_call(curr);
+                        }
+                    }
+                }
+            }
         }
     };
 }

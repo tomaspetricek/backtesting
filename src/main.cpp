@@ -65,7 +65,7 @@ void run()
 
     // create search space
     int min_short_period{1}, step{1}, shift{1};
-    int max_short_period{50+step}; // make inclusive
+    int max_short_period{100+step}; // make inclusive
 
     auto sliding_search_space = [min_short_period, max_short_period, step, shift]() -> cppcoro::generator<std::tuple<int, int, int>> {
         int max_middle_period{max_short_period+shift};
@@ -74,7 +74,6 @@ void run()
         for (const auto& short_period: range<int>{min_short_period, max_short_period, step})
             for (const auto& middle_period: range<int>{short_period+shift, max_middle_period, step})
                 for (const auto& long_period: range<int>{middle_period+shift, max_long_period, step}) {
-                    //#pragma omp task
                     co_yield {short_period, middle_period, long_period};
                 }
     };
