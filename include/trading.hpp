@@ -18,7 +18,7 @@
 #include <trading/indicator/sma.hpp>
 #include <trading/io/csv/writer.hpp>
 #include <trading/io/csv/reader.hpp>
-#include <trading/optimizer/brute_force.hpp>
+#include "trading/optimizer/parallel/brute_force.hpp"
 #include <trading/percent/formula.hpp>
 #include <trading/percent/long_stats.hpp>
 #include <trading/triple_ema/factory.hpp>

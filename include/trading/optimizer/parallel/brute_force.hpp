@@ -5,9 +5,9 @@
 #ifndef EMASTRATEGY_OPTIMIZER_BRUTE_FORCE_HPP
 #define EMASTRATEGY_OPTIMIZER_BRUTE_FORCE_HPP
 
-#include <cppcoro/generator.hpp>
+#include "cppcoro/generator.hpp"
 
-namespace trading::optimizer {
+namespace trading::optimizer::parallel {
     template<class ...Args>
     class brute_force {
         using config = std::tuple<Args...>;

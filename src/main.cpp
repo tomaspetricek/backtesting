@@ -73,13 +73,12 @@ void run()
 
         for (const auto& short_period: range<int>{min_short_period, max_short_period, step})
             for (const auto& middle_period: range<int>{short_period+shift, max_middle_period, step})
-                for (const auto& long_period: range<int>{middle_period+shift, max_long_period, step}) {
+                for (const auto& long_period: range<int>{middle_period+shift, max_long_period, step})
                     co_yield {short_period, middle_period, long_period};
-                }
     };
 
     // create optimizer
-    optimizer::brute_force<int, int, int> optim{box, sliding_search_space};
+    parallel::brute_force<int, int, int> optim{box, sliding_search_space};
     std::cout << "sliding, brute force:" << std::endl;
     optim();
 }
@@ -162,7 +161,7 @@ void use_optimizer()
     };
 
     // create optimizer
-    optimizer::brute_force<int, int, int> optim{volume, cartesian_product};
+    parallel::brute_force<int, int, int> optim{volume, cartesian_product};
     std::cout << "cartesian product, brute force:" << std::endl;
     optim();
 }
