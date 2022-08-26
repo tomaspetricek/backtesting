@@ -66,13 +66,21 @@ void run()
     auto box = test_box<triple_ema::long_strategy, const_size::long_trade_manager,
             percent::long_stats, int, int, int>(points, manager, storage, initializer);
 
-    // use optimizer
-    int min_short_period{1};
-    int step{1};
-    int shift{1};
-    int max_short_period{100+step}; // make inclusive
-    sliding::search_space space{range(min_short_period, max_short_period, step), shift};
-    sliding::brute_force<int, 3> optim{space, std::move(box)};
+    // create search space
+    int min_short_period{1}, step{1}, shift{1};
+    int max_short_period{50+step}; // make inclusive
+    auto sliding_search_space = [min_short_period, max_short_period, step, shift]() -> cppcoro::generator<std::tuple<int, int, int>> {
+        int max_middle_period{max_short_period+shift};
+        int max_long_period{max_short_period+2*shift};
+
+        for (const auto& short_period: range<int>{min_short_period, max_short_period, step})
+            for (const auto& middle_period: range<int>{short_period+shift, max_middle_period, step})
+                for (const auto& long_period: range<int>{middle_period+shift, max_long_period, step})
+                    co_yield {short_period, middle_period, long_period};
+    };
+
+    // create optimizer
+    optimizer::brute_force<int, int, int> optim{std::move(box), sliding_search_space};
     std::cout << "sliding, brute force:" << std::endl;
     optim();
 }
@@ -137,13 +145,22 @@ void use_optimizer()
     range<int> lens{2, 4+2, 2};
     range<int> widths{12, 6-2, -2};
     range<int> depths{1, 2+1, 1};
+
+    // create objective function
     auto volume = [](int len, int width, int depth) {
         std::cout << len*width*depth << std::endl;
     };
-    cartesian_product::search_space space{lens, widths, depths};
-    cartesian_product::brute_force<int, int, int> optim{space, std::move(volume)};
 
-    // optimize
+    // create search space
+    auto cartesian_product = [lens, widths, depths]() -> cppcoro::generator<std::tuple<int, int, int>> {
+        for (const auto& len: lens)
+            for (const auto& width: widths)
+                for (const auto& depth: depths)
+                    co_yield {len, width, depth};
+    };
+
+    // create optimizer
+    optimizer::brute_force<int, int, int> optim{std::move(volume), cartesian_product};
     std::cout << "cartesian product, brute force:" << std::endl;
     optim();
 }
@@ -187,7 +204,8 @@ void save_results(Strategy strategy, TradeManager manager, storage& storage)
     // save mean price points
     csv::writer<price_point, time_t, double> mean_points_writer{{"../data/out/mean_price_points.csv"},
                                                                 point_serializer};
-    std::string mean_price_label = label(*(mean_pricer.target<price_t(
+    std::string
+    mean_price_label = label(*(mean_pricer.target<price_t(
     const candle&)>()));
     mean_points_writer({"time", mean_price_label}, mean_points);
 
@@ -251,6 +269,8 @@ int main()
     indicator::sma entry_sma{30};
     const indicator::sma& exit_sma{entry_sma};
     bazooka::long_strategy<sma, sma, n_levels> strategy{entry_sma, exit_sma, levels};
+
+    // call func
     save_results<bazooka::factory<n_levels>>(strategy, manager, storage);
 
     // run program

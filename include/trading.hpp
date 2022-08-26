@@ -16,8 +16,9 @@
 #include <trading/indicator/ema.hpp>
 #include <trading/indicator/moving_average.hpp>
 #include <trading/indicator/sma.hpp>
-#include <trading/optimizer/cartesian_product/brute_force.hpp>
-#include <trading/optimizer/sliding/brute_force.hpp>
+#include <trading/io/csv/writer.hpp>
+#include <trading/io/csv/reader.hpp>
+#include <trading/optimizer/brute_force.hpp>
 #include <trading/percent/formula.hpp>
 #include <trading/percent/long_stats.hpp>
 #include <trading/triple_ema/factory.hpp>
@@ -45,13 +46,12 @@
 #include <trading/position.hpp>
 #include <trading/price_t.hpp>
 #include <trading/range.hpp>
-#include "trading/io/csv/writer.hpp"
-#include "trading/io/csv/reader.hpp"
 #include <trading/side.hpp>
 #include <trading/table.hpp>
 #include <trading/test_box.hpp>
 #include <trading/long_trade.hpp>
 #include <trading/tuple.hpp>
 #include <strong_type.hpp>
+#include <cppcoro/generator.hpp>
 
 #endif //EMASTRATEGY_TRADING_HPP

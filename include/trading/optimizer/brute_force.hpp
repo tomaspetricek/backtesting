@@ -1,50 +1,45 @@
 //
-// Created by Tomáš Petříček on 11.08.2022.
+// Created by Tomáš Petříček on 29.07.2022.
 //
 
-#ifndef EMASTRATEGY_BRUTE_FORCE_HPP
-#define EMASTRATEGY_BRUTE_FORCE_HPP
+#ifndef EMASTRATEGY_OPTIMIZER_BRUTE_FORCE_HPP
+#define EMASTRATEGY_OPTIMIZER_BRUTE_FORCE_HPP
 
-#include <trading/optimizer/base.hpp>
+#include <cppcoro/generator.hpp>
 
 namespace trading::optimizer {
-    template<class SearchSpace, std::size_t n_nested, class Callable, class Config>
-    class brute_force : public optimizer::base<Callable, Config> {
-        SearchSpace space_;
+    template<class ...Args>
+    class brute_force {
+        using config = std::tuple<Args...>;
+        config curr_;
+        std::function<void(Args...)> objective_func_;
+        std::function<cppcoro::generator<config>()> search_space_;
 
-        // https://stackoverflow.com/questions/34535795/n-dimensionally-nested-metaloops-with-templates
-        template<size_t Depth, class Type>
-        constexpr void nested_for(const range<Type>& vals)
+        void make_call()
         {
-            static_assert(Depth>0);
-            constexpr int idx = n_nested-Depth;
+            print(curr_);
 
-            for (auto val: vals) {
-                // update curr
-                std::get<idx>(this->curr_) = val;
-
-                // reached innermost loop
-                if constexpr(Depth==1) {
-                    this->make_call();
-                }
-                    // call inner loop
-                else {
-                    auto next = space_.template next<idx>(val);
-                    nested_for<Depth-1>(next);
-                }
+            try {
+                call(objective_func_, curr_);
+            }
+            catch (...) {
+                std::throw_with_nested(std::runtime_error("Exception thrown while calling a function"));
             }
         }
 
-    protected:
-        explicit brute_force(const SearchSpace& space, Callable&& func)
-                :optimizer::base<Callable, Config>(std::move(func)), space_(space) { }
-
     public:
-        void operator()() override
+        explicit brute_force(std::function<void(Args...)>&& func,
+                std::function<cppcoro::generator<config>()> search_space)
+                :objective_func_(std::move(func)), search_space_{search_space} { }
+
+        void operator()()
         {
-            nested_for<n_nested>(space_.begin());
+            for (const config& point: search_space_()) {
+                curr_ = point;
+                make_call();
+            }
         }
     };
 }
 
-#endif //EMASTRATEGY_BRUTE_FORCE_HPP
+#endif //EMASTRATEGY_OPTIMIZER_BRUTE_FORCE_HPP
