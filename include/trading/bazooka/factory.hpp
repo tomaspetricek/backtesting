@@ -17,7 +17,7 @@ namespace trading::bazooka {
         template<class OpenMovingAverage, class CloseMovingAverage>
         static long_strategy<OpenMovingAverage, CloseMovingAverage, n_levels>
         create_long_strategy(OpenMovingAverage entry_ma, CloseMovingAverage exit_ma,
-                const std::array<fraction, n_levels>& entry_levels)
+                const std::array<percent_t, n_levels>& entry_levels)
         {
             return long_strategy<OpenMovingAverage, CloseMovingAverage, n_levels>{entry_ma, exit_ma, entry_levels};
         }
@@ -25,7 +25,7 @@ namespace trading::bazooka {
         template<class OpenMovingAverage, class CloseMovingAverage>
         static short_strategy<OpenMovingAverage, CloseMovingAverage, n_levels>
         create_short_strategy(OpenMovingAverage entry_ma, CloseMovingAverage exit_ma,
-                const std::array<fraction, n_levels>& entry_levels)
+                const std::array<percent_t, n_levels>& entry_levels)
         {
             return short_strategy<OpenMovingAverage, CloseMovingAverage, n_levels>{entry_ma, exit_ma, entry_levels};
         }

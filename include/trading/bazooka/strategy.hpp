@@ -10,13 +10,13 @@
 
 #include <strong_type.hpp>
 
-#include <trading/fraction.hpp>
 #include <trading/strategy.hpp>
 #include <trading/indicator/moving_average.hpp>
 #include <trading/tuple.hpp>
 #include <trading/interface/strategy_like.hpp>
 #include <trading/exception.hpp>
 #include <trading/bazooka/indicator_values.hpp>
+#include <trading/percent_t.hpp>
 
 namespace trading::bazooka {
     // entry levels: 0 - first level, n_levels-1 - last level
@@ -28,22 +28,25 @@ namespace trading::bazooka {
         friend class trading::strategy<strategy<OpenMovingAverage, CloseMovingAverage, EntryComp, ExitComp, n_levels>>;
         OpenMovingAverage entry_ma_;
         CloseMovingAverage exit_ma_;
-        std::array<fraction, n_levels> entry_levels_;
+        std::array<percent_t, n_levels> entry_levels_;
         std::size_t curr_level_{0};
         static constexpr EntryComp entry_comp_;
         static constexpr ExitComp exit_comp_;
 
-        static std::array<fraction, n_levels> validate_entry_levels(const std::array<fraction, n_levels>& entry_levels)
+        static std::array<percent_t, n_levels>
+        validate_entry_levels(const std::array<percent_t, n_levels>& entry_levels)
         {
-            // 1.0 - represents baseline - value of entry ma
-            double prev_level{1.0};
+            double prev_level{1.0}; // 1.0 - represents baseline - value of entry ma
+            double curr_level;
 
-            for (const auto& curr_level: entry_levels) {
-                if (entry_comp_(prev_level, static_cast<double>(curr_level)))
+            for (const auto& entry_level: entry_levels) {
+                curr_level = value_of(entry_level);
+
+                if (curr_level<0.0 || entry_comp_(prev_level, curr_level))
                     throw std::invalid_argument(
                             "The current level must be further from the baseline than the previous level");
 
-                prev_level = static_cast<double>(curr_level);
+                prev_level = curr_level;
             }
 
             return entry_levels;
@@ -65,7 +68,7 @@ namespace trading::bazooka {
 
             // move baseline
             auto baseline = static_cast<double>(entry_ma_);
-            return baseline*static_cast<double>(entry_levels_[level]);
+            return baseline*value_of(entry_levels_[level]);
         }
 
         bool should_buy_impl(const price_t& curr)
@@ -112,7 +115,7 @@ namespace trading::bazooka {
 
     protected:
         explicit strategy(OpenMovingAverage entry_ma, CloseMovingAverage exit_ma,
-                const std::array<fraction, n_levels>& entry_levels)
+                const std::array<percent_t, n_levels>& entry_levels)
                 :entry_ma_(entry_ma), exit_ma_(exit_ma), entry_levels_(validate_entry_levels(entry_levels)) { }
 
         strategy() = default;

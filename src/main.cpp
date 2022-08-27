@@ -239,11 +239,11 @@ void save_data_points(Strategy strategy, TradeManager manager)
 void use_bazooka() {
     // create levels
     constexpr int n_levels{4};
-    std::array<fraction, n_levels> levels;
-    levels[0] = fraction{1.0-0.04};
-    levels[1] = fraction{1.0-0.07};
-    levels[2] = fraction{1.0-0.1};
-    levels[3] = fraction{1.0-0.15};
+    std::array<percent_t, n_levels> levels;
+    levels[0] = percent_t{1.0-0.04};
+    levels[1] = percent_t{1.0-0.07};
+    levels[2] = percent_t{1.0-0.1};
+    levels[3] = percent_t{1.0-0.15};
 
     // create buy amounts
     std::array<amount_t, n_levels> buy_amounts{

@@ -15,7 +15,7 @@ namespace trading::bazooka {
             : public strategy<OpenMovingAverage, CloseMovingAverage, std::greater_equal<>, std::less_equal<>, n_levels> {
     public:
         short_strategy(OpenMovingAverage entry_ma, CloseMovingAverage exit_ma,
-                const std::array<fraction, n_levels>& entry_levels)
+                const std::array<percent_t, n_levels>& entry_levels)
                 :strategy<OpenMovingAverage, CloseMovingAverage, std::greater_equal<>, std::less_equal<>, n_levels>
                          (entry_ma, exit_ma, entry_levels) { }
 
