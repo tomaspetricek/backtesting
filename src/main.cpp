@@ -65,7 +65,7 @@ void run()
 
     // create search space
     int min_short_period{1}, step{1}, shift{1};
-    int max_short_period{100+step}; // make inclusive
+    int max_short_period{150+step}; // make inclusive
 
     auto sliding_search_space = [min_short_period, max_short_period, step, shift]() -> cppcoro::generator<std::tuple<int, int, int>> {
         int max_middle_period{max_short_period+shift};
@@ -167,7 +167,7 @@ void use_optimizer()
 }
 
 template<class Factory, class Strategy, class TradeManager>
-void save_results(Strategy strategy, TradeManager manager)
+void save_data_points(Strategy strategy, TradeManager manager)
 {
     // get price points
     currency::pair pair{crypto::BTC, crypto::USDT};
@@ -236,14 +236,7 @@ void save_results(Strategy strategy, TradeManager manager)
     closed_points_writer(pos_col_names, closed_points);
 }
 
-int main()
-{
-    // show demo
-    use_formulas();
-    use_indicators();
-    use_interval();
-    use_optimizer();
-
+void use_bazooka() {
     // create levels
     constexpr int n_levels{4};
     std::array<fraction, n_levels> levels;
@@ -252,13 +245,15 @@ int main()
     levels[2] = fraction{1.0-0.1};
     levels[3] = fraction{1.0-0.15};
 
-    // create manager
+    // create buy amounts
     std::array<amount_t, n_levels> buy_amounts{
             amount_t{100},
             amount_t{50},
             amount_t{20},
             amount_t{10}
     };
+
+    // create trade manager
     constexpr std::size_t n_sell_fracs{0}; // uses sell all so no sell fractions are needed
     std::array<fraction, n_sell_fracs> sell_fracs{};
     varying_size::long_trade_manager<n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs};
@@ -268,9 +263,19 @@ int main()
     const indicator::sma& exit_sma{entry_sma};
     bazooka::long_strategy<sma, sma, n_levels> strategy{entry_sma, exit_sma, levels};
 
-    // call func
-    save_results<bazooka::factory<n_levels>>(strategy, manager);
+    // save data points
+    save_data_points<bazooka::factory<n_levels>>(strategy, manager);
+}
 
+int main()
+{
+    // show demo
+    use_formulas();
+    use_indicators();
+    use_interval();
+    use_optimizer();
+    use_bazooka();
+    
     // run program
     try {
         run();
