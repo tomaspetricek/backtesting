@@ -57,7 +57,7 @@ void run()
     // create initializer
     auto initializer = [manager](int short_period, int middle_period, int long_period) {
         auto strategy = triple_ema::long_strategy{short_period, middle_period, long_period};
-        return trader<triple_ema::long_strategy, const_size::long_trade_manager>{strategy, manager};
+        return trading::trader{strategy, manager};
     };
 
     // create test box
@@ -182,7 +182,7 @@ void save_data_points(Trader trader)
     std::vector<data_point<typename Factory::indicator_values_type>> indics_values;
 
     for (const auto& point: mean_points) {
-         trader(point);
+        trader(point);
 
         if (trader.indicators_ready())
             indics_values.emplace_back(point.time, trader.get_indicator_values());
@@ -204,7 +204,8 @@ void save_data_points(Trader trader)
     // save mean price points
     csv::writer<price_point, time_t, double> mean_points_writer{{"../data/out/mean_price_points.csv"},
                                                                 point_serializer};
-    std::string mean_price_label = label(*(mean_pricer.target<price_t(const candle&)>()));
+    std::string mean_price_label = label(*(mean_pricer.target<price_t(
+    const candle&)>()));
     mean_points_writer({"time", mean_price_label}, mean_points);
 
     // save indicator values
@@ -235,7 +236,8 @@ void save_data_points(Trader trader)
     closed_points_writer(pos_col_names, closed_points);
 }
 
-void use_bazooka() {
+void use_bazooka()
+{
     // create levels
     constexpr int n_levels{4};
     std::array<percent_t, n_levels> levels;
@@ -263,7 +265,7 @@ void use_bazooka() {
     varying_size::long_trade_manager<n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs};
 
     // create trader
-    trader<bazooka::long_strategy<sma, sma, n_levels>, varying_size::long_trade_manager<n_levels, n_sell_fracs>> trader{strategy, manager};
+    trading::trader trader{strategy, manager};
 
     // save data points
     save_data_points<bazooka::factory<n_levels>>(trader);
@@ -277,15 +279,15 @@ int main()
     use_interval();
     use_optimizer();
     use_bazooka();
-    
-//    // run program
-//    try {
-//        run();
-//    }
-//        // show exceptions
-//    catch (const std::exception& ex) {
-//        print_exception(ex);
-//    }
+
+    // run program
+    try {
+        run();
+    }
+        // show exceptions
+    catch (const std::exception& ex) {
+        print_exception(ex);
+    }
 
     return 0;
 }
