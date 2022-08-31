@@ -50,6 +50,8 @@ namespace trading::const_size {
     public:
         explicit trade_manager(const amount_t& buy_amount, const fraction& sell_frac)
                 :buy_amount_(validate_buy_amount(buy_amount)), sell_frac_(sell_frac) { }
+
+        trade_manager() = default;
     };
 
     typedef trade_manager<long_trade> long_trade_manager;

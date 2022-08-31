@@ -7,7 +7,6 @@
 
 #include <utility>
 
-#include <trading/action.hpp>
 #include <trading/strategy.hpp>
 #include <trading/tuple.hpp>
 #include <trading/triple_ema/indicator_values.hpp>
@@ -25,6 +24,7 @@ namespace trading::triple_ema {
         static constexpr LongComp long_comp_;
         static constexpr ShortComp short_comp_;
 
+    protected:
         void update_indicators(const price_t& curr)
         {
             auto curr_val = value_of(curr);
@@ -36,7 +36,7 @@ namespace trading::triple_ema {
                 this->indics_ready_ = true;
         }
 
-        bool should_buy_impl(const price_t& curr)
+        bool should_buy_impl(const price_t&)
         {
             // position already opened
             if (pos_opened_) return false;
@@ -53,7 +53,7 @@ namespace trading::triple_ema {
             return false;
         }
 
-        bool should_sell_impl(const price_t& curr)
+        bool should_sell_impl(const price_t&)
         {
             // position is not open yet, so there is nothing to sell
             if (!pos_opened_) return false;
@@ -69,12 +69,11 @@ namespace trading::triple_ema {
             return false;
         }
 
-        bool should_sell_all_impl(const price_t& curr)
+        bool should_sell_all_impl(const price_t&)
         {
             return false;
         }
 
-    protected:
         explicit strategy(indicator::ema short_ema, indicator::ema middle_ema, indicator::ema long_ema)
                 :short_ema_(std::move(short_ema)), middle_ema_(std::move(middle_ema)), long_ema_(std::move(long_ema))
         {

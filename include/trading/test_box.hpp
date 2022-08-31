@@ -17,42 +17,35 @@
 #include <trading/currency.hpp>
 
 namespace trading {
-    template<class Strategy, class TradeManager, class Stats, typename ...Args>
+    template<class Trader, typename ...Args>
     class test_box {
-    private:
         std::vector<price_point> price_points_;
-        TradeManager manager_;
-        std::function<Strategy(Args...)> initializer_;
+        std::function<Trader(Args...)> initializer_;
 
     public:
-        explicit test_box(std::vector<price_point> price_points, TradeManager manager,
-                std::function<Strategy(Args...)> initializer)
-                :price_points_(std::move(price_points)), manager_(manager),
+        explicit test_box(std::vector<price_point> price_points,
+                std::function<Trader(Args...)> initializer)
+                :price_points_(std::move(price_points)),
                  initializer_(initializer) { }
 
         void operator()(Args... args)
         {
-            Strategy strategy;
+            Trader trader;
 
             // create strategy
             try {
-                strategy = initializer_(args...);
+                trader = initializer_(args...);
             }
             catch (...) {
                 std::throw_with_nested(std::runtime_error("Cannot create strategy"));
             }
 
             // collect trades
-            for (const auto& point: price_points_) {
-                auto action = strategy(point.data);
-                manager_.update_active_trade(action, point);
-            }
+            for (const auto& point: price_points_)
+                trader(point);
 
             // close active trade
-            manager_.try_closing_active_trade(price_points_.back());
-
-            // create stats
-            Stats stats(manager_.retrieve_closed_trades());
+            trader.try_closing_active_trade(price_points_.back());
         }
     };
 }

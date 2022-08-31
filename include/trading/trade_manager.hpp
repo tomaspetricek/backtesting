@@ -18,16 +18,9 @@ namespace trading {
         {
             assert(active_);
             assert(active_->is_closed());
-
-            save_closed_trade(*active_);
+            closed_.emplace_back(*active_);
             active_ = std::nullopt;
             static_cast<ConcreteTradeManager*>(this)->reset_state_impl();
-        }
-
-        void sell_all(const price_point& point)
-        {
-            auto pos = Trade::create_close_position(this->active_->size(), point.data, point.time);
-            this->active_->add_closed(pos);
         }
 
     protected:
@@ -36,41 +29,31 @@ namespace trading {
 
         explicit trade_manager() = default;
 
-        void save_closed_trade(const Trade& closed)
+        void buy(const price_point& point)
         {
-            closed_.emplace_back(closed);
+            static_cast<ConcreteTradeManager*>(this)->buy_impl(point);
+        }
+
+        void sell(const price_point& point)
+        {
+            assert(active_);
+            static_cast<ConcreteTradeManager*>(this)->sell_impl(point);
+            if (active_->is_closed()) save_closed_active_trade();
+        }
+
+        void sell_all(const price_point& point)
+        {
+            assert(active_);
+            auto pos = Trade::create_close_position(this->active_->size(), point.data, point.time);
+            this->active_->add_closed(pos);
+            save_closed_active_trade();
         }
 
     public:
-        void update_active_trade(const action& action, const price_point& point)
-        {
-            // act
-            switch (action) {
-            case action::buy:
-                static_cast<ConcreteTradeManager*>(this)->buy_impl(point);
-                break;
-            case action::sell:
-                assert(active_);
-                static_cast<ConcreteTradeManager*>(this)->sell_impl(point);
-                if (active_->is_closed()) save_closed_active_trade();
-                break;
-            case action::sell_all:
-                assert(active_);
-                sell_all(point);
-                save_closed_active_trade();
-                break;
-            case action::do_nothing:
-                break;
-            }
-        }
-
         // it closes active trade, if there is one
         void try_closing_active_trade(const price_point& point)
         {
-            if (active_) {
-                sell_all(point);
-                save_closed_active_trade();
-            }
+            if (active_) sell_all(point);
         }
 
         std::vector<Trade> retrieve_closed_trades()

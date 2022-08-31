@@ -52,6 +52,7 @@ namespace trading::bazooka {
             return entry_levels;
         }
 
+    protected:
         void update_indicators(const price_t& curr)
         {
             auto curr_val = value_of(curr);
@@ -91,7 +92,7 @@ namespace trading::bazooka {
         }
 
         // it does not sell fractions, so it's always false
-        bool should_sell_impl(const price_t& curr)
+        bool should_sell_impl(const price_t&)
         {
             return false;
         }
@@ -113,7 +114,6 @@ namespace trading::bazooka {
             return false;
         }
 
-    protected:
         explicit strategy(OpenMovingAverage entry_ma, CloseMovingAverage exit_ma,
                 const std::array<percent_t, n_levels>& entry_levels)
                 :entry_ma_(entry_ma), exit_ma_(exit_ma), entry_levels_(validate_entry_levels(entry_levels)) { }

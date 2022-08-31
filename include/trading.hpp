@@ -30,7 +30,6 @@
 #include <trading/validator/interval.hpp>
 #include <trading/varying_size/trade_manager.hpp>
 #include <trading/view/candle_deserializer.hpp>
-#include <trading/action.hpp>
 #include <trading/money.hpp>
 #include <trading/candle.hpp>
 #include <trading/currency.hpp>
@@ -50,6 +49,7 @@
 #include <trading/table.hpp>
 #include <trading/test_box.hpp>
 #include <trading/long_trade.hpp>
+#include <trading/trader.hpp>
 #include <trading/tuple.hpp>
 #include <strong_type.hpp>
 #include <cppcoro/generator.hpp>

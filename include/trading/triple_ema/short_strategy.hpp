@@ -8,7 +8,6 @@
 #include <optional>
 
 #include <trading/triple_ema/strategy.hpp>
-#include <trading/action.hpp>
 #include <trading/interface/strategy_like.hpp>
 
 namespace trading::triple_ema {

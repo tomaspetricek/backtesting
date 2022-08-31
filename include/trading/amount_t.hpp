@@ -8,7 +8,7 @@
 #include <strong_type.hpp>
 
 namespace trading {
-    using amount_t = strong::type<double, struct amount_tag, strong::equality, strong::ordered, strong::arithmetic>;
+    using amount_t = strong::type<double, struct amount_tag, strong::default_constructible, strong::equality, strong::ordered, strong::arithmetic>;
 }
 
 #endif //EMASTRATEGY_AMOUNT_T_HPP

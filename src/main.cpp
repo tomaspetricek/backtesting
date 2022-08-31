@@ -55,13 +55,13 @@ void run()
     const_size::long_trade_manager manager{buy_amount, sell_frac};
 
     // create initializer
-    auto initializer = [](int short_period, int middle_period, int long_period) {
-        return triple_ema::long_strategy{short_period, middle_period, long_period};
+    auto initializer = [manager](int short_period, int middle_period, int long_period) {
+        auto strategy = triple_ema::long_strategy{short_period, middle_period, long_period};
+        return trader<triple_ema::long_strategy, const_size::long_trade_manager>{strategy, manager};
     };
 
     // create test box
-    auto box = test_box<triple_ema::long_strategy, const_size::long_trade_manager,
-            percent::long_stats, int, int, int>(points, manager, initializer);
+    auto box = test_box<trader<triple_ema::long_strategy, const_size::long_trade_manager>, int, int, int>(points, initializer);
 
     // create search space
     int min_short_period{1}, step{1}, shift{1};
@@ -166,8 +166,8 @@ void use_optimizer()
     optim();
 }
 
-template<class Factory, class Strategy, class TradeManager>
-void save_data_points(Strategy strategy, TradeManager manager)
+template<class Factory, class Trader>
+void save_data_points(Trader trader)
 {
     // get price points
     currency::pair pair{crypto::BTC, crypto::USDT};
@@ -182,18 +182,17 @@ void save_data_points(Strategy strategy, TradeManager manager)
     std::vector<data_point<typename Factory::indicator_values_type>> indics_values;
 
     for (const auto& point: mean_points) {
-        auto action = strategy(point.data);
-        manager.update_active_trade(action, point);
+         trader(point);
 
-        if (strategy.indicators_ready())
-            indics_values.emplace_back(point.time, strategy.get_indicator_values());
+        if (trader.indicators_ready())
+            indics_values.emplace_back(point.time, trader.get_indicator_values());
     }
 
     // close active trade
-    manager.try_closing_active_trade(mean_points.back());
+    trader.try_closing_active_trade(mean_points.back());
 
     // retrieve closed trades
-    std::vector<long_trade> closed_trades = manager.retrieve_closed_trades();
+    std::vector<long_trade> closed_trades = trader.retrieve_closed_trades();
 
     // create point serializer
     auto point_serializer = [](const price_point& point) {
@@ -210,7 +209,7 @@ void save_data_points(Strategy strategy, TradeManager manager)
 
     // save indicator values
     auto indics_writer{Factory::create_indicator_values_writer({"../data/out/indicator_values.csv"})};
-    indics_writer(strategy, indics_values);
+    indics_writer(trader.strategy(), indics_values);
 
     // save position points
     std::vector<price_point> open_points;
@@ -253,18 +252,21 @@ void use_bazooka() {
             amount_t{10}
     };
 
-    // create trade manager
-    constexpr std::size_t n_sell_fracs{0}; // uses sell all so no sell fractions are needed
-    std::array<fraction, n_sell_fracs> sell_fracs{};
-    varying_size::long_trade_manager<n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs};
-
     // create strategy
     indicator::sma entry_sma{30};
     const indicator::sma& exit_sma{entry_sma};
     bazooka::long_strategy<sma, sma, n_levels> strategy{entry_sma, exit_sma, levels};
 
+    // create trade manager
+    constexpr std::size_t n_sell_fracs{0}; // uses sell all so no sell fractions are needed
+    std::array<fraction, n_sell_fracs> sell_fracs{};
+    varying_size::long_trade_manager<n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs};
+
+    // create trader
+    trader<bazooka::long_strategy<sma, sma, n_levels>, varying_size::long_trade_manager<n_levels, n_sell_fracs>> trader{strategy, manager};
+
     // save data points
-    save_data_points<bazooka::factory<n_levels>>(strategy, manager);
+    save_data_points<bazooka::factory<n_levels>>(trader);
 }
 
 int main()
@@ -276,14 +278,14 @@ int main()
     use_optimizer();
     use_bazooka();
     
-    // run program
-    try {
-        run();
-    }
-        // show exceptions
-    catch (const std::exception& ex) {
-        print_exception(ex);
-    }
+//    // run program
+//    try {
+//        run();
+//    }
+//        // show exceptions
+//    catch (const std::exception& ex) {
+//        print_exception(ex);
+//    }
 
     return 0;
 }
