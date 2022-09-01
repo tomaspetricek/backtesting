@@ -48,6 +48,19 @@ namespace trading {
         }
     };
 
+    class insufficient_balance : public std::runtime_error {
+    public:
+        explicit insufficient_balance()
+                :std::runtime_error("Not enough balance to perform operation") { }
+
+        ~insufficient_balance() noexcept override = default;
+
+        const char* what() const noexcept override
+        {
+            return runtime_error::what();
+        }
+    };
+
     void print_exception(const std::exception& e, int level = 0)
     {
         std::cerr << std::string(level, '\t') << "exception: " << e.what() << '\n';

@@ -24,6 +24,8 @@ namespace trading {
         bool is_opened_ = true;
 
     public:
+        using position_type = long_position;
+
         explicit long_trade(const long_position& pos)
         {
             add_opened(pos);

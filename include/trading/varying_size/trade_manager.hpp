@@ -13,10 +13,10 @@
 typedef std::size_t index_t;
 
 namespace trading::varying_size {
-    template<typename Trade, std::size_t n_buy_amounts, std::size_t n_sell_fracs>
-    class trade_manager : public trading::trade_manager<Trade, trade_manager<Trade, n_buy_amounts, n_sell_fracs>> {
+    template<class Trade, class Market, std::size_t n_buy_amounts, std::size_t n_sell_fracs>
+    class trade_manager : public trading::trade_manager<Trade, Market, trade_manager<Trade, Market, n_buy_amounts, n_sell_fracs>> {
         // necessary for use of CRTP (The Curiously Recurring Template Pattern)
-        friend class trading::trade_manager<Trade, trade_manager<Trade, n_buy_amounts, n_sell_fracs>>;
+        friend class trading::trade_manager<Trade, Market, trade_manager<Trade, Market, n_buy_amounts, n_sell_fracs>>;
         std::array<amount_t, n_buy_amounts> buy_amounts_;
         std::array<fraction, n_sell_fracs> sell_fracs_;
         index_t curr_buy_{0};
@@ -36,27 +36,16 @@ namespace trading::varying_size {
             curr_sell_ = 0;
         }
 
-        void buy_impl(const price_point& point)
+        amount_t get_buy_amount()
         {
             assert(curr_buy_<n_buy_amounts);
-            amount_t buy_amount = buy_amounts_[curr_buy_++];
-
-            if (!this->active_) {
-                auto pos = Trade::create_open_position(buy_amount, point.data, point.time);
-                this->active_ = std::make_optional(long_trade(pos));
-            }
-            else {
-                auto pos = Trade::create_open_position(buy_amount, point.data, point.time);
-                this->active_->add_opened(pos);
-            }
+            return buy_amounts_[curr_buy_++];
         }
 
-        void sell_impl(const price_point& point)
+        amount_t get_sell_amount()
         {
             assert(curr_sell_<n_sell_fracs);
-            auto sell_size = this->active_->calculate_position_size(sell_fracs_[curr_sell_++]);
-            auto pos = Trade::create_close_position(sell_size, point.data, point.time);
-            this->active_->add_closed(pos);
+            return this->active_->calculate_position_size(sell_fracs_[curr_sell_++]);
         }
 
     public:
@@ -67,8 +56,8 @@ namespace trading::varying_size {
         trade_manager() = default;
     };
 
-    template<std::size_t n_buy_amounts, std::size_t n_sell_fracs> using long_trade_manager =
-            trade_manager<long_trade, n_buy_amounts, n_sell_fracs>;
+    template<class Market, std::size_t n_buy_amounts, std::size_t n_sell_fracs> using long_trade_manager =
+            trade_manager<long_trade, Market, n_buy_amounts, n_sell_fracs>;
 }
 
 #endif //BACKTESTING_VARYING_SIZE_TRADE_MANAGER_HPP

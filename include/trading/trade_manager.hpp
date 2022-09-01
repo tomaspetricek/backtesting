@@ -12,7 +12,7 @@
 namespace trading {
     // to avoid use of virtual functions CRTP is used
     // src: https://www.fluentcpp.com/2017/05/12/curiously-recurring-template-pattern/
-    template<typename Trade, typename ConcreteTradeManager>
+    template<class Trade, class Market, class ConcreteTradeManager>
     class trade_manager {
         void save_closed_active_trade()
         {
@@ -31,13 +31,24 @@ namespace trading {
 
         void buy(const price_point& point)
         {
-            static_cast<ConcreteTradeManager*>(this)->buy_impl(point);
+            amount_t buy_amount = static_cast<ConcreteTradeManager*>(this)->get_buy_amount();
+
+            if (!this->active_) {
+                auto pos = Trade::create_open_position(buy_amount, point.data, point.time);
+                this->active_ = std::make_optional(long_trade(pos));
+            }
+            else {
+                auto pos = Trade::create_open_position(buy_amount, point.data, point.time);
+                this->active_->add_opened(pos);
+            }
         }
 
         void sell(const price_point& point)
         {
             assert(active_);
-            static_cast<ConcreteTradeManager*>(this)->sell_impl(point);
+            amount_t sell_amount = static_cast<ConcreteTradeManager*>(this)->get_sell_amount();
+            auto pos = Trade::create_close_position(sell_amount, point.data, point.time);
+            this->active_->add_closed(pos);
             if (active_->is_closed()) save_closed_active_trade();
         }
 

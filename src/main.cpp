@@ -52,7 +52,7 @@ void run()
     // create trade manager
     amount_t buy_amount{25};
     fraction sell_frac{1};
-    const_size::long_trade_manager manager{buy_amount, sell_frac};
+    const_size::long_trade_manager<market> manager{buy_amount, sell_frac};
 
     // create initializer
     auto initializer = [manager](int short_period, int middle_period, int long_period) {
@@ -61,7 +61,7 @@ void run()
     };
 
     // create test box
-    auto box = test_box<trader<triple_ema::long_strategy, const_size::long_trade_manager>, int, int, int>(points, initializer);
+    auto box = test_box<trader<triple_ema::long_strategy, const_size::long_trade_manager<market>>, int, int, int>(points, initializer);
 
     // create search space
     int min_short_period{1}, step{1}, shift{1};
@@ -262,7 +262,7 @@ void use_bazooka()
     // create trade manager
     constexpr std::size_t n_sell_fracs{0}; // uses sell all so no sell fractions are needed
     std::array<fraction, n_sell_fracs> sell_fracs{};
-    varying_size::long_trade_manager<n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs};
+    varying_size::long_trade_manager<market, n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs};
 
     // create trader
     trading::trader trader{strategy, manager};

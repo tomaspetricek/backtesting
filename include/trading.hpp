@@ -11,7 +11,7 @@
 #include <trading/bazooka/indicator_values_writer.hpp>
 #include <trading/bazooka/long_strategy.hpp>
 #include <trading/bazooka/short_strategy.hpp>
-#include <trading/binance/spot/market.hpp>
+#include <trading/binance/futures/market.hpp>
 #include <trading/const_size/trade_manager.hpp>
 #include <trading/indicator/ema.hpp>
 #include <trading/indicator/moving_average.hpp>
@@ -49,6 +49,7 @@
 #include <trading/table.hpp>
 #include <trading/test_box.hpp>
 #include <trading/long_trade.hpp>
+#include <trading/market.hpp>
 #include <trading/trader.hpp>
 #include <trading/tuple.hpp>
 #include <strong_type.hpp>

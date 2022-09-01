@@ -10,10 +10,10 @@
 #include <trading/data_point.hpp>
 
 namespace trading::const_size {
-    template<typename Trade>
-    class trade_manager : public trading::trade_manager<Trade, const_size::trade_manager<Trade>> {
+    template<class Trade, class Market>
+    class trade_manager : public trading::trade_manager<Trade, Market, const_size::trade_manager<Trade, Market>> {
         // necessary for use of CRTP (The Curiously Recurring Template Pattern)
-        friend class trading::trade_manager<Trade, const_size::trade_manager<Trade>>;
+        friend class trading::trade_manager<Trade, Market, const_size::trade_manager<Trade, Market>>;
         amount_t buy_amount_;
         fraction sell_frac_;
 
@@ -28,23 +28,14 @@ namespace trading::const_size {
         // does not have state
         void reset_state_impl() { }
 
-        void buy_impl(const price_point& point)
+        amount_t get_buy_amount()
         {
-            if (!this->active_) {
-                auto pos = Trade::create_open_position(buy_amount_, point.data, point.time);
-                this->active_ = std::make_optional(long_trade(pos));
-            }
-            else {
-                auto pos = Trade::create_open_position(buy_amount_, point.data, point.time);
-                this->active_->add_opened(pos);
-            }
+            return buy_amount_;
         }
 
-        void sell_impl(const price_point& point)
+        amount_t get_sell_amount()
         {
-            auto sell_size = this->active_->calculate_position_size(sell_frac_);
-            auto pos = Trade::create_close_position(sell_size, point.data, point.time);
-            this->active_->add_closed(pos);
+            return this->active_->calculate_position_size(sell_frac_);
         }
 
     public:
@@ -54,7 +45,7 @@ namespace trading::const_size {
         trade_manager() = default;
     };
 
-    typedef trade_manager<long_trade> long_trade_manager;
+    template<class Market> using long_trade_manager = trade_manager<long_trade, Market>;
 }
 
 #endif //BACKTESTING_TRADE_MANAGER_HPP
