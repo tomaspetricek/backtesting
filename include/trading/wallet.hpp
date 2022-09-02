@@ -11,7 +11,7 @@
 namespace trading {
     class wallet {
     protected:
-        amount_t balance_;
+        amount_t balance_{0.0};
 
         static const amount_t& validate_balance(const amount_t& balance)
         {
@@ -24,6 +24,8 @@ namespace trading {
     public:
         explicit wallet(const amount_t& balance)
                 :balance_(validate_balance(balance)) { }
+
+        wallet() = default;
 
         void withdraw(const amount_t& amount)
         {

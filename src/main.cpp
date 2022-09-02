@@ -52,7 +52,8 @@ void run()
     // create trade manager
     amount_t buy_amount{25};
     fraction sell_frac{1};
-    const_size::long_trade_manager<market> manager{buy_amount, sell_frac};
+    market::wallet_type wallet{amount_t{100000}};
+    const_size::long_trade_manager<market> manager{wallet, buy_amount, sell_frac};
 
     // create initializer
     auto initializer = [manager](int short_period, int middle_period, int long_period) {
@@ -262,7 +263,8 @@ void use_bazooka()
     // create trade manager
     constexpr std::size_t n_sell_fracs{0}; // uses sell all so no sell fractions are needed
     std::array<fraction, n_sell_fracs> sell_fracs{};
-    varying_size::long_trade_manager<market, n_levels, n_sell_fracs> manager{buy_amounts, sell_fracs};
+    market::wallet_type wallet{amount_t{100000}};
+    varying_size::long_trade_manager<market, n_levels, n_sell_fracs> manager{wallet, buy_amounts, sell_fracs};
 
     // create trader
     trading::trader trader{strategy, manager};

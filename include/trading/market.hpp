@@ -16,19 +16,19 @@ namespace trading {
     public:
         using wallet_type = trading::wallet;
 
-        template<class Trade>
-        static typename Trade::position_type
+        template<class Position>
+        static Position
         create_open_position(wallet_type& wallet, amount_t sold, const price_t& price, const ptime& created)
         {
             wallet.withdraw(sold);
-            return Trade::create_open_position(sold, price, created);
+            return Position::create_open(sold, price, created);
         }
 
-        template<class Trade>
-        static typename Trade::position_type
+        template<class Position>
+        static Position
         create_close_position(wallet_type& wallet, amount_t sold, const price_t& price, const ptime& created)
         {
-            auto pos = Trade::create_close_position(sold, price, created);
+            auto pos = Position::create_close(sold, price, created);
             wallet.deposit(pos.bought());
             return pos;
         }

@@ -59,18 +59,6 @@ namespace trading {
             return amount_t{value_of(size_)*static_cast<double>(trade_frac)};
         }
 
-        static long_position
-        create_open_position(amount_t sold, const price_t& price, const boost::posix_time::ptime& created)
-        {
-            return long_position::create_open(sold, price, created);
-        }
-
-        static long_position
-        create_close_position(amount_t sold, const price_t& price, const boost::posix_time::ptime& created)
-        {
-            return long_position::create_close(sold, price, created);
-        }
-
         const amount_t& size() const
         {
             return size_;

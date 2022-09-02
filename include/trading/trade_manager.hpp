@@ -26,19 +26,27 @@ namespace trading {
     protected:
         std::optional<Trade> active_;
         std::vector<Trade> closed_;
+        typename Market::wallet_type wallet_;
 
         explicit trade_manager() = default;
+
+        explicit trade_manager(const typename Market::wallet_type& wallet)
+                :wallet_(wallet) { }
+
+    protected:
 
         void buy(const price_point& point)
         {
             amount_t buy_amount = static_cast<ConcreteTradeManager*>(this)->get_buy_amount();
 
             if (!this->active_) {
-                auto pos = Trade::create_open_position(buy_amount, point.data, point.time);
+                auto pos = Market::template create_open_position<typename Trade::position_type>(wallet_, buy_amount,
+                        point.data, point.time);
                 this->active_ = std::make_optional(long_trade(pos));
             }
             else {
-                auto pos = Trade::create_open_position(buy_amount, point.data, point.time);
+                auto pos = Market::template create_open_position<typename Trade::position_type>(wallet_, buy_amount, point.data,
+                        point.time);
                 this->active_->add_opened(pos);
             }
         }
@@ -47,7 +55,8 @@ namespace trading {
         {
             assert(active_);
             amount_t sell_amount = static_cast<ConcreteTradeManager*>(this)->get_sell_amount();
-            auto pos = Trade::create_close_position(sell_amount, point.data, point.time);
+            auto pos = Market::template create_close_position<typename Trade::position_type>(wallet_, sell_amount,
+                    point.data, point.time);
             this->active_->add_closed(pos);
             if (active_->is_closed()) save_closed_active_trade();
         }
@@ -55,7 +64,8 @@ namespace trading {
         void sell_all(const price_point& point)
         {
             assert(active_);
-            auto pos = Trade::create_close_position(this->active_->size(), point.data, point.time);
+            auto pos = Market::template create_close_position<typename Trade::position_type>(wallet_,
+                    this->active_->size(), point.data, point.time);
             this->active_->add_closed(pos);
             save_closed_active_trade();
         }
