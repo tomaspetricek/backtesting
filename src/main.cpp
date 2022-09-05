@@ -12,6 +12,7 @@ using namespace currency;
 using namespace optimizer;
 using namespace indicator;
 using namespace io;
+using namespace binance;
 
 std::vector<price_point> get_mean_price_points(csv::reader<candle, long, double, double, double, double>& reader,
         const std::function<price_t(candle)>& mean_pricer)
@@ -49,11 +50,15 @@ void run()
                                                                      trading::view::candle_deserializer};
     auto points = get_mean_price_points(reader, candle::ohlc4);
 
+    // create market factory
+    std::size_t leverage{1};
+    futures::factory factory{leverage};
+
     // create trade manager
     amount_t buy_amount{25};
     fraction sell_frac{1};
-    market::wallet_type wallet{amount_t{100000}};
-    const_size::long_trade_manager<market> manager{wallet, buy_amount, sell_frac};
+    trading::wallet wallet{amount_t{100000}};
+    const_size::long_trade_manager<futures::factory> manager{wallet, factory, buy_amount, sell_frac};
 
     // create initializer
     auto initializer = [manager](int short_period, int middle_period, int long_period) {
@@ -62,13 +67,15 @@ void run()
     };
 
     // create test box
-    auto box = test_box<trader<triple_ema::long_strategy, const_size::long_trade_manager<market>>, int, int, int>(points, initializer);
+    auto box = test_box<trader<triple_ema::long_strategy, const_size::long_trade_manager<futures::factory>>, int, int, int>(
+            points, initializer);
 
     // create search space
     int min_short_period{1}, step{1}, shift{1};
     int max_short_period{150+step}; // make inclusive
 
-    auto sliding_search_space = [min_short_period, max_short_period, step, shift]() -> cppcoro::generator<std::tuple<int, int, int>> {
+    auto sliding_search_space = [min_short_period, max_short_period, step, shift]()
+            -> cppcoro::generator<std::tuple<int, int, int>> {
         int max_middle_period{max_short_period+shift};
         int max_long_period{max_short_period+2*shift};
 
@@ -147,7 +154,7 @@ void use_optimizer()
 
     // create objective function
     auto volume = [](int len, int width, int depth) {
-        #pragma omp critical
+#pragma omp critical
         {
             std::cout << len*width*depth << std::endl;
         }
@@ -205,7 +212,8 @@ void save_data_points(Trader trader)
     // save mean price points
     csv::writer<price_point, time_t, double> mean_points_writer{{"../data/out/mean_price_points.csv"},
                                                                 point_serializer};
-    std::string mean_price_label = label(*(mean_pricer.target<price_t(
+    std::string
+    mean_price_label = label(*(mean_pricer.target<price_t(
     const candle&)>()));
     mean_points_writer({"time", mean_price_label}, mean_points);
 
@@ -260,11 +268,16 @@ void use_bazooka()
     const indicator::sma& exit_sma{entry_sma};
     bazooka::long_strategy<sma, sma, n_levels> strategy{entry_sma, exit_sma, levels};
 
+    // create market factory
+    std::size_t leverage{2};
+    futures::factory factory{leverage};
+
     // create trade manager
     constexpr std::size_t n_sell_fracs{0}; // uses sell all so no sell fractions are needed
     std::array<fraction, n_sell_fracs> sell_fracs{};
-    market::wallet_type wallet{amount_t{100000}};
-    varying_size::long_trade_manager<market, n_levels, n_sell_fracs> manager{wallet, buy_amounts, sell_fracs};
+    trading::wallet wallet{amount_t{100000}};
+    varying_size::long_trade_manager<futures::factory, n_levels, n_sell_fracs> manager{wallet, factory, buy_amounts,
+                                                                                       sell_fracs};
 
     // create trader
     trading::trader trader{strategy, manager};

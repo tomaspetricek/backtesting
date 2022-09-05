@@ -16,6 +16,7 @@
 
 namespace trading {
     class long_trade {
+    protected:
         std::vector<long_position> opened_;
         std::vector<long_position> closed_;
         amount_t size_{0.0};

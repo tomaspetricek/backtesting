@@ -10,10 +10,11 @@
 #include <trading/data_point.hpp>
 
 namespace trading::const_size {
-    template<class Trade, class Market>
-    class trade_manager : public trading::trade_manager<Trade, Market, const_size::trade_manager<Trade, Market>> {
+    template<class Trade, class MarketFactory>
+    class trade_manager
+            : public trading::trade_manager<Trade, MarketFactory, const_size::trade_manager<Trade, MarketFactory>> {
         // necessary for use of CRTP (The Curiously Recurring Template Pattern)
-        friend class trading::trade_manager<Trade, Market, const_size::trade_manager<Trade, Market>>;
+        friend class trading::trade_manager<Trade, MarketFactory, const_size::trade_manager<Trade, MarketFactory>>;
         amount_t buy_amount_;
         fraction sell_frac_;
 
@@ -38,15 +39,18 @@ namespace trading::const_size {
             return this->active_->calculate_position_size(sell_frac_);
         }
 
+        using wallet_type = typename MarketFactory::market_type::wallet_type;
+
     public:
-        trade_manager(const typename Market::wallet_type& wallet, const amount_t& buy_amount, const fraction& sell_frac)
-                :trading::trade_manager<Trade, Market, const_size::trade_manager<Trade, Market>>(wallet),
-                 buy_amount_(buy_amount), sell_frac_(sell_frac) { }
+        trade_manager(const wallet_type& wallet, const MarketFactory& factory, const amount_t& buy_amount,
+                const fraction& sell_frac)
+                :trading::trade_manager<Trade, MarketFactory, const_size::trade_manager<Trade, MarketFactory>>
+                (wallet, factory), buy_amount_(buy_amount), sell_frac_(sell_frac) { }
 
         trade_manager() = default;
     };
 
-    template<class Market> using long_trade_manager = trade_manager<long_trade, Market>;
+    template<class MarketFactory> using long_trade_manager = trade_manager<long_trade, MarketFactory>;
 }
 
 #endif //BACKTESTING_TRADE_MANAGER_HPP

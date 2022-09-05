@@ -11,7 +11,10 @@
 #include <trading/bazooka/indicator_values_writer.hpp>
 #include <trading/bazooka/long_strategy.hpp>
 #include <trading/bazooka/short_strategy.hpp>
+#include <trading/binance/futures/factory.hpp>
+#include <trading/binance/futures/long_trade.hpp>
 #include <trading/binance/futures/market.hpp>
+#include <trading/binance/futures/order.hpp>
 #include <trading/const_size/trade_manager.hpp>
 #include <trading/indicator/ema.hpp>
 #include <trading/indicator/moving_average.hpp>

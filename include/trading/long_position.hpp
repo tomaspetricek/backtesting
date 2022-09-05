@@ -10,7 +10,7 @@
 namespace trading {
     class long_position : public position {
     protected:
-        long_position(amount_t sold, const amount_t bought, const price_t& price,
+        explicit long_position(amount_t sold, const amount_t bought, const price_t& price,
                 const boost::posix_time::ptime& created)
                 :position{sold, bought, price, created} { }
 
@@ -19,17 +19,16 @@ namespace trading {
         create_close(amount_t sold, const trading::price_t& price, const boost::posix_time::ptime& created)
         {
             assert(sold>amount_t{0});
-            return {sold, amount_t{value_of(sold)*value_of(price)}, price, created};
+            return long_position{sold, amount_t{value_of(sold)*value_of(price)}, price, created};
         }
 
         static long_position
         create_open(amount_t sold, const trading::price_t& price, const boost::posix_time::ptime& created)
         {
             assert(sold>amount_t{0});
-            return {sold, amount_t{value_of(sold)/value_of(price)}, price, created};
+            return long_position{sold, amount_t{value_of(sold)/value_of(price)}, price, created};
         }
     };
-
 }
 
 #endif //EMASTRATEGY_LONG_POSITION_HPP
