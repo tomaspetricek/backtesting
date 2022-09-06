@@ -49,10 +49,8 @@ namespace trading::varying_size {
             return this->active_->calculate_position_size(sell_fracs_[curr_sell_++]);
         }
 
-        using wallet_type = typename MarketFactory::market_type::wallet_type;
-
     public:
-        trade_manager(const wallet_type& wallet, const MarketFactory& factory,
+        trade_manager(const trading::wallet& wallet, const MarketFactory& factory,
                 const std::array<amount_t, n_buy_amounts>& buy_amounts,
                 const std::array<fraction, n_sell_fracs>& sell_fracs)
                 :trading::trade_manager<Trade, MarketFactory, trade_manager<Trade, MarketFactory, n_buy_amounts, n_sell_fracs>>

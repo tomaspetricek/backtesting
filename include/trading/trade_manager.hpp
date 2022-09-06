@@ -25,17 +25,16 @@ namespace trading {
         }
 
         using market_type = typename MarketFactory::market_type;
-        using wallet_type = typename market_type::wallet_type;
 
     protected:
         std::optional<Trade> active_;
         std::vector<Trade> closed_;
-        wallet_type wallet_;
+        trading::wallet wallet_;
         MarketFactory factory_;
 
         trade_manager() = default;
 
-        trade_manager(const wallet_type& wallet, const MarketFactory& factory)
+        trade_manager(const trading::wallet& wallet, const MarketFactory& factory)
                 :wallet_(wallet), factory_(factory) { }
 
     protected:
@@ -43,13 +42,12 @@ namespace trading {
         {
             amount_t buy_amount = static_cast<ConcreteTradeManager*>(this)->get_buy_amount();
             auto order = factory_.create_order(buy_amount, point.data, point.time);
+            auto pos = market_type::template create_open_position<typename Trade::position_type>(wallet_, order);
 
             if (!this->active_) {
-                auto pos = market_type::template create_open_position<typename Trade::position_type>(wallet_, order);
                 this->active_ = std::make_optional(long_trade(pos));
             }
             else {
-                auto pos = market_type::template create_open_position<typename Trade::position_type>(wallet_, order);
                 this->active_->add_opened(pos);
             }
         }

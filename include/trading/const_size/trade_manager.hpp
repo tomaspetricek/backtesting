@@ -39,10 +39,8 @@ namespace trading::const_size {
             return this->active_->calculate_position_size(sell_frac_);
         }
 
-        using wallet_type = typename MarketFactory::market_type::wallet_type;
-
     public:
-        trade_manager(const wallet_type& wallet, const MarketFactory& factory, const amount_t& buy_amount,
+        trade_manager(const trading::wallet& wallet, const MarketFactory& factory, const amount_t& buy_amount,
                 const fraction& sell_frac)
                 :trading::trade_manager<Trade, MarketFactory, const_size::trade_manager<Trade, MarketFactory>>
                 (wallet, factory), buy_amount_(buy_amount), sell_frac_(sell_frac) { }

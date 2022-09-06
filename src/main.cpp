@@ -174,7 +174,7 @@ void use_optimizer()
     optim();
 }
 
-template<class Factory, class Trader>
+template<class StrategyFactory, class Trader>
 void save_data_points(Trader trader)
 {
     // get price points
@@ -187,7 +187,7 @@ void save_data_points(Trader trader)
     auto mean_points = get_mean_price_points(reader, mean_pricer);
 
     // collect indicator value
-    std::vector<data_point<typename Factory::indicator_values_type>> indics_values;
+    std::vector<data_point<typename StrategyFactory::indicator_values_type>> indics_values;
 
     for (const auto& point: mean_points) {
         trader(point);
@@ -218,7 +218,7 @@ void save_data_points(Trader trader)
     mean_points_writer({"time", mean_price_label}, mean_points);
 
     // save indicator values
-    auto indics_writer{Factory::create_indicator_values_writer({"../data/out/indicator_values.csv"})};
+    auto indics_writer{StrategyFactory::create_indicator_values_writer({"../data/out/indicator_values.csv"})};
     indics_writer(trader.strategy(), indics_values);
 
     // save position points
@@ -275,7 +275,7 @@ void use_bazooka()
     // create trade manager
     constexpr std::size_t n_sell_fracs{0}; // uses sell all so no sell fractions are needed
     std::array<fraction, n_sell_fracs> sell_fracs{};
-    trading::wallet wallet{amount_t{100000}};
+    trading::wallet wallet{amount_t{100}};
     varying_size::long_trade_manager<futures::factory, n_levels, n_sell_fracs> manager{wallet, factory, buy_amounts,
                                                                                        sell_fracs};
 

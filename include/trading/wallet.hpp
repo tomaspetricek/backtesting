@@ -42,6 +42,11 @@ namespace trading {
             assert(value_of(amount)>0);
             balance_ += amount;
         }
+
+        const amount_t& balance() const
+        {
+            return balance_;
+        }
     };
 }
 

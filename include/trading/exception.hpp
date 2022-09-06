@@ -23,8 +23,8 @@ namespace trading {
 
     class bad_formatting : public std::runtime_error {
     public:
-        explicit bad_formatting(const std::string& string)
-                :runtime_error(string) { }
+        explicit bad_formatting(const std::string& msg)
+                :runtime_error(msg) { }
 
         ~bad_formatting() noexcept override = default;
 
@@ -50,8 +50,8 @@ namespace trading {
 
     class insufficient_balance : public std::runtime_error {
     public:
-        explicit insufficient_balance()
-                :std::runtime_error("Not enough balance to perform operation") { }
+        explicit insufficient_balance(const std::string& msg = "Not enough balance to perform operation")
+                :std::runtime_error(msg) { }
 
         ~insufficient_balance() noexcept override = default;
 
