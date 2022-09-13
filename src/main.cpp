@@ -1,10 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include <type_traits>
-
 #include <fmt/core.h>
-
 #include <trading.hpp>
 
 using namespace trading;
@@ -50,15 +47,20 @@ void run()
                                                                      trading::view::candle_deserializer};
     auto points = get_mean_price_points(reader, candle::ohlc4);
 
-    // create market factory
-    std::size_t leverage{1};
-    futures::factory factory{leverage};
+    // create order factory
+    spot::order_factory order_factory;
+
+    // create market
+    spot::market market;
 
     // create trade manager
     amount_t buy_amount{25};
     fraction sell_frac{1};
     trading::wallet wallet{amount_t{100000}};
-    const_size::long_trade_manager<futures::factory> manager{wallet, factory, buy_amount, sell_frac};
+    const_size::trade_manager<spot::position, spot::market, spot::order_factory> manager{wallet, market,
+                                                                                                  order_factory,
+                                                                                                  buy_amount,
+                                                                                                  sell_frac};
 
     // create initializer
     auto initializer = [manager](int short_period, int middle_period, int long_period) {
@@ -67,7 +69,7 @@ void run()
     };
 
     // create test box
-    auto box = test_box<trader<triple_ema::long_strategy, const_size::long_trade_manager<futures::factory>>, int, int, int>(
+    auto box = test_box<trader<triple_ema::long_strategy, const_size::trade_manager<spot::position, spot::market, spot::order_factory>>, int, int, int>(
             points, initializer);
 
     // create search space
@@ -197,10 +199,7 @@ void save_data_points(Trader trader)
     }
 
     // close active trade
-    trader.try_closing_active_trade(mean_points.back());
-
-    // retrieve closed trades
-    std::vector<long_trade> closed_trades = trader.retrieve_closed_trades();
+    trader.try_closing_active_position(mean_points.back());
 
     // create point serializer
     auto point_serializer = [](const price_point& point) {
@@ -212,8 +211,7 @@ void save_data_points(Trader trader)
     // save mean price points
     csv::writer<price_point, time_t, double> mean_points_writer{{"../data/out/mean_price_points.csv"},
                                                                 point_serializer};
-    std::string
-    mean_price_label = label(*(mean_pricer.target<price_t(
+    std::string mean_price_label = label(*(mean_pricer.target<price_t(
     const candle&)>()));
     mean_points_writer({"time", mean_price_label}, mean_points);
 
@@ -222,17 +220,14 @@ void save_data_points(Trader trader)
     indics_writer(trader.strategy(), indics_values);
 
     // save position points
-    std::vector<price_point> open_points;
-    std::vector<price_point> closed_points;
+    std::vector<price_point> open_points, closed_points;
 
     // extract price points
-    for (const auto& close_trade: closed_trades) {
-        for (const auto& open_position: close_trade.get_open_positions())
-            open_points.emplace_back(open_position.created(), open_position.price());
+    for (const auto& open_order: trader.open_orders())
+        open_points.emplace_back(open_order.created, open_order.price);
 
-        for (const auto& close_position: close_trade.get_closed_positions())
-            closed_points.emplace_back(close_position.created(), close_position.price());
-    }
+    for (const auto& close_order: trader.close_orders())
+        closed_points.emplace_back(close_order.created, close_order.price);
 
     std::array<std::string, 2> pos_col_names{"time", "price"};
 
@@ -268,22 +263,43 @@ void use_bazooka()
     const indicator::sma& exit_sma{entry_sma};
     bazooka::long_strategy<sma, sma, n_levels> strategy{entry_sma, exit_sma, levels};
 
-    // create market factory
-    std::size_t leverage{2};
-    futures::factory factory{leverage};
+    // create order factory
+    spot::order_factory order_factory;
+
+    // create market
+    spot::market market;
 
     // create trade manager
     constexpr std::size_t n_sell_fracs{0}; // uses sell all so no sell fractions are needed
     std::array<fraction, n_sell_fracs> sell_fracs{};
-    trading::wallet wallet{amount_t{100}};
-    varying_size::long_trade_manager<futures::factory, n_levels, n_sell_fracs> manager{wallet, factory, buy_amounts,
-                                                                                       sell_fracs};
+    trading::wallet wallet{amount_t{100000}};
+    varying_size::trade_manager<spot::position, spot::market, spot::order_factory, n_levels, n_sell_fracs> manager{wallet,
+                                                                                                              market,
+                                                                                                              order_factory,
+                                                                                                              buy_amounts,
+                                                                                                              sell_fracs};
 
     // create trader
     trading::trader trader{strategy, manager};
 
     // save data points
     save_data_points<bazooka::factory<n_levels>>(trader);
+}
+
+void use_position() {
+    // create open trades
+    binance::spot::position pos{trade::create_open(amount_t{20}, price_t{100}, ptime())};
+    pos.add_open(trade::create_open(amount_t{20}, price_t{1000}, ptime()));
+    pos.add_open(trade::create_open(amount_t{20}, price_t{300}, ptime()));
+
+    // create close trades
+    pos.add_close(trade::create_close(amount_t{value_of(pos.size())/2}, price_t{2500}, ptime()));
+    pos.add_close(trade::create_close(pos.size(), price_t{6000}, ptime()));
+    assert(pos.is_closed());
+
+    // print profits
+    fmt::print("{:.2f}\n", value_of(pos.realized_profit<amount_t>()-pos.invested()));
+    fmt::print("{:.2f} %", value_of(pos.realized_profit<percent_t>()-percent_t{1.0})*100);
 }
 
 int main()
@@ -294,6 +310,7 @@ int main()
     use_interval();
     use_optimizer();
     use_bazooka();
+    use_position();
 
     // run program
     try {
@@ -304,5 +321,5 @@ int main()
         print_exception(ex);
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }

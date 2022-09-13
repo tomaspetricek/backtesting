@@ -13,19 +13,19 @@ namespace trading {
     protected:
         bool indics_ready_ = false;
 
-        bool should_buy(const price_t& curr)
+        bool should_open(const price_t& curr)
         {
-            return static_cast<ConcreteStrategy*>(this)->should_buy_impl(curr);
+            return static_cast<ConcreteStrategy*>(this)->should_open_impl(curr);
         }
 
-        bool should_sell(const price_t& curr)
+        bool should_close(const price_t& curr)
         {
-            return static_cast<ConcreteStrategy*>(this)->should_sell_impl(curr);
+            return static_cast<ConcreteStrategy*>(this)->should_close_impl(curr);
         }
 
-        bool should_sell_all(const price_t& curr)
+        bool should_close_all(const price_t& curr)
         {
-            return static_cast<ConcreteStrategy*>(this)->should_sell_all_impl(curr);
+            return static_cast<ConcreteStrategy*>(this)->should_close_all_impl(curr);
         }
 
     public:

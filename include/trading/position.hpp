@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 05.07.2022.
 //
 
-#ifndef EMASTRATEGY_POSITION_HPP
-#define EMASTRATEGY_POSITION_HPP
+#ifndef BACKTESTING_POSITION_HPP
+#define BACKTESTING_POSITION_HPP
 
 #include <ostream>
 
@@ -13,40 +13,38 @@
 #include <trading/price_t.hpp>
 #include <trading/currency.hpp>
 #include <trading/amount_t.hpp>
+#include <trading/trade.hpp>
 
 namespace trading {
     class position {
     protected:
-        amount_t sold_;
-        amount_t bought_;
-        price_t price_;
-        boost::posix_time::ptime created_;
+        amount_t size_;
+        std::vector<trade> trades_;
+        amount_t invested_{0.0};
+        bool is_opened_{true};
+        amount_t realized_profit_{0.0};
 
-    protected:
-        explicit position(amount_t sold, const amount_t bought, const price_t& price,
-                const boost::posix_time::ptime& created)
-                :sold_(sold), bought_(bought), price_(price), created_(created) { }
+        explicit position(const trade& open)
+                :size_{open.bought}, invested_{open.sold}, trades_{{open}} { }
+
+        position() = default;
 
     public:
-        const price_t& price() const
+        bool is_closed() const
         {
-            return price_;
+            return !is_opened_;
         }
 
-        boost::posix_time::ptime created() const
+        const amount_t& size() const
         {
-            return created_;
+            return size_;
         }
 
-        amount_t sold() const
+        const amount_t& invested() const
         {
-            return sold_;
-        }
-        amount_t bought() const
-        {
-            return bought_;
+            return invested_;
         }
     };
 }
 
-#endif //EMASTRATEGY_POSITION_HPP
+#endif //BACKTESTING_POSITION_HPP

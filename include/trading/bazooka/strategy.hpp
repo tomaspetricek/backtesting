@@ -17,6 +17,7 @@
 #include <trading/exception.hpp>
 #include <trading/bazooka/indicator_values.hpp>
 #include <trading/percent_t.hpp>
+#include <trading/index_t.hpp>
 
 namespace trading::bazooka {
     // entry levels: 0 - first level, n_levels-1 - last level
@@ -72,7 +73,7 @@ namespace trading::bazooka {
             return baseline*value_of(entry_levels_[level]);
         }
 
-        bool should_buy_impl(const price_t& curr)
+        bool should_open_impl(const price_t& curr)
         {
             // all levels passed
             if (curr_level_==n_levels)
@@ -92,12 +93,12 @@ namespace trading::bazooka {
         }
 
         // it does not sell fractions, so it's always false
-        bool should_sell_impl(const price_t&)
+        bool should_close_impl(const price_t&)
         {
             return false;
         }
 
-        bool should_sell_all_impl(const price_t& curr)
+        bool should_close_all_impl(const price_t& curr)
         {
             // hasn't opened any positions yet
             if (!curr_level_)

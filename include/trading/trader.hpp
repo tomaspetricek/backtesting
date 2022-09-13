@@ -23,14 +23,14 @@ namespace trading {
 
             if (!this->indics_ready_) return;
 
-            if (this->should_buy(point.data)) {
-                this->buy(point);
+            if (this->should_open(point.data)) {
+                this->open_order(point);
             }
-            else if (this->should_sell(point.data)) {
-                this->sell(point);
+            else if (this->should_close(point.data)) {
+                this->close_order(point);
             }
-            else if (this->should_sell_all(point.data)) {
-                this->sell_all(point);
+            else if (this->should_close_all(point.data)) {
+                this->close_all_order(point);
             }
         }
 

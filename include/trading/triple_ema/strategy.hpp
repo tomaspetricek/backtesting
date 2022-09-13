@@ -36,7 +36,7 @@ namespace trading::triple_ema {
                 this->indics_ready_ = true;
         }
 
-        bool should_buy_impl(const price_t&)
+        bool should_open_impl(const price_t&)
         {
             // position already opened
             if (pos_opened_) return false;
@@ -53,7 +53,7 @@ namespace trading::triple_ema {
             return false;
         }
 
-        bool should_sell_impl(const price_t&)
+        bool should_close_impl(const price_t&)
         {
             // position is not open yet, so there is nothing to sell
             if (!pos_opened_) return false;
@@ -69,7 +69,7 @@ namespace trading::triple_ema {
             return false;
         }
 
-        bool should_sell_all_impl(const price_t&)
+        bool should_close_all_impl(const price_t&)
         {
             return false;
         }

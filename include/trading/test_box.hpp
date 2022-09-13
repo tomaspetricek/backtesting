@@ -11,7 +11,6 @@
 #include <trading/indicator/ema.hpp>
 #include <trading/currency.hpp>
 #include <trading/position.hpp>
-#include <trading/long_trade.hpp>
 #include <trading/fraction.hpp>
 #include <trading/data_point.hpp>
 #include <trading/currency.hpp>
@@ -19,20 +18,19 @@
 namespace trading {
     template<class Trader, typename ...Args>
     class test_box {
-        std::vector<price_point> price_points_;
+        std::vector<price_point> points_;
         std::function<Trader(Args...)> initializer_;
 
     public:
-        explicit test_box(std::vector<price_point> price_points,
+        explicit test_box(std::vector<price_point> points,
                 std::function<Trader(Args...)> initializer)
-                :price_points_(std::move(price_points)),
-                 initializer_(initializer) { }
+                :points_(std::move(points)), initializer_(initializer) { }
 
         void operator()(Args... args)
         {
             Trader trader;
 
-            // create strategy
+            // create trader
             try {
                 trader = initializer_(args...);
             }
@@ -41,11 +39,11 @@ namespace trading {
             }
 
             // collect trades
-            for (const auto& point: price_points_)
+            for (const auto& point: points_)
                 trader(point);
 
             // close active trade
-            trader.try_closing_active_trade(price_points_.back());
+            trader.try_closing_active_position(points_.back());
         }
     };
 }

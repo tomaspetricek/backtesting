@@ -8,7 +8,7 @@
 #include <strong_type.hpp>
 
 namespace trading {
-    using percent_t = strong::type<double, struct percent_tag, strong::ordered, strong::regular>;
+    using percent_t = strong::type<double, struct percent_tag, strong::ordered, strong::regular, strong::arithmetic>;
 }
 
 #endif //EMASTRATEGY_PERCENT_T_HPP

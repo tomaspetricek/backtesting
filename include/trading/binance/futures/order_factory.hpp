@@ -6,19 +6,15 @@
 #define BACKTESTING_FUTURES_FACTORY_HPP
 
 #include <vector>
+#include <trading/amount_t.hpp>
 #include <trading/binance/futures/order.hpp>
-#include <trading/binance/futures/market.hpp>
 
 namespace trading::binance::futures {
-    class factory {
+    class order_factory {
         std::size_t leverage_;
 
     public:
-        using market_type = market;
-
-        factory() = default;
-
-        explicit factory(size_t leverage)
+        explicit order_factory(size_t leverage)
                 :leverage_(leverage) { }
 
         order create_order(const amount_t& sold, const price_t& price, const ptime& created) const
