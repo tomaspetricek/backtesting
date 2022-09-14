@@ -19,7 +19,6 @@
 #include <trading/binance/spot/order.hpp>
 #include <trading/binance/spot/order_factory.hpp>
 #include <trading/binance/spot/position.hpp>
-#include <trading/const_size/trade_manager.hpp>
 #include <trading/indicator/ema.hpp>
 #include <trading/indicator/moving_average.hpp>
 #include <trading/indicator/sma.hpp>
@@ -34,8 +33,8 @@
 #include <trading/triple_ema/short_strategy.hpp>
 #include <trading/triple_ema/strategy.hpp>
 #include <trading/validator/interval.hpp>
-#include <trading/varying_size/trade_manager.hpp>
 #include <trading/view/candle_deserializer.hpp>
+#include <trading/const_sizer.hpp>
 #include <trading/amount_t.hpp>
 #include <trading/money.hpp>
 #include <trading/candle.hpp>
@@ -54,9 +53,11 @@
 #include <trading/side.hpp>
 #include <trading/table.hpp>
 #include <trading/test_box.hpp>
+#include <trading/trade_manager.hpp>
 #include <trading/market.hpp>
 #include <trading/trader.hpp>
 #include <trading/tuple.hpp>
+#include <trading/varying_sizer.hpp>
 #include <strong_type.hpp>
 #include <cppcoro/generator.hpp>
 

@@ -54,10 +54,11 @@ void run()
     trading::wallet wallet{amount_t{100000}};
     spot::market market{wallet};
 
-    // create trade manager
-    amount_t buy_amount{25};
-    fraction sell_frac{1};
-    const_size::trade_manager<spot::market, spot::order_factory> manager{market, order_factory, buy_amount, sell_frac};
+    // create sizer
+    amount_t open_amount{25};
+    fraction close_frac{1};
+    const_sizer sizer{open_amount, close_frac};
+    trade_manager<spot::market, spot::order_factory, const_sizer> manager{market, order_factory, sizer};
 
     // create initializer
     auto initializer = [manager](int short_period, int middle_period, int long_period) {
@@ -66,7 +67,7 @@ void run()
     };
 
     // create test box
-    auto box = test_box<trader<triple_ema::long_strategy, const_size::trade_manager<spot::market, spot::order_factory>>, int, int, int>(
+    auto box = test_box<trader<triple_ema::long_strategy, trade_manager<spot::market, spot::order_factory, const_sizer>>, int, int, int>(
             points, initializer);
 
     // create search space
@@ -249,7 +250,7 @@ void use_bazooka()
     levels[3] = percent_t{1.0-0.15};
 
     // create buy amounts
-    std::array<amount_t, n_levels> buy_amounts{
+    std::array<amount_t, n_levels> open_amounts{
             amount_t{100},
             amount_t{50},
             amount_t{20},
@@ -269,11 +270,13 @@ void use_bazooka()
     trading::wallet wallet{amount_t{100000}};
     futures::long_market market{wallet};
 
+    // create sizer
+    constexpr std::size_t n_close_fracs{0}; // uses sell all so no sell fractions are needed
+    std::array<fraction, n_close_fracs> close_fracs{};
+    varying_sizer<n_levels, n_close_fracs> sizer{open_amounts, close_fracs};
+
     // create trade manager
-    constexpr std::size_t n_sell_fracs{0}; // uses sell all so no sell fractions are needed
-    std::array<fraction, n_sell_fracs> sell_fracs{};
-    varying_size::trade_manager<futures::long_market, futures::order_factory, n_levels, n_sell_fracs> manager
-            {market, order_factory, buy_amounts, sell_fracs};
+    trade_manager<futures::long_market, futures::order_factory, varying_sizer<n_levels, n_close_fracs>> manager{market, order_factory, sizer};
 
     // create trader
     trading::trader trader{strategy, manager};
