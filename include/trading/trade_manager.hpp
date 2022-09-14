@@ -13,10 +13,9 @@
 namespace trading {
     // to avoid use of virtual functions CRTP is used
     // src: https://www.fluentcpp.com/2017/05/12/curiously-recurring-template-pattern/
-    template<class Position, class Market, class OrderFactory, class ConcreteTradeManager>
+    template<class Market, class OrderFactory, class ConcreteTradeManager>
     class trade_manager {
     protected:
-        trading::wallet wallet_;
         Market market_;
         OrderFactory order_factory_;
         std::vector<typename OrderFactory::order_type> open_orders_;
@@ -24,15 +23,15 @@ namespace trading {
 
         trade_manager() = default;
 
-        trade_manager(const trading::wallet& wallet, const Market& market, const OrderFactory& order_factory)
-                :wallet_(wallet), market_(market), order_factory_(order_factory) { }
+        explicit trade_manager(const Market& market, const OrderFactory& order_factory)
+                :market_(market), order_factory_(order_factory) { }
 
     protected:
         void open_order(const price_point& point)
         {
             amount_t buy_amount = static_cast<ConcreteTradeManager*>(this)->get_buy_amount();
             auto order = order_factory_.create_order(buy_amount, point.data, point.time);
-            market_.fill_open_order(wallet_, order);
+            market_.fill_open_order(order);
             open_orders_.emplace_back(order);
         }
 
@@ -40,14 +39,15 @@ namespace trading {
         {
             amount_t sell_amount = static_cast<ConcreteTradeManager*>(this)->get_sell_amount();
             auto order = order_factory_.create_order(sell_amount, point.data, point.time);
-            market_.fill_close_order(wallet_, order);
+            market_.fill_close_order(order);
             close_orders_.emplace_back(order);
         }
 
-        void close_all_order(const price_point& point) {
+        void close_all_order(const price_point& point)
+        {
             amount_t sell_amount = market_.active_position().size();
             auto order = order_factory_.create_order(sell_amount, point.data, point.time);
-            market_.fill_close_order(wallet_, order);
+            market_.fill_close_order(order);
             close_orders_.emplace_back(order);
             static_cast<ConcreteTradeManager*>(this)->reset_state_impl();
         }
@@ -59,7 +59,7 @@ namespace trading {
             if (market_.has_active_position()) close_all_order(point);
         }
 
-        std::vector<Position> closed_positions()
+        std::vector<typename Market::position_type> closed_positions()
         {
             return market_.closed_positions();
         }
@@ -68,9 +68,15 @@ namespace trading {
         {
             return open_orders_;
         }
+
         const std::vector<typename OrderFactory::order_type>& close_orders() const
         {
             return close_orders_;
+        }
+
+        amount_t wallet_balance()
+        {
+            return market_.wallet_balance();
         }
     };
 }

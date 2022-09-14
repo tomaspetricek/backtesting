@@ -14,6 +14,8 @@ namespace trading::binance::futures {
         std::size_t leverage_;
 
     public:
+        using order_type = order;
+
         explicit order_factory(size_t leverage)
                 :leverage_(leverage) { }
 

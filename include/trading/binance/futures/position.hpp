@@ -7,9 +7,11 @@
 
 #include <trading/position.hpp>
 #include <trading/amount_t.hpp>
+#include <trading/binance/futures/direction.hpp>
 
 namespace trading::binance::futures {
-    class position : public trading::position {
+    template<direction direct>
+    class position : public trading::position<position<direct>> {
     protected:
         std::size_t leverage_{1};
 
@@ -24,15 +26,26 @@ namespace trading::binance::futures {
 
     public:
         explicit position(const trade& open, size_t leverage)
-                :trading::position(open), leverage_(validate_leverage(leverage)) { }
+                :trading::position<position<direct>>(open), leverage_(validate_leverage(leverage)) { }
 
         position() = default;
+
+        template<class Type>
+        requires std::same_as<Type, amount_t>
+        amount_t unrealized_profit(const price_t& market)
+        {
+            price_t entry{this->trades_.back().price};
+            return amount_t{((value_of(market)-value_of(entry))*value_of(this->size_))*leverage_*direct};
+        }
 
         size_t leverage() const
         {
             return leverage_;
         }
     };
+
+    using long_position = position<direction::long_>;
+    using short_position = position<direction::short_>;
 }
 
 #endif //BACKTESTING_FUTURES_POSITION_HPP

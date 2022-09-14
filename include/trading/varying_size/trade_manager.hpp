@@ -13,11 +13,11 @@
 typedef std::size_t index_t;
 
 namespace trading::varying_size {
-    template<class Position, class Market, class OrderFactory, std::size_t n_buy_amounts, std::size_t n_sell_fracs>
+    template<class Market, class OrderFactory, std::size_t n_buy_amounts, std::size_t n_sell_fracs>
     class trade_manager
-            : public trading::trade_manager<Position, Market, OrderFactory, trade_manager<Position, Market, OrderFactory, n_buy_amounts, n_sell_fracs>> {
+            : public trading::trade_manager<Market, OrderFactory, trade_manager<Market, OrderFactory, n_buy_amounts, n_sell_fracs>> {
         // necessary for use of CRTP (The Curiously Recurring Template Pattern)
-        friend class trading::trade_manager<Position, Market, OrderFactory, trade_manager<Position, Market, OrderFactory, n_buy_amounts, n_sell_fracs>>;
+        friend class trading::trade_manager<Market, OrderFactory, trade_manager<Market, OrderFactory, n_buy_amounts, n_sell_fracs>>;
         std::array<amount_t, n_buy_amounts> buy_amounts_;
         std::array<fraction, n_sell_fracs> sell_fracs_;
         index_t curr_buy_{0};
@@ -50,17 +50,13 @@ namespace trading::varying_size {
         }
 
     public:
-        trade_manager(const trading::wallet& wallet, const Market& market, const OrderFactory& order_factory,
-                const std::array<amount_t, n_buy_amounts>& buy_amounts,
+        trade_manager(const Market& market, const OrderFactory& order_factory, const std::array<amount_t, n_buy_amounts>& buy_amounts,
                 const std::array<fraction, n_sell_fracs>& sell_fracs)
-                :trading::trade_manager<Position, Market, OrderFactory, trade_manager<Position, Market, OrderFactory, n_buy_amounts, n_sell_fracs>>
-                         (wallet, market, order_factory), buy_amounts_(buy_amounts), sell_fracs_(sell_fracs) { }
+                :trading::trade_manager<Market, OrderFactory, trade_manager<Market, OrderFactory, n_buy_amounts, n_sell_fracs>>
+                         (market, order_factory), buy_amounts_(buy_amounts), sell_fracs_(sell_fracs) { }
 
         trade_manager() = default;
     };
-
-//    template<class Market, class OrderFactory, std::size_t n_buy_amounts, std::size_t n_sell_fracs> using long_trade_manager =
-//            trade_manager<long_position, Market, OrderFactory, n_buy_amounts, n_sell_fracs>;
 }
 
 #endif //BACKTESTING_VARYING_SIZE_TRADE_MANAGER_HPP

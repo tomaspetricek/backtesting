@@ -51,16 +51,13 @@ void run()
     spot::order_factory order_factory;
 
     // create market
-    spot::market market;
+    trading::wallet wallet{amount_t{100000}};
+    spot::market market{wallet};
 
     // create trade manager
     amount_t buy_amount{25};
     fraction sell_frac{1};
-    trading::wallet wallet{amount_t{100000}};
-    const_size::trade_manager<spot::position, spot::market, spot::order_factory> manager{wallet, market,
-                                                                                                  order_factory,
-                                                                                                  buy_amount,
-                                                                                                  sell_frac};
+    const_size::trade_manager<spot::market, spot::order_factory> manager{market, order_factory, buy_amount, sell_frac};
 
     // create initializer
     auto initializer = [manager](int short_period, int middle_period, int long_period) {
@@ -69,7 +66,7 @@ void run()
     };
 
     // create test box
-    auto box = test_box<trader<triple_ema::long_strategy, const_size::trade_manager<spot::position, spot::market, spot::order_factory>>, int, int, int>(
+    auto box = test_box<trader<triple_ema::long_strategy, const_size::trade_manager<spot::market, spot::order_factory>>, int, int, int>(
             points, initializer);
 
     // create search space
@@ -156,7 +153,7 @@ void use_optimizer()
 
     // create objective function
     auto volume = [](int len, int width, int depth) {
-#pragma omp critical
+        #pragma omp critical
         {
             std::cout << len*width*depth << std::endl;
         }
@@ -211,7 +208,8 @@ void save_data_points(Trader trader)
     // save mean price points
     csv::writer<price_point, time_t, double> mean_points_writer{{"../data/out/mean_price_points.csv"},
                                                                 point_serializer};
-    std::string mean_price_label = label(*(mean_pricer.target<price_t(
+    std::string
+    mean_price_label = label(*(mean_pricer.target<price_t(
     const candle&)>()));
     mean_points_writer({"time", mean_price_label}, mean_points);
 
@@ -264,20 +262,18 @@ void use_bazooka()
     bazooka::long_strategy<sma, sma, n_levels> strategy{entry_sma, exit_sma, levels};
 
     // create order factory
-    spot::order_factory order_factory;
+    std::size_t leverage{10};
+    futures::order_factory order_factory{leverage};
 
     // create market
-    spot::market market;
+    trading::wallet wallet{amount_t{100000}};
+    futures::long_market market{wallet};
 
     // create trade manager
     constexpr std::size_t n_sell_fracs{0}; // uses sell all so no sell fractions are needed
     std::array<fraction, n_sell_fracs> sell_fracs{};
-    trading::wallet wallet{amount_t{100000}};
-    varying_size::trade_manager<spot::position, spot::market, spot::order_factory, n_levels, n_sell_fracs> manager{wallet,
-                                                                                                              market,
-                                                                                                              order_factory,
-                                                                                                              buy_amounts,
-                                                                                                              sell_fracs};
+    varying_size::trade_manager<futures::long_market, futures::order_factory, n_levels, n_sell_fracs> manager
+            {market, order_factory, buy_amounts, sell_fracs};
 
     // create trader
     trading::trader trader{strategy, manager};
@@ -286,20 +282,37 @@ void use_bazooka()
     save_data_points<bazooka::factory<n_levels>>(trader);
 }
 
-void use_position() {
+void use_spot_position()
+{
     // create open trades
     binance::spot::position pos{trade::create_open(amount_t{20}, price_t{100}, ptime())};
     pos.add_open(trade::create_open(amount_t{20}, price_t{1000}, ptime()));
     pos.add_open(trade::create_open(amount_t{20}, price_t{300}, ptime()));
 
     // create close trades
-    pos.add_close(trade::create_close(amount_t{value_of(pos.size())/2}, price_t{2500}, ptime()));
-    pos.add_close(trade::create_close(pos.size(), price_t{6000}, ptime()));
+    pos.add_close(trade::create_close(pos.size(), price_t{2500}, ptime()));
     assert(pos.is_closed());
 
     // print profits
     fmt::print("{:.2f}\n", value_of(pos.realized_profit<amount_t>()-pos.invested()));
-    fmt::print("{:.2f} %", value_of(pos.realized_profit<percent_t>()-percent_t{1.0})*100);
+    fmt::print("{:.2f} %\n", value_of(pos.realized_profit<percent_t>()-percent_t{1.0})*100);
+}
+
+void use_futures_position()
+{
+    // create open trades
+    std::size_t leverage{10};
+    binance::futures::long_position pos{trade::create_open(amount_t{5}, price_t{100}, ptime()), leverage};
+    pos.add_open(trade::create_open(amount_t{2}, price_t{1000}, ptime()));
+    pos.add_open(trade::create_open(amount_t{10}, price_t{300}, ptime()));
+
+    // create close trades
+    pos.add_close(trade::create_close(pos.size(), price_t{2500}, ptime()));
+    assert(pos.is_closed());
+
+    // print profits
+    fmt::print("{:.2f}\n", value_of(pos.realized_profit<amount_t>()-pos.invested()));
+    fmt::print("{:.2f} %\n", value_of(pos.realized_profit<percent_t>()-percent_t{1.0})*100);
 }
 
 int main()
@@ -310,7 +323,8 @@ int main()
     use_interval();
     use_optimizer();
     use_bazooka();
-    use_position();
+    use_spot_position();
+    use_futures_position();
 
     // run program
     try {

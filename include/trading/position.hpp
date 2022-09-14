@@ -16,6 +16,7 @@
 #include <trading/trade.hpp>
 
 namespace trading {
+    template<class ConcretePosition>
     class position {
     protected:
         amount_t size_;
@@ -25,11 +26,67 @@ namespace trading {
         amount_t realized_profit_{0.0};
 
         explicit position(const trade& open)
-                :size_{open.bought}, invested_{open.sold}, trades_{{open}} { }
+                :size_{open.bought}, trades_{{open}}, invested_{open.sold} { }
 
         position() = default;
 
     public:
+        template<class Type>
+        requires std::same_as<Type, amount_t>
+        amount_t profit(const price_t& market)
+        {
+            return realized_profit_+static_cast<ConcretePosition*>(this)->template unrealized_profit<amount_t>(market);
+        }
+
+        template<class Type>
+        requires std::same_as<Type, amount_t>
+        amount_t realized_profit()
+        {
+            return realized_profit_;
+        }
+
+        template<class Type>
+        requires std::same_as<Type, percent_t>
+        percent_t profit(const price_t& market)
+        {
+            return percent_t{value_of(profit<amount_t>(market)/invested_)};
+        }
+
+        template<class Type>
+        requires std::same_as<Type, percent_t>
+        percent_t realized_profit()
+        {
+            return percent_t{value_of(realized_profit_/invested_)};
+        }
+
+        void add_open(const trade& open)
+        {
+            assert(is_opened_);
+
+            // update realized profit
+            realized_profit_ = profit<amount_t>(open.price);
+
+            // update counters
+            size_ += open.bought;
+            invested_ += open.sold;
+
+            // add the latest trade
+            trades_.emplace_back(open);
+        }
+
+        void add_close(const trade& close)
+        {
+            assert(close.sold<=size_);
+
+            // update realized profit
+            realized_profit_ = profit<amount_t>(close.price);
+
+            // decrease position size
+            size_ -= close.sold;
+
+            if (size_==amount_t{0.0}) is_opened_ = false;
+        }
+
         bool is_closed() const
         {
             return !is_opened_;

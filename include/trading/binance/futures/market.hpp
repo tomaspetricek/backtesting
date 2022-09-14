@@ -12,29 +12,36 @@
 #include <trading/binance/futures/position.hpp>
 
 namespace trading::binance::futures {
-    class market : public trading::market<position>{
+    template<direction direct>
+    class market : public trading::market<position<direct>, order, market<direct>> {
+        friend class trading::market<position<direct>, order, market<direct>>;
+
     public:
-        // https://academy.binance.com/en/articles/what-is-leverage-in-crypto-trading
-//        void update_active_position(const price_point& point)
-//        {
-//            double maintenance_margin = -(1.0/static_cast<double>(this->active_->leverage()));
-//
-//            // should be liquidated
-//            if (this->active_->profit(point.data)<maintenance_margin) {
-//
-//            }
-//        }
+        using position_type = position<direct>;
 
-        void fill_open_order(trading::wallet& wallet, const order& order)
+        explicit market(const wallet& wallet)
+                :trading::market<position<direct>, order, market<direct>>(wallet) { }
+
+        market() = default;
+
+    protected:
+        void create_open_trade(const order& order)
         {
+            trade open = trade::create_open(order.sold, order.price, order.created);
 
-        }
-
-        void fill_close_order(trading::wallet& wallet, const order& order)
-        {
-
+            // add trade
+            if (this->active_) {
+                assert(this->active_->leverage()==order.leverage);
+                this->active_->add_open(open);
+            }
+            else {
+                this->active_ = std::make_optional<position<direct>>(open, order.leverage);
+            }
         }
     };
+
+    using long_market = market<direction::long_>;
+    using short_market = market<direction::short_>;
 }
 
 #endif //EMASTRATEGY_FUTURES_MARKET_HPP

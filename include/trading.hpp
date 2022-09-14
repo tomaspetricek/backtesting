@@ -10,6 +10,7 @@
 #include <trading/bazooka/indicator_values_writer.hpp>
 #include <trading/bazooka/long_strategy.hpp>
 #include <trading/bazooka/short_strategy.hpp>
+#include <trading/binance/futures/direction.hpp>
 #include <trading/binance/futures/market.hpp>
 #include <trading/binance/futures/order.hpp>
 #include <trading/binance/futures/order_factory.hpp>
