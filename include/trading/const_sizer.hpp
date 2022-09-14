@@ -10,8 +10,8 @@
 
 namespace trading {
     class const_sizer {
-        amount_t buy_amount_;
-        fraction sell_frac_;
+        amount_t open_amount_;
+        fraction close_frac_;
 
         static amount_t validate_open_amount(amount_t pos_size)
         {
@@ -22,20 +22,20 @@ namespace trading {
         }
 
     public:
-        void reset_state(){}
+        void reset_state() { }
 
         amount_t open_amount()
         {
-            return buy_amount_;
+            return open_amount_;
         }
 
         amount_t close_amount(const amount_t pos_size)
         {
-            return amount_t{static_cast<double>(sell_frac_)*value_of(pos_size)};
+            return amount_t{static_cast<double>(close_frac_)*value_of(pos_size)};
         }
 
-        explicit const_sizer(const amount_t& buy_amount, const fraction& sell_frac)
-                :buy_amount_(buy_amount), sell_frac_(sell_frac) { }
+        explicit const_sizer(const amount_t& open_amount, const fraction& close_frac)
+                :open_amount_(open_amount), close_frac_(close_frac) { }
 
         const_sizer() = default;
     };
