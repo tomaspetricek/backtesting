@@ -20,13 +20,14 @@ namespace trading {
     class position {
     protected:
         amount_t size_;
-        std::vector<trade> trades_;
+        std::vector<trade> open_trades_;
+        std::vector<trade> close_trades_;
         amount_t invested_{0.0};
         bool is_opened_{true};
         amount_t realized_profit_{0.0};
 
         explicit position(const trade& open)
-                :size_{open.bought}, trades_{{open}}, invested_{open.sold} { }
+                :size_{open.bought}, open_trades_{{open}}, invested_{open.sold} { }
 
         position() = default;
 
@@ -70,8 +71,8 @@ namespace trading {
             size_ += open.bought;
             invested_ += open.sold;
 
-            // add the latest trade
-            trades_.emplace_back(open);
+            // save trade
+            open_trades_.emplace_back(open);
         }
 
         void add_close(const trade& close)
@@ -79,12 +80,16 @@ namespace trading {
             assert(close.sold<=size_);
 
             // update realized profit
-            realized_profit_ = profit<amount_t>(close.price);
+            realized_profit_ += static_cast<ConcretePosition*>(this)->template unrealized_profit<amount_t>(close.price)
+                    *(close.sold/size_);
 
             // decrease position size
             size_ -= close.sold;
 
             if (size_==amount_t{0.0}) is_opened_ = false;
+
+            // save trade
+            close_trades_.emplace_back(close);
         }
 
         bool is_closed() const

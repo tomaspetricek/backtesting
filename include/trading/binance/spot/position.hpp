@@ -19,8 +19,8 @@ namespace trading::binance::spot {
         requires std::same_as<Type, amount_t>
         amount_t unrealized_profit(const price_t& market)
         {
-            assert(size_>amount_t{0});
-            price_t entry{trades_.back().price};
+            assert(size_>=amount_t{0});
+            price_t entry{open_trades_.back().price};
             return amount_t{(value_of(market)-value_of(entry))*value_of(size_)};
         }
     };

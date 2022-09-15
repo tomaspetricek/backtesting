@@ -190,8 +190,9 @@ void save_data_points(Trader trader)
     std::vector<data_point<typename StrategyFactory::indicator_values_type>> indics_values;
 
     for (const auto& point: mean_points) {
-        if(trader.has_active_position())
-            fmt::print("equity: {:.2f}\n", value_of(trader.equity()));
+        if (trader.has_active_position())
+            fmt::print("balance: {:.2f}, equity: {:.2f}\n",
+                    value_of(trader.wallet_balance()), value_of(trader.equity()));
 
         trader(point);
 
@@ -294,14 +295,12 @@ void use_spot_position()
     binance::spot::position pos{trade::create_open(amount_t{20}, price_t{100}, ptime())};
     pos.add_open(trade::create_open(amount_t{20}, price_t{1000}, ptime()));
     pos.add_open(trade::create_open(amount_t{20}, price_t{300}, ptime()));
-
-    // create close trades
-    pos.add_close(trade::create_close(pos.size(), price_t{2500}, ptime()));
+    pos.add_close(trade::create_close(amount_t{value_of(pos.size())*0.5}, price_t{2500}, ptime()));
+    pos.add_open(trade::create_open(amount_t{20}, price_t{2000}, ptime()));
+    pos.add_close(trade::create_close(pos.size(), price_t{6000}, ptime()));
     assert(pos.is_closed());
-
-    // print profits
-    fmt::print("{:.2f}\n", value_of(pos.realized_profit<amount_t>()-pos.invested()));
-    fmt::print("{:.2f} %\n", value_of(pos.realized_profit<percent_t>()-percent_t{1.0})*100);
+    fmt::print("{:.2f}, {:.2f} %\n", value_of(pos.realized_profit<amount_t>()),
+            value_of(pos.realized_profit<percent_t>())*100);
 }
 
 void use_futures_position()
@@ -317,8 +316,8 @@ void use_futures_position()
     assert(pos.is_closed());
 
     // print profits
-    fmt::print("{:.2f}\n", value_of(pos.realized_profit<amount_t>()-pos.invested()));
-    fmt::print("{:.2f} %\n", value_of(pos.realized_profit<percent_t>()-percent_t{1.0})*100);
+    fmt::print("{:.2f}\n", value_of(pos.realized_profit<amount_t>()));
+    fmt::print("{:.2f} %\n", value_of(pos.realized_profit<percent_t>())*100);
 }
 
 int main()
@@ -330,7 +329,7 @@ int main()
     use_optimizer();
     use_bazooka();
     use_spot_position();
-    use_futures_position();
+//    use_futures_position();
 
 //    // run program
 //    try {

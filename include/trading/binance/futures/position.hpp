@@ -34,7 +34,7 @@ namespace trading::binance::futures {
         requires std::same_as<Type, amount_t>
         amount_t unrealized_profit(const price_t& market)
         {
-            price_t entry{this->trades_.back().price};
+            price_t entry{this->open_trades_.back().price};
             return amount_t{((value_of(market)-value_of(entry))*value_of(this->size_))*leverage_*direct};
         }
 

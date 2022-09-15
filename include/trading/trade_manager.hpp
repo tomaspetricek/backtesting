@@ -89,9 +89,10 @@ namespace trading {
             return market_.equity();
         }
 
-        amount_t position_profit()
+        template<class Type>
+        Type position_profit()
         {
-            return market_.position_profit();
+            return market_.template position_profit<Type>();
         }
     };
 }

@@ -43,6 +43,8 @@ namespace trading {
             static_cast<ConcreteMarket*>(this)->create_open_trade(order);
         }
 
+
+
         void fill_close_order(const Order& order)
         {
             assert(this->active_);
@@ -60,7 +62,11 @@ namespace trading {
 
             // log
             if (!active_) {
-                fmt::print("realized profit: {:.2f}\n", value_of(closed_.back().template realized_profit<amount_t>()));
+                assert(closed_.back().template realized_profit<amount_t>()
+                        ==closed_.back().template profit<amount_t>(curr_));
+                fmt::print("realized profit: {:f}, {:f}%\n",
+                        value_of(closed_.back().template realized_profit<amount_t>()),
+                        value_of(closed_.back().template realized_profit<percent_t>()));
                 fmt::print("closing balance: {:.2f}\n", value_of(wallet_.balance()));
             }
         }
@@ -70,12 +76,13 @@ namespace trading {
             return wallet_.balance();
         }
 
-        amount_t position_profit()
+        template<class Type>
+        Type position_profit()
         {
-            amount_t profit{0.0};
+            Type profit{0.0};
 
             if (active_)
-                profit += active_->template profit<amount_t>(curr_);
+                profit += active_->template profit<Type>(curr_);
 
             return profit;
         }
