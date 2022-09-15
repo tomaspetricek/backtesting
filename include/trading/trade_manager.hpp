@@ -74,9 +74,24 @@ namespace trading {
             return close_orders_;
         }
 
+        bool has_active_position()
+        {
+            return market_.has_active_position();
+        }
+
         amount_t wallet_balance()
         {
             return market_.wallet_balance();
+        }
+
+        amount_t equity()
+        {
+            return market_.equity();
+        }
+
+        amount_t position_profit()
+        {
+            return market_.position_profit();
         }
     };
 }

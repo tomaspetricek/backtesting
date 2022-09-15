@@ -154,7 +154,7 @@ void use_optimizer()
 
     // create objective function
     auto volume = [](int len, int width, int depth) {
-        #pragma omp critical
+#pragma omp critical
         {
             std::cout << len*width*depth << std::endl;
         }
@@ -190,6 +190,9 @@ void save_data_points(Trader trader)
     std::vector<data_point<typename StrategyFactory::indicator_values_type>> indics_values;
 
     for (const auto& point: mean_points) {
+        if(trader.has_active_position())
+            fmt::print("equity: {:.2f}\n", value_of(trader.equity()));
+
         trader(point);
 
         if (trader.indicators_ready())
@@ -258,17 +261,16 @@ void use_bazooka()
     };
 
     // create strategy
-    indicator::sma entry_sma{30};
+    indicator::sma entry_sma{10};
     const indicator::sma& exit_sma{entry_sma};
     bazooka::long_strategy<sma, sma, n_levels> strategy{entry_sma, exit_sma, levels};
 
     // create order factory
-    std::size_t leverage{10};
-    futures::order_factory order_factory{leverage};
+    spot::order_factory order_factory;
 
     // create market
     trading::wallet wallet{amount_t{100000}};
-    futures::long_market market{wallet};
+    spot::market market{wallet};
 
     // create sizer
     constexpr std::size_t n_close_fracs{0}; // uses sell all so no sell fractions are needed
@@ -276,7 +278,8 @@ void use_bazooka()
     varying_sizer<n_levels, n_close_fracs> sizer{open_amounts, close_fracs};
 
     // create trade manager
-    trade_manager<futures::long_market, futures::order_factory, varying_sizer<n_levels, n_close_fracs>> manager{market, order_factory, sizer};
+    trade_manager<spot::market, spot::order_factory, varying_sizer<n_levels, n_close_fracs>> manager
+            {market, order_factory, sizer};
 
     // create trader
     trading::trader trader{strategy, manager};
@@ -329,14 +332,14 @@ int main()
     use_spot_position();
     use_futures_position();
 
-    // run program
-    try {
-        run();
-    }
-        // show exceptions
-    catch (const std::exception& ex) {
-        print_exception(ex);
-    }
+//    // run program
+//    try {
+//        run();
+//    }
+//        // show exceptions
+//    catch (const std::exception& ex) {
+//        print_exception(ex);
+//    }
 
     return EXIT_SUCCESS;
 }

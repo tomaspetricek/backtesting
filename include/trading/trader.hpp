@@ -19,6 +19,7 @@ namespace trading {
 
         void operator()(const price_point& point)
         {
+            this->market_.update(point);
             this->update_indicators(point.data);
 
             if (!this->indics_ready_) return;
