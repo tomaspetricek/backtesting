@@ -309,10 +309,11 @@ void use_spot_position()
     close_frac = 1.0;
     fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100), value_of(pos.profit<amount_t>(price_t{curr})));
     pos.add_close(trade::create_close(amount_t{value_of(pos.size())*close_frac}, curr, ptime()));
-    fmt::print("total profit: {:.2f}\n", value_of(pos.total_profit()));
+    fmt::print("total profit: {:.2f}, {:.2f} %\n", value_of(pos.total_profit<amount_t>()),
+            value_of(pos.total_profit<percent_t>())*100);
     assert(pos.is_closed());
 
-    std::cout << "scenario: c" << std::endl;
+    std::cout << "\nscenario: c" << std::endl;
     pos = binance::spot::position{trade::create_open(amount_t{20}, price_t{100}, ptime())};
     pos.add_open(trade::create_open(amount_t{20}, price_t{1000}, ptime()));
     pos.add_open(trade::create_open(amount_t{20}, price_t{300}, ptime()));
@@ -330,7 +331,8 @@ void use_spot_position()
     close_frac = 1.0;
     fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100), value_of(pos.profit<amount_t>(price_t{curr})));
     pos.add_close(trade::create_close(pos.size(), curr, ptime()));
-    fmt::print("total profit: {:.2f}\n", value_of(pos.total_profit()));
+    fmt::print("total profit: {:.2f}, {:.2f} %\n", value_of(pos.total_profit<amount_t>()),
+            value_of(pos.total_profit<percent_t>())*100);
     assert(pos.is_closed());
 }
 

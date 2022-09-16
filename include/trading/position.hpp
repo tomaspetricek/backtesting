@@ -26,9 +26,10 @@ namespace trading {
         bool is_opened_{true};
         amount_t realized_profit_{0.0};
         amount_t total_profit_{0.0};
+        amount_t total_invested_{0.0};
 
         explicit position(const trade& open)
-                :size_{open.bought}, open_trades_{{open}}, invested_{open.sold} { }
+                :size_{open.bought}, open_trades_{{open}}, invested_{open.sold}, total_invested_(open.sold) { }
 
         position() = default;
 
@@ -63,6 +64,7 @@ namespace trading {
             // update counters
             size_ += open.bought;
             invested_ += open.sold;
+            total_invested_ += open.sold;
 
             // save trade
             open_trades_.emplace_back(open);
@@ -107,9 +109,23 @@ namespace trading {
             return invested_;
         }
 
+        template<class Type>
+        requires std::same_as<Type, amount_t>
         const amount_t& total_profit() const
         {
             return total_profit_;
+        }
+
+        template<class Type>
+        requires std::same_as<Type, percent_t>
+        percent_t total_profit()
+        {
+            percent_t val{0.0};
+
+            if (total_invested_>=amount_t{0.0})
+                val = percent_t{value_of(total_profit_/total_invested_)};
+
+            return val;
         }
     };
 }

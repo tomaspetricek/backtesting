@@ -61,8 +61,10 @@ namespace trading {
 
             // log
             if (!active_) {
-                fmt::print("total profit: {:.6f}\n", value_of(closed_.back().total_profit()));
-                fmt::print("closing balance: {:.6f}\n", value_of(wallet_.balance()));
+                auto last = closed_.back();
+                fmt::print("total profit: {:.2f}, {:.2f} %\n", value_of(last.template total_profit<amount_t>()),
+                        value_of(last.template total_profit<percent_t>())*100);
+                fmt::print("closing balance: {:.6f}\n\n", value_of(wallet_.balance()));
             }
         }
 
