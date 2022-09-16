@@ -37,37 +37,32 @@ namespace trading {
         void fill_open_order(const Order& order)
         {
             // log
-            if (!active_) fmt::print("opening balance: {:.2f}\n", value_of(wallet_.balance()));
+            if (!active_) fmt::print("opening balance: {:.6f}\n", value_of(wallet_.balance()));
 
             wallet_.withdraw(order.sold);
             static_cast<ConcreteMarket*>(this)->create_open_trade(order);
         }
 
-
-
         void fill_close_order(const Order& order)
         {
-            assert(this->active_);
+            assert(active_);
             trade close = trade::create_close(order.sold, order.price, order.created);
-            this->active_->add_close(close);
-
-            // check if closed
-            if (active_->is_closed()) {
-                closed_.emplace_back(*active_);
-                active_ = std::nullopt;
-            }
+            active_->add_close(close);
 
             // deposit
             wallet_.deposit(close.bought);
 
+            // check if closed
+            if (active_->is_closed()) {
+                assert(wallet_balance()==equity());
+                closed_.emplace_back(*active_);
+                active_ = std::nullopt;
+            }
+
             // log
             if (!active_) {
-                assert(closed_.back().template realized_profit<amount_t>()
-                        ==closed_.back().template profit<amount_t>(curr_));
-                fmt::print("realized profit: {:f}, {:f}%\n",
-                        value_of(closed_.back().template realized_profit<amount_t>()),
-                        value_of(closed_.back().template realized_profit<percent_t>()));
-                fmt::print("closing balance: {:.2f}\n", value_of(wallet_.balance()));
+                fmt::print("total profit: {:.6f}\n", value_of(closed_.back().total_profit()));
+                fmt::print("closing balance: {:.6f}\n", value_of(wallet_.balance()));
             }
         }
 
@@ -85,6 +80,12 @@ namespace trading {
                 profit += active_->template profit<Type>(curr_);
 
             return profit;
+        }
+
+        amount_t position_total_profit()
+        {
+            assert(active_);
+            return active_->template total_profit();
         }
 
         amount_t equity()
