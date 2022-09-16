@@ -22,6 +22,7 @@ namespace trading {
         std::optional<Position> active_;
         std::vector<Position> closed_;
         price_t curr_{strong::uninitialized};
+        amount_t open_balance{strong::uninitialized};
 
     public:
         explicit market(const wallet& wallet)
@@ -37,7 +38,10 @@ namespace trading {
         void fill_open_order(const Order& order)
         {
             // log
-            if (!active_) fmt::print("opening balance: {:.6f}\n", value_of(wallet_.balance()));
+            if (!active_) {
+                open_balance = wallet_.balance();
+                fmt::print("opening balance: {:.6f}\n", value_of(wallet_.balance()));
+            }
             wallet_.withdraw(order.sold);
             static_cast<ConcreteMarket*>(this)->create_open_trade(order);
         }
@@ -54,16 +58,16 @@ namespace trading {
             // check if closed
             if (active_->is_closed()) {
                 assert(wallet_balance()==equity());
+                assert(wallet_.balance()-active_->template total_profit<amount_t>()==open_balance);
+
+                // log
+                fmt::print("total profit: {:.6f}, {:.6f} %\n", value_of(active_->template total_profit<amount_t>()),
+                        value_of(active_->template total_profit<percent_t>())*100);
+                fmt::print("closing balance: {:.6f}\n\n", value_of(wallet_.balance()));
+
+                // save position
                 closed_.emplace_back(*active_);
                 active_ = std::nullopt;
-            }
-
-            // log
-            if (!active_) {
-                auto last = closed_.back();
-                fmt::print("total profit: {:.6f}, {:.6f} %\n", value_of(last.template total_profit<amount_t>()),
-                        value_of(last.template total_profit<percent_t>())*100);
-                fmt::print("closing balance: {:.6f}\n\n", value_of(wallet_.balance()));
             }
         }
 

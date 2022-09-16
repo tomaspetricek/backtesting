@@ -96,11 +96,11 @@ namespace trading {
             invested_ *= amount_t{remain_frac};
             assert(invested_>=amount_t{0.0});
 
+            // check if closed
             if (size_==amount_t{0.0}) is_opened_ = false;
 
             // save trade
             close_trades_.emplace_back(close);
-
             return bought;
         }
 

@@ -301,7 +301,7 @@ void use_spot_position()
 
     // close
     curr = price_t{2500};
-    double close_frac = 0.5;
+    double close_frac = 0.75;
     fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100),
             value_of(pos.profit<amount_t>(price_t{curr}))*close_frac);
     pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});
