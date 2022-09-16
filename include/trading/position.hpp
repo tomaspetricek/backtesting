@@ -28,8 +28,13 @@ namespace trading {
         amount_t total_profit_{0.0};
         amount_t total_invested_{0.0};
 
+        static amount_t get_bought(const trade& open)
+        {
+            return amount_t{value_of(open.sold)/value_of(open.price)};
+        }
+
         explicit position(const trade& open)
-                :size_{open.bought}, open_trades_{{open}}, invested_{open.sold}, total_invested_(open.sold) { }
+                :size_{get_bought(open)}, open_trades_{{open}}, invested_{open.sold}, total_invested_(open.sold) { }
 
         position() = default;
 
@@ -56,13 +61,14 @@ namespace trading {
         void add_open(const trade& open)
         {
             assert(is_opened_);
+            amount_t bought = get_bought(open);
 
             // update realized profit
             realized_profit_ = profit<amount_t>(open.price);
             total_profit_ += static_cast<ConcretePosition*>(this)->template unrealized_profit<amount_t>(open.price);
 
             // update counters
-            size_ += open.bought;
+            size_ += bought;
             invested_ += open.sold;
             total_invested_ += open.sold;
 
@@ -70,28 +76,32 @@ namespace trading {
             open_trades_.emplace_back(open);
         }
 
-        void add_close(const trade& close)
+        amount_t add_close(const trade& close)
         {
             assert(close.sold<=size_);
+            double bought_frac{value_of(close.sold/size_)};
+            amount_t bought{value_of(profit<amount_t>(close.price)+invested_)*bought_frac};
 
             // update realized profit
-            double remain{1.0-value_of(close.sold/size_)};
-            realized_profit_ *= amount_t{remain};
+            double remain_frac{1.0-bought_frac};
+            realized_profit_ *= amount_t{remain_frac};
 
             // update total profit
             amount_t unrealized_profit{
                     static_cast<ConcretePosition*>(this)->template unrealized_profit<amount_t>(close.price)};
-            total_profit_ += amount_t{value_of(unrealized_profit)*value_of(close.sold/size_)};
+            total_profit_ += amount_t{value_of(unrealized_profit)*bought_frac};
 
             // decrease position size
             size_ -= close.sold;
-            invested_ *= amount_t{remain};
+            invested_ *= amount_t{remain_frac};
             assert(invested_>=amount_t{0.0});
 
             if (size_==amount_t{0.0}) is_opened_ = false;
 
             // save trade
             close_trades_.emplace_back(close);
+
+            return bought;
         }
 
         bool is_closed() const

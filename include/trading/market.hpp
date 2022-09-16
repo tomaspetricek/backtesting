@@ -38,7 +38,6 @@ namespace trading {
         {
             // log
             if (!active_) fmt::print("opening balance: {:.6f}\n", value_of(wallet_.balance()));
-
             wallet_.withdraw(order.sold);
             static_cast<ConcreteMarket*>(this)->create_open_trade(order);
         }
@@ -46,11 +45,11 @@ namespace trading {
         void fill_close_order(const Order& order)
         {
             assert(active_);
-            trade close = trade::create_close(order.sold, order.price, order.created);
-            active_->add_close(close);
+            trade close = trade{order.sold, order.price, order.created};
+            amount_t bought = active_->add_close(close);
 
             // deposit
-            wallet_.deposit(close.bought);
+            wallet_.deposit(bought);
 
             // check if closed
             if (active_->is_closed()) {
@@ -62,7 +61,7 @@ namespace trading {
             // log
             if (!active_) {
                 auto last = closed_.back();
-                fmt::print("total profit: {:.2f}, {:.2f} %\n", value_of(last.template total_profit<amount_t>()),
+                fmt::print("total profit: {:.6f}, {:.6f} %\n", value_of(last.template total_profit<amount_t>()),
                         value_of(last.template total_profit<percent_t>())*100);
                 fmt::print("closing balance: {:.6f}\n\n", value_of(wallet_.balance()));
             }

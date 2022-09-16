@@ -267,11 +267,12 @@ void use_bazooka()
     bazooka::long_strategy<ema, ema, n_levels> strategy{entry_ma, exit_ma, levels};
 
     // create order factory
-    spot::order_factory order_factory;
+    std::size_t leverage{10};
+    futures::order_factory order_factory{leverage};
 
     // create market
     trading::wallet wallet{amount_t{100000}};
-    spot::market market{wallet};
+    futures::long_market market{wallet};
 
     // create sizer
     constexpr std::size_t n_close_fracs{0}; // uses sell all so no sell fractions are needed
@@ -279,7 +280,7 @@ void use_bazooka()
     varying_sizer<n_levels, n_close_fracs> sizer{open_amounts, close_fracs};
 
     // create trade manager
-    trade_manager<spot::market, spot::order_factory, varying_sizer<n_levels, n_close_fracs>> manager
+    trade_manager<futures::long_market, futures::order_factory, varying_sizer<n_levels, n_close_fracs>> manager
             {market, order_factory, sizer};
 
     // create trader
@@ -292,45 +293,47 @@ void use_bazooka()
 void use_spot_position()
 {
     price_t curr{strong::uninitialized};
-    std::cout << "scenario: b" << std::endl;
-    binance::spot::position pos{trade::create_open(amount_t{20}, price_t{100}, ptime())};
-    pos.add_open(trade::create_open(amount_t{20}, price_t{1000}, ptime()));
-    pos.add_open(trade::create_open(amount_t{20}, price_t{300}, ptime()));
+    std::cout << "spot positions" << std::endl
+              << "scenario: b" << std::endl;
+    binance::spot::position pos{trade{amount_t{20}, price_t{100}, ptime()}};
+    pos.add_open(trade{amount_t{20}, price_t{1000}, ptime()});
+    pos.add_open(trade{amount_t{20}, price_t{300}, ptime()});
 
     // close
     curr = price_t{2500};
     double close_frac = 0.5;
     fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100),
             value_of(pos.profit<amount_t>(price_t{curr}))*close_frac);
-    pos.add_close(trade::create_close(amount_t{value_of(pos.size())*close_frac}, curr, ptime()));
+    pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});
 
     // close
     curr = price_t{3000};
     close_frac = 1.0;
     fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100), value_of(pos.profit<amount_t>(price_t{curr})));
-    pos.add_close(trade::create_close(amount_t{value_of(pos.size())*close_frac}, curr, ptime()));
+    pos.profit<amount_t>(price_t{curr});
+    pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});
     fmt::print("total profit: {:.2f}, {:.2f} %\n", value_of(pos.total_profit<amount_t>()),
             value_of(pos.total_profit<percent_t>())*100);
     assert(pos.is_closed());
 
     std::cout << "\nscenario: c" << std::endl;
-    pos = binance::spot::position{trade::create_open(amount_t{20}, price_t{100}, ptime())};
-    pos.add_open(trade::create_open(amount_t{20}, price_t{1000}, ptime()));
-    pos.add_open(trade::create_open(amount_t{20}, price_t{300}, ptime()));
+    pos = binance::spot::position{trade{amount_t{20}, price_t{100}, ptime()}};
+    pos.add_open(trade{amount_t{20}, price_t{1000}, ptime()});
+    pos.add_open(trade{amount_t{20}, price_t{300}, ptime()});
 
     // close
     curr = price_t{2500};
     close_frac = 0.5;
     fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100),
             value_of(pos.profit<amount_t>(price_t{curr}))*close_frac);
-    pos.add_close(trade::create_close(amount_t{value_of(pos.size())*close_frac}, curr, ptime()));
-    pos.add_open(trade::create_open(amount_t{20}, price_t{2000}, ptime()));
+    pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});
+    pos.add_open(trade{amount_t{20}, price_t{2000}, ptime()});
 
     // close
     curr = price_t{6000};
     close_frac = 1.0;
     fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100), value_of(pos.profit<amount_t>(price_t{curr})));
-    pos.add_close(trade::create_close(pos.size(), curr, ptime()));
+    pos.add_close(trade{pos.size(), curr, ptime()});
     fmt::print("total profit: {:.2f}, {:.2f} %\n", value_of(pos.total_profit<amount_t>()),
             value_of(pos.total_profit<percent_t>())*100);
     assert(pos.is_closed());
@@ -338,12 +341,20 @@ void use_spot_position()
 
 void use_futures_position()
 {
+    std::cout << "\nfutures positions" << std::endl;
+
     // create open trades
     std::size_t leverage{10};
-    binance::futures::long_position pos{trade::create_open(amount_t{5}, price_t{100}, ptime()), leverage};
-    pos.add_open(trade::create_open(amount_t{2}, price_t{1000}, ptime()));
-    pos.add_open(trade::create_open(amount_t{10}, price_t{300}, ptime()));
-    pos.add_close(trade::create_close(pos.size(), price_t{2500}, ptime()));
+    binance::futures::long_position pos{trade{amount_t{5}, price_t{100}, ptime()}, leverage};
+    pos.add_open(trade{amount_t{2}, price_t{1000}, ptime()});
+    pos.add_open(trade{amount_t{10}, price_t{300}, ptime()});
+
+    price_t curr{2500};
+    double close_frac{1.0};
+    fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100), value_of(pos.profit<amount_t>(price_t{curr})));
+    pos.add_close(trade{pos.size(), price_t{2500}, ptime()});
+    fmt::print("total profit: {:.2f}, {:.2f} %\n", value_of(pos.total_profit<amount_t>()),
+            value_of(pos.total_profit<percent_t>())*100);
     assert(pos.is_closed());
 }
 
@@ -356,7 +367,7 @@ int main()
     use_optimizer();
     use_bazooka();
     use_spot_position();
-//    use_futures_position();
+    use_futures_position();
 
 //    // run program
 //    try {

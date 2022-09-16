@@ -24,7 +24,7 @@ namespace trading::binance::spot {
     protected:
         void create_open_trade(const order& order)
         {
-            trade open = trade::create_open(order.sold, order.price, order.created);
+            trade open = trade{order.sold, order.price, order.created};
 
             // add trade
             if (this->active_) {
