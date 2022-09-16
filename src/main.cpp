@@ -67,7 +67,8 @@ void run()
     };
 
     // create test box
-    auto box = test_box<trader<triple_ema::long_strategy, trade_manager<spot::market, spot::order_factory, const_sizer>>, int, int, int>(
+    auto box = test_box<trader
+            <triple_ema::long_strategy, trade_manager<spot::market, spot::order_factory, const_sizer>>, int, int, int>(
             points, initializer);
 
     // create search space
@@ -187,7 +188,8 @@ void save_data_points(Trader trader)
     auto mean_points = get_mean_price_points(reader, mean_pricer);
 
     // collect indicator value
-    std::vector<data_point<typename StrategyFactory::indicator_values_type>> indics_values;
+    std::vector<data_point<typename StrategyFactory::indicator_values_type>>
+    indics_values;
 
     for (const auto& point: mean_points) {
         if (trader.has_active_position())
@@ -295,41 +297,51 @@ void use_spot_position()
     price_t curr{strong::uninitialized};
     std::cout << "spot positions" << std::endl
               << "scenario: b" << std::endl;
+
+    // create position
     binance::spot::position pos{trade{amount_t{20}, price_t{100}, ptime()}};
+
+    // add open
     pos.add_open(trade{amount_t{20}, price_t{1000}, ptime()});
     pos.add_open(trade{amount_t{20}, price_t{300}, ptime()});
 
-    // close
+    // add close
     curr = price_t{2500};
     double close_frac = 0.75;
     fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100),
             value_of(pos.profit<amount_t>(price_t{curr}))*close_frac);
     pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});
 
-    // close
+    // add close
     curr = price_t{3000};
     close_frac = 1.0;
-    fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100), value_of(pos.profit<amount_t>(price_t{curr})));
-    pos.profit<amount_t>(price_t{curr});
+    fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100),
+            value_of(pos.profit<amount_t>(price_t{curr}))*close_frac);
     pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});
     fmt::print("total profit: {:.2f}, {:.2f} %\n", value_of(pos.total_profit<amount_t>()),
             value_of(pos.total_profit<percent_t>())*100);
     assert(pos.is_closed());
 
     std::cout << "\nscenario: c" << std::endl;
+
+    // create position
     pos = binance::spot::position{trade{amount_t{20}, price_t{100}, ptime()}};
+
+    // add open
     pos.add_open(trade{amount_t{20}, price_t{1000}, ptime()});
     pos.add_open(trade{amount_t{20}, price_t{300}, ptime()});
 
-    // close
+    // add close
     curr = price_t{2500};
     close_frac = 0.5;
     fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100),
             value_of(pos.profit<amount_t>(price_t{curr}))*close_frac);
     pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});
+
+    // add open
     pos.add_open(trade{amount_t{20}, price_t{2000}, ptime()});
 
-    // close
+    // add close
     curr = price_t{6000};
     close_frac = 1.0;
     fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100), value_of(pos.profit<amount_t>(price_t{curr})));
@@ -343,12 +355,15 @@ void use_futures_position()
 {
     std::cout << "\nfutures positions" << std::endl;
 
-    // create open trades
+    // create position
     std::size_t leverage{10};
     binance::futures::long_position pos{trade{amount_t{5}, price_t{100}, ptime()}, leverage};
+    
+    // add open
     pos.add_open(trade{amount_t{2}, price_t{1000}, ptime()});
     pos.add_open(trade{amount_t{10}, price_t{300}, ptime()});
 
+    // add close
     price_t curr{2500};
     double close_frac{1.0};
     fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100), value_of(pos.profit<amount_t>(price_t{curr})));
