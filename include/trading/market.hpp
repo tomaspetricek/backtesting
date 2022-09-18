@@ -58,11 +58,12 @@ namespace trading {
             // check if closed
             if (active_->is_closed()) {
                 assert(wallet_balance()==equity());
-                assert(wallet_.balance()-active_->template total_profit<amount_t>()==open_balance);
+                assert(wallet_.balance()-active_->template total_realized_profit<amount_t>()==open_balance);
 
                 // log
-                fmt::print("total profit: {:.6f}, {:.6f} %\n", value_of(active_->template total_profit<amount_t>()),
-                        value_of(active_->template total_profit<percent_t>())*100);
+                fmt::print("total realized profit: {:.6f}, {:.6f} %\n", value_of(
+                                active_->template total_realized_profit<amount_t>()),
+                        value_of(active_->template total_realized_profit<percent_t>())*100);
                 fmt::print("closing balance: {:.6f}\n\n", value_of(wallet_.balance()));
 
                 // save position
@@ -90,7 +91,7 @@ namespace trading {
         amount_t position_total_profit()
         {
             assert(active_);
-            return active_->template total_profit();
+            return active_->template total_realized_profit();
         }
 
         amount_t equity()

@@ -295,16 +295,17 @@ void use_bazooka()
 template<class Position>
 void display_total_profit(Position& pos)
 {
-    fmt::print("total profit: {:.2f}, {:.2f} %\n", value_of(pos.template total_profit<amount_t>()),
-            value_of(pos.template total_profit<percent_t>())*100);
+    fmt::print("total realized profit: ${:.2f}, {:.2f} %\n", value_of(pos.template total_realized_profit<amount_t>()),
+            value_of(pos.template total_realized_profit<percent_t>())*100);
 }
 
 template<class Position>
 void display_profit(Position& pos, const price_t& market, double close_frac)
 {
-    fmt::print("profit ({} %): {:.2f}, {:.2f} %\n", int(close_frac*100),
+    fmt::print("profit ({} %): ${:.2f}, {:.2f} %, total profit: ${:.2f}\n", int(close_frac*100),
             value_of(pos.template profit<amount_t>(market))*close_frac,
-            value_of(pos.template profit<percent_t>(market))*100);
+            value_of(pos.template profit<percent_t>(market))*100,
+            value_of(pos.template total_profit<amount_t>(market)));
 }
 
 void use_spot_position()
