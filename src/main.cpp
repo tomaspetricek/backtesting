@@ -155,7 +155,7 @@ void use_optimizer()
 
     // create objective function
     auto volume = [](int len, int width, int depth) {
-#pragma omp critical
+        #pragma omp critical
         {
             std::cout << len*width*depth << std::endl;
         }
@@ -189,7 +189,7 @@ void save_data_points(Trader trader)
 
     // collect indicator value
     std::vector<data_point<typename StrategyFactory::indicator_values_type>>
-    indics_values;
+            indics_values;
 
     for (const auto& point: mean_points) {
         if (trader.has_active_position())
@@ -292,6 +292,21 @@ void use_bazooka()
     save_data_points<bazooka::factory<n_levels>>(trader);
 }
 
+template<class Position>
+void display_total_profit(Position& pos)
+{
+    fmt::print("total profit: {:.2f}, {:.2f} %\n", value_of(pos.template total_profit<amount_t>()),
+            value_of(pos.template total_profit<percent_t>())*100);
+}
+
+template<class Position>
+void display_profit(Position& pos, const price_t& market, double close_frac)
+{
+    fmt::print("profit ({} %): {:.2f}, {:.2f} %\n", int(close_frac*100),
+            value_of(pos.template profit<amount_t>(market))*close_frac,
+            value_of(pos.template profit<percent_t>(market))*100);
+}
+
 void use_spot_position()
 {
     price_t curr{strong::uninitialized};
@@ -308,18 +323,15 @@ void use_spot_position()
     // add close
     curr = price_t{2500};
     double close_frac = 0.75;
-    fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100),
-            value_of(pos.profit<amount_t>(price_t{curr}))*close_frac);
+    display_profit(pos, curr, close_frac);
     pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});
 
     // add close
     curr = price_t{3000};
     close_frac = 1.0;
-    fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100),
-            value_of(pos.profit<amount_t>(price_t{curr}))*close_frac);
+    display_profit(pos, curr, close_frac);
     pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});
-    fmt::print("total profit: {:.2f}, {:.2f} %\n", value_of(pos.total_profit<amount_t>()),
-            value_of(pos.total_profit<percent_t>())*100);
+    display_total_profit(pos);
     assert(pos.is_closed());
 
     std::cout << "\nscenario: c" << std::endl;
@@ -334,8 +346,7 @@ void use_spot_position()
     // add close
     curr = price_t{2500};
     close_frac = 0.5;
-    fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100),
-            value_of(pos.profit<amount_t>(price_t{curr}))*close_frac);
+    display_profit(pos, curr, close_frac);
     pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});
 
     // add open
@@ -344,10 +355,9 @@ void use_spot_position()
     // add close
     curr = price_t{6000};
     close_frac = 1.0;
-    fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100), value_of(pos.profit<amount_t>(price_t{curr})));
+    display_profit(pos, curr, close_frac);
     pos.add_close(trade{pos.size(), curr, ptime()});
-    fmt::print("total profit: {:.2f}, {:.2f} %\n", value_of(pos.total_profit<amount_t>()),
-            value_of(pos.total_profit<percent_t>())*100);
+    display_total_profit(pos);
     assert(pos.is_closed());
 }
 
@@ -358,18 +368,22 @@ void use_futures_position()
     // create position
     std::size_t leverage{10};
     binance::futures::long_position pos{trade{amount_t{5}, price_t{100}, ptime()}, leverage};
-    
+
     // add open
     pos.add_open(trade{amount_t{2}, price_t{1000}, ptime()});
     pos.add_open(trade{amount_t{10}, price_t{300}, ptime()});
 
     // add close
     price_t curr{2500};
-    double close_frac{1.0};
-    fmt::print("profit ({} %): {:.2f}\n", int(close_frac*100), value_of(pos.profit<amount_t>(price_t{curr})));
-    pos.add_close(trade{pos.size(), price_t{2500}, ptime()});
-    fmt::print("total profit: {:.2f}, {:.2f} %\n", value_of(pos.total_profit<amount_t>()),
-            value_of(pos.total_profit<percent_t>())*100);
+    double close_frac{0.25};
+    display_profit(pos, curr, close_frac);
+    pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});
+
+    curr = price_t{100};
+    close_frac = 1.0;
+    display_profit(pos, curr, close_frac);
+    pos.add_close(trade{pos.size(), curr, ptime()});
+    display_total_profit(pos);
     assert(pos.is_closed());
 }
 
