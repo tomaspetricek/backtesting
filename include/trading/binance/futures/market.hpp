@@ -19,15 +19,17 @@ namespace trading::binance::futures {
     public:
         using position_type = position<direct>;
 
-        explicit market(const wallet& wallet)
-                :trading::market<position<direct>, order, market<direct>>(wallet) { }
+        explicit market(const wallet& wallet, const fee_charger& market_charger)
+                :trading::market<position<direct>, order, market<direct>>(wallet, market_charger) { }
 
         market() = default;
 
     protected:
         void create_open_trade(const order& order)
         {
-            trade open = trade{order.sold, order.price, order.created};
+            this->wallet_.withdraw(order.sold);
+            amount_t sold{this->market_charger_.apply_open_fee(order.sold)};
+            trade open{sold, order.price, order.created};
 
             // add trade
             if (this->active_) {

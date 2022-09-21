@@ -20,25 +20,69 @@ namespace trading {
     class position {
     protected:
         amount_t size_;
-        std::vector<trade> open_trades_;
-        std::vector<trade> close_trades_;
+        price_t last_open_{strong::uninitialized};
         amount_t invested_{0.0};
         bool is_opened_{true};
         amount_t realized_profit_{0.0};
         amount_t total_realized_profit_{0.0};
         amount_t total_invested_{0.0};
 
-        static amount_t get_bought(const trade& open)
+        inline static amount_t calc_bought(const trade& open)
         {
             return amount_t{value_of(open.sold)/value_of(open.price)};
         }
 
         explicit position(const trade& open)
-                :size_{get_bought(open)}, open_trades_{{open}}, invested_{open.sold}, total_invested_(open.sold) { }
+                :size_{calc_bought(open)}, last_open_{open.price}, invested_{open.sold}, total_invested_(open.sold) { }
 
         position() = default;
 
     public:
+        void add_open(const trade& open)
+        {
+            assert(is_opened_);
+
+            // add unrealized profit
+            amount_t unrealized_profit{static_cast<ConcretePosition*>(this)->template unrealized_profit<amount_t>
+                    (open.price)};
+            realized_profit_ += unrealized_profit;
+            total_realized_profit_ += unrealized_profit;
+
+            // update counters
+            size_ += calc_bought(open);
+            invested_ += open.sold;
+            total_invested_ += open.sold;
+
+            last_open_ = open.price;
+        }
+
+        amount_t add_close(const trade& close)
+        {
+            assert(close.sold<=size_);
+            double sold_frac{value_of(close.sold/size_)};
+            amount_t bought{value_of(profit<amount_t>(close.price)+invested_)*sold_frac};
+
+            // update realized profit
+            // - leave only remaining realized profit
+            double remain_frac{1.0-sold_frac};
+            realized_profit_ *= amount_t{remain_frac};
+
+            // update total profit
+            // - add the fraction of unrealized profit that just been realized
+            amount_t unrealized_profit{static_cast<ConcretePosition*>(this)->template unrealized_profit<amount_t>
+                    (close.price)};
+            total_realized_profit_ += amount_t{value_of(unrealized_profit)*sold_frac};
+
+            // decrease position size
+            size_ -= close.sold;
+            invested_ *= amount_t{remain_frac};
+            assert(invested_>=amount_t{0.0});
+
+            // check if closed
+            if (size_==amount_t{0.0}) is_opened_ = false;
+            return bought;
+        }
+
         template<class Type>
         requires std::same_as<Type, amount_t>
         amount_t profit(const price_t& market)
@@ -58,69 +102,12 @@ namespace trading {
             return val;
         }
 
-        void add_open(const trade& open)
+        template<class Type>
+        requires std::same_as<Type, amount_t>
+        amount_t total_profit(const price_t& market)
         {
-            assert(is_opened_);
-            amount_t bought = get_bought(open);
-
-            // add unrealized profit
-            amount_t unrealized_profit = static_cast<ConcretePosition*>(this)->template unrealized_profit<amount_t>
-                    (open.price);
-            realized_profit_ += unrealized_profit;
-            total_realized_profit_ += unrealized_profit;
-
-            // update counters
-            size_ += bought;
-            invested_ += open.sold;
-            total_invested_ += open.sold;
-
-            // save trade
-            open_trades_.emplace_back(open);
-        }
-
-        amount_t add_close(const trade& close)
-        {
-            assert(close.sold<=size_);
-            double sold_frac{value_of(close.sold/size_)};
-            amount_t bought{value_of(profit<amount_t>(close.price)+invested_)*sold_frac};
-
-            // update realized profit
-            // - leave only remaining realized profit
-            double remain_frac{1.0-sold_frac};
-            realized_profit_ *= amount_t{remain_frac};
-
-            // update total profit
-            // - add the fraction of unrealized profit that just been realized
-            amount_t unrealized_profit = static_cast<ConcretePosition*>(this)->template unrealized_profit<amount_t>
-                    (close.price);
-            total_realized_profit_ += amount_t{value_of(unrealized_profit)*sold_frac};
-
-            // decrease position size
-            size_ -= close.sold;
-            invested_ *= amount_t{remain_frac};
-            assert(invested_>=amount_t{0.0});
-
-            // check if closed
-            if (size_==amount_t{0.0}) is_opened_ = false;
-
-            // save trade
-            close_trades_.emplace_back(close);
-            return bought;
-        }
-
-        bool is_closed() const
-        {
-            return !is_opened_;
-        }
-
-        const amount_t& size() const
-        {
-            return size_;
-        }
-
-        const amount_t& invested() const
-        {
-            return invested_;
+            return total_realized_profit_
+                    +static_cast<ConcretePosition*>(this)->template unrealized_profit<amount_t>(market);
         }
 
         template<class Type>
@@ -142,12 +129,21 @@ namespace trading {
             return val;
         }
 
-        template<class Type>
-        requires std::same_as<Type, amount_t>
-        amount_t total_profit(const price_t& market)
+        bool is_closed() const
         {
-            return total_realized_profit_+static_cast<ConcretePosition*>(this)->template unrealized_profit<amount_t>(market);
+            return !is_opened_;
         }
+
+        const amount_t& size() const
+        {
+            return size_;
+        }
+
+        const amount_t& invested() const
+        {
+            return invested_;
+        }
+
     };
 }
 

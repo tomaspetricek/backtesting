@@ -51,8 +51,9 @@ void run()
     spot::order_factory order_factory;
 
     // create market
-    trading::wallet wallet{amount_t{100000}};
-    spot::market market{wallet};
+    fee_charger market_charger{percent_t{0.01}, percent_t{0.01}};
+    trading::wallet wallet{amount_t{100'000}};
+    spot::market market{wallet, market_charger};
 
     // create sizer
     amount_t open_amount{25};
@@ -273,8 +274,9 @@ void use_bazooka()
     futures::order_factory order_factory{leverage};
 
     // create market
-    trading::wallet wallet{amount_t{100000}};
-    futures::long_market market{wallet};
+    fee_charger market_charger{percent_t{0.01}, percent_t{0.01}};
+    trading::wallet wallet{amount_t{100'000}};
+    futures::long_market market{wallet, market_charger};
 
     // create sizer
     constexpr std::size_t n_close_fracs{0}; // uses sell all so no sell fractions are needed
@@ -322,13 +324,13 @@ void use_spot_position()
     pos.add_open(trade{amount_t{20}, price_t{300}, ptime()});
 
     // add close
-    curr = price_t{2500};
-    double close_frac = 0.75;
+    curr = price_t{2'500};
+    double close_frac = 0.5;
     display_profit(pos, curr, close_frac);
     pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});
 
     // add close
-    curr = price_t{3000};
+    curr = price_t{3'000};
     close_frac = 1.0;
     display_profit(pos, curr, close_frac);
     pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});
@@ -345,7 +347,7 @@ void use_spot_position()
     pos.add_open(trade{amount_t{20}, price_t{300}, ptime()});
 
     // add close
-    curr = price_t{2500};
+    curr = price_t{2'500};
     close_frac = 0.5;
     display_profit(pos, curr, close_frac);
     pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});
@@ -354,7 +356,7 @@ void use_spot_position()
     pos.add_open(trade{amount_t{20}, price_t{2000}, ptime()});
 
     // add close
-    curr = price_t{6000};
+    curr = price_t{6'000};
     close_frac = 1.0;
     display_profit(pos, curr, close_frac);
     pos.add_close(trade{pos.size(), curr, ptime()});
@@ -375,7 +377,7 @@ void use_futures_position()
     pos.add_open(trade{amount_t{10}, price_t{300}, ptime()});
 
     // add close
-    price_t curr{2500};
+    price_t curr{2'500};
     double close_frac{0.25};
     display_profit(pos, curr, close_frac);
     pos.add_close(trade{amount_t{value_of(pos.size())*close_frac}, curr, ptime()});

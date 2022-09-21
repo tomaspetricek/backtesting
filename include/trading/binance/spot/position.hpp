@@ -20,8 +20,7 @@ namespace trading::binance::spot {
         amount_t unrealized_profit(const price_t& market)
         {
             assert(size_>=amount_t{0});
-            price_t entry{open_trades_.back().price};
-            return amount_t{(value_of(market)-value_of(entry))*value_of(size_)};
+            return amount_t{(value_of(market)-value_of(last_open_))*value_of(size_)};
         }
     };
 }

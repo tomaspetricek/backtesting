@@ -16,15 +16,17 @@ namespace trading::binance::spot {
     public:
         using position_type = position;
 
-        explicit market(const wallet& wallet)
-                :trading::market<position, order, market>(wallet) { }
+        explicit market(const wallet& wallet, const fee_charger& market_charger)
+                :trading::market<position, order, market>(wallet, market_charger) { }
 
         market() = default;
 
     protected:
         void create_open_trade(const order& order)
         {
-            trade open = trade{order.sold, order.price, order.created};
+            this->wallet_.withdraw(order.sold);
+            amount_t sold{this->market_charger_.apply_open_fee(order.sold)};
+            trade open = trade{sold, order.price, order.created};
 
             // add trade
             if (this->active_) {

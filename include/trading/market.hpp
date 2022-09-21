@@ -11,6 +11,7 @@
 #include <trading/wallet.hpp>
 #include <trading/order.hpp>
 #include <trading/trade.hpp>
+#include <trading/fee_charger.hpp>
 
 using namespace boost::posix_time;
 
@@ -22,11 +23,11 @@ namespace trading {
         std::optional<Position> active_;
         std::vector<Position> closed_;
         price_t curr_{strong::uninitialized};
-        amount_t open_balance{strong::uninitialized};
+        fee_charger market_charger_;
 
     public:
-        explicit market(const wallet& wallet)
-                :wallet_(wallet) { }
+        explicit market(const wallet& wallet, const fee_charger& market_charger)
+                :wallet_(wallet), market_charger_(market_charger) { }
 
         market() = default;
 
@@ -38,27 +39,27 @@ namespace trading {
         void fill_open_order(const Order& order)
         {
             // log
-            if (!active_) {
-                open_balance = wallet_.balance();
+            if (!active_)
                 fmt::print("opening balance: {:.6f}\n", value_of(wallet_.balance()));
-            }
-            wallet_.withdraw(order.sold);
+
             static_cast<ConcreteMarket*>(this)->create_open_trade(order);
         }
 
         void fill_close_order(const Order& order)
         {
             assert(active_);
-            trade close = trade{order.sold, order.price, order.created};
-            amount_t bought = active_->add_close(close);
+            trade close{order.sold, order.price, order.created};
+            amount_t received = active_->add_close(close);
+
+            // apply fees
+            received = market_charger_.apply_close_fee(received);
 
             // deposit
-            wallet_.deposit(bought);
+            wallet_.deposit(received);
 
             // check if closed
             if (active_->is_closed()) {
                 assert(wallet_balance()==equity());
-                assert(wallet_.balance()-active_->template total_realized_profit<amount_t>()==open_balance);
 
                 // log
                 fmt::print("total realized profit: {:.6f}, {:.6f} %\n", value_of(
