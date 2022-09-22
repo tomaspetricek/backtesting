@@ -156,7 +156,7 @@ void use_optimizer()
 
     // create objective function
     auto volume = [](int len, int width, int depth) {
-        #pragma omp critical
+#pragma omp critical
         {
             std::cout << len*width*depth << std::endl;
         }
@@ -390,6 +390,29 @@ void use_futures_position()
     assert(pos.is_closed());
 }
 
+void use_fee_charger()
+{
+    // create wallet
+    trading::wallet wallet{amount_t{100'000}};
+
+    // create market order fee charger
+    percent_t maker_fee{0.04/100};
+    fee_charger market_charger{maker_fee, maker_fee};
+
+    // create market
+    binance::futures::long_market market{wallet, market_charger};
+
+    // fill open order
+    std::size_t leverage{1};
+    futures::order open{amount_t{40'000}, price_t{40'000}, ptime(), leverage};
+    market.fill_open_order(open);
+
+    // fill close order
+    futures::order close{market.active_position().size(), price_t{45'000}, ptime(), leverage};
+    market.fill_close_order(close);
+    assert(!market.has_active_position());
+}
+
 int main()
 {
     // show demo
@@ -398,6 +421,7 @@ int main()
     use_interval();
     use_optimizer();
     use_bazooka();
+    use_fee_charger();
     use_spot_position();
     use_futures_position();
 
