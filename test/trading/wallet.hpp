@@ -12,8 +12,6 @@
 
 using namespace trading;
 
-#define BOOST_TEST_CATCH_SYSTEM_ERRORS
-
 BOOST_AUTO_TEST_SUITE(wallet)
     BOOST_AUTO_TEST_CASE(init_construct)
     {

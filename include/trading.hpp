@@ -25,7 +25,6 @@
 #include <trading/io/csv/writer.hpp>
 #include <trading/io/csv/reader.hpp>
 #include "trading/optimizer/parallel/brute_force.hpp"
-#include <trading/percent/formula.hpp>
 #include <trading/triple_ema/factory.hpp>
 #include <trading/triple_ema/indicator_values.hpp>
 #include <trading/triple_ema/indicator_values_writer.hpp>
@@ -42,7 +41,6 @@
 #include <trading/data_point.hpp>
 #include <trading/exception.hpp>
 #include <trading/fee_charger.hpp>
-#include <trading/amount/formula.hpp>
 #include <trading/fraction.hpp>
 #include <trading/function.hpp>
 #include <trading/index_t.hpp>
