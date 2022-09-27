@@ -16,7 +16,7 @@ namespace trading {
         static const amount_t& validate_balance(const amount_t& balance)
         {
             if (value_of(balance)<0)
-                throw std::runtime_error("Balance has to be greater than 0");
+                throw std::invalid_argument("Balance has to be greater than 0");
 
             return balance;
         }
@@ -29,17 +29,20 @@ namespace trading {
 
         void withdraw(const amount_t& amount)
         {
-            assert(value_of(amount)>0);
+            if (value_of(amount)<=0)
+                throw std::invalid_argument{"Cannot withdraw nothing"};
 
             if (amount>balance_)
-                throw insufficient_balance{};
+                throw insufficient_funds{};
 
             balance_ -= amount;
         }
 
         void deposit(const amount_t& amount)
         {
-            assert(value_of(amount)>0);
+            if (value_of(amount)<=0)
+                throw std::invalid_argument{"Cannot withdraw nothing"};
+
             balance_ += amount;
         }
 
