@@ -1,21 +1,16 @@
 cmake_minimum_required(VERSION 3.17)
-project(backtesting)
+set(CMAKE_CXX_STANDARD 20)
 
 # choose compiler
 # set(CMAKE_CXX_COMPILER /usr/local/opt/llvm/bin/clang++)
 # set(CMAKE_CXX_COMPILER /usr/local/bin/g++-12)
 
+# use optimization
 # set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
 
-set(CMAKE_CXX_STANDARD 20)
+# https://stackoverflow.com/questions/14446495/cmake-project-structure-with-unit-tests
+project (BACKTESTING)
+add_subdirectory (src)
 
-include_directories(include)
-
-add_executable(backtesting src/main.cpp)
-
-# add libraries
-find_package(Boost REQUIRED COMPONENTS date_time)
-find_package(fmt)
-find_package(OpenMP REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-target_link_libraries(backtesting PUBLIC ${Boost_LIBRARIES} fmt::fmt OpenMP::OpenMP_CXX)
+enable_testing ()
+add_subdirectory (test)
