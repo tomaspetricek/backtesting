@@ -5,6 +5,6 @@ include_directories (
         ${Boost_INCLUDE_DIRS}
 )
 add_definitions (-DBOOST_TEST_DYN_LINK)
-add_executable(Test test.cpp)
-target_link_libraries(Test PUBLIC ${Boost_LIBRARIES})
-add_test (NAME MyTest COMMAND Test)
+add_executable(test_ test.cpp)
+target_link_libraries(test_ PUBLIC ${Boost_LIBRARIES})
+add_test (NAME MyTest COMMAND test_)

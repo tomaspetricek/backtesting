@@ -42,7 +42,7 @@ void run()
     // get price points
     currency::pair pair{crypto::BTC, crypto::USDT};
     std::chrono::seconds period = std::chrono::minutes(30);
-    std::filesystem::path candle_csv("../data/in/btc-usdt-30-min.csv");
+    std::filesystem::path candle_csv("../../data/in/btc-usdt-30-min.csv");
     csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';',
                                                                      trading::view::candle_deserializer};
     auto points = get_mean_price_points(reader, candle::ohlc4);
@@ -170,7 +170,7 @@ void save_data_points(Trader trader)
     // get price points
     currency::pair pair{crypto::BTC, crypto::USDT};
     std::chrono::seconds period = std::chrono::minutes(30);
-    std::filesystem::path candle_csv{"../data/in/btc-usdt-30-min.csv"};
+    std::filesystem::path candle_csv{"../../data/in/btc-usdt-30-min.csv"};
     csv::reader<candle, long, double, double, double, double> reader{candle_csv, ';',
                                                                      trading::view::candle_deserializer};
     std::function<price_t(candle)> mean_pricer = candle::ohlc4;
@@ -202,7 +202,7 @@ void save_data_points(Trader trader)
     };
 
     // save mean price points
-    csv::writer<price_point, time_t, double> mean_points_writer{{"../data/out/mean_price_points.csv"},
+    csv::writer<price_point, time_t, double> mean_points_writer{{"../../data/out/mean_price_points.csv"},
                                                                 point_serializer};
     std::string
     mean_price_label = label(*(mean_pricer.target<price_t(
@@ -210,7 +210,7 @@ void save_data_points(Trader trader)
     mean_points_writer({"time", mean_price_label}, mean_points);
 
     // save indicator values
-    auto indics_writer{StrategyFactory::create_indicator_values_writer({"../data/out/indicator_values.csv"})};
+    auto indics_writer{StrategyFactory::create_indicator_values_writer({"../../data/out/indicator_values.csv"})};
     indics_writer(trader.strategy(), indics_values);
 
     // save position points
@@ -226,11 +226,11 @@ void save_data_points(Trader trader)
     std::array<std::string, 2> pos_col_names{"time", "price"};
 
     // save open points
-    csv::writer<price_point, time_t, double> open_points_writer{{"../data/out/open_points.csv"}, point_serializer};
+    csv::writer<price_point, time_t, double> open_points_writer{{"../../data/out/open_points.csv"}, point_serializer};
     open_points_writer(pos_col_names, open_points);
 
     // save closed points
-    csv::writer<price_point, time_t, double> closed_points_writer{{"../data/out/closed_points.csv"}, point_serializer};
+    csv::writer<price_point, time_t, double> closed_points_writer{{"../../data/out/closed_points.csv"}, point_serializer};
     closed_points_writer(pos_col_names, closed_points);
 }
 

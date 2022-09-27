@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 20)
 # set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra")
 
 # https://stackoverflow.com/questions/14446495/cmake-project-structure-with-unit-tests
-project (BACKTESTING)
+project (backtesting)
 add_subdirectory (src)
 
 enable_testing ()
