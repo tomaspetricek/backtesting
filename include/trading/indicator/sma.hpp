@@ -6,29 +6,30 @@
 #define EMASTRATEGY_SMA_HPP
 
 #include <queue>
-
-#include <trading/indicator/moving_average.hpp>
-#include <trading/interface/indicator_like.hpp>
+#include <trading/indicator/ma.hpp>
 
 namespace trading::indicator {
 
     // https://stackoverflow.com/questions/10990618/calculate-rolling-moving-average-in-c
     // simple moving average
-    class sma : public moving_average {
-        double sum_samples_ = 0;
+    class sma : public ma {
+        double sum_samples_{0};
         std::queue<double> samples_;
 
     public:
         explicit sma(size_t period = min_period)
-                :moving_average(period) { }
+                :ma(period) { }
 
         sma& operator()(double sample)
         {
             sum_samples_ += sample;
             samples_.push(sample);
 
-            if (samples_.size()>=period_)
-                ready_ = true;
+            if (samples_.size()==period_)
+                curr_ready_ = true;
+
+            if (samples_.size()>period_)
+                prev_ready_ = true;
 
             // move
             if (samples_.size()>period_) {
@@ -37,20 +38,11 @@ namespace trading::indicator {
                 samples_.pop();
             }
 
+            prev_val_ = curr_val_;
+            curr_val_ = sum_samples_/static_cast<double>(period_);
             return *this;
         }
-
-        explicit operator double() const
-        {
-            if (!ready_)
-                throw not_ready("Not enough initial prices yet. Need "
-                        +std::to_string(period_-samples_.size())+" more");
-
-            return sum_samples_/static_cast<double>(samples_.size());
-        }
     };
-
-    static_assert(interface::indicator_like<sma>);
 }
 
 #endif //EMASTRATEGY_SMA_HPP

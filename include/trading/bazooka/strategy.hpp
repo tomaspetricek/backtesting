@@ -11,7 +11,7 @@
 #include <strong_type.hpp>
 
 #include <trading/strategy.hpp>
-#include <trading/indicator/moving_average.hpp>
+#include <trading/indicator/ma.hpp>
 #include <trading/tuple.hpp>
 #include <trading/interface/strategy_like.hpp>
 #include <trading/exception.hpp>
@@ -60,7 +60,7 @@ namespace trading::bazooka {
             entry_ma_(curr_val);
             exit_ma_(curr_val);
 
-            if (entry_ma_.is_ready() && exit_ma_.is_ready())
+            if (entry_ma_.previous_ready() && exit_ma_.previous_ready())
                 this->indics_ready_ = true;
         }
 
@@ -69,7 +69,7 @@ namespace trading::bazooka {
             assert(level>=0 && level<n_levels);
 
             // move baseline
-            auto baseline = static_cast<double>(entry_ma_);
+            auto baseline = entry_ma_.previous_value();
             return baseline*value_of(entry_levels_[level]);
         }
 
@@ -104,7 +104,7 @@ namespace trading::bazooka {
             if (!curr_level_)
                 return false;
 
-            auto exit_val = static_cast<double>(exit_ma_);
+            auto exit_val = exit_ma_.previous_value();
 
             // exceeded the value of the exit indicator
             if (exit_comp_(value_of(curr), exit_val)) {
@@ -132,7 +132,7 @@ namespace trading::bazooka {
             for (index_t i{0}; i<n_levels; i++)
                 levels[i] = get_level_value(i);
 
-            return indicator_values<n_levels>{static_cast<double>(entry_ma_), static_cast<double>(exit_ma_), levels};
+            return indicator_values<n_levels>{entry_ma_.previous_value(), exit_ma_.previous_value(), levels};
         }
 
         OpenMovingAverage entry_ma() const

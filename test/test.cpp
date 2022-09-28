@@ -4,3 +4,4 @@
 
 #define BOOST_TEST_MAIN
 #include "trading/wallet.hpp"
+#include "trading_view.hpp"

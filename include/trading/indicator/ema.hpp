@@ -9,7 +9,7 @@
 
 #include <trading/exception.hpp>
 #include <trading/price_t.hpp>
-#include <trading/indicator/moving_average.hpp>
+#include <trading/indicator/ma.hpp>
 #include <trading/indicator/sma.hpp>
 #include <trading/interface/indicator_like.hpp>
 
@@ -17,9 +17,8 @@ namespace trading::indicator {
 
     // https://plainenglish.io/blog/how-to-calculate-the-ema-of-a-stock-with-python
     // exponential moving average
-    class ema : public moving_average {
+    class ema : public ma {
         indicator::sma sma;
-        double prev_val_ = 0;
         int smoothing_ = 2;
         double weighting_factor_ = static_cast<double>(smoothing_)/static_cast<double>(period_+1);
 
@@ -33,34 +32,25 @@ namespace trading::indicator {
 
     public:
         explicit ema(int period = min_period, int smoothing = 2)
-                :moving_average(period), sma(period), smoothing_(validate_smoothing(smoothing)){ }
+                :ma(period), sma(period), smoothing_(validate_smoothing(smoothing)){ }
 
         ema& operator()(double sample)
         {
-            if (!sma.is_ready()) {
+            if (!sma.current_ready()) {
                 sma(sample);
 
-                if (sma.is_ready()) {
-                    prev_val_ = static_cast<double>(sma);
-                    ready_ = true;
+                if (sma.current_ready()) {
+                    curr_val_ = sma.current_value();
+                    curr_ready_ = true;
                 }
             }
 
             // calculate current ema
-            prev_val_ = (sample*weighting_factor_)+(prev_val_*(1-weighting_factor_));
+            prev_val_ = curr_val_;
+            curr_val_ = (sample*weighting_factor_)+(prev_val_*(1-weighting_factor_));
             return *this;
         }
-
-        explicit operator double() const
-        {
-            if (!ready_)
-                throw not_ready("Not enough prices to calculate initial ema");
-
-            return prev_val_;
-        }
     };
-
-    static_assert(interface::indicator_like<ema>);
 }
 
 #endif //EMASTRATEGY_EMA_HPP

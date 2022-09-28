@@ -20,7 +20,7 @@
 #include <trading/binance/spot/order_factory.hpp>
 #include <trading/binance/spot/position.hpp>
 #include <trading/indicator/ema.hpp>
-#include <trading/indicator/moving_average.hpp>
+#include <trading/indicator/ma.hpp>
 #include <trading/indicator/sma.hpp>
 #include <trading/io/csv/writer.hpp>
 #include <trading/io/csv/reader.hpp>

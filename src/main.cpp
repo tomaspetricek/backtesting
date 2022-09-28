@@ -99,8 +99,8 @@ void print_vals(Indicator indic, const std::vector<double>& samples)
     for (const double& val: samples) {
         indic(val);
 
-        if (indic.is_ready())
-            std::cout << static_cast<double>(indic);
+        if (indic.current_ready())
+            std::cout << indic.current_value();
     }
 
     std::cout << std::endl;
