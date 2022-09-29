@@ -20,6 +20,21 @@ namespace trading::bazooka {
                          (entry_ma, exit_ma, entry_levels) { }
 
         short_strategy() = default;
+
+        bool should_open(const candle& curr)
+        {
+            return strategy<OpenMovingAverage, CloseMovingAverage, std::greater_equal<>, std::less_equal<>, n_levels>::should_open(curr.low());
+        }
+
+        bool should_close(const candle& curr)
+        {
+            return strategy<OpenMovingAverage, CloseMovingAverage, std::greater_equal<>, std::less_equal<>, n_levels>::should_close(curr.high());
+        }
+
+        bool should_close_all(const candle& curr)
+        {
+            return strategy<OpenMovingAverage, CloseMovingAverage, std::greater_equal<>, std::less_equal<>, n_levels>::should_close_all(curr.high());
+        }
     };
 
     // check if satisfies interface

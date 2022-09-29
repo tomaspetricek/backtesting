@@ -17,21 +17,31 @@ namespace trading {
 
         trader() = default;
 
-        void operator()(const price_point& point)
+        void operator()(const candle& candle)
         {
-            this->market_.update(point);
-            this->update_indicators(point.data);
-
             if (!this->indics_ready_) return;
 
-            if (this->should_open(point.data)) {
-                this->open_order(point);
+            bool done{false};
+
+            while (this->should_open(candle)) {
+                this->open_order(price_point{candle.opened(), this->open_price()});
+                this->opened();
+                done = true;
             }
-            else if (this->should_close(point.data)) {
-                this->close_order(point);
+
+            if (done) return;
+
+            while (this->should_close(candle)) {
+                this->close_order(price_point{candle.opened(), this->close_price()});
+                this->closed();
+                done = true;
             }
-            else if (this->should_close_all(point.data)) {
-                this->close_all_order(point);
+
+            if (done) return;
+
+            if (this->should_close_all(candle)) {
+                this->close_all_order(price_point{candle.opened(), this->close_price()});
+                this->closed();
             }
         }
 

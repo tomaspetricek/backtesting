@@ -5,9 +5,6 @@
 #ifndef EMASTRATEGY_MOVING_AVERAGE_HPP
 #define EMASTRATEGY_MOVING_AVERAGE_HPP
 
-#include <cstddef>
-#include <stdexcept>
-
 namespace trading::indicator {
     class ma {
         static std::size_t validate_period(size_t period)
@@ -20,45 +17,21 @@ namespace trading::indicator {
 
     protected:
         size_t period_;
-        bool curr_ready_{false};
-        bool prev_ready_{false};
-        double prev_val_{0};
-        double curr_val_{0};
-        constexpr static size_t min_period{1};
+        bool ready_ = false;
+        constexpr static size_t min_period = 1;
 
     public:
         explicit ma(size_t period = min_period)
                 :period_(validate_period(period)) { }
-
-        double current_value() const
-        {
-            if (!curr_ready_)
-                throw not_ready("Current value is not ready");
-
-            return curr_val_;
-        }
-
-        double previous_value() const
-        {
-            if (!prev_ready_)
-                throw not_ready("Previous value is not ready");
-
-            return prev_val_;
-        }
 
         size_t period() const
         {
             return period_;
         }
 
-        bool current_ready() const
+        bool is_ready() const
         {
-            return curr_ready_;
-        }
-
-        bool previous_ready() const
-        {
-            return prev_ready_;
+            return ready_;
         }
     };
 }

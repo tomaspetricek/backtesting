@@ -9,6 +9,7 @@
 
 #include <trading/amount_t.hpp>
 #include <trading/price_t.hpp>
+#include <ostream>
 
 using namespace boost::posix_time;
 
@@ -20,6 +21,12 @@ namespace trading {
 
         order(const amount_t& sold, const price_t& price, const ptime& created)
                 :sold(sold), price(price), created(created) { }
+
+        friend std::ostream& operator<<(std::ostream& os, const order& order)
+        {
+            os << "sold: " << order.sold << " price: " << order.price << " created: " << order.created;
+            return os;
+        }
     };
 }
 

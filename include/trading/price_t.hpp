@@ -11,7 +11,7 @@
 #include <strong_type.hpp>
 
 namespace trading {
-    using price_t = strong::type<double, struct price_tag, strong::equality, strong::ordered, strong::arithmetic>;
+    using price_t = strong::type<double, struct price_tag, strong::equality, strong::ordered, strong::arithmetic, strong::ostreamable>;
 }
 
 #endif //EMASTRATEGY_PRICE_T_HPP

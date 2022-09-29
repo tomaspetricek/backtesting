@@ -14,9 +14,7 @@
 namespace trading::triple_ema {
     // source: https://python.plainenglish.io/triple-moving-average-trading-strategy-aaa44d96d532
     template<class LongComp, class ShortComp>
-    class strategy : public trading::strategy<triple_ema::strategy<LongComp, ShortComp>> {
-        friend class trading::strategy<triple_ema::strategy<LongComp, ShortComp>>;
-
+    class strategy : public trading::strategy {
         indicator::ema short_ema_; // fast moving
         indicator::ema middle_ema_; // slow
         indicator::ema long_ema_; // low moving
@@ -32,7 +30,7 @@ namespace trading::triple_ema {
             middle_ema_(curr_val);
             long_ema_(curr_val);
 
-            if (long_ema_.previous_ready())
+            if (long_ema_.is_ready())
                 this->indics_ready_ = true;
         }
 
@@ -41,9 +39,9 @@ namespace trading::triple_ema {
             // position already opened
             if (pos_opened_) return false;
 
-            auto curr_short = short_ema_.previous_value();
-            auto curr_middle = middle_ema_.previous_value();
-            auto curr_long = long_ema_.previous_value();
+            auto curr_short = static_cast<double>(short_ema_);
+            auto curr_middle = static_cast<double>(middle_ema_);
+            auto curr_long = static_cast<double>(long_ema_);
 
             if (long_comp_(curr_middle, curr_long) && short_comp_(curr_middle, curr_short)) {
                 pos_opened_ = true;
@@ -58,8 +56,8 @@ namespace trading::triple_ema {
             // position is not open yet, so there is nothing to sell
             if (!pos_opened_) return false;
 
-            auto curr_short = short_ema_.previous_value();
-            auto curr_middle = middle_ema_.previous_value();
+            auto curr_short = static_cast<double>(short_ema_);
+            auto curr_middle = static_cast<double>(middle_ema_);
 
             if (short_comp_(curr_short, curr_middle)) {
                 pos_opened_ = false;
@@ -96,7 +94,7 @@ namespace trading::triple_ema {
             if (!this->indics_ready_)
                 throw not_ready{"Indicators are not ready yet"};
 
-            return indicator_values{short_ema_.previous_value(), middle_ema_.previous_value(), long_ema_.previous_value()};
+            return indicator_values{static_cast<double>(short_ema_), static_cast<double>(middle_ema_), static_cast<double>(long_ema_)};
         }
 
         const indicator::ema& short_ema() const

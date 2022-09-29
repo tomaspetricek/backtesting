@@ -21,10 +21,14 @@ namespace trading {
         Sizer sizer_;
         std::vector<typename OrderFactory::order_type> open_orders_;
         std::vector<typename OrderFactory::order_type> close_orders_;
+        amount_t init_balance_{strong::uninitialized};
 
         void open_order(const price_point& point)
         {
-            amount_t open_amount = sizer_.open_amount();
+            if (!has_active_position())
+                init_balance_ = market_.wallet_balance();
+
+            amount_t open_amount = sizer_.open_amount(init_balance_);
             auto order = order_factory_.create_order(open_amount, point.data, point.time);
             market_.fill_open_order(order);
             open_orders_.emplace_back(order);
@@ -72,6 +76,16 @@ namespace trading {
         const std::vector<typename OrderFactory::order_type>& close_orders() const
         {
             return close_orders_;
+        }
+
+        const typename OrderFactory::order_type& last_open_order() const
+        {
+            return open_orders_.back();
+        }
+
+        const typename OrderFactory::order_type& last_close_order() const
+        {
+            return close_orders_.back();
         }
 
         bool has_active_position()

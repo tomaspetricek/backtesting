@@ -22,7 +22,6 @@ namespace trading {
         trading::wallet wallet_;
         std::optional<Position> active_;
         std::vector<Position> closed_;
-        price_t curr_{strong::uninitialized};
         fee_charger market_charger_;
 
     public:
@@ -30,11 +29,6 @@ namespace trading {
                 :wallet_(wallet), market_charger_(market_charger) { }
 
         market() = default;
-
-        void update(const price_point& point)
-        {
-            curr_ = point.data;
-        }
 
         void fill_open_order(const Order& order)
         {
@@ -56,7 +50,7 @@ namespace trading {
 
             // check if closed
             if (active_->is_closed()) {
-                assert(wallet_balance()==equity());
+                assert(wallet_balance()==equity(order.price));
 
                 // save position
                 closed_.emplace_back(*active_);
@@ -70,28 +64,28 @@ namespace trading {
         }
 
         template<class Type>
-        Type position_profit()
+        Type position_profit(const price_t& market)
         {
             Type profit{0.0};
 
             if (active_)
-                profit += active_->template profit<Type>(curr_);
+                profit += active_->template profit<Type>(market);
 
             return profit;
         }
 
-        amount_t position_total_profit()
+        amount_t position_total_profit(const price_t& market)
         {
             assert(active_);
-            return active_->template total_realized_profit();
+            return active_->template total_profit(market);
         }
 
-        amount_t equity()
+        amount_t equity(const price_t& market)
         {
             amount_t equity = wallet_balance();
 
             if (active_)
-                equity += active_->template profit<amount_t>(curr_)+active_->invested();
+                equity += active_->template profit<amount_t>(market)+active_->invested();
 
             return equity;
         }

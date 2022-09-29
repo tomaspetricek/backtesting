@@ -11,10 +11,10 @@
 #include <trading/index_t.hpp>
 
 namespace trading {
-    template<std::size_t n_open_amounts, std::size_t n_close_fracs>
+    template<std::size_t n_open_fracs, std::size_t n_close_fracs>
     class varying_sizer {
-        std::array<amount_t, n_open_amounts> open_amounts_;
-        std::array<fraction, n_close_fracs> close_fracs_;
+        std::array<percent_t, n_open_fracs> open_fracs_;
+        std::array<percent_t, n_close_fracs> close_fracs_;
 
         struct state {
             index_t open_idx{0};
@@ -23,35 +23,27 @@ namespace trading {
 
         state curr_;
 
-        static amount_t validate_pos_size(amount_t pos_size)
-        {
-            if (pos_size<=amount_t{0.0})
-                throw std::invalid_argument("Open amount has to be greater than 0");
-
-            return pos_size;
-        }
-
     public:
         void reset_state()
         {
             curr_ = state{};
         }
 
-        amount_t open_amount()
+        amount_t open_amount(const amount_t& balance)
         {
-            assert(curr_.open_idx<n_open_amounts);
-            return open_amounts_[curr_.open_idx++];
+            assert(curr_.open_idx<n_open_fracs);
+            return amount_t{value_of(open_fracs_[curr_.open_idx++])*value_of(balance)};
         }
 
         amount_t close_amount(const amount_t& pos_size)
         {
             assert(curr_.close_idx<n_close_fracs);
-            return amount_t{static_cast<double>(close_fracs_[curr_.close_idx++])*value_of(pos_size)};
+            return amount_t{value_of(close_fracs_[curr_.close_idx++])*value_of(pos_size)};
         }
 
-        explicit varying_sizer(const std::array<amount_t, n_open_amounts>& open_amounts,
-                const std::array<fraction, n_close_fracs>& close_fracs)
-                :open_amounts_(open_amounts), close_fracs_(close_fracs) { }
+        explicit varying_sizer(const std::array<percent_t, n_open_fracs>& open_fracs,
+                const std::array<percent_t, n_close_fracs>& close_fracs)
+                :open_fracs_(open_fracs), close_fracs_(close_fracs) { }
 
         varying_sizer() = default;
     };

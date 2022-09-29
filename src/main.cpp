@@ -99,8 +99,8 @@ void print_vals(Indicator indic, const std::vector<double>& samples)
     for (const double& val: samples) {
         indic(val);
 
-        if (indic.current_ready())
-            std::cout << indic.current_value();
+        if (indic.is_ready())
+            std::cout << static_cast<double>(indic);
     }
 
     std::cout << std::endl;
@@ -234,54 +234,6 @@ void save_data_points(Trader trader)
     closed_points_writer(pos_col_names, closed_points);
 }
 
-void use_bazooka()
-{
-    // create levels
-    constexpr int n_levels{4};
-    std::array<percent_t, n_levels> levels;
-    levels[0] = percent_t{1.0-0.04};
-    levels[1] = percent_t{1.0-0.07};
-    levels[2] = percent_t{1.0-0.1};
-    levels[3] = percent_t{1.0-0.15};
-
-    // create buy amounts
-    std::array<amount_t, n_levels> open_amounts{
-            amount_t{100},
-            amount_t{50},
-            amount_t{20},
-            amount_t{10}
-    };
-
-    // create strategy
-    indicator::ema entry_ma{12};
-    const indicator::ema& exit_ma{16};
-    bazooka::long_strategy<ema, ema, n_levels> strategy{entry_ma, exit_ma, levels};
-
-    // create order factory
-    std::size_t leverage{10};
-    futures::order_factory order_factory{leverage};
-
-    // create market
-    fee_charger market_charger{percent_t{0.01}, percent_t{0.01}};
-    trading::wallet wallet{amount_t{100'000}};
-    futures::long_market market{wallet, market_charger};
-
-    // create sizer
-    constexpr std::size_t n_close_fracs{0}; // uses sell all so no sell fractions are needed
-    std::array<fraction, n_close_fracs> close_fracs{};
-    varying_sizer<n_levels, n_close_fracs> sizer{open_amounts, close_fracs};
-
-    // create trade manager
-    trade_manager<futures::long_market, futures::order_factory, varying_sizer<n_levels, n_close_fracs>> manager
-            {market, order_factory, sizer};
-
-    // create trader
-    trading::trader trader{strategy, manager};
-
-    // save data points
-    save_data_points<bazooka::factory<n_levels>>(trader);
-}
-
 template<class Position>
 void display_total_profit(Position& pos)
 {
@@ -407,7 +359,6 @@ int main()
     use_indicators();
     use_interval();
     use_optimizer();
-    use_bazooka();
     use_fee_charger();
     use_spot_position();
     use_futures_position();

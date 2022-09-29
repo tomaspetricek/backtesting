@@ -22,11 +22,9 @@
 namespace trading::bazooka {
     // entry levels: 0 - first level, n_levels-1 - last level
     template<class OpenMovingAverage, class CloseMovingAverage, class EntryComp, class ExitComp, std::size_t n_levels>
-    class strategy
-            : public trading::strategy<strategy<OpenMovingAverage, CloseMovingAverage, EntryComp, ExitComp, n_levels>> {
+    class strategy : public trading::strategy {
         // must be at least one level
         static_assert(n_levels>0);
-        friend class trading::strategy<strategy<OpenMovingAverage, CloseMovingAverage, EntryComp, ExitComp, n_levels>>;
         OpenMovingAverage entry_ma_;
         CloseMovingAverage exit_ma_;
         std::array<percent_t, n_levels> entry_levels_;
@@ -54,65 +52,13 @@ namespace trading::bazooka {
         }
 
     protected:
-        void update_indicators(const price_t& curr)
-        {
-            auto curr_val = value_of(curr);
-            entry_ma_(curr_val);
-            exit_ma_(curr_val);
-
-            if (entry_ma_.previous_ready() && exit_ma_.previous_ready())
-                this->indics_ready_ = true;
-        }
-
         double get_level_value(index_t level)
         {
             assert(level>=0 && level<n_levels);
 
             // move baseline
-            auto baseline = entry_ma_.previous_value();
+            auto baseline = static_cast<double>(entry_ma_);
             return baseline*value_of(entry_levels_[level]);
-        }
-
-        bool should_open_impl(const price_t& curr)
-        {
-            // all levels passed
-            if (curr_level_==n_levels)
-                return false;
-            assert(curr_level_<=n_levels);
-
-            // move baseline
-            auto level = get_level_value(curr_level_);
-
-            // passed current level
-            if (entry_comp_(value_of(curr), level)) {
-                curr_level_++;
-                return true;
-            }
-
-            return false;
-        }
-
-        // it does not sell fractions, so it's always false
-        bool should_close_impl(const price_t&)
-        {
-            return false;
-        }
-
-        bool should_close_all_impl(const price_t& curr)
-        {
-            // hasn't opened any positions yet
-            if (!curr_level_)
-                return false;
-
-            auto exit_val = exit_ma_.previous_value();
-
-            // exceeded the value of the exit indicator
-            if (exit_comp_(value_of(curr), exit_val)) {
-                curr_level_ = 0;
-                return true;
-            }
-
-            return false;
         }
 
         explicit strategy(OpenMovingAverage entry_ma, CloseMovingAverage exit_ma,
@@ -122,6 +68,16 @@ namespace trading::bazooka {
         strategy() = default;
 
     public:
+        void update_indicators(const price_t& mean_previous_candle)
+        {
+            auto curr_val = value_of(mean_previous_candle);
+            entry_ma_(curr_val);
+            exit_ma_(curr_val);
+
+            if (entry_ma_.is_ready() && exit_ma_.is_ready())
+                this->indics_ready_ = true;
+        }
+
         indicator_values<n_levels> get_indicator_values()
         {
             if (!this->indics_ready_)
@@ -132,13 +88,73 @@ namespace trading::bazooka {
             for (index_t i{0}; i<n_levels; i++)
                 levels[i] = get_level_value(i);
 
-            return indicator_values<n_levels>{entry_ma_.previous_value(), exit_ma_.previous_value(), levels};
+            return indicator_values<n_levels>{static_cast<double>(entry_ma_), static_cast<double>(exit_ma_), levels};
+        }
+
+        bool should_open(const price_t& curr)
+        {
+            // all levels passed
+            if (curr_level_==n_levels)
+                return false;
+            assert(curr_level_<=n_levels);
+
+            // move baseline
+            auto level = get_level_value(curr_level_);
+
+            // passed current level
+            if (entry_comp_(value_of(curr), level))
+                return true;
+
+            return false;
+        }
+
+        // it does not sell fractions, so it's always false
+        bool should_close(const price_t& curr)
+        {
+            return false;
+        }
+
+        bool should_close_all(const price_t& curr)
+        {
+            // hasn't opened any positions yet
+            if (!curr_level_)
+                return false;
+
+            auto exit_val = static_cast<double>(exit_ma_);
+
+            // exceeded the value of the exit indicator
+            if (exit_comp_(value_of(curr), exit_val)) {
+                curr_level_ = 0;
+                return true;
+            }
+
+            return false;
+        }
+
+        void opened()
+        {
+            curr_level_++;
+        }
+
+        void closed() {}
+
+        void closed_all() {}
+
+        price_t open_price()
+        {
+            return price_t{get_level_value(curr_level_)};
+        }
+
+        price_t close_price()
+        {
+            return price_t{static_cast<double>(exit_ma_)};
         }
 
         OpenMovingAverage entry_ma() const
         {
             return entry_ma_;
         }
+
         CloseMovingAverage exit_ma() const
         {
             return exit_ma_;

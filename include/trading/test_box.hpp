@@ -38,9 +38,9 @@ namespace trading {
                 std::throw_with_nested(std::runtime_error("Cannot create strategy"));
             }
 
-            // collect trades
-            for (const auto& point: points_)
-                trader(point);
+//            // collect trades
+//            for (const auto& point: points_)
+//                trader(point);
 
             // close active trade
             trader.try_closing_active_position(points_.back());
