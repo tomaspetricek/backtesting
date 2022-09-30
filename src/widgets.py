@@ -70,11 +70,15 @@ class CandlestickWidget:
         addons = [
             mpf.make_addplot(self._indic_points.loc[min_time:max_time], ax=self._ax),
             mpf.make_addplot(self._mean_price_points.loc[min_time:max_time], ax=self._ax),
-            mpf.make_addplot(self._open_points.loc[min_time:max_time], ax=self._ax,
-                             type='scatter', markersize=200, marker='^'),
             mpf.make_addplot(self._closed_points.loc[min_time:max_time], ax=self._ax,
                              type='scatter', markersize=200, marker='v'),
         ]
+
+        # add open points - can be more in one time
+        for open_points in self._open_points:
+            addons.append(mpf.make_addplot(open_points.loc[min_time:max_time], ax=self._ax,
+                                           type='scatter', markersize=200, marker='^'))
+
         mpf.plot(self._candlestick_points.loc[min_time:max_time], ax=self._ax,
                  addplot=addons, type='candle', style='binance')
         self._ax.legend(self._labels, loc='center left', bbox_to_anchor=(1, 0.5))

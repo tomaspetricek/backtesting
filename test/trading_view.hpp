@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <vector>
 #include <tuple>
+#include <algorithm>
 #include <boost/test/unit_test.hpp>
 #include <trading/io/csv/reader.hpp>
 #include <trading/io/csv/writer.hpp>
@@ -89,9 +90,9 @@ void save_data_points(Trader trader, std::vector<candle>& candles, const std::fu
 
     std::vector<price_point> mean_points;
     mean_points.reserve(candles.size());
-    price_t prev_mean{ std::numeric_limits<double>::quiet_NaN()};
+    price_t prev_mean{std::numeric_limits<double>::quiet_NaN()};
 
-    for (const auto& candle : candles) {
+    for (const auto& candle: candles) {
         trader(candle);
 
         if (trader.indicators_ready())
@@ -116,7 +117,9 @@ void save_data_points(Trader trader, std::vector<candle>& candles, const std::fu
     // save mean price points
     csv::writer<price_point, time_t, double> mean_points_writer{{"../../data/out/mean_price_points.csv"},
                                                                 point_serializer};
-    std::string mean_price_label = label(*(averager.target<price_t(const candle&)>()));
+    std::string
+    mean_price_label = label(*(averager.target<price_t(
+    const candle&)>()));
     mean_points_writer({"time", mean_price_label}, mean_points);
 
     // save indicator values
@@ -143,15 +146,17 @@ void save_data_points(Trader trader, std::vector<candle>& candles, const std::fu
     csv::writer<price_point, time_t, double> closed_points_writer{{"../../data/out/closed_points.csv"},
                                                                   point_serializer};
     closed_points_writer(pos_col_names, closed_points);
+
+    // save candles
+    auto candle_serializer = [](const trading::candle& some) {
+        time_t opened = boost::posix_time::to_time_t(some.opened());
+        return std::make_tuple(opened, value_of(some.open()), value_of(some.high()), value_of(some.low()),
+                value_of(some.close()));
+    };
+    csv::writer<candle, time_t, double, double, double, double> candle_writer{{"../../data/out/candles.csv"},
+                                                                              candle_serializer};
+    candle_writer(std::array<std::string, 5>{"time", "open", "high", "low", "close"}, candles);
 }
-
-struct other_data {
-    price_t entry;
-    amount_t pos_size;
-
-    other_data(const price_t& entry, const amount_t& pos_size)
-            :entry(entry), pos_size(pos_size) { }
-};
 
 BOOST_AUTO_TEST_SUITE(trading_view)
     BOOST_AUTO_TEST_CASE(compare_chart_data)
@@ -159,7 +164,7 @@ BOOST_AUTO_TEST_SUITE(trading_view)
         constexpr std::size_t n_levels{4};
 
         // read candles
-        std::filesystem::path chart_data_csv("../../data/in/btc-usdt-1h-test-1.csv");
+        std::filesystem::path chart_data_csv("../../data/in/spot-sma-btc-usdt-1h.csv");
         auto candle_deserializer = trading::view::candle_deserializer;
 
         auto indics_deserializer = [](double entry_ma, double exit_ma, double entry_level_1, double entry_level_2,
@@ -177,18 +182,17 @@ BOOST_AUTO_TEST_SUITE(trading_view)
         auto averager = candle::ohlc4;
 
         auto chart_data_deserializer = [candle_deserializer, indics_deserializer]
-                (long opened, double open, double high, double low, double close, double entry_ma, double _,
+                (long opened, double open, double high, double low, double close, double entry_ma, double,
                         double entry_level_1, double entry_level_2, double entry_level_3, double entry_level_4,
-                        double exit_ma, double avg_entry_price, double pos_size) {
+                        double exit_ma) {
             auto candle = candle_deserializer(opened, open, high, low, close);
             auto indic_vals = indics_deserializer(entry_ma, exit_ma, entry_level_1, entry_level_2, entry_level_3,
                     entry_level_4);
-            auto other = other_data{price_t{avg_entry_price}, amount_t{pos_size}};
-            return std::make_tuple(candle, indic_vals, other);
+            return std::make_tuple(candle, indic_vals);
         };
 
-        csv::reader<std::tuple<candle, bazooka::indicator_values<n_levels>, other_data>,
-                long, double, double, double, double, double, double, double, double, double, double, double, double, double>
+        csv::reader<std::tuple<candle, bazooka::indicator_values<n_levels>>,
+                long, double, double, double, double, double, double, double, double, double, double, double>
                 reader{chart_data_csv, ';', chart_data_deserializer};
 
         auto chart_data = reader();
@@ -205,7 +209,7 @@ BOOST_AUTO_TEST_SUITE(trading_view)
         std::vector<candle> candles;
         candles.reserve(chart_data.size());
 
-        for (const auto& data : chart_data)
+        for (const auto& data: chart_data)
             candles.emplace_back(std::get<0>(data));
 
         // save points
@@ -214,7 +218,7 @@ BOOST_AUTO_TEST_SUITE(trading_view)
         double tolerance{0.00015};
 
         // trade
-        for (const auto& [candle, expect_indic_vals, other]: chart_data) {
+        for (const auto& [candle, expect_indic_vals]: chart_data) {
             trader(candle);
 
             if (trader.indicators_ready()) {
@@ -228,6 +232,91 @@ BOOST_AUTO_TEST_SUITE(trading_view)
             }
 
             trader.update_indicators(averager(candle));
+        }
+    }
+
+    struct trade_info {
+        enum class side {
+            open,
+            close,
+        };
+
+        std::size_t id;
+        side side;
+        ptime time;
+        price_t price;
+        amount_t amount;
+
+        trade_info(size_t id, enum side side, const ptime& time, const price_t& price, const amount_t& amount)
+                :id(id), side(side), time(time), price(price), amount(amount) { }
+    };
+
+    BOOST_AUTO_TEST_CASE(compare_list_of_trades)
+    {
+        constexpr std::size_t n_levels{4};
+
+        // read candles
+        std::filesystem::path chart_data_csv("../../data/in/spot-sma-btc-usdt-1h.csv");
+        auto candle_deserializer = trading::view::candle_deserializer;
+
+        auto chart_data_deserializer = [candle_deserializer]
+                (long opened, double open, double high, double low, double close, double entry_ma,
+                        double, double, double, double, double, double, double, double) {
+            return candle_deserializer(opened, open, high, low, close);;
+        };
+
+        csv::reader<candle, long, double, double, double, double, double, double, double, double, double, double, double, double, double>
+                chart_reader{chart_data_csv, ';', chart_data_deserializer};
+
+        std::filesystem::path trades_csv("../../data/in/spot-sma-list-of-trades.csv");
+
+        auto trades_deserializer = [](std::size_t id, const std::string& type_, const std::string&,
+                const std::string& time, double price, double amount) {
+            auto side = (type_.find("Entry")!=std::string::npos) ? trade_info::side::open : trade_info::side::close;
+
+            // parse time and adjust time zone
+            ptime parsed_time = boost::posix_time::time_from_string(time)-boost::posix_time::hours(1);
+            return trade_info{id, side, parsed_time, price_t{price}, amount_t{amount}};
+        };
+
+        csv::reader<trade_info, long, std::string, std::string, std::string, double, double> trades_reader{
+                trades_csv, ',', trades_deserializer};
+
+        // read data
+        auto candles = chart_reader();
+        auto trade_infos = trades_reader();
+
+        // reverse trades
+        std::reverse(trade_infos.begin(), trade_infos.end());
+
+        // create strategy
+        auto strategy = create_strategy<n_levels>();
+
+        // create manager
+        auto manager = create_manager<n_levels>();
+
+        // create trader
+        trading::trader trader{strategy, manager};
+
+        auto averager = candle::ohlc4;
+
+        // trade
+        for (const auto& candle: candles) {
+            trader(candle);
+            trader.update_indicators(averager(candle));
+        }
+
+        auto open_orders = trader.open_orders();
+        auto open_order_it = open_orders.begin();
+
+        for (const auto& trade: trade_infos) {
+            if (trade.side==trade_info::side::open) {
+                if (open_order_it!=open_orders.end()) {
+                    BOOST_TEST(trade.time==open_order_it->created);
+                    BOOST_CHECK_CLOSE(value_of(trade.price), value_of(open_order_it->price), 0.001);
+                    open_order_it++;
+                }
+            }
         }
     }
 

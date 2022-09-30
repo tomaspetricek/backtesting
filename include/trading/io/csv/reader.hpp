@@ -41,6 +41,13 @@ namespace trading::io::csv {
             return std::stod(data);
         }
 
+        template<class T>
+        requires std::same_as<T, std::string>
+        std::string parse(const std::string& data)
+        {
+            return data;
+        }
+
         template<std::size_t I = 0>
         inline typename std::enable_if<I==sizeof...(ColumnTypes), void>::type
         parse_line(std::stringstream&) { }

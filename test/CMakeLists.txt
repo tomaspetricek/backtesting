@@ -1,4 +1,4 @@
-find_package (Boost COMPONENTS system filesystem unit_test_framework REQUIRED)
+find_package (Boost COMPONENTS system filesystem unit_test_framework date_time REQUIRED)
 find_package(fmt)
 include_directories (
         ../include
