@@ -211,8 +211,7 @@ BOOST_AUTO_TEST_SUITE(trading_view)
         // save points
         save_data_points<bazooka::factory<n_levels>>(trader, candles, averager);
 
-        double tolerance{0.0001};
-        amount_t begin_balance{trader.wallet_balance()};
+        double tolerance{0.00015};
 
         // trade
         for (const auto& [candle, expect_indic_vals, other]: chart_data) {
@@ -225,24 +224,11 @@ BOOST_AUTO_TEST_SUITE(trading_view)
                 BOOST_CHECK_CLOSE(actual_indic_vals.exit_ma, expect_indic_vals.exit_ma, tolerance);
 
                 for (index_t i{0}; i<n_levels; i++)
-                    BOOST_CHECK_CLOSE(actual_indic_vals.entry_levels[i], expect_indic_vals.entry_levels[i], 0.001);
+                    BOOST_CHECK_CLOSE(actual_indic_vals.entry_levels[i], expect_indic_vals.entry_levels[i], tolerance);
             }
-
-//            if (other.pos_size!=amount_t{0}) {
-////                std::cout << "first order: " << trader.open_orders().front() << std::endl;
-////                          << "last open size: " << trader.last_open_order().sold << std::endl
-////                          << "last close size: " << trader.last_close_order().sold << std::endl << std::endl;
-//                std::cout << "mean entry price: " << value_of(other.entry) << std::endl
-//                          << "position size: " << other.pos_size << std::endl;
-//            }
 
             trader.update_indicators(averager(candle));
         }
-
-        amount_t end_balance{trader.wallet_balance()};
-        std::cout << "profit: " << end_balance-begin_balance << std::endl
-                  << "n open orders: " << trader.open_orders().size() << std::endl
-                  << "n close orders: " << trader.close_orders().size() << std::endl;
     }
 
 BOOST_AUTO_TEST_SUITE_END()
