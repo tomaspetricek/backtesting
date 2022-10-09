@@ -5,6 +5,9 @@
 #ifndef EMASTRATEGY_TUPLE_HPP
 #define EMASTRATEGY_TUPLE_HPP
 
+#include <boost/iterator/zip_iterator.hpp>
+#include <boost/range.hpp>
+
 namespace trading {
 // https://stackoverflow.com/questions/6245735/pretty-print-stdtuple
     template<class TupType, size_t... I>
@@ -58,6 +61,15 @@ namespace trading {
     {
         f(std::get<I>(t), I);
         for_each<I + 1, Func, Tp...>(t, f);
+    }
+
+    // https://stackoverflow.com/questions/8511035/sequence-zip-function-for-c11
+    template <typename... T>
+    auto zip(T&&... containers) -> boost::iterator_range<boost::zip_iterator<decltype(boost::make_tuple(std::begin(containers)...))>>
+    {
+        auto zip_begin = boost::make_zip_iterator(boost::make_tuple(std::begin(containers)...));
+        auto zip_end = boost::make_zip_iterator(boost::make_tuple(std::end(containers)...));
+        return boost::make_iterator_range(zip_begin, zip_end);
     }
 }
 

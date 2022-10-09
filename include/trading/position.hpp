@@ -144,6 +144,10 @@ namespace trading {
             return invested_;
         }
 
+        const amount_t& total_invested() const
+        {
+            return total_invested_;
+        }
     };
 }
 
