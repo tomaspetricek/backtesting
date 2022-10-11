@@ -8,7 +8,6 @@
 #include <trading/bazooka/long_strategy.hpp>
 #include <trading/bazooka/short_strategy.hpp>
 #include <trading/bazooka/indicator_values.hpp>
-#include <trading/bazooka/indicator_values_writer.hpp>
 
 namespace trading::bazooka {
     template<std::size_t n_levels>
@@ -28,11 +27,6 @@ namespace trading::bazooka {
                 const std::array<percent_t, n_levels>& entry_levels)
         {
             return short_strategy<OpenMovingAverage, CloseMovingAverage, n_levels>{entry_ma, exit_ma, entry_levels};
-        }
-
-        static indicator_values_writer<n_levels> create_indicator_values_writer(const std::filesystem::path& path)
-        {
-            return indicator_values_writer<n_levels>{path};
         }
 
         using indicator_values_type = indicator_values<n_levels>;
