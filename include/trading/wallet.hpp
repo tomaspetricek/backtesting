@@ -33,7 +33,7 @@ namespace trading {
                 throw std::invalid_argument{"Cannot withdraw nothing"};
 
             if (amount>balance_)
-                throw insufficient_funds{};
+                throw insufficient_funds{"Too much to withdraw"};
 
             balance_ -= amount;
         }

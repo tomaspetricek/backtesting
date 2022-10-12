@@ -89,8 +89,9 @@ auto create_manager()
     };
 
     // create sizer
-    constexpr std::size_t n_close_fracs{0}; // uses sell all so no sell fractions are needed
-    std::array<percent_t, n_close_fracs> close_fracs{};
+    constexpr std::size_t n_close_fracs{1};
+    std::array<percent_t, n_close_fracs> close_fracs{percent_t{1.0}};
+    assert(close_fracs.size()==n_close_fracs);
     varying_sizer<n_levels, n_close_fracs> sizer{open_fracs, close_fracs};
 
     // create trade manager
@@ -102,51 +103,54 @@ void save_candles(const std::filesystem::path& path, const std::vector<candle>& 
 {
     csv::writer writer{path, ','};
     constexpr std::size_t n_cols{5};
-    writer(std::array<std::string, n_cols>{"time", "open", "high", "low", "close"});
+    writer.write_line(std::array<std::string, n_cols>{"time", "open", "high", "low", "close"});
 
     for (const auto& candle: candles)
-        writer(std::array<std::string, n_cols>{std::to_string(boost::posix_time::to_time_t(candle.opened())),
-                                               std::to_string(value_of(candle.open())),
-                                               std::to_string(value_of(candle.high())),
-                                               std::to_string(value_of(candle.low())),
-                                               std::to_string(value_of(candle.close()))});
+        writer.write_line(to_array(std::make_tuple(
+                boost::posix_time::to_time_t(candle.opened()),
+                value_of(candle.open()),
+                value_of(candle.high()),
+                value_of(candle.low()),
+                value_of(candle.close())
+        )));
 }
 
 void save_orders(const std::filesystem::path& path, const std::vector<futures::order>& orders)
 {
     csv::writer writer{path, ','};
     constexpr std::size_t n_cols{2};
-    writer(std::array<std::string, n_cols>{"time", "price"});
+    writer.write_line(std::array<std::string, n_cols>{"time", "price"});
 
     for (const auto& order: orders)
-        writer(std::array<std::string, n_cols>{std::to_string(boost::posix_time::to_time_t(order.created)),
-                                               std::to_string(value_of(order.price))});
+        writer.write_line(
+                to_array(std::make_tuple(boost::posix_time::to_time_t(order.created), value_of(order.price))));
 }
 
 void save_mean_points(const std::filesystem::path& path, const std::vector<price_point>& mean_points,
         const std::function<price_t(candle)>& averager)
 {
-    std::string averager_label = label(*(averager.target<price_t(
+    std::string
+    averager_label = label(*(averager.target<price_t(
     const candle&)>()));
     csv::writer writer{path, ','};
     constexpr std::size_t n_cols{2};
-    writer(std::array<std::string, n_cols>{"time", averager_label});
+    writer.write_line(std::array<std::string, n_cols>{"time", averager_label});
 
     for (const auto& mean_point: mean_points)
-        writer(std::array<std::string, n_cols>{std::to_string(boost::posix_time::to_time_t(mean_point.time)),
-                                               std::to_string(value_of(mean_point.data))});
+        writer.write_line(
+                to_array(std::make_tuple(boost::posix_time::to_time_t(mean_point.time), value_of(mean_point.data))));
 }
 
 template<std::size_t n_levels>
-void save_indicator_values_points(const std::filesystem::path& path,
+void save_indic_points(const std::filesystem::path& path,
         const std::vector<data_point<bazooka::indicator_values<n_levels>>> indic_points,
         const bazooka::long_strategy<sma, sma, n_levels>& strategy)
 {
     csv::writer writer{path, ','};
-    writer(bazooka::indicator_values<n_levels>::col_names(strategy));
+    writer.write_line(bazooka::indicator_values<n_levels>::col_names(strategy));
 
     for (const auto& indic_point: indic_points)
-        writer(bazooka::serializer<n_levels>(indic_point));
+        writer.write_line(bazooka::serializer<n_levels>(indic_point));
 }
 
 template<std::size_t n_levels>
@@ -168,7 +172,7 @@ auto read_chart_data(const std::filesystem::path& path)
 
     // read chart data
     csv::reader reader{path, ';'};
-    deserializer<long, double, double, double, double, double, double, double, double, double, double, double> chart_parser;
+    deserializer<long, double, double, double, double, double, double, double, double, double, double, double> parser;
     constexpr std::size_t n_cols{12};
     std::string data[n_cols];
 
@@ -176,16 +180,15 @@ auto read_chart_data(const std::filesystem::path& path)
     std::vector<bazooka::indicator_values<n_levels>> indic_vals;
 
     // read column names
-    reader(data);
+    reader.read_line(data);
 
-    while (reader(data)) {
+    while (reader.read_line(data)) {
         auto [actual_opened, open, high, low, close, entry_ma, _,
-                entry_level_1, entry_level_2, entry_level_3, entry_level_4, exit_ma] = chart_parser(data);
+                entry_level_1, entry_level_2, entry_level_3, entry_level_4, exit_ma] = parser(data);
 
         candles.emplace_back(candle_deserializer(actual_opened, open, high, low, close));
-        indic_vals.emplace_back(
-                indics_deserializer(entry_ma, exit_ma, entry_level_1, entry_level_2, entry_level_3,
-                        entry_level_4));
+        indic_vals.emplace_back(indics_deserializer(entry_ma, exit_ma, entry_level_1, entry_level_2, entry_level_3,
+                entry_level_4));
     }
 
     return std::make_tuple(candles, indic_vals);
@@ -195,18 +198,18 @@ auto read_trades(const std::filesystem::path& path)
 {
     csv::reader reader{path, ','};
     constexpr std::size_t n_cols{6};
-    deserializer<long, std::string, std::string, std::string, double, double> trades_parser;
+    deserializer<long, std::string, std::string, std::string, double, double> parser;
     std::string data[n_cols];
 
     std::vector<trade_info> open_trade_infos;
     std::vector<trade_info> close_trade_infos;
 
     // read column names
-    reader(data);
+    reader.read_line(data);
     bool last_open_first{false};
 
-    while (reader(data)) {
-        auto [id, side, signal, time, price, amount] = trades_parser(data);
+    while (reader.read_line(data)) {
+        auto [id, side, signal, time, price, amount] = parser(data);
         ptime parsed_time = boost::posix_time::time_from_string(time);
 
         if (side.find("Entry")!=std::string::npos) {
@@ -263,10 +266,11 @@ BOOST_AUTO_TEST_SUITE(trader_test)
         std::vector<data_point<bazooka::indicator_values<n_levels>>> indic_points;
         std::vector<price_point> mean_points;
 
+        amount_t begin_balance{trader.wallet_balance()};
+
         // trade
         for (auto [candle, actual_indic_val]: zip(candles, actual_indic_vals)) {
             trader(candle);
-
             // check indicator values
             if (trader.indicators_ready()) {
                 auto expect_indic_val = trader.get_indicator_values();
@@ -285,6 +289,9 @@ BOOST_AUTO_TEST_SUITE(trader_test)
             trader.update_indicators(mean_price);
         }
 
+        amount_t end_balance{trader.wallet_balance()};
+        BOOST_CHECK_CLOSE(value_of(end_balance-begin_balance), 3'034.40, tolerance);
+
         check_trades(open_trade_infos, trader.open_orders());
         check_trades(close_trade_infos, trader.close_orders());
 
@@ -293,7 +300,7 @@ BOOST_AUTO_TEST_SUITE(trader_test)
         save_orders(out_dir/"open_points.csv", trader.open_orders());
         save_orders(out_dir/"close_points.csv", trader.close_orders());
         save_mean_points(out_dir/"mean_points.csv", mean_points, averager);
-        save_indicator_values_points(out_dir/"indic_points.csv", indic_points, strategy);
+        save_indic_points(out_dir/"indic_points.csv", indic_points, strategy);
     }
 BOOST_AUTO_TEST_SUITE_END()
 

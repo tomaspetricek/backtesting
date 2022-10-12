@@ -23,17 +23,17 @@ namespace trading {
 
             bool done{false};
 
-            while (this->should_open(candle)) {
-                this->open_order(price_point{candle.opened(), this->open_price()});
-                this->opened();
+            while (this->should_close(candle)) {
+                this->close_order(price_point{candle.opened(), this->close_price()});
+                this->closed();
                 done = true;
             }
 
             if (done) return;
 
-            while (this->should_close(candle)) {
-                this->close_order(price_point{candle.opened(), this->close_price()});
-                this->closed();
+            while (this->should_open(candle)) {
+                this->open_order(price_point{candle.opened(), this->open_price()});
+                this->opened();
                 done = true;
             }
 

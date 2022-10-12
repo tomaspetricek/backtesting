@@ -28,7 +28,7 @@ namespace trading::io::csv {
         }
 
         template<std::size_t n>
-        void operator()(const std::array<std::string, n>& data)
+        void write_line(const std::array<std::string, n>& data)
         {
             char sep;
             for (int i{0}; i<n; i++) {

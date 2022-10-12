@@ -5,8 +5,19 @@
 #ifndef EMASTRATEGY_TUPLE_HPP
 #define EMASTRATEGY_TUPLE_HPP
 
+#include <iostream>
+#include <string>
+#include <array>
 #include <boost/iterator/zip_iterator.hpp>
 #include <boost/range.hpp>
+#include <trading/index_t.hpp>
+
+namespace std {
+    std::string to_string(const std::string& val)
+    {
+        return val;
+    }
+}
 
 namespace trading {
 // https://stackoverflow.com/questions/6245735/pretty-print-stdtuple
@@ -52,24 +63,49 @@ namespace trading {
 
     // https://stackoverflow.com/questions/1198260/how-can-you-iterate-over-the-elements-of-an-stdtuple
     template<std::size_t I = 0, typename Func, typename... Tp>
-    inline typename std::enable_if<I == sizeof...(Tp), void>::type
-    for_each(std::tuple<Tp...> &, Func) { }
+    inline typename std::enable_if<I==sizeof...(Tp), void>::type
+    for_each(std::tuple<Tp...>&, Func) { }
 
     template<std::size_t I = 0, typename Func, typename... Tp>
-    inline typename std::enable_if<I < sizeof...(Tp), void>::type
+    inline typename std::enable_if<I<sizeof...(Tp), void>::type
     for_each(std::tuple<Tp...>& t, Func f)
     {
         f(std::get<I>(t), I);
-        for_each<I + 1, Func, Tp...>(t, f);
+        for_each<I+1, Func, Tp...>(t, f);
+    }
+
+    template<std::size_t I = 0, typename Func, typename... Tp>
+    inline typename std::enable_if<I==sizeof...(Tp), void>::type
+    for_each(const std::tuple<Tp...>&, Func) { }
+
+    template<std::size_t I = 0, typename Func, typename... Tp>
+    inline typename std::enable_if<I<sizeof...(Tp), void>::type
+    for_each(const std::tuple<Tp...>& t, Func f)
+    {
+        f(std::get<I>(t), I);
+        for_each<I+1, Func, Tp...>(t, f);
     }
 
     // https://stackoverflow.com/questions/8511035/sequence-zip-function-for-c11
-    template <typename... T>
-    auto zip(T&&... containers) -> boost::iterator_range<boost::zip_iterator<decltype(boost::make_tuple(std::begin(containers)...))>>
+    template<typename... T>
+    auto zip(T&& ... containers) -> boost::iterator_range<boost::zip_iterator<decltype(boost::make_tuple(
+            std::begin(containers)...))>>
     {
         auto zip_begin = boost::make_zip_iterator(boost::make_tuple(std::begin(containers)...));
         auto zip_end = boost::make_zip_iterator(boost::make_tuple(std::end(containers)...));
         return boost::make_iterator_range(zip_begin, zip_end);
+    }
+
+    template<class ...Types>
+    std::array<std::string, sizeof...(Types)> to_array(const std::tuple<Types...>& src)
+    {
+        std::array<std::string, sizeof...(Types)> dest;
+
+        for_each(src, [&](auto val, index_t i) {
+            dest[i] = std::to_string(val);
+        });
+
+        return dest;
     }
 }
 

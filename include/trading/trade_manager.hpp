@@ -6,7 +6,6 @@
 #define BACKTESTING_TRADE_MANAGER_HPP
 
 #include <optional>
-
 #include <trading/data_point.hpp>
 #include <trading/order.hpp>
 
@@ -25,10 +24,7 @@ namespace trading {
 
         void open_order(const price_point& point)
         {
-            if (!has_active_position())
-                init_balance_ = market_.wallet_balance();
-
-            amount_t open_amount = sizer_.open_amount(init_balance_);
+            amount_t open_amount = sizer_.open_amount(market_.wallet_balance());
             auto order = order_factory_.create_order(open_amount, point.data, point.time);
             market_.fill_open_order(order);
             open_orders_.emplace_back(order);
@@ -40,6 +36,9 @@ namespace trading {
             auto order = order_factory_.create_order(close_amount, point.data, point.time);
             market_.fill_close_order(order);
             close_orders_.emplace_back(order);
+
+            if (!market_.has_active_position())
+                sizer_.reset_state();
         }
 
         void close_all_order(const price_point& point)
@@ -76,16 +75,6 @@ namespace trading {
         const std::vector<typename OrderFactory::order_type>& close_orders() const
         {
             return close_orders_;
-        }
-
-        const typename OrderFactory::order_type& last_open_order() const
-        {
-            return open_orders_.back();
-        }
-
-        const typename OrderFactory::order_type& last_close_order() const
-        {
-            return close_orders_.back();
         }
 
         bool has_active_position()

@@ -39,7 +39,7 @@ namespace trading::io::csv {
         }
 
         template<std::size_t n>
-        bool operator()(std::string (& data)[n])
+        bool read_line(std::string (& data)[n])
         {
             // read lines
             if(!std::getline(file_, line_))
