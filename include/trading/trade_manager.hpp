@@ -8,37 +8,42 @@
 #include <optional>
 #include <trading/data_point.hpp>
 #include <trading/order.hpp>
+#include <trading/fractioner.hpp>
 
 namespace trading {
     // to avoid use of virtual functions CRTP is used
     // src: https://www.fluentcpp.com/2017/05/12/curiously-recurring-template-pattern/
-    template<class Market, class OrderFactory, class Sizer>
+    template<class Market, class OrderFactory, std::size_t n_open, std::size_t n_close>
     class trade_manager {
     protected:
         Market market_;
         OrderFactory order_factory_;
-        Sizer sizer_;
+        fractioner<n_open> open_sizer_;
+        fractioner<n_close> close_sizer_;
         std::vector<typename OrderFactory::order_type> open_orders_;
         std::vector<typename OrderFactory::order_type> close_orders_;
-        amount_t init_balance_{strong::uninitialized};
 
         void open_order(const price_point& point)
         {
-            amount_t open_amount = sizer_.open_amount(market_.wallet_balance());
-            auto order = order_factory_.create_order(open_amount, point.data, point.time);
+            amount_t size = open_sizer_(market_.wallet_balance());
+            auto order = order_factory_.create_order(size, point.data, point.time);
             market_.fill_open_order(order);
             open_orders_.emplace_back(order);
         }
 
+        void reset_fractioners()
+        {
+            open_sizer_.reset();
+            close_sizer_.reset();
+        }
+
         void close_order(const price_point& point)
         {
-            amount_t close_amount = sizer_.close_amount(market_.active_position().size());
-            auto order = order_factory_.create_order(close_amount, point.data, point.time);
+            amount_t size = close_sizer_(market_.active_position().size());
+            auto order = order_factory_.create_order(size, point.data, point.time);
             market_.fill_close_order(order);
             close_orders_.emplace_back(order);
-
-            if (!market_.has_active_position())
-                sizer_.reset_state();
+            if (!market_.has_active_position()) reset_fractioners();
         }
 
         void close_all_order(const price_point& point)
@@ -47,14 +52,15 @@ namespace trading {
             auto order = order_factory_.create_order(close_amount, point.data, point.time);
             market_.fill_close_order(order);
             close_orders_.emplace_back(order);
-            sizer_.reset_state();
+            reset_fractioners();
         }
 
     public:
         trade_manager() = default;
 
-        explicit trade_manager(const Market& market, const OrderFactory& order_factory, const Sizer& sizer)
-                :market_{market}, order_factory_{order_factory}, sizer_{sizer} { }
+        explicit trade_manager(Market market, OrderFactory order_factory, const fractioner<n_open>& open_sizer,
+                const fractioner<n_close>& close_sizer)
+                :market_(market), order_factory_(order_factory), open_sizer_(open_sizer), close_sizer_(close_sizer) { }
 
         // it closes active trade, if there is one
         void try_closing_active_position(const price_point& point)

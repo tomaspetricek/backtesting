@@ -56,7 +56,7 @@
 #include <trading/market.hpp>
 #include <trading/trader.hpp>
 #include <trading/tuple.hpp>
-#include <trading/varying_sizer.hpp>
+#include <trading/fractioner.hpp>
 #include <strong_type.hpp>
 #include <cppcoro/generator.hpp>
 

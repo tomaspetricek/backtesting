@@ -29,7 +29,7 @@
 #include <trading/binance/futures/market.hpp>
 #include <trading/binance/futures/order_factory.hpp>
 #include <trading/fraction.hpp>
-#include <trading/varying_sizer.hpp>
+#include <trading/fractioner.hpp>
 #include <trading/trade.hpp>
 #include <trading/trade_manager.hpp>
 #include <trading/trader.hpp>
@@ -80,23 +80,23 @@ auto create_manager()
     trading::wallet wallet{amount_t{10'000}};
     futures::long_market market{wallet, market_charger};
 
-    // create buy amounts
+    // create open sizer
     std::array<percent_t, n_levels> open_fracs{
             percent_t{12.5/100},
             percent_t{12.5/100},
             percent_t{25.0/100},
             percent_t{50.0/100}
     };
+    fractioner<n_levels> open_sizer{open_fracs};
 
-    // create sizer
-    constexpr std::size_t n_close_fracs{1};
-    std::array<percent_t, n_close_fracs> close_fracs{percent_t{1.0}};
-    assert(close_fracs.size()==n_close_fracs);
-    varying_sizer<n_levels, n_close_fracs> sizer{open_fracs, close_fracs};
+    // create close sizer
+    constexpr std::size_t n_close{1};
+    std::array<percent_t, n_close> close_fracs{percent_t{1.0}};
+    fractioner<n_close> close_sizer{close_fracs};
 
     // create trade manager
-    return trade_manager<futures::long_market, futures::order_factory, varying_sizer<n_levels, n_close_fracs>>
-            {market, order_factory, sizer};
+    return trade_manager<futures::long_market, futures::order_factory, n_levels, n_close>
+            {market, order_factory, open_sizer, close_sizer};
 }
 
 void save_candles(const std::filesystem::path& path, const std::vector<candle>& candles)
