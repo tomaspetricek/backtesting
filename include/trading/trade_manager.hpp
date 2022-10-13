@@ -48,8 +48,8 @@ namespace trading {
 
         void close_all_order(const price_point& point)
         {
-            amount_t close_amount = market_.active_position().size();
-            auto order = order_factory_.create_order(close_amount, point.data, point.time);
+            amount_t size = market_.active_position().size();
+            auto order = order_factory_.create_order(size, point.data, point.time);
             market_.fill_close_order(order);
             close_orders_.emplace_back(order);
             reset_fractioners();

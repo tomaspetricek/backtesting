@@ -28,7 +28,6 @@
 #include <trading/fee_charger.hpp>
 #include <trading/binance/futures/market.hpp>
 #include <trading/binance/futures/order_factory.hpp>
-#include <trading/fraction.hpp>
 #include <trading/fractioner.hpp>
 #include <trading/trade.hpp>
 #include <trading/trade_manager.hpp>

@@ -6,3 +6,4 @@
 #include "trading/wallet.hpp"
 #include "trading/trader.hpp"
 #include "trading/binance/futures/position.hpp"
+#include "trading/fractioner.hpp"

@@ -7,7 +7,6 @@
 
 #include <array>
 #include <trading/amount_t.hpp>
-#include <trading/fraction.hpp>
 #include <trading/index_t.hpp>
 #include <trading/percent_t.hpp>
 
@@ -23,12 +22,12 @@ namespace trading {
             cum_fracs[0] = fracs[0];
             percent_t sum_prev{fracs[0]};
 
-            for (index_t i{1}; i<n_fracs; i++) {
-                cum_fracs[i] = sum_prev/(percent_t{1.0}-sum_prev);
+            for (index_t i{1}; i<n_fracs-1; i++) {
+                cum_fracs[i] = fracs[i]/(percent_t{1.0}-sum_prev);
                 sum_prev += fracs[i];
             }
 
-            assert(cum_fracs[n_fracs-1]==percent_t{1.0});
+            cum_fracs[n_fracs-1] = percent_t{1.0};
             return cum_fracs;
         }
 
