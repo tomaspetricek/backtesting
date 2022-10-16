@@ -11,48 +11,48 @@
 
 using namespace trading;
 
-BOOST_AUTO_TEST_SUITE(wallet)
-    BOOST_AUTO_TEST_CASE(init_construct)
+BOOST_AUTO_TEST_SUITE(wallet_test)
+    BOOST_AUTO_TEST_CASE(default_constructor_test)
     {
         trading::wallet wallet;
         BOOST_REQUIRE_EQUAL(wallet.balance(), amount_t{0.0});
     }
 
-    BOOST_AUTO_TEST_CASE(check_initial_balance)
+    BOOST_AUTO_TEST_CASE(constructor_test)
     {
         trading::amount_t balance{100};
         trading::wallet wallet{balance};
         BOOST_REQUIRE_EQUAL(balance, wallet.balance());
     }
 
-    BOOST_AUTO_TEST_CASE(negative_initial_balance)
+    BOOST_AUTO_TEST_CASE(negative_balance_test)
     {
         trading::amount_t balance{-100};
         BOOST_REQUIRE_THROW(trading::wallet{balance}, std::invalid_argument);
     }
 
-    BOOST_AUTO_TEST_CASE(withdraw_more_than_own)
+    BOOST_AUTO_TEST_CASE(withdraw_too_much_test)
     {
         trading::amount_t balance{0};
         trading::wallet wallet{balance};
         BOOST_REQUIRE_THROW(wallet.withdraw(amount_t{100}), insufficient_funds);
     }
 
-    BOOST_AUTO_TEST_CASE(withdraw_nothing)
+    BOOST_AUTO_TEST_CASE(withdraw_nothing_test)
     {
         trading::amount_t balance{0};
         trading::wallet wallet{balance};
         BOOST_REQUIRE_THROW(wallet.withdraw(amount_t{0}), std::invalid_argument);
     }
 
-    BOOST_AUTO_TEST_CASE(deposit_nothing)
+    BOOST_AUTO_TEST_CASE(deposit_nothing_test)
     {
         trading::amount_t balance{0};
         trading::wallet wallet{balance};
         BOOST_REQUIRE_THROW(wallet.deposit(amount_t{0}), std::invalid_argument);
     }
 
-    BOOST_AUTO_TEST_CASE(deposit)
+    BOOST_AUTO_TEST_CASE(deposit_test)
     {
         amount_t init_balance{100};
         trading::wallet wallet{init_balance};
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_SUITE(wallet)
         BOOST_REQUIRE_EQUAL(wallet.balance(), init_balance+added);
     }
 
-    BOOST_AUTO_TEST_CASE(withdraw)
+    BOOST_AUTO_TEST_CASE(withdraw_test)
     {
         amount_t init_balance{100};
         trading::wallet wallet{init_balance};

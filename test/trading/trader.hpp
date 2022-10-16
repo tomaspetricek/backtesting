@@ -237,39 +237,25 @@ void check_trades(const std::vector<trade_info>& trade_infos, const std::vector<
 }
 
 BOOST_AUTO_TEST_SUITE(trader_test)
-    BOOST_AUTO_TEST_CASE(compare_list_of_trades)
+    BOOST_AUTO_TEST_CASE(indicator_values_test)
     {
-        std::chrono::seconds period = std::chrono::hours(1);
         std::filesystem::path data_dir{"../../test/data"};
         std::filesystem::path in_dir{data_dir/"in"};
-        std::filesystem::path out_dir{data_dir/"out"};
         constexpr std::size_t n_levels{4};
         auto averager = candle::ohlc4;
-
-        // read chart data
-        auto [candles, actual_indic_vals] = read_chart_data<n_levels>(in_dir/"spot-sma-btc-usdt-1h.csv");
-
-        auto [open_trade_infos, close_trade_infos] = read_trades(in_dir/"spot-sma-list-of-trades.csv");
-        std::reverse(open_trade_infos.begin(), open_trade_infos.end());
-        std::reverse(close_trade_infos.begin(), close_trade_infos.end());
-
-        // remove incorrect trade
-        open_trade_infos.erase(open_trade_infos.begin()+41);
 
         // create strategy
         auto strategy = create_strategy<n_levels>();
         auto manager = create_manager<n_levels>();
         trading::trader trader{strategy, manager};
 
+        // read candles
+        auto [candles, actual_indic_vals] = read_chart_data<n_levels>(in_dir/"spot-sma-btc-usdt-1h.csv");
         double tolerance{0.00015};
-        std::vector<data_point<bazooka::indicator_values<n_levels>>> indic_points;
-        std::vector<price_point> mean_points;
 
-        amount_t begin_balance{trader.wallet_balance()};
-
-        // trade
         for (auto [candle, actual_indic_val]: zip(candles, actual_indic_vals)) {
             trader(candle);
+
             // check indicator values
             if (trader.indicators_ready()) {
                 auto expect_indic_val = trader.get_indicator_values();
@@ -279,27 +265,72 @@ BOOST_AUTO_TEST_SUITE(trader_test)
 
                 for (index_t i{0}; i<n_levels; i++)
                     BOOST_CHECK_CLOSE(expect_indic_val.entry_levels[i], actual_indic_val.entry_levels[i], tolerance);
-
-                indic_points.emplace_back(candle.opened(), expect_indic_val);
             }
 
             auto mean_price = averager(candle);
-            mean_points.emplace_back(candle.opened(), mean_price);
             trader.update_indicators(mean_price);
         }
+    }
 
-        amount_t end_balance{trader.wallet_balance()};
-        BOOST_CHECK_CLOSE(value_of(end_balance-begin_balance), 3'034.40, tolerance);
+    BOOST_AUTO_TEST_CASE(open_orders_test)
+    {
+        std::filesystem::path data_dir{"../../test/data"};
+        std::filesystem::path in_dir{data_dir/"in"};
+        constexpr std::size_t n_levels{4};
+        auto averager = candle::ohlc4;
+
+        // create strategy
+        auto strategy = create_strategy<n_levels>();
+        auto manager = create_manager<n_levels>();
+        trading::trader trader{strategy, manager};
+
+        // read candles
+        std::vector<candle> candles;
+        std::tie(candles, std::ignore) = read_chart_data<n_levels>(in_dir/"spot-sma-btc-usdt-1h.csv");
+
+        // read trade infos
+        std::vector<trade_info> open_trade_infos;
+        std::tie(open_trade_infos, std::ignore) = read_trades(in_dir/"spot-sma-list-of-trades.csv");
+        std::reverse(open_trade_infos.begin(), open_trade_infos.end());
+
+        // remove incorrect trade
+        open_trade_infos.erase(open_trade_infos.begin()+41);
+
+        for (const auto& candle: candles) {
+            trader(candle);
+            trader.update_indicators(averager(candle));
+        }
 
         check_trades(open_trade_infos, trader.open_orders());
-        check_trades(close_trade_infos, trader.close_orders());
+    }
 
-        // save data
-        save_candles(out_dir/"candles.csv", candles);
-        save_orders(out_dir/"open_points.csv", trader.open_orders());
-        save_orders(out_dir/"close_points.csv", trader.close_orders());
-        save_mean_points(out_dir/"mean_points.csv", mean_points, averager);
-        save_indic_points(out_dir/"indic_points.csv", indic_points, strategy);
+    BOOST_AUTO_TEST_CASE(close_orders_test)
+    {
+        std::filesystem::path data_dir{"../../test/data"};
+        std::filesystem::path in_dir{data_dir/"in"};
+        constexpr std::size_t n_levels{4};
+        auto averager = candle::ohlc4;
+
+        // create strategy
+        auto strategy = create_strategy<n_levels>();
+        auto manager = create_manager<n_levels>();
+        trading::trader trader{strategy, manager};
+
+        // read candles
+        std::vector<candle> candles;
+        std::tie(candles, std::ignore) = read_chart_data<n_levels>(in_dir/"spot-sma-btc-usdt-1h.csv");
+
+        // read trade infos
+        std::vector<trade_info> close_trade_infos;
+        std::tie(std::ignore, close_trade_infos) = read_trades(in_dir/"spot-sma-list-of-trades.csv");
+        std::reverse(close_trade_infos.begin(), close_trade_infos.end());
+
+        for (const auto& candle: candles) {
+            trader(candle);
+            trader.update_indicators(averager(candle));
+        }
+
+        check_trades(close_trade_infos, trader.close_orders());
     }
 BOOST_AUTO_TEST_SUITE_END()
 

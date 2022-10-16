@@ -7,3 +7,4 @@
 #include "trading/trader.hpp"
 #include "trading/binance/futures/position.hpp"
 #include "trading/fractioner.hpp"
+#include "trading/indicator/sma.hpp"
