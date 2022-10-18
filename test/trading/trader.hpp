@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_SUITE(trader_test)
             // check indicator values
             if (trader.indicators_ready()) {
                 auto expect_indic_val = trader.get_indicator_values();
-                assert(actual_indic_val.entry_ma==actual_indic_val.entry_ma); // check if not nan
+                BOOST_REQUIRE_EQUAL(actual_indic_val.entry_ma, actual_indic_val.entry_ma); // check if not nan
                 BOOST_CHECK_CLOSE(expect_indic_val.entry_ma, actual_indic_val.entry_ma, tolerance);
                 BOOST_CHECK_CLOSE(expect_indic_val.exit_ma, actual_indic_val.exit_ma, tolerance);
 
@@ -267,8 +267,7 @@ BOOST_AUTO_TEST_SUITE(trader_test)
                     BOOST_CHECK_CLOSE(expect_indic_val.entry_levels[i], actual_indic_val.entry_levels[i], tolerance);
             }
 
-            auto mean_price = averager(candle);
-            trader.update_indicators(mean_price);
+            trader.update_indicators(averager(candle));
         }
     }
 

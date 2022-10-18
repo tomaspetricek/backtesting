@@ -33,16 +33,19 @@ void check_fractioning(const std::array<percent_t, size>& fracs, amount_t init_b
 BOOST_AUTO_TEST_SUITE(fractioner_test)
     BOOST_AUTO_TEST_CASE(constructor_exception_test)
     {
+        // sum is less than 1
         BOOST_REQUIRE_THROW(fractioner(std::array<percent_t, 2>{
                 percent_t{0.5},
                 percent_t{0.25},
         }), std::invalid_argument);
 
+        // sum is more than 1
         BOOST_REQUIRE_THROW(fractioner(std::array<percent_t, 2>{
                 percent_t{0.5},
                 percent_t{0.7},
         }), std::invalid_argument);
 
+        // fraction is lower than 0
         BOOST_REQUIRE_THROW(fractioner(std::array<percent_t, 2>{
                 percent_t{2},
                 percent_t{-1},

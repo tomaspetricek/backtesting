@@ -8,6 +8,7 @@
 #include <trading/position.hpp>
 #include <trading/amount_t.hpp>
 #include <trading/binance/futures/direction.hpp>
+#include <trading/type_traits.hpp>
 
 namespace trading::binance::futures {
     template<direction direct>
@@ -34,7 +35,8 @@ namespace trading::binance::futures {
         requires std::same_as<Type, amount_t>
         amount_t unrealized_profit(const price_t& market)
         {
-            return amount_t{((value_of(market)-value_of(this->last_open_))*value_of(this->size_))*leverage_*direct};
+            return amount_t{((value_of(market)-value_of(this->last_open_))*value_of(this->size_))*leverage_
+                                    *to_underlying(direct)};
         }
 
         size_t leverage() const
