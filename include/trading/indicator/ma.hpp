@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 07.07.2022.
 //
 
-#ifndef EMASTRATEGY_MOVING_AVERAGE_HPP
-#define EMASTRATEGY_MOVING_AVERAGE_HPP
+#ifndef BACKTESTING_MOVING_AVERAGE_HPP
+#define BACKTESTING_MOVING_AVERAGE_HPP
 
 namespace trading::indicator {
     class ma {
@@ -17,14 +17,14 @@ namespace trading::indicator {
 
     protected:
         size_t period_;
-        bool ready_ = false;
-        constexpr static size_t min_period = 1;
+        bool ready_{false};
+        constexpr static size_t min_period{1};
 
     public:
         explicit ma(size_t period = min_period)
                 :period_(validate_period(period)) { }
 
-        size_t period() const
+        std::size_t period() const
         {
             return period_;
         }
@@ -36,4 +36,4 @@ namespace trading::indicator {
     };
 }
 
-#endif //EMASTRATEGY_MOVING_AVERAGE_HPP
+#endif //BACKTESTING_MOVING_AVERAGE_HPP

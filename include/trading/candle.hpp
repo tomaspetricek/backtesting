@@ -48,6 +48,11 @@ namespace trading {
                     value_of(candle.close_))};
         }
 
+        bool price_increased()
+        {
+            return close_>open_;
+        }
+
         boost::posix_time::ptime opened() const
         {
             return opened_;

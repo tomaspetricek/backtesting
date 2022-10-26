@@ -9,11 +9,6 @@
 #include <ranges>
 #include <chrono>
 #include <boost/test/unit_test.hpp>
-#include <boost/date_time/posix_time/posix_time_io.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/local_time_adjustor.hpp>
-#include <boost/date_time/c_local_time_adjustor.hpp>
 #include <boost/range.hpp>
 #include <trading/io/csv/reader.hpp>
 #include <trading/io/csv/writer.hpp>
@@ -24,14 +19,14 @@
 #include <trading/indicator/sma.hpp>
 #include <trading/percent_t.hpp>
 #include <trading/bazooka/long_strategy.hpp>
-#include <trading/bazooka/factory.hpp>
 #include <trading/fee_charger.hpp>
+#include <trading/binance/futures/order.hpp>
+#include <trading/binance/futures/direction.hpp>
 #include <trading/binance/futures/market.hpp>
-#include <trading/binance/futures/order_factory.hpp>
 #include <trading/fractioner.hpp>
 #include <trading/trade.hpp>
-#include <trading/trade_manager.hpp>
-#include <trading/trader.hpp>
+#include "trading/binance/futures/manager.hpp"
+#include "trading/bazooka/trader.hpp"
 #include <trading/tuple.hpp>
 #include "trading/labels.hpp"
 
@@ -55,11 +50,12 @@ template<std::size_t n_levels>
 auto create_strategy()
 {
     // create levels
-    std::array<percent_t, n_levels> levels;
-    levels[0] = percent_t{1.0-(7.0/100)};
-    levels[1] = percent_t{1.0-(10.0/100)};
-    levels[2] = percent_t{1.0-(15.0/100)};
-    levels[3] = percent_t{1.0-(20.0/100)};
+    std::array<percent_t, n_levels> levels{
+            percent_t{1.0-(7.0/100)},
+            percent_t{1.0-(10.0/100)},
+            percent_t{1.0-(15.0/100)},
+            percent_t{1.0-(20.0/100)}
+    };
 
     // create strategy
     indicator::sma entry_ma{1};
@@ -70,10 +66,6 @@ auto create_strategy()
 template<std::size_t n_levels>
 auto create_manager()
 {
-    // create order factory
-    std::size_t leverage{1};
-    futures::order_factory order_factory{leverage};
-
     // create market
     fee_charger market_charger{percent_t{0.0}, percent_t{0.0}};
     trading::wallet wallet{amount_t{10'000}};
@@ -94,8 +86,8 @@ auto create_manager()
     fractioner<n_close> close_sizer{close_fracs};
 
     // create trade manager
-    return trade_manager<futures::long_market, futures::order_factory, n_levels, n_close>
-            {market, order_factory, open_sizer, close_sizer};
+    std::size_t leverage{1};
+    return futures::manager<n_levels, n_close, futures::direction::long_>{market, open_sizer, close_sizer, leverage};
 }
 
 void save_candles(const std::filesystem::path& path, const std::vector<candle>& candles)
@@ -226,6 +218,14 @@ auto read_trades(const std::filesystem::path& path)
     return std::make_tuple(open_trade_infos, close_trade_infos);
 }
 
+template<std::size_t n_levels>
+auto create_trader()
+{
+    auto strategy = create_strategy<n_levels>();
+    auto manager = create_manager<n_levels>();
+    return trading::bazooka::trader{strategy, manager};
+}
+
 void check_trades(const std::vector<trade_info>& trade_infos, const std::vector<binance::futures::order>& orders)
 {
     BOOST_TEST(trade_infos.size()==orders.size());
@@ -241,13 +241,10 @@ BOOST_AUTO_TEST_SUITE(trader_test)
     {
         std::filesystem::path data_dir{"../../test/data"};
         std::filesystem::path in_dir{data_dir/"in"};
-        constexpr std::size_t n_levels{4};
         auto averager = candle::ohlc4;
 
-        // create strategy
-        auto strategy = create_strategy<n_levels>();
-        auto manager = create_manager<n_levels>();
-        trading::trader trader{strategy, manager};
+        constexpr std::size_t n_levels{4};
+        auto trader = create_trader<4>();
 
         // read candles
         auto [candles, actual_indic_vals] = read_chart_data<n_levels>(in_dir/"spot-sma-btc-usdt-1h.csv");
@@ -275,13 +272,10 @@ BOOST_AUTO_TEST_SUITE(trader_test)
     {
         std::filesystem::path data_dir{"../../test/data"};
         std::filesystem::path in_dir{data_dir/"in"};
-        constexpr std::size_t n_levels{4};
         auto averager = candle::ohlc4;
 
-        // create strategy
-        auto strategy = create_strategy<n_levels>();
-        auto manager = create_manager<n_levels>();
-        trading::trader trader{strategy, manager};
+        constexpr std::size_t n_levels{4};
+        auto trader = create_trader<4>();
 
         // read candles
         std::vector<candle> candles;
@@ -307,13 +301,10 @@ BOOST_AUTO_TEST_SUITE(trader_test)
     {
         std::filesystem::path data_dir{"../../test/data"};
         std::filesystem::path in_dir{data_dir/"in"};
-        constexpr std::size_t n_levels{4};
         auto averager = candle::ohlc4;
 
-        // create strategy
-        auto strategy = create_strategy<n_levels>();
-        auto manager = create_manager<n_levels>();
-        trading::trader trader{strategy, manager};
+        constexpr std::size_t n_levels{4};
+        auto trader = create_trader<4>();
 
         // read candles
         std::vector<candle> candles;

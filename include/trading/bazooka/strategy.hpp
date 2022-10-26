@@ -13,7 +13,6 @@
 #include <trading/strategy.hpp>
 #include <trading/indicator/ma.hpp>
 #include <trading/tuple.hpp>
-#include <trading/interface/strategy_like.hpp>
 #include <trading/exception.hpp>
 #include <trading/bazooka/indicator_values.hpp>
 #include <trading/percent_t.hpp>

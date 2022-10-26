@@ -69,6 +69,13 @@ BOOST_AUTO_TEST_SUITE(futures_position_test)
         pos.add_close(trade{pos.size(), price_t{6'038.32}, ptime()});
         BOOST_REQUIRE_CLOSE(value_of(pos.total_realized_profit<amount_t>()), -8'447.039999999999, 1);
     }
+
+    BOOST_AUTO_TEST_CASE(loss_test) {
+        std::size_t leverage{1};
+        binance::futures::long_position pos{trade{amount_t{100}, price_t{10'000}, ptime()}, leverage};
+        pos.add_close(trade{pos.size(), price_t{5'000}, ptime()});
+        BOOST_REQUIRE_EQUAL(value_of(pos.total_realized_profit<percent_t>()), -0.5);
+    }
 BOOST_AUTO_TEST_SUITE_END()
 
 #endif //BACKTESTING_TEST_FUTURES_POSITION_HPP

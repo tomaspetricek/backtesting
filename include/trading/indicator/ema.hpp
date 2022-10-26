@@ -2,15 +2,14 @@
 // Created by Tomáš Petříček on 25.06.2022.
 //
 
-#ifndef EMASTRATEGY_EMA_HPP
-#define EMASTRATEGY_EMA_HPP
+#ifndef BACKTESTING_EMA_HPP
+#define BACKTESTING_EMA_HPP
 
 #include <numeric>
 #include <trading/exception.hpp>
 #include <trading/price_t.hpp>
 #include <trading/indicator/ma.hpp>
 #include <trading/indicator/sma.hpp>
-#include <trading/interface/indicator_like.hpp>
 
 namespace trading::indicator {
 
@@ -58,8 +57,6 @@ namespace trading::indicator {
             return prev_val_;
         }
     };
-
-    static_assert(interface::indicator_like<ema>);
 }
 
-#endif //EMASTRATEGY_EMA_HPP
+#endif //BACKTESTING_EMA_HPP

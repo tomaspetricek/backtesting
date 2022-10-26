@@ -50,10 +50,23 @@ namespace trading {
 
     class insufficient_funds : public std::runtime_error {
     public:
-        explicit insufficient_funds(const std::string& msg = "Not enough balance to perform operation")
+        explicit insufficient_funds(const std::string& msg = "Not enough funds to perform operation")
                 :std::runtime_error(msg) { }
 
         ~insufficient_funds() noexcept override = default;
+
+        const char* what() const noexcept override
+        {
+            return runtime_error::what();
+        }
+    };
+
+    class division_by_zero : public std::runtime_error {
+    public:
+        explicit division_by_zero()
+                :runtime_error("Division by zero") { }
+
+        ~division_by_zero() noexcept override = default;
 
         const char* what() const noexcept override
         {

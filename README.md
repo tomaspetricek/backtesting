@@ -6,28 +6,28 @@ One of the goals of the design was that class names should make sense without th
 All classes and functions share a common namespace called `trading`.
 
 ## Trader
-A trader needs two things to function and that is a __strategy__ to decide when to open_order or close_order and a __manager__ to manage the trades.
+A trader needs two things to function and that is a __strategy__ to decide when to create_open_order or create_close_order and a __manager__ to manage the trades.
 The `trading::trader` class inherits from a strategy and a trade manager bringing their functionalities together.
-Both strategy and trade manager are represented by abstract classes (`trading::strategy`, `trading::trade_manager`) from which all concrete classes should inherit.
+Both strategy and trade manager are represented by abstract classes (`trading::strategy`, `trading::manager`) from which all concrete classes should inherit.
 They use *static polymorphism* implemented using __CRTP__ (Curiously recurring template pattern) to avoid use of virtual methods which can be slower.
 
 ### Strategy
-A strategy decides, based on the historical prices provided, whether to open_order, close_order, close_order all or do nothing.
+A strategy decides, based on the historical prices provided, whether to create_open_order, create_close_order, create_close_order all or do nothing.
 Concrete strategies should inherit from the `trading::strategy` class and implement methods defined by static polymorphism (`should_open_impl`, `should_close_impl`, ...).
 Internally, it uses trading indicators and makes decisions based on their values.
 Each strategy should have its own namespace like `trading::triple_ema` and `trading::bazooka`.
 Strategies can be divided into long and short strategies, such as `triple_ema::long_strategy` and `triple_ema::short_strategy`.
-When using a long strategy, a trader tries to open_order low and close_order high. It is the exact opposite with short strategies.
+When using a long strategy, a trader tries to create_open_order low and create_close_order high. It is the exact opposite with short strategies.
 
 ### Trade Manager
 A trade manager goes hand in hand with trading strategy.
 It takes care of active trade: creating opening and closing positions.
-It inherits from the `trading::trade_manager` abstract class which provides 3 main public methods `open_order`, `close_order`, `close_all_order`.
+It inherits from the `trading::manager` abstract class which provides 3 main public methods `create_open_order`, `create_close_order`, `create_close_all_order`.
 A trade is initiated by creating an open position.
 Additional open positions can be added.
 The trade is closed once all purchased assets are sold.
 Assets are sold by creating close positions.
-There are currently 2 specific trade managers: `trading::const_size::trade_manager`, which creates positions of the same size, and `trading::varying_size::trade_manager`, which creates positions of different sizes based on their order.
+There are currently 2 specific trade managers: `trading::const_size::manager`, which creates positions of the same size, and `trading::varying_size::manager`, which creates positions of different sizes based on their order.
 
 ## Optimizer
 Optimizers are a set of algorithms whose purpose is to find the best possible configuration for a given strategy and given historical data.

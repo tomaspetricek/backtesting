@@ -6,39 +6,105 @@
 #define EMASTRATEGY_FUTURES_MARKET_HPP
 
 #include <trading/wallet.hpp>
-#include <trading/market.hpp>
 #include <trading/trade.hpp>
 #include <trading/binance/futures/order.hpp>
 #include <trading/binance/futures/position.hpp>
 
 namespace trading::binance::futures {
     template<direction direct>
-    class market : public trading::market<position<direct>, order, market<direct>> {
-        friend class trading::market<position<direct>, order, market<direct>>;
+    class market {
+    protected:
+        trading::wallet wallet_;
+        fee_charger market_charger_;
+        std::optional<position<direct>> active_{std::nullopt};
+        std::vector<position<direct>> closed_;
 
     public:
-        using position_type = position<direct>;
-
         explicit market(const wallet& wallet, const fee_charger& market_charger)
-                :trading::market<position<direct>, order, market<direct>>(wallet, market_charger) { }
+                :wallet_(wallet), market_charger_(market_charger) { }
 
         market() = default;
 
-    protected:
-        void create_open_trade(const order& order)
+        void fill_open_order(const order& order)
         {
-            this->wallet_.withdraw(order.sold);
-            amount_t sold{this->market_charger_.apply_open_fee(order.sold)};
+            wallet_.withdraw(order.sold);
+            amount_t sold{market_charger_.apply_open_fee(order.sold)};
             trade open{sold, order.price, order.created};
 
             // add trade
-            if (this->active_) {
-                assert(this->active_->leverage()==order.leverage);
-                this->active_->add_open(open);
+            if (active_) {
+                assert(active_->leverage()==order.leverage);
+                active_->add_open(open);
             }
             else {
-                this->active_ = std::make_optional<position<direct>>(open, order.leverage);
+                active_ = std::make_optional<position<direct>>(open, order.leverage);
             }
+        }
+
+        void fill_close_order(const order& order)
+        {
+            assert(active_);
+            trade close{order.sold, order.price, order.created};
+            amount_t received{active_->add_close(close)};
+            assert(received>=amount_t{0.0});
+
+            received = market_charger_.apply_close_fee(received);
+            wallet_.deposit(received);
+
+            // check if closed
+            if (active_->is_closed()) {
+                assert(wallet_balance()==equity(order.price));
+                closed_.emplace_back(*active_);
+                active_ = std::nullopt;
+            }
+        }
+
+        amount_t wallet_balance()
+        {
+            return wallet_.balance();
+        }
+
+        template<class Type>
+        Type position_profit(const price_t& market)
+        {
+            Type profit{0.0};
+
+            if (active_)
+                profit += active_->template profit<Type>(market);
+
+            return profit;
+        }
+
+        amount_t position_total_profit(const price_t& market)
+        {
+            assert(active_);
+            return active_->total_profit(market);
+        }
+
+        amount_t equity(const price_t& market)
+        {
+            amount_t equity = wallet_.balance();
+
+            if (active_)
+                equity += active_->template profit<amount_t>(market)+active_->invested();
+
+            return equity;
+        }
+
+        bool has_active_position()
+        {
+            return active_.has_value();
+        }
+
+        position<direct> active_position()
+        {
+            assert(active_);
+            return *active_;
+        }
+
+        const std::vector<position<direct>>& closed_positions() const
+        {
+            return closed_;
         }
     };
 

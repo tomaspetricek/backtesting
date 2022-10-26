@@ -7,7 +7,6 @@
 
 #include <queue>
 #include <trading/indicator/ma.hpp>
-#include <trading/interface/indicator_like.hpp>
 
 namespace trading::indicator {
 
@@ -48,8 +47,6 @@ namespace trading::indicator {
             return sum_samples_/static_cast<double>(samples_.size());
         }
     };
-
-    static_assert(interface::indicator_like<sma>);
 }
 
 #endif //EMASTRATEGY_SMA_HPP

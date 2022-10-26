@@ -8,3 +8,4 @@
 #include "trading/binance/futures/position.hpp"
 #include "trading/fractioner.hpp"
 #include "trading/indicator/sma.hpp"
+#include "trading/view/stats.hpp"
