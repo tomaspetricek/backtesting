@@ -15,20 +15,21 @@ namespace trading::binance::futures {
     class market {
     protected:
         trading::wallet wallet_;
-        fee_charger market_charger_;
+        fee_charger open_charger_;
+        fee_charger close_charger_;
         std::optional<position<direct>> active_{std::nullopt};
         std::vector<position<direct>> closed_;
 
     public:
-        explicit market(const wallet& wallet, const fee_charger& market_charger)
-                :wallet_(wallet), market_charger_(market_charger) { }
+        explicit market(const wallet& wallet, const fee_charger& open_charger, const fee_charger& close_charger)
+                :wallet_(wallet), open_charger_(open_charger), close_charger_(close_charger) { }
 
         market() = default;
 
         void fill_open_order(const order& order)
         {
             wallet_.withdraw(order.sold);
-            amount_t sold{market_charger_.apply_open_fee(order.sold)};
+            amount_t sold{open_charger_.apply_fee(order.sold)};
             trade open{sold, order.price, order.created};
 
             // add trade
@@ -48,7 +49,7 @@ namespace trading::binance::futures {
             amount_t received{active_->add_close(close)};
             assert(received>=amount_t{0.0});
 
-            received = market_charger_.apply_close_fee(received);
+            received = close_charger_.apply_fee(received);
             wallet_.deposit(received);
 
             // check if closed

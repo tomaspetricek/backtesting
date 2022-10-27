@@ -10,28 +10,30 @@
 
 namespace trading {
     class fee_charger {
-        percent_t open_fee_{0.0};
-        percent_t close_fee_{0.0};
+        percent_t fee_{0.0};
 
-        inline static amount_t apply_fee(amount_t amount, percent_t fee)
+        static percent_t validate_fee(const percent_t& fee)
         {
-            return amount_t{value_of(amount)*(1.0-value_of(fee))};
+            if (fee<percent_t{0.0} || fee>percent_t{1.0})
+                throw std::invalid_argument("Fee has to be in interval: [0.0, 1.0]");
+
+            return fee;
         }
 
     public:
-        constexpr explicit fee_charger(percent_t open_fee, percent_t close_fee)
-                :open_fee_{open_fee}, close_fee_{close_fee} { }
+        explicit fee_charger(const percent_t& fee)
+                :fee_(validate_fee(fee)) { }
 
         fee_charger() = default;
 
-        inline amount_t apply_open_fee(amount_t invested) const
+        inline amount_t apply_fee(amount_t amount) const
         {
-            return apply_fee(invested, open_fee_);
+            return amount_t{value_of(amount)*(1.0-value_of(fee_))};
         }
 
-        inline amount_t apply_close_fee(amount_t received) const
+        const percent_t& fee() const
         {
-            return apply_fee(received, close_fee_);
+            return fee_;
         }
     };
 }

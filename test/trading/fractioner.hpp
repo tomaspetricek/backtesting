@@ -107,7 +107,6 @@ BOOST_AUTO_TEST_SUITE(fractioner_test)
                 percent_t{0.375}
         }, amount_t{0.00000001/3});
     }
-
 BOOST_AUTO_TEST_SUITE_END()
 
 #endif //BACKTESTING_TEST_FRACTIONER_HPP

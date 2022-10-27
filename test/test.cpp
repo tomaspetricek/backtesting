@@ -9,3 +9,4 @@
 #include "trading/fractioner.hpp"
 #include "trading/indicator/sma.hpp"
 #include "trading/view/stats.hpp"
+#include "trading/fee_charger.hpp"
