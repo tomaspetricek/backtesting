@@ -7,44 +7,37 @@
 
 #include <queue>
 #include <trading/indicator/ma.hpp>
+#include <boost/circular_buffer.hpp>
 
 namespace trading::indicator {
 
     // https://stackoverflow.com/questions/10990618/calculate-rolling-moving-average-in-c
     // simple moving average
     class sma : public ma {
-        double sum_samples_ = 0;
-        std::queue<double> samples_;
+        double sum_{0};
+        boost::circular_buffer<double> samples_;
 
     public:
         explicit sma(size_t period = min_period)
-                :ma(period) { }
+                :ma(period), samples_(period) { }
 
         sma& operator()(double sample)
         {
-            sum_samples_ += sample;
-            samples_.push(sample);
+            // update sum
+            sum_ += sample;
+            if (samples_.full())
+                sum_ -= samples_.front();
 
-            if (samples_.size()>=period_)
-                ready_ = true;
-
-            // move
-            if (samples_.size()>period_) {
-                double oldest = samples_.front();
-                sum_samples_ -= oldest;
-                samples_.pop();
-            }
-
+            // update samples
+            samples_.push_back(sample);
+            if (samples_.full()) ready_ = true;
             return *this;
         }
 
         explicit operator double() const
         {
-            if (!ready_)
-                throw not_ready("Not enough initial prices yet. Need "
-                        +std::to_string(period_-samples_.size())+" more");
-
-            return sum_samples_/static_cast<double>(samples_.size());
+            assert(ready_);
+            return sum_/static_cast<double>(samples_.size());
         }
     };
 }

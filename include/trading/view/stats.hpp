@@ -9,9 +9,10 @@
 #include <trading/exception.hpp>
 
 namespace trading::view {
+    // if gross loss is zero the behaviour is undefined
     inline double profit_factor(const amount_t& gross_profit, const amount_t& gross_loss)
     {
-        if (gross_loss==amount_t{0.0}) throw division_by_zero{};
+        assert(gross_loss!=amount_t{0.0});
         return value_of(gross_profit/gross_loss);
     }
 }

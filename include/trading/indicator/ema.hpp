@@ -51,9 +51,7 @@ namespace trading::indicator {
 
         explicit operator double() const
         {
-            if (!ready_)
-                throw not_ready("Not enough prices to calculate initial ema");
-
+            assert(ready_);
             return prev_val_;
         }
     };
