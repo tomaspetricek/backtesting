@@ -12,7 +12,7 @@
 #include <boost/range.hpp>
 #include <trading/io/csv/reader.hpp>
 #include <trading/io/csv/writer.hpp>
-#include <trading/io/deserializer.hpp>
+#include <trading/io/parser.hpp>
 #include <trading/candle.hpp>
 #include <trading/view/candle_deserializer.hpp>
 #include <trading/data_point.hpp>
@@ -164,7 +164,7 @@ auto read_chart_data(const std::filesystem::path& path)
 
     // read chart data
     csv::reader reader{path, ';'};
-    deserializer<long, double, double, double, double, double, double, double, double, double, double, double> parser;
+    parser<long, double, double, double, double, double, double, double, double, double, double, double> parser;
     constexpr std::size_t n_cols{12};
     std::string data[n_cols];
 
@@ -190,7 +190,7 @@ auto read_trades(const std::filesystem::path& path)
 {
     csv::reader reader{path, ','};
     constexpr std::size_t n_cols{6};
-    deserializer<long, std::string, std::string, std::string, double, double> parser;
+    parser<long, std::string, std::string, std::string, double, double> parser;
     std::string data[n_cols];
 
     std::vector<trade_info> open_trade_infos;

@@ -7,7 +7,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <trading/indicator/sma.hpp>
-#include <trading/index_t.hpp>
+#include "trading/indicator/ma.hpp"
 
 using namespace trading;
 
@@ -22,25 +22,9 @@ BOOST_AUTO_TEST_SUITE(sma_test)
         BOOST_REQUIRE_THROW(indicator::sma{0}, std::invalid_argument);
     }
 
-    BOOST_AUTO_TEST_CASE(period_test)
+    BOOST_AUTO_TEST_CASE(usage_test)
     {
-        std::array<double, 5> samples{1, 2, 3, 7, 9};
-        const std::size_t period{3};
-        indicator::sma sma{period};
-        std::array<double, samples.size()-(period-1)> actual_values{2.0, 4.0, 6.33333333};
-        double tolerance{0.001};
-
-        for (index_t i{0}; i<samples.size(); i++) {
-            sma(samples[i]);
-
-            if (i<period-1) {
-                BOOST_REQUIRE(!sma.is_ready());
-            }
-            else {
-                BOOST_REQUIRE(sma.is_ready());
-                BOOST_REQUIRE_CLOSE(static_cast<double>(sma), actual_values[i-(period-1)], tolerance);
-            }
-        }
+        ma_usage_test<5, 3, indicator::sma>({1, 2, 3, 7, 9}, {2.0, 4.0, 6.33333333}, 0.001);
     }
 BOOST_AUTO_TEST_SUITE_END()
 

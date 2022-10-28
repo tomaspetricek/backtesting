@@ -44,7 +44,7 @@ Percent and amount are both of type double, to ensure type safety more, new stro
 
 ## IO
 The CSV file reader `io::csv::reader` and writer `io::csv::writer` were created to read candles and save data points for visualization.
-The reader parses lines and uses a deserializer to create the input.
+The reader parses lines and uses a parser to create the input.
 Writer, on the other hand, uses a serializer to produce output.
 
 ## Python: Matplotlib visualization widget

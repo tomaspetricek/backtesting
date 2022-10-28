@@ -14,10 +14,11 @@
 namespace trading::indicator {
 
     // https://plainenglish.io/blog/how-to-calculate-the-ema-of-a-stock-with-python
+    // src: https://www.tradingview.com/support/solutions/43000592270-exponential-moving-average/
     // exponential moving average
     class ema : public ma {
-        indicator::sma sma;
-        double prev_val_ = 0;
+        indicator::sma sma_;
+        double val_ = 0;
         int smoothing_ = 2;
         double weighting_factor_ = static_cast<double>(smoothing_)/static_cast<double>(period_+1);
 
@@ -31,28 +32,29 @@ namespace trading::indicator {
 
     public:
         explicit ema(int period = min_period, int smoothing = 2)
-                :ma(period), sma(period), smoothing_(validate_smoothing(smoothing)){ }
+                :ma(period), sma_(period), smoothing_(validate_smoothing(smoothing)){ }
 
         ema& operator()(double sample)
         {
-            if (!sma.is_ready()) {
-                sma(sample);
+            if (!sma_.is_ready()) {
+                sma_(sample);
 
-                if (sma.is_ready()) {
-                    prev_val_ = static_cast<double>(sma);
+                if (sma_.is_ready()) {
+                    val_ = static_cast<double>(sma_);
                     ready_ = true;
+                    return *this;
                 }
             }
 
             // calculate current ema
-            prev_val_ = (sample*weighting_factor_)+(prev_val_*(1-weighting_factor_));
+            val_ = (sample*weighting_factor_)+(val_*(1-weighting_factor_));
             return *this;
         }
 
         explicit operator double() const
         {
             assert(ready_);
-            return prev_val_;
+            return val_;
         }
     };
 }

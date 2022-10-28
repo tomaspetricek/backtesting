@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 09.10.2022.
 //
 
-#ifndef BACKTESTING_DESERIALIZER_HPP
-#define BACKTESTING_DESERIALIZER_HPP
+#ifndef BACKTESTING_PARSER_HPP
+#define BACKTESTING_PARSER_HPP
 
 #include <filesystem>
 #include <fstream>
@@ -19,7 +19,7 @@
 
 namespace trading::io {
     template<class ...Types>
-    class deserializer final {
+    class parser final {
         static constexpr int n = sizeof...(Types);
         std::tuple<Types...> data_;
 
@@ -73,4 +73,4 @@ namespace trading::io {
 }
 
 
-#endif //BACKTESTING_DESERIALIZER_HPP
+#endif //BACKTESTING_PARSER_HPP
