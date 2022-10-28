@@ -74,7 +74,7 @@ namespace trading::binance::futures {
             if (market_.has_active_position()) create_close_all_order(point);
         }
 
-        std::vector<futures::market<direct>> closed_positions()
+        const std::vector<futures::position<direct>>& closed_positions()
         {
             return market_.closed_positions();
         }

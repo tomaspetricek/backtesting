@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_SUITE(trader_test)
             trader(candle);
 
             // check indicator values
-            if (trader.indicators_ready()) {
+            if (trader.is_ready()) {
                 auto expect_indic_val = trader.get_indicator_values();
                 BOOST_REQUIRE_EQUAL(actual_indic_val.entry_ma, actual_indic_val.entry_ma); // check if not nan
                 BOOST_CHECK_CLOSE(expect_indic_val.entry_ma, actual_indic_val.entry_ma, tolerance);

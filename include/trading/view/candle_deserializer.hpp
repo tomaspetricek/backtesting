@@ -20,7 +20,7 @@ namespace trading::view {
 
         // create candle
         try {
-            return trading::candle(opened_ptime, open, high, low, close);
+            return trading::candle(opened_ptime, price_t{open}, price_t{high}, price_t{low}, price_t{close});
         }
         catch (...) {
             std::throw_with_nested(std::runtime_error("Cannot create candle"));

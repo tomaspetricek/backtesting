@@ -11,7 +11,6 @@
 #include <trading/indicator/ema.hpp>
 #include <trading/currency.hpp>
 #include <trading/position.hpp>
-#include <trading/fraction.hpp>
 #include <trading/data_point.hpp>
 #include <trading/currency.hpp>
 

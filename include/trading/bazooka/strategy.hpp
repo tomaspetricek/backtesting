@@ -74,12 +74,12 @@ namespace trading::bazooka {
             exit_ma_(curr_val);
 
             if (entry_ma_.is_ready() && exit_ma_.is_ready())
-                this->indics_ready_ = true;
+                this->ready_ = true;
         }
 
         indicator_values<n_levels> get_indicator_values()
         {
-            if (!this->indics_ready_)
+            if (!this->ready_)
                 throw not_ready{"Indicators are not ready yet"};
 
             std::array<double, n_levels> levels;

@@ -19,15 +19,13 @@ namespace trading::bazooka {
 
         void operator()(const candle& candle)
         {
-            if (!Strategy::indicators_ready()) return;
+            if (!Strategy::is_ready()) return;
 
             if (Strategy::should_open(candle)) {
-                do {
-                    Manager::create_open_order(price_point{candle.opened(), Strategy::open_price()});
-                    Strategy::opened();
-                }
-                while (Strategy::should_open(candle));
-            }else if (Strategy::should_close_all(candle)) {
+                Manager::create_open_order(price_point{candle.opened(), Strategy::open_price()});
+                Strategy::opened();
+            }
+            else if (Strategy::should_close_all(candle)) {
                 Manager::create_close_all_order(price_point{candle.opened(), Strategy::close_price()});
                 Strategy::closed();
             }

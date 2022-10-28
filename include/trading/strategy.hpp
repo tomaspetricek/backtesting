@@ -10,12 +10,12 @@
 namespace trading {
     class strategy {
     protected:
-        bool indics_ready_ = false;
+        bool ready_ = false;
 
     public:
-        bool indicators_ready() const
+        bool is_ready() const
         {
-            return indics_ready_;
+            return ready_;
         }
     };
 }

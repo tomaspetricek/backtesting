@@ -8,6 +8,7 @@
 #include <array>
 #include <trading/data_point.hpp>
 #include <trading/labels.hpp>
+#include <trading/index_t.hpp>
 
 namespace trading::bazooka {
     template<std::size_t n_levels>

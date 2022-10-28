@@ -9,6 +9,7 @@
 #include <trading/trade.hpp>
 #include <trading/binance/futures/order.hpp>
 #include <trading/binance/futures/position.hpp>
+#include <trading/fee_charger.hpp>
 
 namespace trading::binance::futures {
     template<direction direct>

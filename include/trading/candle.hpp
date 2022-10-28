@@ -14,18 +14,20 @@
 namespace trading {
     class candle {
         boost::posix_time::ptime opened_;
-        price_t open_;
-        price_t high_;
-        price_t low_;
-        price_t close_;
+        price_t open_{strong::uninitialized};
+        price_t high_{strong::uninitialized};
+        price_t low_{strong::uninitialized};
+        price_t close_{strong::uninitialized};
 
     public:
-        explicit candle(const boost::posix_time::ptime& opened, double open, double high,
-                double low, double close)
+        candle() = default;
+
+        explicit candle(const boost::posix_time::ptime& opened, const price_t& open, const price_t& high,
+                const price_t& low, const price_t& close)
                 :opened_(opened), open_(price_t{open}), high_(price_t{high}),
                  low_(price_t{low}), close_(price_t{close})
         {
-            if (high<=low)
+            if (high<low)
                 throw std::invalid_argument("High price has to be lower or equal to low price");
         }
 
