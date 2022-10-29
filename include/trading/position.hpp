@@ -119,7 +119,7 @@ namespace trading {
 
         template<class Type>
         requires std::same_as<Type, percent_t>
-        percent_t total_realized_profit()
+        percent_t total_realized_profit() const
         {
             percent_t val{0.0};
 
@@ -148,6 +148,8 @@ namespace trading {
         {
             return total_invested_;
         }
+
+
     };
 }
 

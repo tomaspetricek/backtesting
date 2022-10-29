@@ -108,7 +108,7 @@ namespace trading::bazooka {
         }
 
         // it does not sell fractions, so it's always false
-        bool should_close(const price_t& curr)
+        bool should_close(const price_t&)
         {
             return false;
         }

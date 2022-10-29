@@ -53,7 +53,7 @@ namespace trading::io {
 
         template<std::size_t I = 0>
         inline typename std::enable_if<I==sizeof...(Types), void>::type
-        parse_line(std::string (& line)[n]) { }
+        parse_line(std::string (&)[n]) { }
 
         template<std::size_t I = 0>
         inline typename std::enable_if<I<sizeof...(Types), void>::type

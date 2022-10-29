@@ -1,6 +1,8 @@
 #include <iostream>
 #include <chrono>
 #include <trading.hpp>
+#include <fmt/format.h>
+#include <clocale>
 
 using namespace trading;
 
@@ -85,13 +87,15 @@ int main()
 
     // use custom number separator
     std::cout.imbue(std::locale(std::cout.getloc(), new num_separator<char>()));
-    std::cout << "n candles: " << candles.size() << std::endl
+
+    std::cout << "read" << std::endl
+              << "n candles: " << candles.size() << std::endl
               << "duration: " << duration.count()*1e-9 << std::endl;
 
     auto averager = candle::ohlc4;
     auto trader = create_trader();
 
-    std::size_t decision_period = std::chrono::duration_cast<std::chrono::minutes>(std::chrono::hours{3}).count();
+    std::size_t resample_period = std::chrono::duration_cast<std::chrono::minutes>(std::chrono::hours(3)).count();
 
     // trade
     begin = std::chrono::high_resolution_clock::now();
@@ -102,7 +106,7 @@ int main()
     for (std::size_t i{0}; i<candles.size(); i++) {
         trader(candles[i]);
 
-        if (i%decision_period==0) {
+        if (i%resample_period==0) {
             opened = candles[i].opened();
             open = candles[i].open();
             low = candles[i].low();
@@ -113,16 +117,23 @@ int main()
             high = std::max(high, candles[i].high());
         }
 
-        if (i%(decision_period+1)==0) {
+        if (i && (i+1)%resample_period==0) {
             close = candles[i].close();
-            trader.update_indicators(averager(candles[i]));
             trader.update_indicators(averager(candle{opened, open, high, low, close}));
         }
     }
     end = std::chrono::high_resolution_clock::now();
+
+    for (const auto& pos: trader.closed_positions())
+        fmt::print("total profit: {:8.2f} %, {:8.2f} USD\n",
+                value_of(pos.total_realized_profit<percent_t>())*100,
+                value_of(pos.total_realized_profit<amount_t>()));
+
     duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin);
-    std::cout << "duration: " << duration.count()*1e-9 << std::endl
-              << "n closed: " << trader.closed_positions().size() << std::endl
+    std::cout << "trade" << std::endl
+              << "duration: " << duration.count()*1e-9 << std::endl
+              << "n open orders: " << trader.open_orders().size() << std::endl
+              << "n close orders: " << trader.close_orders().size() << std::endl
               << "wallet balance: " << trader.wallet_balance() << std::endl;
     return EXIT_SUCCESS;
 }
