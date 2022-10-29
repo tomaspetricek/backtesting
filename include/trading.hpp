@@ -35,6 +35,7 @@
 #include <trading/position.hpp>
 #include <trading/price_t.hpp>
 #include <trading/range.hpp>
+#include <trading/resampler.hpp>
 #include <trading/side.hpp>
 #include <trading/table.hpp>
 #include <trading/test_box.hpp>

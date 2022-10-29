@@ -238,6 +238,7 @@ void check_trades(const std::vector<trade_info>& trade_infos, const std::vector<
 }
 
 BOOST_AUTO_TEST_SUITE(trader_test)
+    /*
     BOOST_AUTO_TEST_CASE(indicator_values_test)
     {
         std::filesystem::path data_dir{"../../test/data"};
@@ -323,6 +324,7 @@ BOOST_AUTO_TEST_SUITE(trader_test)
 
         check_trades(close_trade_infos, trader.close_orders());
     }
+    */
 BOOST_AUTO_TEST_SUITE_END()
 
 #endif //BACKTESTING_TEST_TRADER_HPP

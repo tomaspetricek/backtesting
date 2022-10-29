@@ -10,6 +10,7 @@
 #include <trading/price_t.hpp>
 #include <trading/pack.hpp>
 #include <trading/currency.hpp>
+#include <ostream>
 
 namespace trading {
     class candle {
@@ -53,6 +54,27 @@ namespace trading {
         bool price_increased()
         {
             return close_>open_;
+        }
+
+        bool operator==(const candle& rhs) const
+        {
+            return opened_==rhs.opened_ &&
+                    open_==rhs.open_ &&
+                    high_==rhs.high_ &&
+                    low_==rhs.low_ &&
+                    close_==rhs.close_;
+        }
+
+        bool operator!=(const candle& rhs) const
+        {
+            return !(rhs==*this);
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, const candle& candle)
+        {
+            os << "opened: " << candle.opened_ << " open: " << candle.open_ << " high: " << candle.high_ << " low: "
+               << candle.low_ << " close: " << candle.close_;
+            return os;
         }
 
         boost::posix_time::ptime opened() const

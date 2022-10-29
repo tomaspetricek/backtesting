@@ -95,32 +95,19 @@ int main()
     auto averager = candle::ohlc4;
     auto trader = create_trader();
 
-    std::size_t resample_period = std::chrono::duration_cast<std::chrono::minutes>(std::chrono::hours(3)).count();
+    std::size_t resampling_period = std::chrono::duration_cast<std::chrono::minutes>(std::chrono::hours(3)).count();
+    trading::resampler resampler{resampling_period};
 
     // trade
     begin = std::chrono::high_resolution_clock::now();
-    boost::posix_time::ptime opened;
-    price_t open{strong::uninitialized}, high{strong::uninitialized},
-            low{strong::uninitialized}, close{strong::uninitialized};
+    std::optional<candle> decision_candle{std::nullopt};
 
-    for (std::size_t i{0}; i<candles.size(); i++) {
-        trader(candles[i]);
+    for (const auto& candle: candles) {
+        trader(candle);
+        decision_candle = resampler(candle);
 
-        if (i%resample_period==0) {
-            opened = candles[i].opened();
-            open = candles[i].open();
-            low = candles[i].low();
-            high = candles[i].high();
-        }
-        else {
-            low = std::min(low, candles[i].low());
-            high = std::max(high, candles[i].high());
-        }
-
-        if (i && (i+1)%resample_period==0) {
-            close = candles[i].close();
-            trader.update_indicators(averager(candle{opened, open, high, low, close}));
-        }
+        if (decision_candle)
+            trader.update_indicators(averager(*decision_candle));
     }
     end = std::chrono::high_resolution_clock::now();
 
@@ -134,6 +121,8 @@ int main()
               << "duration: " << duration.count()*1e-9 << std::endl
               << "n open orders: " << trader.open_orders().size() << std::endl
               << "n close orders: " << trader.close_orders().size() << std::endl
+              << "order ratio: " << static_cast<double>(trader.open_orders().size())/trader.close_orders().size()
+              << std::endl
               << "wallet balance: " << trader.wallet_balance() << std::endl;
     return EXIT_SUCCESS;
 }
