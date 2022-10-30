@@ -9,6 +9,8 @@
 #include "trading/data_point.hpp"
 
 namespace trading::bazooka {
+    // idea for a builder: https://cpppatterns.com/patterns/builder.html
+
     template<class Strategy, class Manager>
     class trader : public Strategy, public Manager {
     public:

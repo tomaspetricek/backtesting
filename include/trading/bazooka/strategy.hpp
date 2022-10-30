@@ -54,10 +54,8 @@ namespace trading::bazooka {
         double get_level_value(index_t level)
         {
             assert(level>=0 && level<n_levels);
-
-            // move baseline
             auto baseline = static_cast<double>(entry_ma_);
-            return baseline*value_of(entry_levels_[level]);
+            return baseline*value_of(entry_levels_[level]); // move baseline
         }
 
         explicit strategy(OpenMovingAverage entry_ma, CloseMovingAverage exit_ma,
@@ -93,16 +91,12 @@ namespace trading::bazooka {
         bool should_open(const price_t& curr)
         {
             // all levels passed
-            if (curr_level_==n_levels)
-                return false;
+            if (curr_level_==n_levels) return false;
             assert(curr_level_<=n_levels);
-
-            // move baseline
             auto level = get_level_value(curr_level_);
 
             // passed current level
-            if (entry_comp_(value_of(curr), level))
-                return true;
+            if (entry_comp_(value_of(curr), level)) return true;
 
             return false;
         }
