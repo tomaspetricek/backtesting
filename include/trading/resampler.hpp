@@ -20,7 +20,7 @@ namespace trading {
         price_t close_{strong::uninitialized};
         std::size_t count_{0};
 
-        size_t validate_period(size_t period) {
+        static size_t validate_period(size_t period) {
             if (!period)
                 throw std::invalid_argument("Resampling period has to be greater than zero");
 

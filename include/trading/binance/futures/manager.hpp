@@ -99,15 +99,21 @@ namespace trading::binance::futures {
             return market_.wallet_balance();
         }
 
-        amount_t equity()
+        amount_t equity(const price_t& market)
         {
-            return market_.equity();
+            return market_.equity(market);
         }
 
         template<class Type>
-        Type position_profit()
+        Type position_current_profit(const price_t& market)
         {
-            return market_.template position_profit<Type>();
+            return market_.template position_current_profit<Type>(market);
+        }
+
+        template<class Type>
+        Type position_total_profit(const price_t& market)
+        {
+            return market_.template position_total_profit<Type>(market);
         }
     };
 }

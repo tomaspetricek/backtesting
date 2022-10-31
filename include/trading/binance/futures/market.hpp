@@ -67,20 +67,17 @@ namespace trading::binance::futures {
         }
 
         template<class Type>
-        Type position_profit(const price_t& market)
-        {
-            Type profit{0.0};
-
-            if (active_)
-                profit += active_->template profit<Type>(market);
-
-            return profit;
-        }
-
-        amount_t position_total_profit(const price_t& market)
+        Type position_current_profit(const price_t& market)
         {
             assert(active_);
-            return active_->total_profit(market);
+            return active_->template current_profit<Type>(market);
+        }
+
+        template<class Type>
+        Type position_total_profit(const price_t& market)
+        {
+            assert(active_);
+            return active_->template total_profit<Type>(market);
         }
 
         amount_t equity(const price_t& market)
@@ -88,7 +85,7 @@ namespace trading::binance::futures {
             amount_t equity = wallet_.balance();
 
             if (active_)
-                equity += active_->template profit<amount_t>(market)+active_->invested();
+                equity += active_->template current_profit<amount_t>(market)+active_->invested();
 
             return equity;
         }

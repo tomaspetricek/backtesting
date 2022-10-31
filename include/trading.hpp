@@ -32,7 +32,6 @@
 #include <trading/index_t.hpp>
 #include <trading/labels.hpp>
 #include <trading/pack.hpp>
-#include <trading/position.hpp>
 #include <trading/price_t.hpp>
 #include <trading/range.hpp>
 #include <trading/resampler.hpp>
