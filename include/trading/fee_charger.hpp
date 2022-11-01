@@ -9,18 +9,18 @@
 
 namespace trading {
     class fee_charger {
-        percent_t fee_{0.0};
+        fraction_t fee_{0.0};
 
-        static percent_t validate_fee(const percent_t& fee)
+        static fraction_t validate_fee(const fraction_t& fee)
         {
-            if (fee<percent_t{0.0} || fee>percent_t{1.0})
+            if (fee<fraction_t{0.0} || fee>fraction_t{1.0})
                 throw std::invalid_argument("Fee has to be in interval: [0.0, 1.0]");
 
             return fee;
         }
 
     public:
-        explicit fee_charger(const percent_t& fee)
+        explicit fee_charger(const fraction_t& fee)
                 :fee_(validate_fee(fee)) { }
 
         fee_charger() = default;
@@ -30,7 +30,7 @@ namespace trading {
             return amount_t{value_of(amount)*(1.0-value_of(fee_))};
         }
 
-        const percent_t& fee() const
+        const fraction_t& fee() const
         {
             return fee_;
         }

@@ -67,8 +67,8 @@ template<std::size_t n_levels>
 auto create_manager()
 {
     // create market
-    fee_charger open_charger{percent_t{0.0}};
-    fee_charger close_charger{percent_t{0.0}};
+    fee_charger open_charger{fraction_t{0.0}};
+    fee_charger close_charger{fraction_t{0.0}};
     trading::wallet wallet{amount_t{10'000}};
     futures::long_market market{wallet, open_charger, close_charger};
 

@@ -25,8 +25,8 @@ auto create_trader()
     bazooka::long_strategy<indicator::sma, indicator::sma, n_levels> strategy{entry_ma, exit_ma, levels};
 
     // create market
-    fee_charger open_charger{percent_t{0.0}};
-    fee_charger close_charger{percent_t{0.0}};
+    fee_charger open_charger{fraction_t{0.0}};
+    fee_charger close_charger{fraction_t{0.0}};
     trading::wallet wallet{amount_t{10'000}};
     futures::long_market market{wallet, open_charger, close_charger};
 
