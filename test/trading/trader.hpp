@@ -167,8 +167,7 @@ auto read_chart_data(const std::filesystem::path& path)
     // read chart data
     csv::reader reader{path, ';'};
     parser<long, double, double, double, double, double, double, double, double, double, double, double> parser;
-    constexpr std::size_t n_cols{12};
-    std::array<std::string, n_cols> data;
+    std::array<std::string, parser.size()> data;
     std::vector<candle> candles;
     std::vector<bazooka::indicator_values<n_levels>> indic_vals;
 
@@ -190,9 +189,8 @@ auto read_chart_data(const std::filesystem::path& path)
 auto read_trades(const std::filesystem::path& path)
 {
     csv::reader reader{path, ','};
-    constexpr std::size_t n_cols{6};
     parser<long, std::string, std::string, std::string, double, double> parser;
-    std::array<std::string, n_cols> data;
+    std::array<std::string, parser.size()> data;
     std::vector<trade_info> open_trade_infos;
     std::vector<trade_info> close_trade_infos;
 

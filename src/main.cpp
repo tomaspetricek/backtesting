@@ -3,7 +3,6 @@
 #include <limits>
 #include <trading.hpp>
 #include <fmt/format.h>
-#include <clocale>
 
 using namespace trading;
 
@@ -56,9 +55,7 @@ auto read_candles(const std::filesystem::path& path, char sep,
 {
     io::csv::reader reader{path, sep};
     io::parser<std::time_t, double, double, double, double> parser;
-    constexpr std::size_t n_cols{5};
-    std::array<std::string, n_cols> data;
-
+    std::array<std::string, parser.size()> data;
     std::vector<candle> candles;
 
     // read rows
@@ -124,6 +121,7 @@ int main()
               << "max equity: " << max_equity << std::endl;
 
     end = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin);
 
 //    for (const auto& pos: trader.closed_positions())
 //        fmt::print("total profit: {:8.2f} %, {:8.2f} USD\n",
@@ -133,7 +131,6 @@ int main()
 //    for (const auto& ord: trader.open_orders())
 //        std::cout << ord.created << std::endl;
 
-    duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin);
     std::cout << "trade" << std::endl
               << "duration: " << duration.count()*1e-9 << std::endl
               << "n open orders: " << trader.open_orders().size() << std::endl

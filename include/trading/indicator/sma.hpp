@@ -30,7 +30,7 @@ namespace trading::indicator {
 
             // update samples
             samples_.push_back(sample);
-            if (samples_.full()) ready_ = true;
+            ready_ = samples_.full();
             return *this;
         }
 
