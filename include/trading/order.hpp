@@ -5,11 +5,9 @@
 #ifndef BACKTESTING_ORDER_HPP
 #define BACKTESTING_ORDER_HPP
 
-#include <boost/date_time/posix_time/ptime.hpp>
-
-#include <trading/amount_t.hpp>
-#include <trading/price_t.hpp>
 #include <ostream>
+#include <boost/date_time/posix_time/ptime.hpp>
+#include <trading/types.hpp>
 
 using namespace boost::posix_time;
 

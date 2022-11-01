@@ -6,8 +6,7 @@
 #define BACKTESTING_DATA_POINT_HPP
 
 #include <boost/date_time/posix_time/ptime.hpp>
-
-#include <trading/price_t.hpp>
+#include <trading/types.hpp>
 
 namespace trading {
     template<class Data>

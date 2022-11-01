@@ -7,7 +7,7 @@
 
 #include <numeric>
 #include <trading/exception.hpp>
-#include <trading/price_t.hpp>
+#include <trading/types.hpp>
 #include <trading/indicator/ma.hpp>
 #include <trading/indicator/sma.hpp>
 

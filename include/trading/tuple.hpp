@@ -10,7 +10,7 @@
 #include <array>
 #include <boost/iterator/zip_iterator.hpp>
 #include <boost/range.hpp>
-#include <trading/index_t.hpp>
+#include <trading/types.hpp>
 
 namespace std {
     std::string to_string(const std::string& val)

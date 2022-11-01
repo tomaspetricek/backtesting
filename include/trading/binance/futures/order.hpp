@@ -6,7 +6,7 @@
 #define BACKTESTING_FUTURES_ORDER_HPP
 
 #include <trading/order.hpp>
-#include <trading/amount_t.hpp>
+#include <trading/types.hpp>
 
 namespace trading::binance::futures {
     struct order : public trading::order {

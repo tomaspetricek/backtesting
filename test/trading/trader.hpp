@@ -17,7 +17,7 @@
 #include <trading/view/candle_deserializer.hpp>
 #include <trading/data_point.hpp>
 #include <trading/indicator/sma.hpp>
-#include <trading/percent_t.hpp>
+#include <trading/types.hpp>
 #include <trading/bazooka/long_strategy.hpp>
 #include <trading/fee_charger.hpp>
 #include <trading/binance/futures/order.hpp>
@@ -25,10 +25,10 @@
 #include <trading/binance/futures/market.hpp>
 #include <trading/fractioner.hpp>
 #include <trading/trade.hpp>
-#include "trading/binance/futures/manager.hpp"
-#include "trading/bazooka/trader.hpp"
+#include <trading/binance/futures/manager.hpp>
+#include <trading/bazooka/trader.hpp>
 #include <trading/tuple.hpp>
-#include "trading/labels.hpp"
+#include <trading/labels.hpp>
 
 using namespace trading;
 using namespace io;

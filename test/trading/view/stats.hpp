@@ -6,7 +6,7 @@
 #define BACKTESTING_TEST_STATS_HPP
 
 #include <boost/test/unit_test.hpp>
-#include <trading/amount_t.hpp>
+#include <trading/types.hpp>
 #include <trading/view/stats.hpp>
 #include <trading/exception.hpp>
 

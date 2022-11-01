@@ -5,7 +5,7 @@
 #ifndef BACKTESTING_WALLET_HPP
 #define BACKTESTING_WALLET_HPP
 
-#include <trading/amount_t.hpp>
+#include <trading/types.hpp>
 #include <trading/exception.hpp>
 
 namespace trading {

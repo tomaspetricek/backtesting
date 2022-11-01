@@ -5,7 +5,7 @@
 #ifndef BACKTESTING_STRATEGY_HPP
 #define BACKTESTING_STRATEGY_HPP
 
-#include <trading/price_t.hpp>
+#include <trading/types.hpp>
 
 namespace trading {
     class strategy {

@@ -15,8 +15,7 @@
 #include <trading/tuple.hpp>
 #include <trading/exception.hpp>
 #include <trading/bazooka/indicator_values.hpp>
-#include <trading/percent_t.hpp>
-#include <trading/index_t.hpp>
+#include <trading/types.hpp>
 
 namespace trading::bazooka {
     // entry levels: 0 - first level, n_levels-1 - last level

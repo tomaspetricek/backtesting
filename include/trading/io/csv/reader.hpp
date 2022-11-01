@@ -15,7 +15,7 @@
 #include "trading/candle.hpp"
 #include "trading/exception.hpp"
 #include "trading/currency.hpp"
-#include "trading/index_t.hpp"
+#include <trading/types.hpp>
 #include "trading/tuple.hpp"
 
 namespace trading::io::csv {

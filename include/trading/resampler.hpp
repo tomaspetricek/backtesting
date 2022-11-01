@@ -7,7 +7,7 @@
 
 #include <stddef.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <trading/price_t.hpp>
+#include <trading/types.hpp>
 #include <trading/candle.hpp>
 
 namespace trading {

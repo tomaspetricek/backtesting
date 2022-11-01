@@ -6,9 +6,7 @@
 #define BACKTESTING_FRACTIONER_HPP
 
 #include <array>
-#include <trading/amount_t.hpp>
-#include <trading/index_t.hpp>
-#include <trading/percent_t.hpp>
+#include <trading/types.hpp>
 
 namespace trading {
     template<std::size_t n_fracs>

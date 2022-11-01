@@ -105,23 +105,23 @@ int main()
     // trade
     begin = std::chrono::high_resolution_clock::now();
     std::optional<candle> indic_candle{std::nullopt};
-    amount_t max_run_up{trader.wallet_balance()},
-            max_drawdown{trader.wallet_balance()};
+    amount_t max_equity{trader.wallet_balance()},
+            min_equity{trader.wallet_balance()};
 
     for (const auto& candle: candles) {
         trader(candle);
         indic_candle = resampler(candle);
 
         if (trader.has_active_position()) {
-            max_run_up = std::max(max_run_up, trader.equity(candle.high()));
-            max_drawdown = std::min(max_drawdown, trader.equity(candle.low()));
+            max_equity = std::max(max_equity, trader.equity(candle.high()));
+            min_equity = std::min(min_equity, trader.equity(candle.low()));
         }
 
         if (indic_candle) trader.update_indicators(averager(*indic_candle));
     }
 
-    std::cout << "max run-up: " << max_run_up << std::endl
-              << "max drawdown: " << max_drawdown << std::endl;
+    std::cout << "min equity: " << min_equity << std::endl
+              << "max equity: " << max_equity << std::endl;
 
     end = std::chrono::high_resolution_clock::now();
 

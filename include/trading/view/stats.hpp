@@ -5,7 +5,7 @@
 #ifndef BACKTESTING_STATS_HPP
 #define BACKTESTING_STATS_HPP
 
-#include <trading/amount_t.hpp>
+#include <trading/types.hpp>
 #include <trading/exception.hpp>
 
 namespace trading::view {

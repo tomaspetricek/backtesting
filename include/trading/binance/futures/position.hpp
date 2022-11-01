@@ -5,14 +5,14 @@
 #ifndef BACKTESTING_FUTURES_POSITION_HPP
 #define BACKTESTING_FUTURES_POSITION_HPP
 
-#include <trading/amount_t.hpp>
+#include <trading/types.hpp>
 #include <trading/binance/futures/direction.hpp>
 #include <trading/type_traits.hpp>
 
 namespace trading::binance::futures {
     template<direction direct>
     class position {
-        amount_t size_;
+        amount_t size_{strong::uninitialized};
         price_t last_open_{strong::uninitialized};
         bool is_opened_{true};
         amount_t curr_invested_{0.0};

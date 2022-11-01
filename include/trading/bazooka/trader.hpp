@@ -5,8 +5,8 @@
 #ifndef BACKTESTING_TRADER_HPP
 #define BACKTESTING_TRADER_HPP
 
-#include "trading/price_t.hpp"
-#include "trading/data_point.hpp"
+#include <trading/types.hpp>
+#include <trading/data_point.hpp>
 
 namespace trading::bazooka {
     // idea for a builder: https://cpppatterns.com/patterns/builder.html

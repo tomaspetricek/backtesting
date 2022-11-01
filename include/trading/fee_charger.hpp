@@ -5,8 +5,7 @@
 #ifndef BACKTESTING_FEE_CHARGER_HPP
 #define BACKTESTING_FEE_CHARGER_HPP
 
-#include "percent_t.hpp"
-#include "amount_t.hpp"
+#include <trading/types.hpp>
 
 namespace trading {
     class fee_charger {

@@ -8,7 +8,7 @@
 #include <array>
 #include <boost/test/unit_test.hpp>
 #include <trading/fractioner.hpp>
-#include <trading/percent_t.hpp>
+#include <trading/types.hpp>
 
 using namespace trading;
 

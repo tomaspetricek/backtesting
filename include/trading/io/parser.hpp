@@ -12,10 +12,10 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include "trading/candle.hpp"
-#include "trading/exception.hpp"
-#include "trading/index_t.hpp"
-#include "trading/tuple.hpp"
+#include <trading/candle.hpp>
+#include <trading/exception.hpp>
+#include <trading/types.hpp>
+#include <trading/tuple.hpp>
 
 namespace trading::io {
     template<class ...Types>
