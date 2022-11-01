@@ -38,8 +38,8 @@ namespace trading::io::csv {
                 throw std::runtime_error("Cannot open "+path_.string());
         }
 
-        template<std::size_t n>
-        bool read_line(std::string (& data)[n])
+        template<std::size_t size>
+        bool read_line(std::array<std::string, size>& data)
         {
             // read lines
             if(!std::getline(file_, line_))
@@ -52,7 +52,7 @@ namespace trading::io::csv {
             std::stringstream ss(line_);
             ss.exceptions(std::ios::failbit);
 
-            for (std::size_t i{0}; i<n; i++)
+            for (std::size_t i{0}; i<size; i++)
                 std::getline(ss, data[i], delim_);
 
             return true;

@@ -18,7 +18,7 @@
 namespace trading::io {
     template<class ...Types>
     class parser final {
-        static constexpr int n = sizeof...(Types);
+        static constexpr int size = sizeof...(Types);
         std::tuple<Types...> data_;
 
         template<class T>
@@ -51,11 +51,11 @@ namespace trading::io {
 
         template<std::size_t I = 0>
         inline typename std::enable_if<I==sizeof...(Types), void>::type
-        parse_line(std::string (&)[n]) { }
+        parse_line(const std::array<std::string, size>&) { }
 
         template<std::size_t I = 0>
         inline typename std::enable_if<I<sizeof...(Types), void>::type
-        parse_line(std::string (& line)[n])
+        parse_line(const std::array<std::string, size>& line)
         {
             try {
                 std::get<I>(data_) = parse<get_type<I, Types...>>(line[I]);
@@ -69,7 +69,7 @@ namespace trading::io {
         }
 
     public:
-        std::tuple<Types...> operator()(std::string (& line)[n])
+        std::tuple<Types...> operator()(const std::array<std::string, size>& line)
         {
             parse_line(line);
             return data_;

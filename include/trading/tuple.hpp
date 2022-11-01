@@ -12,12 +12,6 @@
 #include <boost/range.hpp>
 #include <trading/types.hpp>
 
-namespace std {
-    std::string to_string(const std::string& val)
-    {
-        return val;
-    }
-}
 
 namespace trading {
 // https://stackoverflow.com/questions/6245735/pretty-print-stdtuple
@@ -94,18 +88,6 @@ namespace trading {
         auto zip_begin = boost::make_zip_iterator(boost::make_tuple(std::begin(containers)...));
         auto zip_end = boost::make_zip_iterator(boost::make_tuple(std::end(containers)...));
         return boost::make_iterator_range(zip_begin, zip_end);
-    }
-
-    template<class ...Types>
-    std::array<std::string, sizeof...(Types)> to_array(const std::tuple<Types...>& src)
-    {
-        std::array<std::string, sizeof...(Types)> dest;
-
-        for_each(src, [&](auto val, index_t i) {
-            dest[i] = std::to_string(val);
-        });
-
-        return dest;
     }
 }
 

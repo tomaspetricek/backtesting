@@ -57,7 +57,7 @@ auto read_candles(const std::filesystem::path& path, char sep,
     io::csv::reader reader{path, sep};
     io::parser<std::time_t, double, double, double, double> parser;
     constexpr std::size_t n_cols{5};
-    std::string data[n_cols];
+    std::array<std::string, n_cols> data;
 
     std::vector<candle> candles;
 
@@ -104,20 +104,20 @@ int main()
 
     // trade
     begin = std::chrono::high_resolution_clock::now();
-    std::optional<candle> indic_candle{std::nullopt};
+    candle indic_candle;
     amount_t max_equity{trader.wallet_balance()},
             min_equity{trader.wallet_balance()};
 
     for (const auto& candle: candles) {
         trader(candle);
-        indic_candle = resampler(candle);
 
         if (trader.has_active_position()) {
             max_equity = std::max(max_equity, trader.equity(candle.high()));
             min_equity = std::min(min_equity, trader.equity(candle.low()));
         }
 
-        if (indic_candle) trader.update_indicators(averager(*indic_candle));
+        if (resampler(candle, indic_candle))
+            trader.update_indicators(averager(indic_candle));
     }
 
     std::cout << "min equity: " << min_equity << std::endl

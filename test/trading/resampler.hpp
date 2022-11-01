@@ -47,13 +47,13 @@ BOOST_AUTO_TEST_SUITE(resampler_test)
         };
 
         trading::resampler resampler{resampling_period};
-        std::optional<candle> expect_resampled;
+        candle expect_resampled;
         std::size_t i{0};
 
-        for (const auto& sample: samples) {
-            expect_resampled = resampler(sample);
-            if (expect_resampled) BOOST_REQUIRE_EQUAL(*expect_resampled, actual_resampled[i++]);
-        }
+        for (const auto& sample: samples)
+            if (resampler(sample, expect_resampled))
+                BOOST_REQUIRE_EQUAL(expect_resampled, actual_resampled[i++]);
+
         BOOST_REQUIRE_EQUAL(i, actual_resampled.size());
     }
 BOOST_AUTO_TEST_SUITE_END()

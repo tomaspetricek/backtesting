@@ -27,12 +27,12 @@ namespace trading::io::csv {
                 throw std::runtime_error("Cannot open "+path.string());
         }
 
-        template<std::size_t n>
-        void write_line(const std::array<std::string, n>& data)
+        template<std::size_t size>
+        void write_line(const std::array<std::string, size>& data)
         {
             char sep;
-            for (int i{0}; i<n; i++) {
-                sep = (i<n-1) ? delim_ : '\n';
+            for (int i{0}; i<size; i++) {
+                sep = (i<size-1) ? delim_ : '\n';
                 file_ << data[i] << sep;
             }
         }

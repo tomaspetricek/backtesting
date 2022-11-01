@@ -33,27 +33,29 @@ namespace trading {
         explicit resampler(size_t period)
                 :period_(validate_period(period)) { }
 
-        std::optional<candle> operator()(const candle& sample)
+        bool operator()(const candle& in, candle& out)
         {
             count_++;
+            bool ready{false};
 
             if (count_%period_==1) {
-                opened_ = sample.opened();
-                open_ = sample.open();
-                low_ = sample.low();
-                high_ = sample.high();
+                opened_ = in.opened();
+                open_ = in.open();
+                low_ = in.low();
+                high_ = in.high();
             }
             else {
-                low_ = std::min(low_, sample.low());
-                high_ = std::max(high_, sample.high());
+                low_ = std::min(low_, in.low());
+                high_ = std::max(high_, in.high());
             }
 
             if (count_-1 && count_%period_==0) {
-                close_ = sample.close();
-                return candle{opened_, open_, high_, low_, close_};
+                close_ = in.close();
+                out = candle{opened_, open_, high_, low_, close_};
+                ready = true;
             }
 
-            return std::nullopt;
+            return ready;
         }
 
         size_t period() const

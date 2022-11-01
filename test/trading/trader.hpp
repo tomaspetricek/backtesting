@@ -29,6 +29,7 @@
 #include <trading/bazooka/trader.hpp>
 #include <trading/tuple.hpp>
 #include <trading/labels.hpp>
+#include <trading/io/stringifier.hpp>
 
 using namespace trading;
 using namespace io;
@@ -96,15 +97,16 @@ void save_candles(const std::filesystem::path& path, const std::vector<candle>& 
     csv::writer writer{path, ','};
     constexpr std::size_t n_cols{5};
     writer.write_line(std::array<std::string, n_cols>{"time", "open", "high", "low", "close"});
+    trading::stringifier stringify;
 
     for (const auto& candle: candles)
-        writer.write_line(to_array(std::make_tuple(
+        writer.write_line(stringify(
                 boost::posix_time::to_time_t(candle.opened()),
                 value_of(candle.open()),
                 value_of(candle.high()),
                 value_of(candle.low()),
                 value_of(candle.close())
-        )));
+        ));
 }
 
 void save_orders(const std::filesystem::path& path, const std::vector<futures::order>& orders)
@@ -112,10 +114,10 @@ void save_orders(const std::filesystem::path& path, const std::vector<futures::o
     csv::writer writer{path, ','};
     constexpr std::size_t n_cols{2};
     writer.write_line(std::array<std::string, n_cols>{"time", "price"});
+    trading::stringifier stringify;
 
     for (const auto& order: orders)
-        writer.write_line(
-                to_array(std::make_tuple(boost::posix_time::to_time_t(order.created), value_of(order.price))));
+        writer.write_line(stringify(boost::posix_time::to_time_t(order.created), value_of(order.price)));
 }
 
 void save_mean_points(const std::filesystem::path& path, const std::vector<price_point>& mean_points,
@@ -127,10 +129,10 @@ void save_mean_points(const std::filesystem::path& path, const std::vector<price
     csv::writer writer{path, ','};
     constexpr std::size_t n_cols{2};
     writer.write_line(std::array<std::string, n_cols>{"time", averager_label});
+    trading::stringifier stringify;
 
     for (const auto& mean_point: mean_points)
-        writer.write_line(
-                to_array(std::make_tuple(boost::posix_time::to_time_t(mean_point.time), value_of(mean_point.data))));
+        writer.write_line(stringify(boost::posix_time::to_time_t(mean_point.time), value_of(mean_point.data)));
 }
 
 template<std::size_t n_levels>
@@ -166,8 +168,7 @@ auto read_chart_data(const std::filesystem::path& path)
     csv::reader reader{path, ';'};
     parser<long, double, double, double, double, double, double, double, double, double, double, double> parser;
     constexpr std::size_t n_cols{12};
-    std::string data[n_cols];
-
+    std::array<std::string, n_cols> data;
     std::vector<candle> candles;
     std::vector<bazooka::indicator_values<n_levels>> indic_vals;
 
@@ -191,8 +192,7 @@ auto read_trades(const std::filesystem::path& path)
     csv::reader reader{path, ','};
     constexpr std::size_t n_cols{6};
     parser<long, std::string, std::string, std::string, double, double> parser;
-    std::string data[n_cols];
-
+    std::array<std::string, n_cols> data;
     std::vector<trade_info> open_trade_infos;
     std::vector<trade_info> close_trade_infos;
 
