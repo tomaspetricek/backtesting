@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_SUITE(futures_position_test)
         binance::futures::long_position pos{trade{amount_t{1159.0478454228034}, open, ptime()}, leverage};
         pos.add_close(trade{pos.size(), price_t{9'693.60}, ptime()});
         BOOST_REQUIRE_CLOSE(value_of(pos.total_realized_profit<amount_t>()), 34.40, 0.01);
-        BOOST_REQUIRE_CLOSE(value_of(pos.total_realized_profit<percent_t>())*100, 2.97, 0.1);
+        BOOST_REQUIRE_CLOSE(value_of(pos.total_realized_profit<percent_t>()), 2.97, 0.1);
 
         open = price_t{45'582.47};
         pos = binance::futures::long_position{trade{amount_t{value_of(open)*0.03307}, open, ptime()}, leverage};
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_SUITE(futures_position_test)
                 trade{amount_t{value_of(open)*(1.74815/static_cast<double>(leverage))}, open, ptime()}, leverage};
         pos.add_close(trade{pos.size(), price_t{7'242.66}, ptime()});
         BOOST_REQUIRE_CLOSE(value_of(pos.total_realized_profit<amount_t>()), 115.28, 1);
-        BOOST_REQUIRE_CLOSE(value_of(pos.total_realized_profit<percent_t>())*100, 0.92*leverage, 1);
+        BOOST_REQUIRE_CLOSE(value_of(pos.total_realized_profit<percent_t>()), 0.92*leverage, 1);
 
         open = price_t{9'748.24};
         pos = binance::futures::long_position{
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_SUITE(futures_position_test)
         std::size_t leverage{1};
         binance::futures::long_position pos{trade{amount_t{100}, price_t{10'000}, ptime()}, leverage};
         pos.add_close(trade{pos.size(), price_t{5'000}, ptime()});
-        BOOST_REQUIRE_EQUAL(value_of(pos.total_realized_profit<percent_t>()), -0.5);
+        BOOST_REQUIRE_EQUAL(value_of(pos.total_realized_profit<percent_t>()), -50.0);
     }
 BOOST_AUTO_TEST_SUITE_END()
 

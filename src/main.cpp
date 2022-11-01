@@ -31,17 +31,17 @@ auto create_trader()
     futures::long_market market{wallet, open_charger, close_charger};
 
     // create open sizer
-    std::array<percent_t, n_levels> open_fracs{
-            percent_t{12.5/100},
-            percent_t{12.5/100},
-            percent_t{25.0/100},
-            percent_t{50.0/100}
+    std::array<fraction_t, n_levels> open_fracs{
+            fraction_t{12.5/100},
+            fraction_t{12.5/100},
+            fraction_t{25.0/100},
+            fraction_t{50.0/100}
     };
     fractioner<n_levels> open_sizer{open_fracs};
 
     // create close sizer
     constexpr std::size_t n_close{1};
-    std::array<percent_t, n_close> close_fracs{percent_t{1.0}};
+    std::array<fraction_t, n_close> close_fracs{fraction_t{1.0}};
     fractioner<n_close> close_sizer{close_fracs};
 
     // create trade manager

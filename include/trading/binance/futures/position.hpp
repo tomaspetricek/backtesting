@@ -102,7 +102,7 @@ namespace trading::binance::futures {
         percent_t current_profit(const price_t& market)
         {
             assert(curr_invested_>=amount_t{0.0});
-            return percent_t{value_of(current_profit<amount_t>(market)/curr_invested_)};
+            return percent_t{value_of(current_profit<amount_t>(market)/curr_invested_)*100};
         }
 
         template<class Type>
@@ -117,7 +117,7 @@ namespace trading::binance::futures {
         percent_t total_profit(const price_t& market)
         {
             assert(total_invested_>=amount_t{0.0});
-            return percent_t{value_of(total_profit<amount_t>(market)/total_invested_)};
+            return percent_t{value_of(total_profit<amount_t>(market)/total_invested_)*100};
         }
 
         template<class Type>
@@ -132,7 +132,7 @@ namespace trading::binance::futures {
         percent_t total_realized_profit() const
         {
             assert(total_invested_>=amount_t{0.0});
-            return percent_t{value_of(total_realized_profit_/total_invested_)};
+            return percent_t{value_of(total_realized_profit_/total_invested_)*100};
         }
 
         bool is_closed() const

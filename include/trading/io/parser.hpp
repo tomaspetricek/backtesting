@@ -9,9 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
-
 #include <boost/date_time/posix_time/posix_time.hpp>
-
 #include <trading/candle.hpp>
 #include <trading/exception.hpp>
 #include <trading/types.hpp>

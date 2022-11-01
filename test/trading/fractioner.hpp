@@ -13,7 +13,7 @@
 using namespace trading;
 
 template<std::size_t size>
-void check_fractioning(const std::array<percent_t, size>& fracs, amount_t init_balance)
+void check_fractioning(const std::array<fraction_t, size>& fracs, amount_t init_balance)
 {
     fractioner sizer{fracs};
     amount_t rest{init_balance}, part, total{0.0};
@@ -34,77 +34,77 @@ BOOST_AUTO_TEST_SUITE(fractioner_test)
     BOOST_AUTO_TEST_CASE(constructor_exception_test)
     {
         // sum is less than 1
-        BOOST_REQUIRE_THROW(fractioner(std::array<percent_t, 2>{
-                percent_t{0.5},
-                percent_t{0.25},
+        BOOST_REQUIRE_THROW(fractioner(std::array<fraction_t, 2>{
+                fraction_t{0.5},
+                fraction_t{0.25},
         }), std::invalid_argument);
 
         // sum is more than 1
-        BOOST_REQUIRE_THROW(fractioner(std::array<percent_t, 2>{
-                percent_t{0.5},
-                percent_t{0.7},
+        BOOST_REQUIRE_THROW(fractioner(std::array<fraction_t, 2>{
+                fraction_t{0.5},
+                fraction_t{0.7},
         }), std::invalid_argument);
 
         // fraction is lower than 0
-        BOOST_REQUIRE_THROW(fractioner(std::array<percent_t, 2>{
-                percent_t{2},
-                percent_t{-1},
+        BOOST_REQUIRE_THROW(fractioner(std::array<fraction_t, 2>{
+                fraction_t{2},
+                fraction_t{-1},
         }), std::invalid_argument);
     }
 
     BOOST_AUTO_TEST_CASE(constructor_test)
     {
-        fractioner(std::array<percent_t, 4>{
-                percent_t{0.5},
-                percent_t{0.25},
-                percent_t{0.125},
-                percent_t{0.125}
+        fractioner(std::array<fraction_t, 4>{
+                fraction_t{0.5},
+                fraction_t{0.25},
+                fraction_t{0.125},
+                fraction_t{0.125}
         });
 
-        fractioner(std::array<percent_t, 4>{
-                percent_t{0.125},
-                percent_t{0.25},
-                percent_t{0.25},
-                percent_t{0.375}
+        fractioner(std::array<fraction_t, 4>{
+                fraction_t{0.125},
+                fraction_t{0.25},
+                fraction_t{0.25},
+                fraction_t{0.375}
         });
 
-        fractioner(std::array<percent_t, 1>{
-                percent_t{1.0},
+        fractioner(std::array<fraction_t, 1>{
+                fraction_t{1.0},
         });
 
-        fractioner(std::array<percent_t, 5>{
-                percent_t{0.1},
-                percent_t{0.2},
-                percent_t{0.1},
-                percent_t{0.4},
-                percent_t{0.2},
+        fractioner(std::array<fraction_t, 5>{
+                fraction_t{0.1},
+                fraction_t{0.2},
+                fraction_t{0.1},
+                fraction_t{0.4},
+                fraction_t{0.2},
         });
 
-        fractioner(std::array<percent_t, 4>{
-                percent_t{0.25},
-                percent_t{0.5},
-                percent_t{0.125},
-                percent_t{0.125}
+        fractioner(std::array<fraction_t, 4>{
+                fraction_t{0.25},
+                fraction_t{0.5},
+                fraction_t{0.125},
+                fraction_t{0.125}
         });
     }
 
     BOOST_AUTO_TEST_CASE(usage_test)
     {
         // large balance
-        check_fractioning(std::array<percent_t, 5>{
-                percent_t{0.1},
-                percent_t{0.2},
-                percent_t{0.1},
-                percent_t{0.4},
-                percent_t{0.2},
+        check_fractioning(std::array<fraction_t, 5>{
+                fraction_t{0.1},
+                fraction_t{0.2},
+                fraction_t{0.1},
+                fraction_t{0.4},
+                fraction_t{0.2},
         }, amount_t{100'000});
 
         // small balance
-        check_fractioning(std::array<percent_t, 4>{
-                percent_t{0.125},
-                percent_t{0.25},
-                percent_t{0.25},
-                percent_t{0.375}
+        check_fractioning(std::array<fraction_t, 4>{
+                fraction_t{0.125},
+                fraction_t{0.25},
+                fraction_t{0.25},
+                fraction_t{0.375}
         }, amount_t{0.00000001/3});
     }
 BOOST_AUTO_TEST_SUITE_END()
