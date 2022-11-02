@@ -50,9 +50,9 @@ namespace trading {
                     value_of(candle.close_))};
         }
 
-        bool price_increased()
+        bool risen() const
         {
-            return close_>open_;
+            return close_<open_;
         }
 
         bool operator==(const candle& rhs) const

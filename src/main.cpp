@@ -105,12 +105,22 @@ int main()
     amount_t max_equity{trader.wallet_balance()},
             min_equity{trader.wallet_balance()};
 
+    drawdown_tracker equity_drawdown{trader.wallet_balance()};
+    run_up_tracker equity_run_up{trader.wallet_balance()};
+    price_t first{strong::uninitialized}, last{strong::uninitialized};
+
     for (const auto& candle: candles) {
         trader(candle);
 
         if (trader.has_active_position()) {
             max_equity = std::max(max_equity, trader.equity(candle.high()));
             min_equity = std::min(min_equity, trader.equity(candle.low()));
+
+            equity_run_up.update(trader.equity(candle.high()));
+            equity_run_up.update(trader.equity(candle.low()));
+
+            equity_drawdown.update(trader.equity(candle.high()));
+            equity_drawdown.update(trader.equity(candle.low()));
         }
 
         if (resampler(candle, indic_candle))
@@ -118,7 +128,9 @@ int main()
     }
 
     std::cout << "min equity: " << min_equity << std::endl
-              << "max equity: " << max_equity << std::endl;
+              << "max equity: " << max_equity << std::endl
+              << "equity max drawdown: " << equity_drawdown.maximum().value<amount_t>() << std::endl
+              << "equity max run up: " << equity_run_up.maximum().value<amount_t>() << std::endl;
 
     end = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin);
