@@ -13,7 +13,10 @@ namespace trading {
         amount_t trough;
 
         explicit motion(const amount_t& peak, const amount_t& trough)
-                :peak(peak), trough(trough) { }
+                :peak(peak), trough(trough)
+        {
+            assert(peak>=trough);
+        }
     };
 
     struct drawdown : public motion {
@@ -37,7 +40,9 @@ namespace trading {
 
     struct run_up : public motion {
         explicit run_up(const amount_t& peak, const amount_t& trough)
-                :motion(peak, trough) { }
+                :motion(peak, trough)
+        {
+        }
 
         template<class T>
         requires std::same_as<T, amount_t>
