@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 02.11.2022.
 //
 
-#ifndef BACKTESTING_MOTION_CALCULATOR_HPP
-#define BACKTESTING_MOTION_CALCULATOR_HPP
+#ifndef BACKTESTING_MOTION_TRACKER_HPP
+#define BACKTESTING_MOTION_TRACKER_HPP
 
 #include <trading/types.hpp>
 
@@ -20,6 +20,7 @@ namespace trading {
     };
 
     struct drawdown : public motion {
+        // peak happens before trough
         explicit drawdown(const amount_t& peak, const amount_t& trough)
                 :motion(peak, trough) { }
 
@@ -27,6 +28,7 @@ namespace trading {
         requires std::same_as<T, amount_t>
         amount_t value() const
         {
+            assert(trough-peak<=amount_t{0});
             return trough-peak;
         }
 
@@ -39,15 +41,15 @@ namespace trading {
     };
 
     struct run_up : public motion {
-        explicit run_up(const amount_t& peak, const amount_t& trough)
-                :motion(peak, trough)
-        {
-        }
+        // note: trough happens before peak
+        explicit run_up(const amount_t& trough, const amount_t& peak)
+                :motion(peak, trough) { }
 
         template<class T>
         requires std::same_as<T, amount_t>
         amount_t value() const
         {
+            assert(peak-trough>=amount_t{0});
             return peak-trough;
         }
 
@@ -64,6 +66,8 @@ namespace trading {
         drawdown curr_;
 
     public:
+        typedef drawdown motion_type;
+
         explicit drawdown_tracker(const amount_t init)
                 :max_(init, init), curr_(init, init) { }
 
@@ -98,6 +102,8 @@ namespace trading {
         run_up curr_;
 
     public:
+        typedef run_up motion_type;
+
         explicit run_up_tracker(const amount_t init)
                 :max_(init, init), curr_(init, init) { }
 
@@ -128,4 +134,4 @@ namespace trading {
     };
 }
 
-#endif //BACKTESTING_MOTION_CALCULATOR_HPP
+#endif //BACKTESTING_MOTION_TRACKER_HPP
