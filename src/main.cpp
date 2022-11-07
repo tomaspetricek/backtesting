@@ -102,12 +102,11 @@ int main()
     // trade
     begin = std::chrono::high_resolution_clock::now();
     candle indic_candle;
-    amount_t max_equity{trader.wallet_balance()},
-            min_equity{trader.wallet_balance()};
+    amount_t max_equity{trader.wallet_balance()}, min_equity{trader.wallet_balance()};
 
+    // create motion trackers
     drawdown_tracker equity_drawdown{trader.wallet_balance()};
     run_up_tracker equity_run_up{trader.wallet_balance()};
-    price_t first{strong::uninitialized}, last{strong::uninitialized};
 
     for (const auto& candle: candles) {
         trader(candle);
@@ -127,18 +126,24 @@ int main()
             trader.update_indicators(averager(indic_candle));
     }
 
-    std::cout << "min equity: " << min_equity << std::endl
-              << "max equity: " << max_equity << std::endl
-              << "equity max drawdown: " << equity_drawdown.maximum().value<amount_t>() << std::endl
-              << "equity max run up: " << equity_run_up.maximum().value<amount_t>() << std::endl;
+    // show equity stats
+    std::cout << "equity" << std::endl
+              << fmt::format("min: {:.2f} USD\n", value_of(min_equity))
+              << fmt::format("max: {:.2f} USD\n", value_of(max_equity))
+              << fmt::format("max drawdown: {:.2f} %, {:.2f} USD\n",
+                      value_of(equity_drawdown.max().value<percent_t>()),
+                      value_of(equity_drawdown.max().value<amount_t>()))
+              << fmt::format("max run up: {:.2f} %, {:.2f} USD\n",
+                      value_of(equity_run_up.max().value<percent_t>()),
+                      value_of(equity_run_up.max().value<amount_t>()));
 
     end = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin);
 
-//    for (const auto& pos: trader.closed_positions())
-//        fmt::print("total profit: {:8.2f} %, {:8.2f} USD\n",
-//                value_of(pos.total_realized_profit<percent_t>())*100,
-//                value_of(pos.total_realized_profit<amount_t>()));
+    for (const auto& pos: trader.closed_positions())
+        fmt::print("total profit: {:8.2f} %, {:8.2f} USD\n",
+                value_of(pos.total_realized_profit<percent_t>())*100,
+                value_of(pos.total_realized_profit<amount_t>()));
 
 //    for (const auto& ord: trader.open_orders())
 //        std::cout << ord.created << std::endl;
@@ -147,7 +152,8 @@ int main()
               << "duration: " << duration.count()*1e-9 << std::endl
               << "n open orders: " << trader.open_orders().size() << std::endl
               << "n close orders: " << trader.close_orders().size() << std::endl
-              << "order ratio: " << static_cast<double>(trader.open_orders().size())/trader.close_orders().size()
+              << "order open to close ratio: "
+              << static_cast<double>(trader.open_orders().size())/trader.close_orders().size()
               << std::endl
               << "wallet balance: " << trader.wallet_balance() << std::endl;
     return EXIT_SUCCESS;

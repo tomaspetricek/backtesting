@@ -20,7 +20,7 @@ void usage_test(const std::vector<amount_t>& vals, const typename MotionTracker:
     for (index_t i{1}; i<vals.size(); i++)
         tracker.update(vals[i]);
 
-    typename MotionTracker::motion_type actual_max = tracker.maximum();
+    typename MotionTracker::motion_type actual_max = tracker.max();
     BOOST_REQUIRE_EQUAL(actual_max.peak, expect_max.peak);
     BOOST_REQUIRE_EQUAL(actual_max.trough, expect_max.trough);
 }

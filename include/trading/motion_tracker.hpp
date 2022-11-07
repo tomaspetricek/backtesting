@@ -87,7 +87,7 @@ namespace trading {
                 max_ = curr_;
         }
 
-        const drawdown& maximum() const
+        const drawdown& max() const
         {
             return max_;
         }
@@ -123,7 +123,7 @@ namespace trading {
                 max_ = curr_;
         }
 
-        const run_up& maximum() const
+        const run_up& max() const
         {
             return max_;
         }

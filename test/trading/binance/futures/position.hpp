@@ -70,11 +70,55 @@ BOOST_AUTO_TEST_SUITE(futures_position_test)
         BOOST_REQUIRE_CLOSE(value_of(pos.total_realized_profit<amount_t>()), -8'447.039999999999, 1);
     }
 
-    BOOST_AUTO_TEST_CASE(loss_test) {
+    BOOST_AUTO_TEST_CASE(no_leverage_loss_test)
+    {
         std::size_t leverage{1};
         binance::futures::long_position pos{trade{amount_t{100}, price_t{10'000}, ptime()}, leverage};
         pos.add_close(trade{pos.size(), price_t{5'000}, ptime()});
         BOOST_REQUIRE_EQUAL(value_of(pos.total_realized_profit<percent_t>()), -50.0);
+    }
+
+    BOOST_AUTO_TEST_CASE(leverage_loss_test)
+    {
+        std::size_t leverage{10};
+        binance::futures::long_position pos{trade{amount_t{100}, price_t{10'000}, ptime()}, leverage};
+        pos.add_close(trade{pos.size(), price_t{5'000}, ptime()});
+        BOOST_REQUIRE_EQUAL(value_of(pos.total_realized_profit<percent_t>()), -500);
+    }
+
+    BOOST_AUTO_TEST_CASE(consecutive_open_orders_test)
+    {
+        // create position
+        std::size_t leverage{10};
+        binance::futures::long_position pos{trade{amount_t{5}, price_t{100}, ptime()}, leverage};
+        BOOST_REQUIRE_EQUAL(pos.invested(), amount_t{5});
+        BOOST_REQUIRE_EQUAL(pos.total_invested(), amount_t{5});
+        BOOST_REQUIRE_EQUAL(pos.size(), amount_t{5.0/100});
+        BOOST_REQUIRE_EQUAL(pos.total_realized_profit<amount_t>(), amount_t{0});
+        BOOST_REQUIRE_EQUAL(pos.total_realized_profit<percent_t>(), percent_t{0});
+        // if I were to sell it all
+        BOOST_REQUIRE_EQUAL(value_of(pos.current_profit<amount_t>(price_t{1'000})), 450);
+        BOOST_REQUIRE_EQUAL(value_of(pos.current_profit<percent_t>(price_t{1'000})), 9'000);
+
+        // increase position
+        pos.add_open(trade{amount_t{2}, price_t{1'000}, ptime()});
+        BOOST_REQUIRE_EQUAL(pos.invested(), amount_t{2+5});
+        BOOST_REQUIRE_EQUAL(pos.total_invested(), amount_t{2+5});
+        BOOST_REQUIRE_EQUAL(pos.size(), amount_t{5.0/100+2.0/1'000});
+        BOOST_REQUIRE_EQUAL(value_of(pos.total_realized_profit<amount_t>()), 450);
+        // if I were to sell it all
+        BOOST_REQUIRE_CLOSE(value_of(pos.current_profit<amount_t>(price_t{300})), 86, 0.01);
+        BOOST_REQUIRE_CLOSE(value_of(pos.current_profit<percent_t>(price_t{300})), 1'228.6, 0.01);
+
+        // increase position
+        pos.add_open(trade{amount_t{10}, price_t{300}, ptime()});
+        BOOST_REQUIRE_EQUAL(pos.invested(), amount_t{2+5+10});
+        BOOST_REQUIRE_EQUAL(pos.total_invested(), amount_t{2+5+10});
+        BOOST_REQUIRE_EQUAL(pos.size(), amount_t{5.0/100+2.0/1'000+10.0/300});
+        BOOST_REQUIRE_CLOSE(value_of(pos.total_realized_profit<amount_t>()), 86.0, 0.01);
+        // if I were to sell it all
+        BOOST_REQUIRE_CLOSE(value_of(pos.current_profit<amount_t>(price_t{2'500})), 1'963.333, 0.01);
+        BOOST_REQUIRE_CLOSE(value_of(pos.current_profit<percent_t>(price_t{2'500})), 11'549, 0.01);
     }
 BOOST_AUTO_TEST_SUITE_END()
 

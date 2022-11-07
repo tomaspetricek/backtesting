@@ -34,19 +34,19 @@ namespace trading::binance::futures {
             return leverage;
         }
 
-    public:
-        explicit position(const trade& open, size_t leverage)
-                :size_{calc_bought(open)}, last_open_{open.price}, curr_invested_{open.sold},
-                 total_invested_(open.sold), leverage_(validate_leverage(leverage)) { }
-
-        position() = default;
-
         template<class Type>
         requires std::same_as<Type, amount_t>
         amount_t unrealized_profit(const price_t& market)
         {
             return amount_t{((value_of(market)-value_of(last_open_))*value_of(size_))*leverage_*to_underlying(direct)};
         }
+
+    public:
+        explicit position(const trade& open, size_t leverage)
+                :size_{calc_bought(open)}, last_open_{open.price}, curr_invested_{open.sold},
+                 total_invested_(open.sold), leverage_(validate_leverage(leverage)) { }
+
+        position() = default;
 
         void add_open(const trade& open)
         {
