@@ -57,7 +57,7 @@ namespace trading::bazooka {
             return baseline*value_of(entry_levels_[level]); // move baseline
         }
 
-        explicit strategy(OpenMovingAverage entry_ma, CloseMovingAverage exit_ma,
+        explicit strategy(const OpenMovingAverage& entry_ma, const CloseMovingAverage& exit_ma,
                 const std::array<percent_t, n_levels>& entry_levels)
                 :entry_ma_(entry_ma), exit_ma_(exit_ma), entry_levels_(validate_entry_levels(entry_levels)) { }
 

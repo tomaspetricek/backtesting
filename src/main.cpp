@@ -8,10 +8,8 @@ using namespace trading;
 
 auto create_trader()
 {
-    const std::size_t n_levels{4};
-
     // create levels
-    std::array<percent_t, n_levels> levels{
+    std::array levels{
             percent_t{1.0-(7.0/100)},
             percent_t{1.0-(10.0/100)},
             percent_t{1.0-(15.0/100)},
@@ -21,7 +19,7 @@ auto create_trader()
     // create strategy
     indicator::sma entry_ma{30};
     const indicator::sma& exit_ma{entry_ma};
-    bazooka::long_strategy<indicator::sma, indicator::sma, n_levels> strategy{entry_ma, exit_ma, levels};
+    bazooka::long_strategy strategy{entry_ma, exit_ma, levels};
 
     // create market
     fee_charger open_charger{fraction_t{0.0}};
@@ -30,22 +28,22 @@ auto create_trader()
     futures::long_market market{wallet, open_charger, close_charger};
 
     // create open sizer
-    std::array<fraction_t, n_levels> open_fracs{
+    std::array open_fracs{
             fraction_t{12.5/100},
             fraction_t{12.5/100},
             fraction_t{25.0/100},
             fraction_t{50.0/100}
     };
-    fractioner<n_levels> open_sizer{open_fracs};
+    fractioner open_sizer{open_fracs};
 
     // create close sizer
     constexpr std::size_t n_close{1};
-    std::array<fraction_t, n_close> close_fracs{fraction_t{1.0}};
-    fractioner<n_close> close_sizer{close_fracs};
+    std::array close_fracs{fraction_t{1.0}};
+    fractioner close_sizer{close_fracs};
 
     // create trade manager
     std::size_t leverage{1};
-    futures::manager<n_levels, n_close, futures::direction::long_> manager{market, open_sizer, close_sizer, leverage};
+    futures::manager manager{market, open_sizer, close_sizer, leverage};
     return trading::bazooka::trader{strategy, manager};
 }
 

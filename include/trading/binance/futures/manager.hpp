@@ -19,7 +19,7 @@ using namespace trading::binance;
 namespace trading::binance::futures {
     // to avoid use of virtual functions CRTP is used
     // src: https://www.fluentcpp.com/2017/05/12/curiously-recurring-template-pattern/
-    template<std::size_t n_open, std::size_t n_close, futures::direction direct>
+    template<futures::direction direct, std::size_t n_open, std::size_t n_close>
     class manager {
     protected:
         futures::market<direct> market_;
