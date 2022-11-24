@@ -37,7 +37,6 @@ auto create_trader()
     fractioner open_sizer{open_fracs};
 
     // create close sizer
-    constexpr std::size_t n_close{1};
     std::array close_fracs{fraction_t{1.0}};
     fractioner close_sizer{close_fracs};
 
@@ -100,28 +99,34 @@ int main()
     // trade
     begin = std::chrono::high_resolution_clock::now();
     candle indic_candle;
-    amount_t max_equity{trader.wallet_balance()}, min_equity{trader.wallet_balance()};
+    amount_t init_balance{trader.wallet_balance()};
+    amount_t max_equity{init_balance}, min_equity{init_balance};
 
     // create motion trackers
-    drawdown_tracker equity_drawdown{trader.wallet_balance()};
-    run_up_tracker equity_run_up{trader.wallet_balance()};
+    drawdown_tracker equity_drawdown{init_balance};
+    run_up_tracker equity_run_up{init_balance};
 
     for (const auto& candle: candles) {
-        trader(candle);
+        if (trader.equity(candle.close())>amount_t{100}) {
+            trader(price_point{candle.opened(), candle.close()});
 
-        if (trader.has_active_position()) {
-            max_equity = std::max(max_equity, trader.equity(candle.high()));
-            min_equity = std::min(min_equity, trader.equity(candle.low()));
+            if (trader.has_active_position()) {
+                max_equity = std::max(max_equity, trader.equity(candle.high()));
+                min_equity = std::min(min_equity, trader.equity(candle.low()));
 
-            equity_run_up.update(trader.equity(candle.high()));
-            equity_run_up.update(trader.equity(candle.low()));
+                equity_run_up.update(trader.equity(candle.high()));
+                equity_run_up.update(trader.equity(candle.low()));
 
-            equity_drawdown.update(trader.equity(candle.high()));
-            equity_drawdown.update(trader.equity(candle.low()));
+                equity_drawdown.update(trader.equity(candle.high()));
+                equity_drawdown.update(trader.equity(candle.low()));
+            }
+
+            if (resampler(candle, indic_candle))
+                trader.update_indicators(averager(indic_candle));
         }
-
-        if (resampler(candle, indic_candle))
-            trader.update_indicators(averager(indic_candle));
+        else {
+            trader.try_closing_active_position(price_point{candle.opened(), candle.close()});
+        }
     }
 
     // show equity stats

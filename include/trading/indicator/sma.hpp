@@ -21,7 +21,7 @@ namespace trading::indicator {
         explicit sma(size_t period = min_period)
                 :ma(period), samples_(period) { }
 
-        sma& operator()(double sample)
+        sma& update(double sample)
         {
             // update sum
             sum_ += sample;
@@ -34,7 +34,7 @@ namespace trading::indicator {
             return *this;
         }
 
-        explicit operator double() const
+        double value() const
         {
             assert(ready_);
             return sum_/static_cast<double>(samples_.size());

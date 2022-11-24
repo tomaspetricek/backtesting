@@ -34,13 +34,13 @@ namespace trading::indicator {
         explicit ema(int period = min_period, int smoothing = 2)
                 :ma(period), sma_(period), smoothing_(validate_smoothing(smoothing)){ }
 
-        ema& operator()(double sample)
+        ema& update(double sample)
         {
             if (!sma_.is_ready()) {
-                sma_(sample);
+                sma_.update(sample);
 
                 if (sma_.is_ready()) {
-                    val_ = static_cast<double>(sma_);
+                    val_ = sma_.value();
                     ready_ = true;
                     return *this;
                 }
@@ -51,7 +51,7 @@ namespace trading::indicator {
             return *this;
         }
 
-        explicit operator double() const
+        double value() const
         {
             assert(ready_);
             return val_;

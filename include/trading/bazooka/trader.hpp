@@ -19,17 +19,24 @@ namespace trading::bazooka {
 
         trader() = default;
 
-        void operator()(const candle& candle)
+        void operator()(const price_point& curr)
         {
             if (!Strategy::is_ready()) return;
 
-            if (Strategy::should_open(candle)) {
-                Manager::create_open_order(price_point{candle.opened(), Strategy::open_price()});
-                Strategy::opened();
+            price_t price{strong::uninitialized};
+
+            // stop loss check
+            if (Manager::has_active_position())
+                if (Manager::template position_current_profit<percent_t>(curr.data)<percent_t{-50}) {
+                    Manager::create_close_all_order(data_point{curr.time, curr.data});
+                    Strategy::reset();
+                }
+
+            if (Strategy::should_open(curr.data)) {
+                Manager::create_open_order(curr);
             }
-            else if (Strategy::should_close_all(candle)) {
-                Manager::create_close_all_order(price_point{candle.opened(), Strategy::close_price()});
-                Strategy::closed();
+            else if (Strategy::should_close_all(curr.data)) {
+                Manager::create_close_all_order(curr);
             }
         }
 

@@ -17,14 +17,14 @@ void ma_usage_test(const std::array<double, n_samples>& samples,
     MovingAverage ma{period};
 
     for (index_t i{0}; i<samples.size(); i++) {
-        ma(samples[i]);
+        ma.update(samples[i]);
 
         if (i<period-1) {
             BOOST_REQUIRE(!ma.is_ready());
         }
         else {
             BOOST_REQUIRE(ma.is_ready());
-            BOOST_REQUIRE_CLOSE(static_cast<double>(ma), actual_values[i-(period-1)], tolerance);
+            BOOST_REQUIRE_CLOSE(ma.value(), actual_values[i-(period-1)], tolerance);
         }
     }
 }

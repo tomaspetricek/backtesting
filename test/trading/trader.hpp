@@ -61,7 +61,7 @@ auto create_strategy()
     // create strategy
     indicator::sma entry_ma{1};
     const indicator::sma& exit_ma{1};
-    return bazooka::long_strategy<sma, sma, n_levels>{entry_ma, exit_ma, levels};
+    return bazooka::long_strategy{entry_ma, exit_ma, levels};
 }
 
 template<std::size_t n_levels>
@@ -89,7 +89,7 @@ auto create_manager()
 
     // create trade manager
     std::size_t leverage{1};
-    return futures::manager<n_levels, n_close, futures::direction::long_>{market, open_sizer, close_sizer, leverage};
+    return futures::manager{market, open_sizer, close_sizer, leverage};
 }
 
 void save_candles(const std::filesystem::path& path, const std::vector<candle>& candles)
@@ -138,7 +138,7 @@ void save_mean_points(const std::filesystem::path& path, const std::vector<price
 template<std::size_t n_levels>
 void save_indic_points(const std::filesystem::path& path,
         const std::vector<data_point<bazooka::indicator_values<n_levels>>> indic_points,
-        const bazooka::long_strategy<sma, sma, n_levels>& strategy)
+        const bazooka::long_strategy<n_levels>& strategy)
 {
     csv::writer writer{path, ','};
     writer.write_line(bazooka::indicator_values<n_levels>::col_names(strategy));

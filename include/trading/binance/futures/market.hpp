@@ -29,6 +29,7 @@ namespace trading::binance::futures {
 
         void fill_open_order(const order& order)
         {
+            assert(order.sold>=amount_t{0.0});
             wallet_.withdraw(order.sold);
             amount_t sold{open_charger_.apply_fee(order.sold)};
             trade open{sold, order.price, order.created};
