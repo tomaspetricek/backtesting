@@ -57,13 +57,10 @@ namespace trading::bazooka {
 
         static auto validate_entry_levels(const std::array<percent_t, n_levels>& entry_levels)
         {
-            double prev_level{1.0}; // 1.0 - represents baseline - value of entry ma
-            double curr_level;
+            percent_t prev_level{1.0}; // 1.0 - represents baseline - value of entry ma
 
-            for (const auto& entry_level: entry_levels) {
-                curr_level = value_of(entry_level);
-
-                if (curr_level<0.0 || entry_comp_(prev_level, curr_level))
+            for (const auto& curr_level: entry_levels) {
+                if (curr_level<percent_t{0.0} || entry_comp_(prev_level, curr_level))
                     throw std::invalid_argument(
                             "The current level must be further from the baseline than the previous level");
 
@@ -74,7 +71,7 @@ namespace trading::bazooka {
         }
 
     protected:
-        double get_level_value(index_t level)
+        double level_value(index_t level)
         {
             assert(level>=0 && level<n_levels);
             auto baseline = ma_value(entry_ma_);
@@ -97,18 +94,16 @@ namespace trading::bazooka {
             ma_update(exit_ma_, curr_val);
 
             if (ma_ready(entry_ma_) && ma_ready(exit_ma_))
-                this->ready_ = true;
+                ready_ = true;
         }
 
         indicator_values<n_levels> get_indicator_values()
         {
-            if (!this->ready_)
-                throw not_ready{"Indicators are not ready yet"};
-
+            assert(ready_);
             std::array<double, n_levels> levels;
 
             for (index_t i{0}; i<n_levels; i++)
-                levels[i] = get_level_value(i);
+                levels[i] = level_value(i);
 
             return indicator_values<n_levels>{ma_value(entry_ma_), ma_value(exit_ma_), levels};
         }
@@ -116,11 +111,10 @@ namespace trading::bazooka {
         bool should_open(const price_t& curr)
         {
             // all levels passed
-            if (curr_level_==n_levels)
-                return false;
+            if (curr_level_==n_levels) return false;
 
             assert(curr_level_<=n_levels);
-            auto entry = price_t{get_level_value(curr_level_)};
+            auto entry = price_t{level_value(curr_level_)};
 
             // passed current level
             if (entry_comp_(curr, entry)) {

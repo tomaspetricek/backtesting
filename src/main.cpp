@@ -17,8 +17,8 @@ auto create_trader()
     };
 
     // create strategy
-    indicator::sma entry_ma{30};
-    const indicator::sma& exit_ma{entry_ma};
+    indicator::ema entry_ma{30};
+    const indicator::sma& exit_ma{30};
     bazooka::long_strategy strategy{entry_ma, exit_ma, levels};
 
     // create market

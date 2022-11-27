@@ -5,7 +5,7 @@
 #ifndef BACKTESTING_RESAMPLER_HPP
 #define BACKTESTING_RESAMPLER_HPP
 
-#include <stddef.h>
+#include <cstddef>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <trading/types.hpp>
 #include <trading/candle.hpp>
