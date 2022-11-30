@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
+#include <type_traits>
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
@@ -17,6 +18,8 @@
 #include "trading/currency.hpp"
 #include <trading/types.hpp>
 #include "trading/tuple.hpp"
+#include <trading/io/parser.hpp>
+#include <utility>
 
 namespace trading::io::csv {
     class reader final {
@@ -24,10 +27,14 @@ namespace trading::io::csv {
         std::filesystem::path path_;
         char delim_;
         std::string line_;
+        parser parser_;
+//        static constexpr std::size_t n_cols_ = sizeof...(Types);
 
     public:
-        explicit reader(const std::filesystem::path& path, char delim)
-                :path_(path), delim_(delim)
+//        using row_type = std::tuple<Types...>;
+
+        explicit reader(std::filesystem::path  path, char delim)
+                :path_(std::move(path)), delim_(delim)
         {
             if (!std::filesystem::exists(path_))
                 throw std::invalid_argument("File does not exist");
@@ -38,8 +45,8 @@ namespace trading::io::csv {
                 throw std::runtime_error("Cannot open "+path_.string());
         }
 
-        template<std::size_t size>
-        bool read_line(std::array<std::string, size>& data)
+        template<class ...Types>
+        bool read_row(Types& ...inputs)
         {
             // read lines
             if(!std::getline(file_, line_))
@@ -51,10 +58,14 @@ namespace trading::io::csv {
             // parse line
             std::stringstream ss(line_);
             ss.exceptions(std::ios::failbit);
+            std::string data;
 
-            for (std::size_t i{0}; i<size; i++)
-                std::getline(ss, data[i], delim_);
+            auto parse_line = [&](auto& in){
+                std::getline(ss, data, delim_);
+                in = parser_.parse<typename std::remove_reference<decltype(in)>::type>(data);
+            };
 
+            (parse_line(inputs),...);
             return true;
         }
     };

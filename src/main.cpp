@@ -51,18 +51,15 @@ auto read_candles(const std::filesystem::path& path, char sep,
         std::time_t max_opened = std::numeric_limits<std::time_t>::max())
 {
     io::csv::reader reader{path, sep};
-    io::parser<std::time_t, double, double, double, double> parser;
-    std::array<std::string, parser.size()> data;
+    std::time_t opened;
+    double open, high, low, close;
     std::vector<candle> candles;
 
     // read rows
-    while (reader.read_line(data)) {
-        auto [opened, open, high, low, close] = parser(data);
-
+    while (reader.read_row(opened, open, high, low, close))
         if (opened>=min_opened && opened<=max_opened)
             candles.emplace_back(candle{boost::posix_time::from_time_t(opened), price_t{open}, price_t{high},
                                         price_t{low}, price_t{close}});
-    }
 
     return candles;
 }

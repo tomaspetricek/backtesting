@@ -11,6 +11,7 @@
 
 namespace trading {
     class stringifier {
+    public:
         template<class T>
         static std::string to_string(const T& data)
         {
@@ -20,20 +21,6 @@ namespace trading {
         static std::string to_string(const std::string& data)
         {
             return data;
-        }
-
-    public:
-        template<class... Types>
-        auto operator()(const Types& ... args) const
-        {
-            std::array<std::string, sizeof...(Types)> dest;
-            auto src = std::make_tuple(args...);
-
-            for_each(src, [&](auto val, index_t i) {
-                dest[i] = to_string(val);
-            });
-
-            return dest;
         }
     };
 }

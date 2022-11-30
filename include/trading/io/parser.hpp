@@ -16,11 +16,8 @@
 #include <trading/tuple.hpp>
 
 namespace trading::io {
-    template<class ...Types>
     class parser final {
-        static constexpr int size_ = sizeof...(Types);
-        std::tuple<Types...> data_;
-
+    public:
         template<class T>
         requires std::same_as<T, long>
         long parse(const std::string& data)
@@ -47,37 +44,6 @@ namespace trading::io {
         std::string parse(const std::string& data)
         {
             return data;
-        }
-
-        template<std::size_t I = 0>
-        inline typename std::enable_if<I==sizeof...(Types), void>::type
-        parse_line(const std::array<std::string, size_>&) { }
-
-        template<std::size_t I = 0>
-        inline typename std::enable_if<I<sizeof...(Types), void>::type
-        parse_line(const std::array<std::string, size_>& line)
-        {
-            try {
-                std::get<I>(data_) = parse<get_type<I, Types...>>(line[I]);
-            }
-            catch (...) {
-                std::throw_with_nested(bad_formatting("Cannot parse line"));
-            }
-
-            // keep parsing
-            parse_line<I+1>(line);
-        }
-
-    public:
-        std::tuple<Types...> operator()(const std::array<std::string, size_>& line)
-        {
-            parse_line(line);
-            return data_;
-        }
-
-        constexpr int size()
-        {
-            return size_;
         }
     };
 }
