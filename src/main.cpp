@@ -74,9 +74,9 @@ int main()
 {
     // read candles
     auto begin = std::chrono::high_resolution_clock::now();
-    std::time_t min_opened{1515024000};
-    std::time_t max_opened{1667066400};
-    auto candles = read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|', min_opened, max_opened);
+//    std::time_t min_opened{1515024000};
+//    std::time_t max_opened{1667066400};
+    auto candles = read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|');
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin);
 
@@ -142,7 +142,7 @@ int main()
 
     for (const auto& pos: trader.closed_positions())
         fmt::print("total profit: {:8.2f} %, {:8.2f} USD\n",
-                value_of(pos.total_realized_profit<percent_t>())*100,
+                value_of(pos.total_realized_profit<percent_t>()),
                 value_of(pos.total_realized_profit<amount_t>()));
 
 //    for (const auto& ord: trader.open_orders())
