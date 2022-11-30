@@ -110,12 +110,8 @@ int main()
             if (trader.has_active_position()) {
                 max_equity = std::max(max_equity, trader.equity(candle.high()));
                 min_equity = std::min(min_equity, trader.equity(candle.low()));
-
                 equity_run_up.update(trader.equity(candle.high()));
-                equity_run_up.update(trader.equity(candle.low()));
-
                 equity_drawdown.update(trader.equity(candle.high()));
-                equity_drawdown.update(trader.equity(candle.low()));
             }
 
             if (resampler(candle, indic_candle))
@@ -148,7 +144,7 @@ int main()
 //    for (const auto& ord: trader.open_orders())
 //        std::cout << ord.created << std::endl;
 
-    std::cout << "trade" << std::endl
+    std::cout << "trading" << std::endl
               << "duration: " << duration.count()*1e-9 << std::endl
               << "n open orders: " << trader.open_orders().size() << std::endl
               << "n close orders: " << trader.close_orders().size() << std::endl

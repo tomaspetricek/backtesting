@@ -21,11 +21,6 @@ namespace trading::binance::futures {
         amount_t total_realized_profit_{0.0};
         std::size_t leverage_{1};
 
-        inline static amount_t calc_bought(const trade& open)
-        {
-            return amount_t{value_of(open.sold)/value_of(open.price)};
-        }
-
         static std::size_t validate_leverage(const std::size_t& leverage)
         {
             if (leverage<1)
@@ -38,12 +33,12 @@ namespace trading::binance::futures {
         requires std::same_as<Type, amount_t>
         amount_t unrealized_profit(const price_t& market)
         {
-            return amount_t{((value_of(market)-value_of(last_open_))*value_of(size_))*leverage_*to_underlying(direct)};
+            return amount_t{(value_of(market)-value_of(last_open_))*value_of(size_)*to_underlying(direct)};
         }
 
     public:
         explicit position(const trade& open, size_t leverage)
-                :size_{calc_bought(open)}, last_open_{open.price}, curr_invested_{open.sold},
+                :size_{open.bought*amount_t{leverage}}, last_open_{open.price}, curr_invested_{open.sold},
                  total_invested_(open.sold), leverage_(validate_leverage(leverage)) { }
 
         position() = default;
@@ -58,26 +53,22 @@ namespace trading::binance::futures {
             total_realized_profit_ += _unrealized_profit;
 
             // update counters
-            size_ += calc_bought(open);
+            size_ += open.bought*amount_t{leverage_};
             curr_invested_ += open.sold;
             total_invested_ += open.sold;
 
             last_open_ = open.price;
         }
 
-        amount_t add_close(const trade& close)
+        void add_close(const trade& close)
         {
             assert(close.sold<=size_);
             double sold_frac{value_of(close.sold/size_)};
-            amount_t bought{value_of(current_profit<amount_t>(close.price)+curr_invested_)*sold_frac};
+            double remain_frac{1.0-sold_frac};
+            assert(remain_frac>=0 && remain_frac<=1.0);
 
             // update realized profit
-            // - leave only remaining realized profit
-            double remain_frac{1.0-sold_frac};
             curr_realized_profit_ *= amount_t{remain_frac};
-
-            // update total profit
-            // - add the fraction of unrealized profit that just been realized
             total_realized_profit_ += amount_t{value_of(unrealized_profit<amount_t>(close.price))*sold_frac};
 
             // decrease position size
@@ -87,7 +78,6 @@ namespace trading::binance::futures {
 
             // check if closed
             if (size_==amount_t{0.0}) is_opened_ = false;
-            return bought;
         }
 
         template<class Type>
@@ -116,7 +106,7 @@ namespace trading::binance::futures {
         requires std::same_as<Type, percent_t>
         percent_t total_profit(const price_t& market)
         {
-            assert(total_invested_>=amount_t{0.0});
+            assert(total_invested_>amount_t{0.0});
             return percent_t{value_of(total_profit<amount_t>(market)/total_invested_)*100};
         }
 
@@ -140,12 +130,12 @@ namespace trading::binance::futures {
             return !is_opened_;
         }
 
-        const amount_t& size() const
+        amount_t size() const
         {
             return size_;
         }
 
-        const amount_t& invested() const
+        const amount_t& current_invested() const
         {
             return curr_invested_;
         }

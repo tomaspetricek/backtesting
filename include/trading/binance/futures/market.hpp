@@ -32,7 +32,7 @@ namespace trading::binance::futures {
             assert(order.sold>=amount_t{0.0});
             wallet_.withdraw(order.sold);
             amount_t sold{open_charger_.apply_fee(order.sold)};
-            trade open{sold, order.price, order.created};
+            auto open = trade::create_open(sold, order.price, order.created);
 
             // add trade
             if (active_) {
@@ -47,12 +47,11 @@ namespace trading::binance::futures {
         void fill_close_order(const order& order)
         {
             assert(active_);
-            trade close{order.sold, order.price, order.created};
-            amount_t received{active_->add_close(close)};
-            assert(received>=amount_t{0.0});
+            auto close = trade::create_close(order.sold, order.price, order.created);
+            active_->add_close(close);
+            assert(close.bought>=amount_t{0.0});
 
-            received = close_charger_.apply_fee(received);
-            wallet_.deposit(received);
+            wallet_.deposit(close_charger_.apply_fee(close.bought));
 
             // check if closed
             if (active_->is_closed()) {
@@ -86,7 +85,7 @@ namespace trading::binance::futures {
             amount_t equity = wallet_.balance();
 
             if (active_)
-                equity += active_->template current_profit<amount_t>(market)+active_->invested();
+                equity += active_->template current_profit<amount_t>(market)+active_->current_invested();
 
             return equity;
         }
