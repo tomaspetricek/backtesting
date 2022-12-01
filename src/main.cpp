@@ -136,13 +136,17 @@ int main()
     end = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin);
 
-    for (const auto& pos: trader.closed_positions())
+    amount_t net_profit{0.0};
+
+    for (const auto& pos: trader.closed_positions()) {
+        net_profit += pos.total_realized_profit<amount_t>();
         fmt::print("total profit: {:8.2f} %, {:8.2f} USD\n",
                 value_of(pos.total_realized_profit<percent_t>()),
                 value_of(pos.total_realized_profit<amount_t>()));
+    }
 
-//    for (const auto& ord: trader.open_orders())
-//        std::cout << ord.created << std::endl;
+    amount_t end_balance = trader.wallet_balance();
+    assert(std::fabs(value_of(end_balance-(init_balance+net_profit)))<0.00001);
 
     std::cout << "trading" << std::endl
               << "duration: " << duration.count()*1e-9 << std::endl
@@ -151,6 +155,6 @@ int main()
               << "order open to close ratio: "
               << static_cast<double>(trader.open_orders().size())/trader.close_orders().size()
               << std::endl
-              << "wallet balance: " << trader.wallet_balance() << std::endl;
+              << "end balance: " << end_balance << std::endl;
     return EXIT_SUCCESS;
 }

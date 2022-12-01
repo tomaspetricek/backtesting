@@ -48,10 +48,10 @@ namespace trading::binance::futures {
         {
             assert(active_);
             auto close = trade::create_close(order.sold, order.price, order.created);
-            active_->add_close(close);
-            assert(close.bought>=amount_t{0.0});
+            auto received = active_->add_close(close);
+            assert(received>=amount_t{0.0});
 
-            wallet_.deposit(close_charger_.apply_fee(close.bought));
+            wallet_.deposit(close_charger_.apply_fee(received));
 
             // check if closed
             if (active_->is_closed()) {

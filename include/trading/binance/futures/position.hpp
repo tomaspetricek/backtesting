@@ -60,12 +60,13 @@ namespace trading::binance::futures {
             last_open_ = open.price;
         }
 
-        void add_close(const trade& close)
+        amount_t add_close(const trade& close)
         {
             assert(close.sold<=size_);
             double sold_frac{value_of(close.sold/size_)};
             double remain_frac{1.0-sold_frac};
             assert(remain_frac>=0 && remain_frac<=1.0);
+            amount_t received{value_of(current_profit<amount_t>(close.price)+curr_invested_)*sold_frac};
 
             // update realized profit
             curr_realized_profit_ *= amount_t{remain_frac};
@@ -78,6 +79,8 @@ namespace trading::binance::futures {
 
             // check if closed
             if (size_==amount_t{0.0}) is_opened_ = false;
+
+            return received;
         }
 
         template<class Type>
