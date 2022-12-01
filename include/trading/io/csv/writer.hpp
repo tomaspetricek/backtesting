@@ -17,7 +17,6 @@ namespace trading::io::csv {
         const std::filesystem::path path_;
         const char delim_;
         std::ios_base::openmode mode_{std::ios_base::out};
-        stringifier stringifier_;
 
         template<std::size_t n_cols>
         void write_value(std::size_t i, const std::string& val) {
@@ -50,7 +49,7 @@ namespace trading::io::csv {
             constexpr std::size_t n_cols = sizeof...(Types);
 
             auto write_line = [&](auto& out){
-                write_value<n_cols>(i++, stringifier_.to_string(out));
+                write_value<n_cols>(i++, stringifier::to_string(out));
             };
 
             (write_line(outputs), ...);

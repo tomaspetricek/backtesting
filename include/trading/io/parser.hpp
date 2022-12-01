@@ -20,28 +20,28 @@ namespace trading::io {
     public:
         template<class T>
         requires std::same_as<T, long>
-        long parse(const std::string& data)
+        inline static long parse(const std::string& data)
         {
             return std::stol(data);
         }
 
         template<class T>
         requires std::same_as<T, std::size_t>
-        std::size_t parse(const std::string& data)
+        inline static std::size_t parse(const std::string& data)
         {
             return std::stoul(data);
         }
 
         template<class T>
         requires std::same_as<T, double>
-        double parse(const std::string& data)
+        inline static double parse(const std::string& data)
         {
             return std::stod(data);
         }
 
         template<class T>
         requires std::same_as<T, std::string>
-        std::string parse(const std::string& data)
+        inline static std::string parse(const std::string& data)
         {
             return data;
         }

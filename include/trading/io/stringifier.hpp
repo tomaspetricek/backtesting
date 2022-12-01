@@ -13,12 +13,12 @@ namespace trading {
     class stringifier {
     public:
         template<class T>
-        static std::string to_string(const T& data)
+        inline static std::string to_string(const T& data)
         {
             return std::to_string(data);
         }
 
-        static std::string to_string(const std::string& data)
+        inline static std::string to_string(const std::string& data)
         {
             return data;
         }

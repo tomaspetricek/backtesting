@@ -27,7 +27,6 @@ namespace trading::io::csv {
         std::filesystem::path path_;
         char delim_;
         std::string line_;
-        parser parser_;
 //        static constexpr std::size_t n_cols_ = sizeof...(Types);
 
     public:
@@ -62,7 +61,7 @@ namespace trading::io::csv {
 
             auto parse_line = [&](auto& in){
                 std::getline(ss, data, delim_);
-                in = parser_.parse<typename std::remove_reference<decltype(in)>::type>(data);
+                in = parser::parse<typename std::remove_reference<decltype(in)>::type>(data);
             };
 
             (parse_line(inputs),...);
