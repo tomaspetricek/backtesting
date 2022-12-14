@@ -27,28 +27,29 @@ namespace trading::bazooka {
     class strategy : public trading::strategy {
         // must be at least one level
         static_assert(n_levels>0);
-        std::variant<indicator::sma, indicator::ema> entry_ma_;
-        std::variant<indicator::sma, indicator::ema> exit_ma_;
+        using indicator_type = std::variant<indicator::sma, indicator::ema>;
+        indicator_type entry_ma_;
+        indicator_type exit_ma_;
         std::array<percent_t, n_levels> entry_levels_;
         std::size_t curr_level_{0};
         static constexpr EntryComp entry_comp_;
         static constexpr ExitComp exit_comp_;
 
-        static double ma_value(const std::variant<indicator::sma, indicator::ema>& ma)
+        static double indicator_value(const indicator_type& ma)
         {
             return std::visit([](const auto& indic) {
                 return indic.value();
             }, ma);
         }
 
-        static void ma_update(std::variant<indicator::sma, indicator::ema>& ma, double val)
+        static void indicator_update(indicator_type& ma, double val)
         {
             return std::visit([&val](auto& indic) {
                 indic.update(val);
             }, ma);
         }
 
-        static bool ma_ready(const std::variant<indicator::sma, indicator::ema>& ma)
+        static bool indicator_ready(const indicator_type& ma)
         {
             return std::visit([](const auto& indic) {
                 return indic.is_ready();
@@ -74,12 +75,11 @@ namespace trading::bazooka {
         double level_value(index_t level)
         {
             assert(level>=0 && level<n_levels);
-            auto baseline = ma_value(entry_ma_);
+            auto baseline = indicator_value(entry_ma_);
             return baseline*value_of(entry_levels_[level]); // move baseline
         }
 
-        explicit strategy(std::variant<indicator::sma, indicator::ema> entry_ma,
-                std::variant<indicator::sma, indicator::ema> exit_ma,
+        explicit strategy(indicator_type entry_ma, indicator_type exit_ma,
                 const std::array<percent_t, n_levels>& entry_levels)
                 :entry_ma_(std::move(entry_ma)), exit_ma_(std::move(exit_ma)),
                  entry_levels_(validate_entry_levels(entry_levels)) { }
@@ -90,10 +90,10 @@ namespace trading::bazooka {
         void update_indicators(const price_t& mean_previous_candle)
         {
             auto curr_val = value_of(mean_previous_candle);
-            ma_update(entry_ma_, curr_val);
-            ma_update(exit_ma_, curr_val);
+            indicator_update(entry_ma_, curr_val);
+            indicator_update(exit_ma_, curr_val);
 
-            if (ma_ready(entry_ma_) && ma_ready(exit_ma_))
+            if (indicator_ready(entry_ma_) && indicator_ready(exit_ma_))
                 ready_ = true;
         }
 
@@ -105,7 +105,7 @@ namespace trading::bazooka {
             for (index_t i{0}; i<n_levels; i++)
                 levels[i] = level_value(i);
 
-            return indicator_values<n_levels>{ma_value(entry_ma_), ma_value(exit_ma_), levels};
+            return indicator_values<n_levels>{indicator_value(entry_ma_), indicator_value(exit_ma_), levels};
         }
 
         bool should_open(const price_t& curr)
@@ -130,7 +130,7 @@ namespace trading::bazooka {
             // hasn't opened any positions yet
             if (!curr_level_) return false;
 
-            auto exit = price_t{ma_value(exit_ma_)};
+            auto exit = price_t{indicator_value(exit_ma_)};
 
             // exceeded the value of the exit indicator
             if (exit_comp_(curr, exit)) {
@@ -146,12 +146,12 @@ namespace trading::bazooka {
             curr_level_ = 0;
         }
 
-        auto entry_ma() const
+        indicator_type entry_ma() const
         {
             return entry_ma_;
         }
 
-        auto exit_ma() const
+        indicator_type exit_ma() const
         {
             return exit_ma_;
         }

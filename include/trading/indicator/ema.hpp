@@ -17,10 +17,10 @@ namespace trading::indicator {
     // src: https://www.tradingview.com/support/solutions/43000592270-exponential-moving-average/
     // exponential moving average
     class ema : public ma {
+        constexpr static int min_smoothing = 2;
         indicator::sma sma_;
         double val_ = 0;
-        int smoothing_ = 2;
-        double weighting_factor_ = static_cast<double>(smoothing_)/static_cast<double>(period_+1);
+        double weighting_factor_;
 
         static int validate_smoothing(int smoothing)
         {
@@ -30,9 +30,15 @@ namespace trading::indicator {
             return smoothing;
         }
 
+        static double compute_weighting_factor(int smoothing, std::size_t period)
+        {
+            return static_cast<double>(smoothing)/static_cast<double>(period+1);
+        }
+
     public:
-        explicit ema(int period = min_period, int smoothing = 2)
-                :ma(period), sma_(period), smoothing_(validate_smoothing(smoothing)){ }
+        explicit ema(int period = min_period, int smoothing = min_smoothing)
+                :ma(period), sma_(period),
+                 weighting_factor_(compute_weighting_factor(validate_smoothing(smoothing), period)) { }
 
         ema& update(double sample)
         {

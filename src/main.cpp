@@ -137,7 +137,6 @@ int main()
     duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin);
 
     amount_t net_profit{0.0};
-
     for (const auto& pos: trader.closed_positions()) {
         net_profit += pos.total_realized_profit<amount_t>();
         fmt::print("total profit: {:8.2f} %, {:8.2f} USD\n",
