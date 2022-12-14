@@ -17,7 +17,6 @@ namespace trading::indicator {
 
     protected:
         size_t period_;
-        bool ready_{false};
         constexpr static size_t min_period{1};
 
     public:
@@ -27,11 +26,6 @@ namespace trading::indicator {
         std::size_t period() const
         {
             return period_;
-        }
-
-        bool is_ready() const
-        {
-            return ready_;
         }
     };
 }

@@ -42,17 +42,10 @@ namespace trading::bazooka {
             }, ma);
         }
 
-        static void indicator_update(indicator_type& ma, double val)
+        static bool indicator_update(indicator_type& ma, double val)
         {
             return std::visit([&val](auto& indic) {
-                indic.update(val);
-            }, ma);
-        }
-
-        static bool indicator_ready(const indicator_type& ma)
-        {
-            return std::visit([](const auto& indic) {
-                return indic.is_ready();
+                return indic.update(val);
             }, ma);
         }
 
@@ -87,14 +80,9 @@ namespace trading::bazooka {
         strategy() = default;
 
     public:
-        void update_indicators(const price_t& mean_previous_candle)
+        void update_indicators(const price_t& price)
         {
-            auto curr_val = value_of(mean_previous_candle);
-            indicator_update(entry_ma_, curr_val);
-            indicator_update(exit_ma_, curr_val);
-
-            if (indicator_ready(entry_ma_) && indicator_ready(exit_ma_))
-                ready_ = true;
+            ready_ = indicator_update(entry_ma_, value_of(price)) && indicator_update(exit_ma_, value_of(price));
         }
 
         indicator_values<n_levels> get_indicator_values()

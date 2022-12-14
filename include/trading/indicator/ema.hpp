@@ -40,27 +40,26 @@ namespace trading::indicator {
                 :ma(period), sma_(period),
                  weighting_factor_(compute_weighting_factor(validate_smoothing(smoothing), period)) { }
 
-        ema& update(double sample)
+        bool update(double sample)
         {
             if (!sma_.is_ready()) {
-                sma_.update(sample);
-
-                if (sma_.is_ready()) {
-                    val_ = sma_.value();
-                    ready_ = true;
-                    return *this;
-                }
+                if (sma_.update(sample)) val_ = sma_.value();
+                return is_ready();
             }
 
-            // calculate current ema
             val_ = (sample*weighting_factor_)+(val_*(1-weighting_factor_));
-            return *this;
+            return true;
         }
 
         double value() const
         {
-            assert(ready_);
+            assert(is_ready());
             return val_;
+        }
+
+        bool is_ready() const
+        {
+            return sma_.is_ready();
         }
     };
 }
