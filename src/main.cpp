@@ -6,7 +6,7 @@
 
 using namespace trading;
 
-auto create_trader()
+auto create_trader(const bazooka::indicator_type& entry_ma)
 {
     // create levels
     std::array levels{
@@ -17,7 +17,6 @@ auto create_trader()
     };
 
     // create strategy
-    indicator::ema entry_ma{30};
     const indicator::sma& exit_ma{30};
     bazooka::long_strategy strategy{entry_ma, exit_ma, levels};
 
@@ -82,78 +81,18 @@ int main()
 
     // use custom number separator
     std::cout.imbue(std::locale(std::cout.getloc(), new num_separator<char>()));
-
-    std::cout << "read" << std::endl
+    std::cout << "read:" << std::endl
               << "n candles: " << candles.size() << std::endl
-              << "duration: " << duration.count()*1e-9 << std::endl;
+              << "duration: " << static_cast<double>(duration.count())*1e-9 << std::endl;
 
-    auto averager = candle::ohlc4;
-    auto trader = create_trader();
+    trading::simulator simulator{to_function(create_trader), std::move(candles)};
+    std::size_t n_iter = 0;
 
-    std::size_t resampling_period{std::chrono::duration_cast<std::chrono::minutes>(std::chrono::hours(2)).count()};
-    trading::resampler resampler{resampling_period};
+    for (std::size_t entry_period : range(10, 60, 1))
+        for (const auto& entry_ma: {bazooka::indicator_type{indicator::ema{entry_period}},
+                                    bazooka::indicator_type{indicator::sma{entry_period}}})
+            simulator(entry_ma), n_iter++;
 
-    // trade
-    begin = std::chrono::high_resolution_clock::now();
-    candle indic_candle;
-    amount_t init_balance{trader.wallet_balance()};
-    amount_t max_equity{init_balance}, min_equity{init_balance};
-
-    // create motion trackers
-    drawdown_tracker equity_drawdown{init_balance};
-    run_up_tracker equity_run_up{init_balance};
-
-    for (const auto& candle: candles) {
-        if (trader.equity(candle.close())>amount_t{100}) {
-            trader(price_point{candle.opened(), candle.close()});
-
-            if (trader.has_active_position()) {
-                max_equity = std::max(max_equity, trader.equity(candle.high()));
-                min_equity = std::min(min_equity, trader.equity(candle.low()));
-                equity_run_up.update(trader.equity(candle.high()));
-                equity_drawdown.update(trader.equity(candle.high()));
-            }
-
-            if (resampler(candle, indic_candle))
-                trader.update_indicators(averager(indic_candle));
-        }
-        else {
-            trader.try_closing_active_position(price_point{candle.opened(), candle.close()});
-        }
-    }
-
-    // show equity stats
-    std::cout << "equity" << std::endl
-              << fmt::format("min: {:.2f} USD\n", value_of(min_equity))
-              << fmt::format("max: {:.2f} USD\n", value_of(max_equity))
-              << fmt::format("max drawdown: {:.2f} %, {:.2f} USD\n",
-                      value_of(equity_drawdown.max().value<percent_t>()),
-                      value_of(equity_drawdown.max().value<amount_t>()))
-              << fmt::format("max run up: {:.2f} %, {:.2f} USD\n",
-                      value_of(equity_run_up.max().value<percent_t>()),
-                      value_of(equity_run_up.max().value<amount_t>()));
-
-    end = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin);
-
-    amount_t net_profit{0.0};
-    for (const auto& pos: trader.closed_positions()) {
-        net_profit += pos.total_realized_profit<amount_t>();
-        fmt::print("total profit: {:8.2f} %, {:8.2f} USD\n",
-                value_of(pos.total_realized_profit<percent_t>()),
-                value_of(pos.total_realized_profit<amount_t>()));
-    }
-
-    amount_t end_balance = trader.wallet_balance();
-    assert(std::fabs(value_of(end_balance-(init_balance+net_profit)))<0.00001);
-
-    std::cout << "trading" << std::endl
-              << "duration: " << duration.count()*1e-9 << std::endl
-              << "n open orders: " << trader.open_orders().size() << std::endl
-              << "n close orders: " << trader.close_orders().size() << std::endl
-              << "order open to close ratio: "
-              << static_cast<double>(trader.open_orders().size())/trader.close_orders().size()
-              << std::endl
-              << "end balance: " << end_balance << std::endl;
+    std::cout << std::endl << "n iterations: " << n_iter << std::endl;
     return EXIT_SUCCESS;
 }

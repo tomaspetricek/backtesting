@@ -22,12 +22,13 @@
 #include <trading/types.hpp>
 
 namespace trading::bazooka {
+    using indicator_type = std::variant<indicator::sma, indicator::ema>;
+
     // entry levels: 0 - first level, n_levels-1 - last level
     template<class EntryComp, class ExitComp, std::size_t n_levels>
     class strategy : public trading::strategy {
         // must be at least one level
         static_assert(n_levels>0);
-        using indicator_type = std::variant<indicator::sma, indicator::ema>;
         indicator_type entry_ma_;
         indicator_type exit_ma_;
         std::array<percent_t, n_levels> entry_levels_;

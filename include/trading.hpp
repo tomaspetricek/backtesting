@@ -37,7 +37,7 @@
 #include <trading/resampler.hpp>
 #include <trading/side.hpp>
 #include <trading/table.hpp>
-#include <trading/test_box.hpp>
+#include <trading/simulator.hpp>
 #include <trading/binance/futures/manager.hpp>
 #include <trading/bazooka/trader.hpp>
 #include <trading/tuple.hpp>

@@ -36,14 +36,15 @@ namespace trading::indicator {
         }
 
     public:
-        explicit ema(int period = min_period, int smoothing = min_smoothing)
+        explicit ema(std::size_t period = min_period, int smoothing = min_smoothing)
                 :ma(period), sma_(period),
                  weighting_factor_(compute_weighting_factor(validate_smoothing(smoothing), period)) { }
 
         bool update(double sample)
         {
             if (!sma_.is_ready()) {
-                if (sma_.update(sample)) val_ = sma_.value();
+                if (sma_.update(sample))
+                    val_ = sma_.value();
                 return is_ready();
             }
 
