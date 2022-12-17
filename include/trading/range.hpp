@@ -5,10 +5,15 @@
 #ifndef EMASTRATEGY_RANGE_HPP
 #define EMASTRATEGY_RANGE_HPP
 
+#include <type_traits>
+
+
 namespace trading {
-// based on: https://stackoverflow.com/questions/7185437/is-there-a-range-class-in-c11-for-use-with-range-based-for-loops
+    // based on: https://stackoverflow.com/questions/7185437/is-there-a-range-class-in-c11-for-use-with-range-based-for-loops
     template<typename Type>
     class range {
+        static_assert(!std::is_floating_point<Type>::value);
+
     public:
         class iterator {
             friend class range;
@@ -32,7 +37,7 @@ namespace trading {
             bool operator!=(const iterator& other) const { return val_!=other.val_; }
 
         public:
-            explicit iterator(Type val, Type step)
+            constexpr explicit iterator(Type val, Type step)
                     :val_(val), step_(step) { }
 
         private:
@@ -73,9 +78,7 @@ namespace trading {
 
         static Type validate_step(Type step)
         {
-            if (step==0)
-                throw std::invalid_argument("Step cannot be zero");
-
+            if (step==0) throw std::invalid_argument("Step cannot be zero");
             return step;
         }
     };

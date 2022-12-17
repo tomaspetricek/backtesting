@@ -44,5 +44,6 @@
 #include <trading/fractioner.hpp>
 #include <strong_type.hpp>
 #include <cppcoro/generator.hpp>
+#include <cppcoro/recursive_generator.hpp>
 
 #endif //TRADING_TRADING_HPP
