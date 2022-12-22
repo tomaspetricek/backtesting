@@ -7,7 +7,7 @@
 
 #include <array>
 #include <boost/test/unit_test.hpp>
-#include <trading/fractioner.hpp>
+#include <trading/sizer.hpp>
 #include <trading/types.hpp>
 
 using namespace trading;
@@ -15,7 +15,7 @@ using namespace trading;
 template<std::size_t size>
 void check_fractioning(const std::array<fraction_t, size>& fracs, amount_t init_balance)
 {
-    fractioner sizer{fracs};
+    sizer sizer{fracs};
     amount_t rest{init_balance}, part, total{0.0};
     double tolerance{0.001};
 
@@ -30,23 +30,23 @@ void check_fractioning(const std::array<fraction_t, size>& fracs, amount_t init_
     BOOST_REQUIRE(init_balance==total);
 }
 
-BOOST_AUTO_TEST_SUITE(fractioner_test)
+BOOST_AUTO_TEST_SUITE(sizer_test)
     BOOST_AUTO_TEST_CASE(constructor_exception_test)
     {
         // sum is less than 1
-        BOOST_REQUIRE_THROW(fractioner(std::array<fraction_t, 2>{
+        BOOST_REQUIRE_THROW(sizer(std::array<fraction_t, 2>{
                 fraction_t{0.5},
                 fraction_t{0.25},
         }), std::invalid_argument);
 
         // sum is more than 1
-        BOOST_REQUIRE_THROW(fractioner(std::array<fraction_t, 2>{
+        BOOST_REQUIRE_THROW(sizer(std::array<fraction_t, 2>{
                 fraction_t{0.5},
                 fraction_t{0.7},
         }), std::invalid_argument);
 
         // fraction is lower than 0
-        BOOST_REQUIRE_THROW(fractioner(std::array<fraction_t, 2>{
+        BOOST_REQUIRE_THROW(sizer(std::array<fraction_t, 2>{
                 fraction_t{2},
                 fraction_t{-1},
         }), std::invalid_argument);
@@ -54,25 +54,25 @@ BOOST_AUTO_TEST_SUITE(fractioner_test)
 
     BOOST_AUTO_TEST_CASE(constructor_test)
     {
-        fractioner(std::array<fraction_t, 4>{
+        sizer(std::array<fraction_t, 4>{
                 fraction_t{0.5},
                 fraction_t{0.25},
                 fraction_t{0.125},
                 fraction_t{0.125}
         });
 
-        fractioner(std::array<fraction_t, 4>{
+        sizer(std::array<fraction_t, 4>{
                 fraction_t{0.125},
                 fraction_t{0.25},
                 fraction_t{0.25},
                 fraction_t{0.375}
         });
 
-        fractioner(std::array<fraction_t, 1>{
+        sizer(std::array<fraction_t, 1>{
                 fraction_t{1.0},
         });
 
-        fractioner(std::array<fraction_t, 5>{
+        sizer(std::array<fraction_t, 5>{
                 fraction_t{0.1},
                 fraction_t{0.2},
                 fraction_t{0.1},
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_SUITE(fractioner_test)
                 fraction_t{0.2},
         });
 
-        fractioner(std::array<fraction_t, 4>{
+        sizer(std::array<fraction_t, 4>{
                 fraction_t{0.25},
                 fraction_t{0.5},
                 fraction_t{0.125},

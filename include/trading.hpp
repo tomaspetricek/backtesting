@@ -43,7 +43,7 @@
 #include <trading/bazooka/trader.hpp>
 #include <trading/tuple.hpp>
 #include <trading/utils.hpp>
-#include <trading/fractioner.hpp>
+#include <trading/sizer.hpp>
 #include <strong_type.hpp>
 #include <cppcoro/generator.hpp>
 #include <cppcoro/recursive_generator.hpp>

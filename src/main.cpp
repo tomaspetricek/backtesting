@@ -33,11 +33,11 @@ auto create_trader(const bazooka::indicator_type& entry_ma)
             fraction_t{25.0/100},
             fraction_t{50.0/100}
     };
-    fractioner open_sizer{open_fracs};
+    sizer open_sizer{open_fracs};
 
     // create close sizer
     std::array close_fracs{fraction_t{1.0}};
-    fractioner close_sizer{close_fracs};
+    sizer close_sizer{close_fracs};
 
     // create trade manager
     std::size_t leverage{1};
@@ -74,24 +74,31 @@ void set_up()
     std::cout.imbue(std::locale(std::cout.getloc(), new num_separator<char>()));
 }
 
+template<typename Generator>
+void use_generator(Generator& gen)
+{
+    std::size_t n_iter{0};
+    for (auto sequence: gen()) {
+        for (std::size_t i{0}; i<sequence.size(); i++)
+            std::cout << sequence[i] << ", ";
+        std::cout << std::endl;
+        n_iter++;
+    }
+    std::cout << std::endl << "n iterations: " << n_iter << std::endl;
+}
+
 int main()
 {
     set_up();
-    std::size_t n_iter{0};
     const std::size_t n_levels{3};
-    auto level_gen = levels_generator<n_levels>{n_levels*2, fraction_t{0.7}};
+//    const std::size_t n_levels{4};
+//    const std::size_t n_levels{3};
+//    auto level_gen = systematic::levels_generator<n_levels>{n_levels*2, fraction_t{0.7}};
+//    auto duration = measure_duration([&](){ use_generator(level_gen); });
+//    std::cout << "duration[ns]: " << duration.count() << std::endl;
 
-    auto generator_benchmark = [&]() {
-        for (auto levels: level_gen()) {
-            for (std::size_t i{0}; i<n_levels; i++)
-                std::cout << levels[i] << ", ";
-            std::cout << std::endl;
-            n_iter++;
-        }
-        std::cout << std::endl << "n iterations: " << n_iter << std::endl;
-    };
-
-    auto duration = measure_duration(generator_benchmark);
+    auto sizes_gen = systematic::sizes_generator<n_levels>{10};
+    auto duration = measure_duration([&]() { use_generator(sizes_gen); });
     std::cout << "duration[ns]: " << duration.count() << std::endl;
     assert(false);
 
@@ -110,7 +117,7 @@ int main()
               << "duration[ns]: " << static_cast<double>(duration.count())*1e-9 << std::endl;
 
     trading::simulator simulator{to_function(create_trader), std::move(candles)};
-    n_iter = 0;
+    std::size_t n_iter{0};
 
     for (std::size_t entry_period: range<std::size_t>(10, 60, 1))
         for (const auto& entry_ma: {bazooka::indicator_type{indicator::ema{entry_period}},

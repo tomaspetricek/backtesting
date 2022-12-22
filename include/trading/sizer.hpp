@@ -2,15 +2,15 @@
 // Created by Tomáš Petříček on 14.09.2022.
 //
 
-#ifndef BACKTESTING_FRACTIONER_HPP
-#define BACKTESTING_FRACTIONER_HPP
+#ifndef BACKTESTING_SIZER_HPP
+#define BACKTESTING_SIZER_HPP
 
 #include <array>
 #include <trading/types.hpp>
 
 namespace trading {
     template<std::size_t n_fracs>
-    class fractioner {
+    class sizer {
         std::array<fraction_t, n_fracs> cum_fracs_;
         index_t curr_idx{0};
 
@@ -59,11 +59,11 @@ namespace trading {
             return amount_t{value_of(cum_fracs_[curr_idx++])*value_of(rest)};
         }
 
-        explicit fractioner(const std::array<fraction_t, n_fracs>& fracs)
+        explicit sizer(const std::array<fraction_t, n_fracs>& fracs)
                 :cum_fracs_(calc_cumulative_fractions(validate_fractions(fracs))) { }
 
-        fractioner() = default;
+        sizer() = default;
     };
 }
 
-#endif //BACKTESTING_FRACTIONER_HPP
+#endif //BACKTESTING_SIZER_HPP

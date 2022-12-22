@@ -9,7 +9,7 @@
 #include <optional>
 #include "trading/data_point.hpp"
 #include "trading/order.hpp"
-#include "trading/fractioner.hpp"
+#include "trading/sizer.hpp"
 #include "trading/binance/futures/order.hpp"
 #include "trading/binance/futures/market.hpp"
 #include "trading/binance/futures/direction.hpp"
@@ -23,8 +23,8 @@ namespace trading::binance::futures {
     class manager {
     protected:
         futures::market<direct> market_;
-        fractioner<n_open> open_sizer_;
-        fractioner<n_close> close_sizer_;
+        sizer<n_open> open_sizer_;
+        sizer<n_close> close_sizer_;
         std::size_t leverage_{0};
         std::vector<futures::order> open_orders_;
         std::vector<futures::order> close_orders_;
@@ -64,8 +64,8 @@ namespace trading::binance::futures {
     public:
         manager() = default;
 
-        manager(const futures::market<direct>& market, const fractioner<n_open>& open_sizer,
-                const fractioner<n_close>& close_sizer, size_t leverage)
+        manager(const futures::market<direct>& market, const sizer<n_open>& open_sizer,
+                const sizer<n_close>& close_sizer, size_t leverage)
                 :market_(market), open_sizer_(open_sizer), close_sizer_(close_sizer), leverage_(leverage) { }
 
         // it closes active trade, if there is one
