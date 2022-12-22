@@ -74,70 +74,40 @@ void set_up()
     std::cout.imbue(std::locale(std::cout.getloc(), new num_separator<char>()));
 }
 
-// generates unique subsequent fractions in interval (0, 1)
-template<std::size_t n_levels>
-class levels_generator {
-    std::size_t n_fracs_;
-    constexpr static std::size_t step_ = 1;
-    std::array<fraction_t, n_levels> levels_;
-    static_assert(n_levels>=1);
-
-    template<std::size_t depth = n_levels>
-    requires (depth==n_levels)
-    cppcoro::recursive_generator<std::array<fraction_t, n_levels>> generate(std::size_t prev)
-    {
-        co_yield levels_;
-    }
-
-    template<std::size_t depth = 0>
-    requires (depth<n_levels)
-    cppcoro::recursive_generator<std::array<fraction_t, n_levels>> generate(std::size_t prev = 0)
-    {
-        for (auto level: range(prev+step_, n_fracs_+(-n_levels+1+depth)*step_, step_)) {
-            std::get<depth>(levels_) = fraction_t(static_cast<double>(level)/n_fracs_);
-            co_yield generate<depth+1>(level);
-        }
-    }
-
-public:
-    explicit levels_generator(size_t n_unique_fracs)
-            :n_fracs_(n_unique_fracs+1) { }
-
-    cppcoro::recursive_generator<std::array<fraction_t, n_levels>> operator()()
-    {
-        co_yield generate();
-    }
-};
-
 int main()
 {
     set_up();
     std::size_t n_iter{0};
+    const std::size_t n_levels{3};
+    auto level_gen = levels_generator<n_levels>{n_levels*2, fraction_t{0.7}};
 
-    const std::size_t n_levels{4};
-    fraction_t max{0.8};
-    auto level_gen = levels_generator<n_levels>{n_levels+2};
+    auto generator_benchmark = [&]() {
+        for (auto levels: level_gen()) {
+            for (std::size_t i{0}; i<n_levels; i++)
+                std::cout << levels[i] << ", ";
+            std::cout << std::endl;
+            n_iter++;
+        }
+        std::cout << std::endl << "n iterations: " << n_iter << std::endl;
+    };
 
-    for (auto levels: level_gen()) {
-        for (std::size_t i{0}; i<n_levels; i++)
-            std::cout << levels[i] << ", ";
-        std::cout << std::endl, n_iter++;
-    }
-    std::cout << std::endl << "n iterations: " << n_iter << std::endl;
+    auto duration = measure_duration(generator_benchmark);
+    std::cout << "duration[ns]: " << duration.count() << std::endl;
     assert(false);
 
     // read candles
     auto begin = std::chrono::high_resolution_clock::now();
 //    std::time_t min_opened{1515024000};
 //    std::time_t max_opened{1667066400};
-    auto candles = read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|');
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin);
+    std::vector<trading::candle> candles;
+    duration = measure_duration(to_function([] {
+        return read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|');
+    }), candles);
 
     // use custom number separator
     std::cout << "read:" << std::endl
               << "n candles: " << candles.size() << std::endl
-              << "duration: " << static_cast<double>(duration.count())*1e-9 << std::endl;
+              << "duration[ns]: " << static_cast<double>(duration.count())*1e-9 << std::endl;
 
     trading::simulator simulator{to_function(create_trader), std::move(candles)};
     n_iter = 0;
