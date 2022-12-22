@@ -57,7 +57,7 @@ namespace trading::systematic {
         // generates fractions that add up to 1.0
         template<std::size_t n_sizes>
         class sizes_generator {
-            static_assert(n_sizes>=1);
+            static_assert(n_sizes>1);
             using generator_type = cppcoro::recursive_generator<std::array<fraction_t, n_sizes>>;
             std::array<fraction_t, n_sizes> sizes_;
             std::size_t n_fracs_;
