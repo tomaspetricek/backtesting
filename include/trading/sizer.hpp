@@ -7,6 +7,7 @@
 
 #include <array>
 #include <trading/types.hpp>
+#include <trading/utils.hpp>
 
 namespace trading {
     template<std::size_t n_fracs>
@@ -32,16 +33,15 @@ namespace trading {
         template<std::size_t size>
         std::array<fraction_t, size> validate_fractions(const std::array<fraction_t, size>& fracs)
         {
-            fraction_t sum{0};
+            fraction_t sum{0.0};
 
             for (index_t i{0}; i<size; i++) {
                 if (fracs[i]<=fraction_t{0} || fracs[i]>fraction_t{1})
                     throw std::invalid_argument("Fraction has to be in interval (0, 1]");
-
                 sum += fracs[i];
             }
 
-            if (sum!=fraction_t{1.0})
+            if (!is_close(1.0, value_of(sum)))
                 throw std::invalid_argument("Fractions have to sum up to 1.0");
 
             return fracs;

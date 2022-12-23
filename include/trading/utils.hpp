@@ -7,7 +7,7 @@
 
 #include <chrono>
 #include <functional>
-
+#include <cmath>
 
 namespace trading {
     template<typename Callable>
@@ -26,6 +26,12 @@ namespace trading {
         res = call();
         auto end = std::chrono::high_resolution_clock::now();
         return std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin);
+    }
+
+    // https://stackoverflow.com/questions/21868358/using-boost-floating-point-comparison-to-get-a-bool-return-value
+    bool is_close(double a, double b, double epsilon = 1e-5)
+    {
+        return std::fabs(a-b)<epsilon;
     }
 }
 

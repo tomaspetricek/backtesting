@@ -76,24 +76,24 @@ namespace trading {
             auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin);
             amount_t end_balance = trader.wallet_balance();
 
-            // show stats
-            std::cout << std::endl << "equity:" << std::endl
-                      << fmt::format("min: {:.2f} USD\n", value_of(min_equity))
-                      << fmt::format("max: {:.2f} USD\n", value_of(max_equity))
-                      << fmt::format("max drawdown: {:.2f} %, {:.2f} USD\n",
-                              value_of(equity_drawdown.max().value<percent_t>()),
-                              value_of(equity_drawdown.max().value<amount_t>()))
-                      << fmt::format("max run up: {:.2f} %, {:.2f} USD\n",
-                              value_of(equity_run_up.max().value<percent_t>()),
-                              value_of(equity_run_up.max().value<amount_t>()))
-                      << "trading:" << std::endl
-                      << "duration[sec]: " << static_cast<double>(duration.count())*1e-9 << std::endl
-                      << "n open orders: " << trader.open_orders().size() << std::endl
-                      << "n close orders: " << trader.close_orders().size() << std::endl
-                      << "order open to close ratio: "
-                      << static_cast<double>(trader.open_orders().size())/trader.close_orders().size()
-                      << std::endl
-                      << "profit " << end_balance-init_balance << std::endl;
+//            // show stats
+//            std::cout << std::endl << "equity:" << std::endl
+//                      << fmt::format("min: {:.2f} USD\n", value_of(min_equity))
+//                      << fmt::format("max: {:.2f} USD\n", value_of(max_equity))
+//                      << fmt::format("max drawdown: {:.2f} %, {:.2f} USD\n",
+//                              value_of(equity_drawdown.max().value<percent_t>()),
+//                              value_of(equity_drawdown.max().value<amount_t>()))
+//                      << fmt::format("max run up: {:.2f} %, {:.2f} USD\n",
+//                              value_of(equity_run_up.max().value<percent_t>()),
+//                              value_of(equity_run_up.max().value<amount_t>()))
+//                      << "trading:" << std::endl
+//                      << "duration[sec]: " << static_cast<double>(duration.count())*1e-9 << std::endl
+//                      << "n open orders: " << trader.open_orders().size() << std::endl
+//                      << "n close orders: " << trader.close_orders().size() << std::endl
+//                      << "order open to close ratio: "
+//                      << static_cast<double>(trader.open_orders().size())/trader.close_orders().size()
+//                      << std::endl
+//                      << "profit " << end_balance-init_balance << std::endl;
         }
     };
 }

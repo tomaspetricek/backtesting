@@ -31,7 +31,7 @@ namespace trading::bazooka {
         static_assert(n_levels>0);
         indicator_type entry_ma_;
         indicator_type exit_ma_;
-        std::array<percent_t, n_levels> entry_levels_;
+        std::array<fraction_t, n_levels> entry_levels_;
         std::size_t curr_level_{0};
         static constexpr EntryComp entry_comp_;
         static constexpr ExitComp exit_comp_;
@@ -50,12 +50,12 @@ namespace trading::bazooka {
             }, ma);
         }
 
-        static auto validate_entry_levels(const std::array<percent_t, n_levels>& entry_levels)
+        static auto validate_entry_levels(const std::array<fraction_t, n_levels>& entry_levels)
         {
-            percent_t prev_level{1.0}; // 1.0 - represents baseline - value of entry ma
+            fraction_t prev_level{1.0}; // 1.0 - represents baseline - value of entry ma
 
             for (const auto& curr_level: entry_levels) {
-                if (curr_level<percent_t{0.0} || entry_comp_(prev_level, curr_level))
+                if (curr_level<fraction_t{0.0} || entry_comp_(prev_level, curr_level))
                     throw std::invalid_argument(
                             "The current level must be further from the baseline than the previous level");
 
@@ -74,7 +74,7 @@ namespace trading::bazooka {
         }
 
         explicit strategy(indicator_type entry_ma, indicator_type exit_ma,
-                const std::array<percent_t, n_levels>& entry_levels)
+                const std::array<fraction_t, n_levels>& entry_levels)
                 :entry_ma_(std::move(entry_ma)), exit_ma_(std::move(exit_ma)),
                  entry_levels_(validate_entry_levels(entry_levels)) { }
 

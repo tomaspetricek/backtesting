@@ -6,16 +6,11 @@
 
 using namespace trading;
 
-auto create_trader(const bazooka::indicator_type& entry_ma)
+template<std::size_t n_levels>
+auto create_trader(const bazooka::indicator_type& entry_ma,
+        const std::array<fraction_t, n_levels>& levels,
+        const std::array<fraction_t, n_levels>& open_fracs)
 {
-    // create levels
-    std::array levels{
-            percent_t{1.0-(7.0/100)},
-            percent_t{1.0-(10.0/100)},
-            percent_t{1.0-(15.0/100)},
-            percent_t{1.0-(20.0/100)}
-    };
-
     // create strategy
     const indicator::sma& exit_ma{30};
     bazooka::long_strategy strategy{entry_ma, exit_ma, levels};
@@ -27,12 +22,6 @@ auto create_trader(const bazooka::indicator_type& entry_ma)
     futures::long_market market{wallet, open_charger, close_charger};
 
     // create open sizer
-    std::array open_fracs{
-            fraction_t{12.5/100},
-            fraction_t{12.5/100},
-            fraction_t{25.0/100},
-            fraction_t{50.0/100}
-    };
     sizer open_sizer{open_fracs};
 
     // create close sizer
@@ -78,9 +67,9 @@ template<typename Generator>
 void use_generator(Generator& gen)
 {
     std::size_t n_iter{0};
-    for (auto sequence: gen()) {
-        for (std::size_t i{0}; i<sequence.size(); i++)
-            std::cout << sequence[i] << ", ";
+    for (auto seq: gen()) {
+        for (std::size_t i{0}; i<seq.size(); i++)
+            std::cout << seq[i] << ", ";
         std::cout << std::endl;
         n_iter++;
     }
@@ -91,39 +80,37 @@ int main()
 {
     set_up();
     const std::size_t n_levels{3};
-//    const std::size_t n_levels{4};
-//    const std::size_t n_levels{3};
-//    auto level_gen = systematic::levels_generator<n_levels>{n_levels*2, fraction_t{0.7}};
-//    auto duration = measure_duration([&](){ use_generator(level_gen); });
-//    std::cout << "duration[ns]: " << duration.count() << std::endl;
-
+    auto levels_gen = systematic::levels_generator<n_levels>{n_levels*3, fraction_t{0.7}};
     auto sizes_gen = systematic::sizes_generator<n_levels>{10};
-    auto duration = measure_duration([&]() { use_generator(sizes_gen); });
-    std::cout << "duration[ns]: " << duration.count() << std::endl;
-    assert(false);
 
     // read candles
-    auto begin = std::chrono::high_resolution_clock::now();
 //    std::time_t min_opened{1515024000};
 //    std::time_t max_opened{1667066400};
     std::vector<trading::candle> candles;
-    duration = measure_duration(to_function([] {
+    auto duration = measure_duration(to_function([] {
         return read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|');
     }), candles);
-
-    // use custom number separator
     std::cout << "read:" << std::endl
               << "n candles: " << candles.size() << std::endl
-              << "duration[ns]: " << static_cast<double>(duration.count())*1e-9 << std::endl;
+              << "duration[s]: " << static_cast<double>(duration.count())*1e-9 << std::endl;
 
-    trading::simulator simulator{to_function(create_trader), std::move(candles)};
+    trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles)};
     std::size_t n_iter{0};
-
-    for (std::size_t entry_period: range<std::size_t>(10, 60, 1))
-        for (const auto& entry_ma: {bazooka::indicator_type{indicator::ema{entry_period}},
-                                    bazooka::indicator_type{indicator::sma{entry_period}}})
-            simulator(entry_ma), n_iter++;
-
-    std::cout << std::endl << "n iterations: " << n_iter << std::endl;
+    duration = measure_duration(to_function([&] {
+        for (std::size_t entry_period: range<std::size_t>(10, 60, 1))
+            for (const auto& entry_ma: {bazooka::indicator_type{indicator::ema{entry_period}},
+                                        bazooka::indicator_type{indicator::sma{entry_period}}})
+                for (const auto& levels: levels_gen())
+                    for (const auto open_sizes: sizes_gen()) {
+                        try {
+                            simulator(entry_ma, levels, open_sizes);
+                        }
+                        catch (const std::exception& ex) {
+                            print_exception(ex);
+                        }
+                        std::cout << "n it: " << n_iter++ << std::endl;
+                    }
+    }));
+    std::cout << "duration[s]: " << static_cast<double>(duration.count())*1e-9 << std::endl;
     return EXIT_SUCCESS;
 }

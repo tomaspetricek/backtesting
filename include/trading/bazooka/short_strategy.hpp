@@ -15,7 +15,7 @@ namespace trading::bazooka {
     public:
         explicit short_strategy(const std::variant<indicator::sma, indicator::ema>& entry_ma,
                 const std::variant<indicator::sma, indicator::ema>& exit_ma,
-                const std::array<percent_t, n_levels>& entry_levels)
+                const std::array<fraction_t, n_levels>& entry_levels)
                 :strategy<std::greater_equal<>, std::less_equal<>, n_levels>
                          (entry_ma, exit_ma, entry_levels) { }
 
