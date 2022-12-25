@@ -108,11 +108,12 @@ int main()
                     for (const auto open_sizes: sizes_gen()) {
                         try {
                             auto stats = simulator(entry_ma, levels, open_sizes);
-                            curr_profit = stats.total.profit;
+                            curr_profit = stats.total_profit();
                             max_profit = std::max(curr_profit, max_profit);
                             std::cout << "n it: " << n_iter++ << ", curr profit: " << curr_profit
-                                      << ", max equity: " << stats.equity.max
-                                      << ", max profit: " << max_profit << std::endl;
+                                      << ", open close orders ratio:"
+                                      << static_cast<double>(stats.total_open_orders())/stats.total_close_orders()
+                            << ", max profit: " << max_profit << std::endl;
                         }
                         catch (const std::exception& ex) {
                             print_exception(ex);

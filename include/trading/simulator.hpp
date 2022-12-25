@@ -15,66 +15,9 @@
 #include <trading/candle.hpp>
 #include <trading/motion_tracker.hpp>
 #include <trading/resampler.hpp>
+#include <trading/stats.hpp>
 
 namespace trading {
-    struct balance_stats {
-        amount_t init;
-        amount_t final{strong::uninitialized};
-        amount_t max;
-        amount_t min;
-        drawdown_tracker drawdown;
-        run_up_tracker run_up;
-
-        explicit balance_stats(const amount_t& init)
-                :init(init), max{init}, drawdown{init}, run_up{init} { }
-
-        void update(const amount_t& curr)
-        {
-            max = std::max(max, curr);
-            min = std::min(min, curr);
-            run_up.update(curr);
-            drawdown.update(curr);
-        }
-    };
-
-    struct equity_stats {
-        amount_t max;
-        amount_t min;
-        drawdown_tracker drawdown;
-        run_up_tracker run_up;
-
-        explicit equity_stats(const amount_t& init_balance)
-                :max(init_balance), min(init_balance), drawdown(init_balance), run_up(init_balance) { }
-
-        void update(const amount_t& curr)
-        {
-            max = std::max(max, curr);
-            min = std::min(min, curr);
-            run_up.update(curr);
-            drawdown.update(curr);
-        }
-    };
-
-    struct total_stats {
-        amount_t profit;
-        std::chrono::nanoseconds duration;
-        std::size_t open_orders;
-        std::size_t close_orders;
-
-        explicit total_stats(const amount_t& profit, const std::chrono::nanoseconds& duration, size_t open_orders,
-                size_t close_orders)
-                :profit(profit), duration(duration), open_orders(open_orders), close_orders(close_orders) { }
-    };
-
-    struct stats {
-        balance_stats balance;
-        equity_stats equity;
-        total_stats total;
-
-        explicit stats(const balance_stats& balance, const equity_stats& equity, const total_stats& total)
-                :balance(balance), equity(equity), total(total) { }
-    };
-
     template<class Trader, typename ...Args>
     class simulator {
         std::function<Trader(Args...)> initializer_;
@@ -105,16 +48,15 @@ namespace trading {
             auto begin = std::chrono::high_resolution_clock::now();
             candle indic_candle;
             amount_t min_allowed_equity{100};
-            balance_stats balance{trader.wallet_balance()};
-            equity_stats equity{balance.init};
+            trading::stats stats{trader.wallet_balance()};
 
             for (const auto& candle: candles_) {
                 if (trader.equity(candle.close())>min_allowed_equity) {
                     if (trader.trade(price_point{candle.opened(), candle.close()}))
-                        balance.update(trader.wallet_balance());
+                        stats.update_balance_stats(trader.wallet_balance());
 
                     if (trader.has_active_position())
-                        equity.update(trader.equity(candle.close()));
+                        stats.update_equity_stats(trader.equity(candle.close()));
 
                     if (resampler(candle, indic_candle))
                         trader.update_indicators(averager(indic_candle));
@@ -125,11 +67,11 @@ namespace trading {
             }
 
             auto end = std::chrono::high_resolution_clock::now();
-            balance.final = trader.wallet_balance();
-            total_stats total{balance.final-balance.init,
-                              std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin),
-                              trader.open_orders().size(), trader.close_orders().size()};
-            return stats(balance, equity, total);
+            stats.set_final_balance(trader.wallet_balance());
+            stats.set_total_duration(end-begin);
+            stats.set_total_open_orders(trader.open_orders().size());
+            stats.set_total_close_orders(trader.close_orders().size());
+            return stats;
         }
     };
 }

@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 26.10.2022.
 //
 
-#ifndef BACKTESTING_STATS_HPP
-#define BACKTESTING_STATS_HPP
+#ifndef BACKTESTING_VIEW_STATS_HPP
+#define BACKTESTING_VIEW_STATS_HPP
 
 #include <trading/types.hpp>
 #include <trading/exception.hpp>
@@ -17,4 +17,4 @@ namespace trading::view {
     }
 }
 
-#endif //BACKTESTING_STATS_HPP
+#endif //BACKTESTING_VIEW_STATS_HPP
