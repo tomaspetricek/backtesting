@@ -19,25 +19,29 @@ namespace trading::bazooka {
 
         trader() = default;
 
-        void operator()(const price_point& curr)
+        bool trade(const price_point& curr)
         {
-            if (!Strategy::is_ready()) return;
+            bool traded{false};
+            if (!Strategy::is_ready()) return traded;
 
             price_t price{strong::uninitialized};
 
-            // stop loss check
-            if (Manager::has_active_position())
-                if (Manager::template position_current_profit<percent_t>(curr.data)<percent_t{-50}) {
-                    Manager::create_close_all_order(data_point{curr.time, curr.data});
-                    Strategy::reset();
-                }
+//            // stop loss check
+//            if (Manager::has_active_position())
+//                if (Manager::template position_current_profit<percent_t>(curr.data)<percent_t{-50}) {
+//                    Manager::create_close_all_order(data_point{curr.time, curr.data});
+//                    Strategy::reset();
+//                }
 
             if (Strategy::should_open(curr.data)) {
                 Manager::create_open_order(curr);
+                traded = true;
             }
             else if (Strategy::should_close_all(curr.data)) {
                 Manager::create_close_all_order(curr);
+                traded = true;
             }
+            return traded;
         }
 
         Strategy strategy()

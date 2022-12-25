@@ -16,8 +16,9 @@ auto create_trader(const bazooka::indicator_type& entry_ma,
     bazooka::long_strategy strategy{entry_ma, exit_ma, levels};
 
     // create market
-    fee_charger open_charger{fraction_t{0.0}};
-    fee_charger close_charger{fraction_t{0.0}};
+    fraction_t binance_spot_fee{0.1/100};   // 0.1 %
+    fee_charger open_charger{binance_spot_fee};
+    fee_charger close_charger{binance_spot_fee};
     trading::wallet wallet{amount_t{10'000}};
     futures::long_market market{wallet, open_charger, close_charger};
 
@@ -61,6 +62,7 @@ struct num_separator : public std::numpunct<CharType> {
 void set_up()
 {
     std::cout.imbue(std::locale(std::cout.getloc(), new num_separator<char>()));
+    std::cout << std::fixed;
 }
 
 template<typename Generator>
@@ -80,7 +82,7 @@ int main()
 {
     set_up();
     const std::size_t n_levels{3};
-    auto levels_gen = systematic::levels_generator<n_levels>{n_levels*3, fraction_t{0.7}};
+    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+7, fraction_t{0.7}};
     auto sizes_gen = systematic::sizes_generator<n_levels>{10};
 
     // read candles
@@ -94,23 +96,30 @@ int main()
               << "n candles: " << candles.size() << std::endl
               << "duration[s]: " << static_cast<double>(duration.count())*1e-9 << std::endl;
 
-    trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles)};
+    std::chrono::minutes resampling_period{30};
+    trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period};
     std::size_t n_iter{0};
+    amount_t max_profit{0.0}, curr_profit;
     duration = measure_duration(to_function([&] {
-        for (std::size_t entry_period: range<std::size_t>(10, 60, 1))
+        for (std::size_t entry_period: range<std::size_t>(5, 60, 5))
             for (const auto& entry_ma: {bazooka::indicator_type{indicator::ema{entry_period}},
                                         bazooka::indicator_type{indicator::sma{entry_period}}})
                 for (const auto& levels: levels_gen())
                     for (const auto open_sizes: sizes_gen()) {
                         try {
-                            simulator(entry_ma, levels, open_sizes);
+                            auto stats = simulator(entry_ma, levels, open_sizes);
+                            curr_profit = stats.total.profit;
+                            max_profit = std::max(curr_profit, max_profit);
+                            std::cout << "n it: " << n_iter++ << ", curr profit: " << curr_profit
+                                      << ", max equity: " << stats.equity.max
+                                      << ", max profit: " << max_profit << std::endl;
                         }
                         catch (const std::exception& ex) {
                             print_exception(ex);
                         }
-                        std::cout << "n it: " << n_iter++ << std::endl;
                     }
     }));
-    std::cout << "duration[s]: " << static_cast<double>(duration.count())*1e-9 << std::endl;
+    std::cout << "duration[ns]: " << static_cast<double>(duration.count()) << std::endl
+              << "max profit: " << max_profit << std::endl;
     return EXIT_SUCCESS;
 }
