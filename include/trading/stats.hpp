@@ -31,13 +31,13 @@ namespace trading {
         template<class T>
         T max_drawdown() const
         {
-            return drawdown_.max().template value<T>();
+            return drawdown_.max().value<T>();
         }
 
         template<class T>
         T max_run_up() const
         {
-            return run_up_.max().template value<T>();
+            return run_up_.max().value<T>();
         }
 
         const amount_t& min() const
@@ -51,139 +51,72 @@ namespace trading {
         }
     };
 
-    class balance_stats : public motion_stats {
-        amount_t init_;
-        amount_t final_;
-
-    public:
-        explicit balance_stats(const amount_t& init)
-                :motion_stats(init), init_(init), final_(init) { }
-
-        void set_final(const amount_t& final)
-        {
-            final_ = final;
-        }
-
-        const amount_t& init() const
-        {
-            return init_;
-        }
-
-        const amount_t& final() const
-        {
-            return final_;
-        }
-    };
-
-    class equity_stats : public motion_stats {
-    public:
-        explicit equity_stats(const amount_t& init)
-                :motion_stats(init) { }
-    };
-
-    class total_stats {
-        amount_t profit_{strong::uninitialized};
-        std::chrono::nanoseconds duration_{0};
-        std::size_t open_orders_{0};
-        std::size_t close_orders_{0};
-
-    public:
-        total_stats() = default;
-
-        void set_profit(const amount_t& profit)
-        {
-            profit_ = profit;
-        }
-
-        void set_duration(const std::chrono::nanoseconds& duration)
-        {
-            duration_ = duration;
-        }
-
-        void set_open_orders(size_t open_orders)
-        {
-            open_orders_ = open_orders;
-        }
-
-        void set_close_orders(size_t close_orders)
-        {
-            close_orders_ = close_orders;
-        }
-
-        const amount_t& profit() const
-        {
-            return profit_;
-        }
-
-        const std::chrono::nanoseconds& duration() const
-        {
-            return duration_;
-        }
-
-        size_t open_orders() const
-        {
-            return open_orders_;
-        }
-
-        size_t close_orders() const
-        {
-            return close_orders_;
-        }
-    };
-
     class stats {
-        balance_stats balance_;
-        equity_stats equity_;
-        total_stats total_;
+        amount_t init_balance_;
+        amount_t final_balance_;
+        motion_stats close_balance_;
+        motion_stats equity_;
+        std::chrono::nanoseconds total_duration_{0};
+        std::size_t total_open_orders_{0};
+        std::size_t total_close_orders_{0};
 
     public:
         explicit stats(const amount_t& init_balance)
-                :balance_{init_balance}, equity_{init_balance} { }
+                :init_balance_{init_balance}, close_balance_{init_balance}, equity_{init_balance} { }
 
-        void update_equity_stats(const amount_t& curr_equity)
+        void update_equity(const amount_t& curr_equity)
         {
             equity_.update(curr_equity);
         }
 
-        void update_balance_stats(const amount_t& curr_balance)
+        void update_close_balance(const amount_t& curr_balance)
         {
-            balance_.update(curr_balance);
+            close_balance_.update(curr_balance);
         }
 
         void set_final_balance(const amount_t& final_balance)
         {
-            balance_.set_final(final_balance);
-            total_.set_profit(balance_.final()-balance_.init());
+            final_balance_ = final_balance;
         }
 
         void set_total_duration(const std::chrono::nanoseconds& duration)
         {
-            total_.set_duration(duration);
+            total_duration_ = duration;
         }
 
-        void set_total_open_orders(std::size_t open_orders)
+        void set_total_open_orders(size_t open_orders)
         {
-            total_.set_open_orders(open_orders);
+            total_open_orders_ = open_orders;
         }
 
-        void set_total_close_orders(std::size_t close_orders)
+        void set_total_close_orders(size_t close_orders)
         {
-            total_.set_close_orders(close_orders);
+            total_close_orders_ = close_orders;
         }
 
-        const amount_t& total_profit() const
+        const std::chrono::nanoseconds& total_duration() const
         {
-            return total_.profit();
+            return total_duration_;
+        }
+
+        amount_t total_profit() const
+        {
+            return final_balance_-init_balance_;
         }
 
         std::size_t total_open_orders() const
         {
-            return total_.open_orders();
+            return total_open_orders_;
         }
 
         std::size_t total_close_orders() const
         {
-            return total_.close_orders();
+            return total_close_orders_;
+        }
+
+        const amount_t& min_equity() const
+        {
+            return equity_.min();
         }
 
         const amount_t& max_equity() const
@@ -203,21 +136,26 @@ namespace trading {
             return equity_.max_run_up<T>();
         }
 
-        const amount_t& max_balance() const
+        const amount_t& min_close_balance() const
         {
-            return balance_.max();
+            return close_balance_.min();
+        }
+
+        const amount_t& max_close_balance() const
+        {
+            return close_balance_.max();
         }
 
         template<class T>
-        T max_balance_drawdown() const
+        T max_close_balance_drawdown() const
         {
-            return balance_.max_drawdown<T>();
+            return close_balance_.max_drawdown<T>();
         }
 
         template<class T>
-        T max_balance_run_up() const
+        T max_close_balance_run_up() const
         {
-            return balance_.max_run_up<T>();
+            return close_balance_.max_run_up<T>();
         }
     };
 }

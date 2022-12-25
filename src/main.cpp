@@ -86,15 +86,15 @@ int main()
     auto sizes_gen = systematic::sizes_generator<n_levels>{10};
 
     // read candles
-//    std::time_t min_opened{1515024000};
-//    std::time_t max_opened{1667066400};
+    std::time_t min_opened{1515024000};
+    std::time_t max_opened{1667066400};
     std::vector<trading::candle> candles;
-    auto duration = measure_duration(to_function([] {
-        return read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|');
+    auto duration = measure_duration(to_function([&] {
+        return read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|', min_opened, max_opened);
     }), candles);
     std::cout << "read:" << std::endl
               << "n candles: " << candles.size() << std::endl
-              << "duration[s]: " << static_cast<double>(duration.count())*1e-9 << std::endl;
+              << "total_duration[s]: " << static_cast<double>(duration.count())*1e-9 << std::endl;
 
     std::chrono::minutes resampling_period{30};
     trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period};
@@ -111,16 +111,15 @@ int main()
                             curr_profit = stats.total_profit();
                             max_profit = std::max(curr_profit, max_profit);
                             std::cout << "n it: " << n_iter++ << ", curr profit: " << curr_profit
-                                      << ", open close orders ratio:"
-                                      << static_cast<double>(stats.total_open_orders())/stats.total_close_orders()
-                            << ", max profit: " << max_profit << std::endl;
+                                      << ", min close balance: " << stats.min_close_balance()
+                                      << ", max profit: " << max_profit << std::endl;
                         }
                         catch (const std::exception& ex) {
                             print_exception(ex);
                         }
                     }
     }));
-    std::cout << "duration[ns]: " << static_cast<double>(duration.count()) << std::endl
+    std::cout << "total_duration[ns]: " << static_cast<double>(duration.count()) << std::endl
               << "max profit: " << max_profit << std::endl;
     return EXIT_SUCCESS;
 }

@@ -16,6 +16,7 @@
 #include <trading/motion_tracker.hpp>
 #include <trading/resampler.hpp>
 #include <trading/stats.hpp>
+#include <trading/action.hpp>
 
 namespace trading {
     template<class Trader, typename ...Args>
@@ -52,17 +53,18 @@ namespace trading {
 
             for (const auto& candle: candles_) {
                 if (trader.equity(candle.close())>min_allowed_equity) {
-                    if (trader.trade(price_point{candle.opened(), candle.close()}))
-                        stats.update_balance_stats(trader.wallet_balance());
+                    if (trader.trade(price_point{candle.opened(), candle.close()})==action::closed)
+                        stats.update_close_balance(trader.wallet_balance());
 
                     if (trader.has_active_position())
-                        stats.update_equity_stats(trader.equity(candle.close()));
+                        stats.update_equity(trader.equity(candle.close()));
 
                     if (resampler(candle, indic_candle))
                         trader.update_indicators(averager(indic_candle));
                 }
                 else {
                     trader.try_closing_active_position(price_point{candle.opened(), candle.close()});
+                    stats.update_close_balance(trader.wallet_balance());
                 }
             }
 

@@ -4,3 +4,4 @@ src/__pycache__/widgets.cpython-310.pyc
 cmake-build-debug/
 cmake-build-debug-coverage/
 src/data/in/ohlcv-eth-usdt-1-min_.csv
+src/data/in/ohlcv-eth-usdt-1-min.csv
