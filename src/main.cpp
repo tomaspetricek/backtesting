@@ -16,10 +16,10 @@ auto create_trader(const bazooka::indicator_type& entry_ma,
     bazooka::long_strategy strategy{entry_ma, exit_ma, levels};
 
     // create market
-    fraction_t binance_spot_fee{0.1/100};   // 0.1 %
-//    fraction_t binance_spot_fee{0.0};
+//    fraction_t fee{0.1/100};   // 0.1 %
+    fraction_t fee{0.0};
     trading::wallet wallet{amount_t{10'000}};
-    trading::market market{wallet, binance_spot_fee, binance_spot_fee};
+    trading::market market{wallet, fee, fee};
 
     // create open sizer
     sizer open_sizer{open_fracs};
@@ -81,7 +81,7 @@ int main()
     set_up();
     const std::size_t n_levels{3};
     auto levels_gen = systematic::levels_generator<n_levels>{n_levels+7, fraction_t{0.7}};
-    auto sizes_gen = systematic::sizes_generator<n_levels>{10};
+    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+7};
 
     // read candles
     std::time_t min_opened{1515024000};
@@ -114,8 +114,6 @@ int main()
 //                                      << ", gross loss: " << stats.gross_loss()
                                       << ", net profit: " << stats.net_profit()
                                       << ", max profit: " << max_profit << std::endl;
-                            if (stats.min_close_balance()<amount_t{10'000})
-                                std::terminate();
                         }
                         catch (const std::exception& ex) {
                             print_exception(ex);

@@ -17,18 +17,33 @@
 #include <trading/resampler.hpp>
 #include <trading/stats.hpp>
 #include <trading/action.hpp>
+#include <trading/data_point.hpp>
 
 namespace trading {
     template<class Trader, typename ...Args>
     class simulator {
         std::function<Trader(Args...)> initializer_;
-        std::vector<candle> candles_;
-        std::chrono::minutes resampling_period_;
+        std::vector<price_point> close_points_;
+        std::vector<candle> indic_candles_;
+        std::size_t resampling_period_;
 
     public:
         simulator(const std::function<Trader(Args...)>& initializer, std::vector<candle>&& candles,
                 const std::chrono::minutes& resampling_period)
-                :initializer_(initializer), candles_(candles), resampling_period_(resampling_period) { }
+                :initializer_(initializer), resampling_period_(resampling_period.count())
+        {
+            trading::resampler resampler{resampling_period_};
+            candle indic_candle;
+            close_points_.reserve(candles.size());
+            indic_candles_.reserve(candles.size()/resampling_period_);
+
+            for (const auto& candle: candles) {
+                close_points_.emplace_back(candle.opened(), candle.close());
+
+                if (resampler(candle, indic_candle))
+                    indic_candles_.emplace_back(indic_candle);
+            }
+        }
 
         auto operator()(Args... args)
         {
@@ -43,29 +58,29 @@ namespace trading {
             }
 
             auto averager = candle::ohlc4;
-            trading::resampler resampler{static_cast<std::size_t>(resampling_period_.count())};
 
             // trade
             auto begin = std::chrono::high_resolution_clock::now();
-            candle indic_candle;
             amount_t min_allowed_equity{100};
             trading::stats stats{trader.wallet_balance()};
+            auto indic_candles_it = indic_candles_.begin();
 
-            for (const auto& candle: candles_) {
-                if (trader.equity(candle.close())>min_allowed_equity) {
-                    if (trader.trade(price_point{candle.opened(), candle.close()})==action::closed) {
+            for (std::size_t i{0}; i<close_points_.size(); i++) {
+                if (trader.equity(close_points_[i].data)>min_allowed_equity) {
+                    if (trader.trade(price_point{close_points_[i].time, close_points_[i].data})==action::closed) {
                         stats.update_close_balance(trader.wallet_balance());
-                        stats.update_profit(trader.closed_positions().back().template total_realized_profit<amount_t>());
+                        stats.update_profit(
+                                trader.closed_positions().back().template total_realized_profit<amount_t>());
                     }
 
                     if (trader.has_active_position())
-                        stats.update_equity(trader.equity(candle.close()));
+                        stats.update_equity(trader.equity(close_points_[i].data));
 
-                    if (resampler(candle, indic_candle))
-                        trader.update_indicators(averager(indic_candle));
+                    if (i && (i+1)%resampling_period_==0)
+                        trader.update_indicators(averager(*indic_candles_it++));
                 }
                 else {
-                    trader.try_closing_active_position(price_point{candle.opened(), candle.close()});
+                    trader.try_closing_active_position(close_points_[i]);
                     stats.update_close_balance(trader.wallet_balance());
                 }
             }
