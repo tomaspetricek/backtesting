@@ -6,12 +6,12 @@
 #define BACKTESTING_TEST_EMA_HPP
 
 #include <boost/test/unit_test.hpp>
-#include "trading/indicator/ma.hpp"
+#include <trading/indicator/ema.hpp>
 
 BOOST_AUTO_TEST_SUITE(ema_test)
     BOOST_AUTO_TEST_CASE(default_constructor_test)
     {
-        BOOST_REQUIRE_EQUAL(indicator::ema{}.period(), std::size_t{1});
+        BOOST_REQUIRE_EQUAL(trading::indicator::ema{}.period(), std::size_t{1});
     }
 
     BOOST_AUTO_TEST_CASE(constructor_exception_test)

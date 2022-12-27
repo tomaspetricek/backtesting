@@ -17,10 +17,9 @@ auto create_trader(const bazooka::indicator_type& entry_ma,
 
     // create market
     fraction_t binance_spot_fee{0.1/100};   // 0.1 %
-    fee_charger open_charger{binance_spot_fee};
-    fee_charger close_charger{binance_spot_fee};
+//    fraction_t binance_spot_fee{0.0};
     trading::wallet wallet{amount_t{10'000}};
-    futures::long_market market{wallet, open_charger, close_charger};
+    trading::market market{wallet, binance_spot_fee, binance_spot_fee};
 
     // create open sizer
     sizer open_sizer{open_fracs};
@@ -30,8 +29,7 @@ auto create_trader(const bazooka::indicator_type& entry_ma,
     sizer close_sizer{close_fracs};
 
     // create trade manager
-    std::size_t leverage{1};
-    futures::manager manager{market, open_sizer, close_sizer, leverage};
+    trading::manager manager{market, open_sizer, close_sizer};
     return trading::bazooka::trader{strategy, manager};
 }
 
@@ -111,8 +109,13 @@ int main()
                             curr_profit = stats.total_profit();
                             max_profit = std::max(curr_profit, max_profit);
                             std::cout << "n it: " << n_iter++ << ", curr profit: " << curr_profit
-                                      << ", min close balance: " << stats.min_close_balance()
+//                                      << ", min close balance: " << stats.min_close_balance()
+//                                      << ", gross profit: " << stats.gross_profit()
+//                                      << ", gross loss: " << stats.gross_loss()
+                                      << ", net profit: " << stats.net_profit()
                                       << ", max profit: " << max_profit << std::endl;
+                            if (stats.min_close_balance()<amount_t{10'000})
+                                std::terminate();
                         }
                         catch (const std::exception& ex) {
                             print_exception(ex);

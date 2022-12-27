@@ -53,8 +53,10 @@ namespace trading {
 
             for (const auto& candle: candles_) {
                 if (trader.equity(candle.close())>min_allowed_equity) {
-                    if (trader.trade(price_point{candle.opened(), candle.close()})==action::closed)
+                    if (trader.trade(price_point{candle.opened(), candle.close()})==action::closed) {
                         stats.update_close_balance(trader.wallet_balance());
+                        stats.update_profit(trader.closed_positions().back().template total_realized_profit<amount_t>());
+                    }
 
                     if (trader.has_active_position())
                         stats.update_equity(trader.equity(candle.close()));

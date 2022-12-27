@@ -51,11 +51,41 @@ namespace trading {
         }
     };
 
+    class profit_stats {
+        amount_t gross_profit_{0.0};
+        amount_t gross_loss_{0.0};
+
+    public:
+        void update(const amount_t& position_profit)
+        {
+            if (position_profit<amount_t{0.0})
+                gross_loss_ += position_profit;
+            else
+                gross_profit_ += position_profit;
+        }
+
+        const amount_t& gross_profit() const
+        {
+            return gross_profit_;
+        }
+
+        const amount_t& gross_loss() const
+        {
+            return gross_loss_;
+        }
+
+        amount_t net_profit() const
+        {
+            return gross_profit_+gross_loss_;
+        }
+    };
+
     class stats {
         amount_t init_balance_;
         amount_t final_balance_;
         motion_stats close_balance_;
         motion_stats equity_;
+        profit_stats profit_;
         std::chrono::nanoseconds total_duration_{0};
         std::size_t total_open_orders_{0};
         std::size_t total_close_orders_{0};
@@ -72,6 +102,11 @@ namespace trading {
         void update_close_balance(const amount_t& curr_balance)
         {
             close_balance_.update(curr_balance);
+        }
+
+        void update_profit(const amount_t& position_profit)
+        {
+            profit_.update(position_profit);
         }
 
         void set_final_balance(const amount_t& final_balance)
@@ -156,6 +191,21 @@ namespace trading {
         T max_close_balance_run_up() const
         {
             return close_balance_.max_run_up<T>();
+        }
+
+        const amount_t& gross_profit() const
+        {
+            return profit_.gross_profit();
+        }
+
+        const amount_t& gross_loss() const
+        {
+            return profit_.gross_loss();
+        }
+
+        amount_t net_profit() const
+        {
+            return profit_.net_profit();
         }
     };
 }

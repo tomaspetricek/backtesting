@@ -8,10 +8,10 @@
 #include <trading/bazooka/indicator_values.hpp>
 #include <trading/bazooka/long_strategy.hpp>
 #include <trading/bazooka/short_strategy.hpp>
-#include <trading/binance/futures/direction.hpp>
-#include <trading/binance/futures/market.hpp>
-#include <trading/binance/futures/order.hpp>
-#include <trading/binance/futures/position.hpp>
+#include <trading/direction.hpp>
+#include <trading/market.hpp>
+#include <trading/order.hpp>
+#include <trading/position.hpp>
 #include <trading/indicator/ema.hpp>
 #include <trading/indicator/ma.hpp>
 #include <trading/indicator/sma.hpp>
@@ -39,7 +39,7 @@
 #include <trading/side.hpp>
 #include <trading/table.hpp>
 #include <trading/simulator.hpp>
-#include <trading/binance/futures/manager.hpp>
+#include "trading/manager.hpp"
 #include <trading/bazooka/trader.hpp>
 #include <trading/tuple.hpp>
 #include <trading/utils.hpp>
