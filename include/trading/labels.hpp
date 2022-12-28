@@ -6,6 +6,7 @@
 #define BACKTESTING_LABELS_HPP
 
 #include <string>
+#include <fmt/format.h>
 #include <trading/indicator/ema.hpp>
 #include <trading/indicator/sma.hpp>
 #include <trading/candle.hpp>

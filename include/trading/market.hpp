@@ -17,11 +17,11 @@ namespace trading {
         trading::wallet wallet_;
         std::optional<position> active_{std::nullopt};
         std::vector<position> closed_{};
-        fraction_t open_fee_;
-        fraction_t close_fee_;
+        fraction_t open_fee_{0.0};
+        fraction_t close_fee_{0.0};
 
     public:
-        explicit market(const wallet& wallet, const fraction_t& open_fee, const fraction_t& close_fee)
+        explicit market(const wallet& wallet, fraction_t open_fee, fraction_t close_fee)
                 :wallet_(wallet), open_fee_(open_fee), close_fee_(close_fee) { }
 
         market() = default;
@@ -57,13 +57,13 @@ namespace trading {
         }
 
         template<class Type>
-        Type position_current_profit(const price_t& market)
+        Type position_current_profit(price_t market)
         {
             assert(active_);
             return active_->template current_profit<Type>(market);
         }
 
-        amount_t equity(const price_t& market)
+        amount_t equity(price_t market)
         {
             amount_t equity = wallet_.balance();
             if (active_) equity += active_->current_value(market);

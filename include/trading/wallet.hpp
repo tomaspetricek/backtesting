@@ -13,40 +13,34 @@ namespace trading {
     protected:
         amount_t balance_{0.0};
 
-        static const amount_t& validate_balance(const amount_t& balance)
+        static amount_t validate_balance(amount_t balance)
         {
-            if (value_of(balance)<0)
+            if (balance<0.0)
                 throw std::invalid_argument("Balance has to be greater than 0");
 
             return balance;
         }
 
     public:
-        explicit wallet(const amount_t& balance)
+        explicit wallet(amount_t balance)
                 :balance_(validate_balance(balance)) { }
 
         wallet() = default;
 
-        void withdraw(const amount_t& amount)
+        void withdraw(amount_t amount)
         {
-            if (value_of(amount)<=0)
-                throw std::invalid_argument{"Cannot withdraw nothing"};
-
-            if (amount>balance_)
-                throw insufficient_funds{"Not enough balance"};
-
+            if (amount<=0.0) throw std::invalid_argument{"Cannot withdraw nothing"};
+            if (amount>balance_) throw insufficient_funds{"Not enough balance"};
             balance_ -= amount;
         }
 
-        void deposit(const amount_t& amount)
+        void deposit(amount_t amount)
         {
-            if (value_of(amount)<=0)
-                throw std::invalid_argument{"Cannot deposit nothing"};
-
+            if (amount<=0.0) throw std::invalid_argument{"Cannot deposit nothing"};
             balance_ += amount;
         }
 
-        const amount_t& balance() const
+        amount_t balance() const
         {
             return balance_;
         }

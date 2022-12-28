@@ -70,7 +70,7 @@ namespace trading {
                     if (trader.trade(price_point{close_points_[i].time, close_points_[i].data})==action::closed) {
                         stats.update_close_balance(trader.wallet_balance());
                         stats.update_profit(
-                                trader.closed_positions().back().template total_realized_profit<amount_t>());
+                                trader.closed_positions().back().template total_realized_profit<amount>());
                     }
 
                     if (trader.has_active_position())

@@ -45,8 +45,7 @@ auto read_candles(const std::filesystem::path& path, char sep,
     // read rows
     while (reader.read_row(opened, open, high, low, close))
         if (opened>=min_opened && opened<=max_opened)
-            candles.emplace_back(candle{boost::posix_time::from_time_t(opened), price_t{open}, price_t{high},
-                                        price_t{low}, price_t{close}});
+            candles.emplace_back(candle{boost::posix_time::from_time_t(opened), open, high, low, close});
 
     return candles;
 }
@@ -84,11 +83,11 @@ int main()
     auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+7};
 
     // read candles
-    std::time_t min_opened{1515024000};
-    std::time_t max_opened{1667066400};
+//    std::time_t min_opened{1515024000};
+//    std::time_t max_opened{1667066400};
     std::vector<trading::candle> candles;
     auto duration = measure_duration(to_function([&] {
-        return read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|', min_opened, max_opened);
+        return read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|');
     }), candles);
     std::cout << "read:" << std::endl
               << "n candles: " << candles.size() << std::endl

@@ -14,10 +14,10 @@ namespace trading {
     class resampler {
         size_t period_{1};
         boost::posix_time::ptime opened_;
-        price_t open_{strong::uninitialized};
-        price_t high_{strong::uninitialized};
-        price_t low_{strong::uninitialized};
-        price_t close_{strong::uninitialized};
+        price_t open_{};
+        price_t high_{};
+        price_t low_{};
+        price_t close_{};
         std::size_t count_{0};
 
         static size_t validate_period(size_t period) {
@@ -58,7 +58,7 @@ namespace trading {
             return ready;
         }
 
-        size_t period() const
+        std::size_t period() const
         {
             return period_;
         }

@@ -17,7 +17,7 @@ namespace trading {
         price_t price;
         ptime created;
 
-        order(const amount_t& sold, const price_t& price, const ptime& created)
+        order(amount_t sold, price_t price, const ptime& created)
                 :sold(sold), price(price), created(created) { }
     };
 }

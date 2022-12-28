@@ -14,10 +14,10 @@
 namespace trading {
     class candle {
         boost::posix_time::ptime opened_;
-        price_t open_{strong::uninitialized};
-        price_t high_{strong::uninitialized};
-        price_t low_{strong::uninitialized};
-        price_t close_{strong::uninitialized};
+        price_t open_{};
+        price_t high_{};
+        price_t low_{};
+        price_t close_{};
 
     public:
         candle() = default;
@@ -34,20 +34,19 @@ namespace trading {
         // mean high and low
         static price_t hl2(const candle& candle)
         {
-            return price_t{mean(value_of(candle.high_), value_of(candle.low_))};
+            return mean(candle.high_, candle.low_);
         }
 
         // mean open, high, low, close
         static price_t hlc3(const candle& candle)
         {
-            return price_t{mean(value_of(candle.high_), value_of(candle.low_))};
+            return mean(candle.high_, candle.low_);
         }
 
         // mean open, high, low, close
         static price_t ohlc4(const candle& candle)
         {
-            return price_t{mean(value_of(candle.open_), value_of(candle.high_), value_of(candle.low_),
-                    value_of(candle.close_))};
+            return mean(candle.open_, candle.high_, candle.low_, candle.close_);
         }
 
         bool risen() const

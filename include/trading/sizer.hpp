@@ -41,7 +41,7 @@ namespace trading {
                 sum += fracs[i];
             }
 
-            if (!is_close(1.0, value_of(sum)))
+            if (!is_close(1.0, sum))
                 throw std::invalid_argument("Fractions have to sum up to 1.0");
 
             return fracs;
@@ -53,10 +53,10 @@ namespace trading {
             curr_idx = 0;
         }
 
-        amount_t operator()(const amount_t& rest)
+        amount_t operator()(amount_t rest)
         {
             assert(curr_idx<n_fracs);
-            return amount_t{value_of(cum_fracs_[curr_idx++])*value_of(rest)};
+            return cum_fracs_[curr_idx++]*rest;
         }
 
         explicit sizer(const std::array<fraction_t, n_fracs>& fracs)

@@ -9,9 +9,6 @@
 #include <memory>
 #include <utility>
 #include <variant>
-
-#include <strong_type.hpp>
-
 #include <trading/strategy.hpp>
 #include <trading/indicator/ma.hpp>
 #include <trading/indicator/sma.hpp>
@@ -70,7 +67,7 @@ namespace trading::bazooka {
         {
             assert(level>=0 && level<n_levels);
             auto baseline = indicator_value(entry_ma_);
-            return baseline*value_of(entry_levels_[level]); // move baseline
+            return baseline*entry_levels_[level]; // move baseline
         }
 
         explicit strategy(indicator_type entry_ma, indicator_type exit_ma,
@@ -81,9 +78,9 @@ namespace trading::bazooka {
         strategy() = default;
 
     public:
-        void update_indicators(const price_t& price)
+        void update_indicators(price_t price)
         {
-            ready_ = indicator_update(entry_ma_, value_of(price)) && indicator_update(exit_ma_, value_of(price));
+            ready_ = indicator_update(entry_ma_, price) && indicator_update(exit_ma_, price);
         }
 
         indicator_values<n_levels> get_indicator_values()
@@ -97,7 +94,7 @@ namespace trading::bazooka {
             return indicator_values<n_levels>{indicator_value(entry_ma_), indicator_value(exit_ma_), levels};
         }
 
-        bool should_open(const price_t& curr)
+        bool should_open(price_t curr)
         {
             // all levels passed
             if (curr_level_==n_levels) return false;
@@ -114,12 +111,12 @@ namespace trading::bazooka {
             return false;
         }
 
-        bool should_close_all(const price_t& curr)
+        bool should_close_all(price_t curr)
         {
             // hasn't opened any positions yet
             if (!curr_level_) return false;
 
-            auto exit = price_t{indicator_value(exit_ma_)};
+            auto exit = indicator_value(exit_ma_);
 
             // exceeded the value of the exit indicator
             if (exit_comp_(curr, exit)) {

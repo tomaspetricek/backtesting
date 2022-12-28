@@ -12,7 +12,7 @@ namespace trading {
         amount_t peak;
         amount_t trough;
 
-        explicit motion(const amount_t& peak, const amount_t& trough)
+        explicit motion(amount_t peak, amount_t trough)
                 :peak(peak), trough(trough)
         {
             assert(peak>=trough);
@@ -21,43 +21,43 @@ namespace trading {
 
     struct drawdown : public motion {
         // peak happens before trough
-        explicit drawdown(const amount_t& peak, const amount_t& trough)
+        explicit drawdown(amount_t peak, amount_t trough)
                 :motion(peak, trough) { }
 
         template<class T>
         requires std::same_as<T, amount_t>
         amount_t value() const
         {
-            assert(trough-peak<=amount_t{0});
+            assert(trough-peak<=0.0);
             return trough-peak;
         }
 
         template<class T>
-        requires std::same_as<T, percent_t>
+        requires std::same_as<T, percent>
         percent_t value() const
         {
-            return percent_t{value_of((trough-peak)/peak)*100};
+            return ((trough-peak)/peak)*100;
         }
     };
 
     struct run_up : public motion {
         // note: trough happens before peak
-        explicit run_up(const amount_t& trough, const amount_t& peak)
+        explicit run_up(amount_t trough, amount_t peak)
                 :motion(peak, trough) { }
 
         template<class T>
-        requires std::same_as<T, amount_t>
+        requires std::same_as<T, amount>
         amount_t value() const
         {
-            assert(peak-trough>=amount_t{0});
+            assert(peak-trough>=0.0);
             return peak-trough;
         }
 
         template<class T>
-        requires std::same_as<T, percent_t>
+        requires std::same_as<T, percent>
         percent_t value() const
         {
-            return percent_t{value_of((peak-trough)/trough)*100};
+            return ((peak-trough)/trough)*100;
         }
     };
 
@@ -68,7 +68,7 @@ namespace trading {
     public:
         typedef drawdown motion_type;
 
-        explicit drawdown_tracker(const amount_t init)
+        explicit drawdown_tracker(amount_t init)
                 :max_(init, init), curr_(init, init) { }
 
         void update(amount_t val)
@@ -119,7 +119,7 @@ namespace trading {
                 curr_.peak = val;
             }
 
-            if (curr_.value<amount_t>()>max_.value<amount_t>())
+            if (curr_.value<amount>()>max_.value<amount>())
                 max_ = curr_;
         }
 
