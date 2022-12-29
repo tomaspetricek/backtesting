@@ -12,13 +12,13 @@ BOOST_AUTO_TEST_SUITE(fee_charger_test)
     BOOST_AUTO_TEST_CASE(default_constructor_test)
     {
         fee_charger charger;
-        BOOST_REQUIRE_EQUAL(charger.fee(), fraction_t{0.0});
+        BOOST_REQUIRE_EQUAL(charger.fee(), 0.0);
     }
 
     BOOST_AUTO_TEST_CASE(constructor_test)
     {
-        fee_charger charger{fraction_t{0.1}};
-        BOOST_REQUIRE_EQUAL(charger.fee(), fraction_t{0.1});
+        fee_charger charger{0.1};
+        BOOST_REQUIRE_EQUAL(charger.fee(), 0.1);
     }
 
     BOOST_AUTO_TEST_CASE(usage_test)

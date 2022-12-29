@@ -28,60 +28,24 @@ void usage_test(const std::vector<amount_t>& vals, const typename MotionTracker:
 BOOST_AUTO_TEST_SUITE(drawdown_tracker_test)
     BOOST_AUTO_TEST_CASE(scenario_1_test)
     {
-        std::vector<amount_t> vals{
-                amount_t{5'000},
-                amount_t{10'000},
-                amount_t{4'000},
-                amount_t{12'000},
-                amount_t{3'000},
-                amount_t{13'000}
-        };
-
-        usage_test<drawdown_tracker>(vals, drawdown{amount_t{12'000}, amount_t{3'000}});
+        usage_test<drawdown_tracker>({5'000, 10'000, 4'000, 12'000, 3'000, 13'000}, drawdown{12'000, 3'000});
     }
 
     BOOST_AUTO_TEST_CASE(scenario_2_test)
     {
-        std::vector<amount_t> vals{
-                amount_t{5},
-                amount_t{7.5},
-                amount_t{4},
-                amount_t{6},
-                amount_t{3.5},
-                amount_t{8}
-        };
-
-        usage_test<drawdown_tracker>(vals, drawdown{amount_t{7.5}, amount_t{3.5}});
+        usage_test<drawdown_tracker>({5, 7.5, 4, 6, 3.5, 8}, drawdown{7.5, 3.5});
     }
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(run_up_tracker_test)
     BOOST_AUTO_TEST_CASE(scenario_1_test)
     {
-        std::vector<amount_t> vals{
-                amount_t{5'000},
-                amount_t{10'000},
-                amount_t{4'000},
-                amount_t{12'000},
-                amount_t{3'000},
-                amount_t{13'000}
-        };
-
-        usage_test<run_up_tracker>(vals, run_up{amount_t{3'000}, amount_t{13'000}});
+        usage_test<run_up_tracker>({5'000, 10'000, 4'000, 12'000, 3'000, 13'000}, run_up{3'000, 13'000});
     }
 
     BOOST_AUTO_TEST_CASE(scenario_2_test)
     {
-        std::vector<amount_t> vals{
-                amount_t{5},
-                amount_t{7.5},
-                amount_t{4},
-                amount_t{6},
-                amount_t{3.5},
-                amount_t{8}
-        };
-
-        usage_test<run_up_tracker>(vals, run_up{amount_t{3.5}, amount_t{8}});
+        usage_test<run_up_tracker>({5, 7.5, 4, 6, 3.5, 8}, run_up{3.5, 8});
     }
 BOOST_AUTO_TEST_SUITE_END()
 

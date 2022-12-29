@@ -15,7 +15,7 @@ BOOST_AUTO_TEST_SUITE(wallet_test)
     BOOST_AUTO_TEST_CASE(default_constructor_test)
     {
         trading::wallet wallet;
-        BOOST_REQUIRE_EQUAL(wallet.balance(), amount_t{0.0});
+        BOOST_REQUIRE_EQUAL(wallet.balance(), 0.0);
     }
 
     BOOST_AUTO_TEST_CASE(constructor_test)
@@ -35,21 +35,21 @@ BOOST_AUTO_TEST_SUITE(wallet_test)
     {
         trading::amount_t balance{0};
         trading::wallet wallet{balance};
-        BOOST_REQUIRE_THROW(wallet.withdraw(amount_t{100}), insufficient_funds);
+        BOOST_REQUIRE_THROW(wallet.withdraw(100), insufficient_funds);
     }
 
     BOOST_AUTO_TEST_CASE(withdraw_nothing_test)
     {
         trading::amount_t balance{0};
         trading::wallet wallet{balance};
-        BOOST_REQUIRE_THROW(wallet.withdraw(amount_t{0}), std::invalid_argument);
+        BOOST_REQUIRE_THROW(wallet.withdraw(0), std::invalid_argument);
     }
 
     BOOST_AUTO_TEST_CASE(deposit_nothing_test)
     {
         trading::amount_t balance{0};
         trading::wallet wallet{balance};
-        BOOST_REQUIRE_THROW(wallet.deposit(amount_t{0}), std::invalid_argument);
+        BOOST_REQUIRE_THROW(wallet.deposit(0), std::invalid_argument);
     }
 
     BOOST_AUTO_TEST_CASE(deposit_test)

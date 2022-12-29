@@ -13,7 +13,7 @@ template<typename Generator, std::size_t seq_size>
 void test_usage(Generator&& gen, const std::vector<std::array<fraction_t, seq_size>>& expect_seqs)
 {
     std::size_t n_gen{0};
-    for (auto actual_seq: gen()) {
+    for (const auto& actual_seq: gen()) {
         BOOST_REQUIRE_EQUAL(actual_seq.size(), seq_size);
         for (std::size_t i{0}; i<actual_seq.size(); i++)
             BOOST_REQUIRE_CLOSE(actual_seq[i], expect_seqs[n_gen][i], 0.0001);
