@@ -14,7 +14,7 @@ namespace trading::systematic {
     // generates unique subsequent fractions in interval (0, max), such as max is in interval (0.0, 1.0]
     template<std::size_t n_levels>
     class levels_generator {
-        static_assert(n_levels>=1);
+        static_assert(n_levels>0);
         constexpr static fraction_t default_max_{1.0};
         std::array<fraction_t, n_levels> levels_;
         std::size_t n_fracs_;
@@ -30,25 +30,38 @@ namespace trading::systematic {
         generator_type generate(std::size_t prev = 0)
         {
             for (std::size_t level{++prev}; level<n_fracs_+(-n_levels+1+depth); level++) {
-                std::get<depth>(levels_) = fraction_t{1.0}-(fraction_t(static_cast<double>(level)/n_fracs_)*max_);
+                std::get<depth>(levels_) = 1.0-((static_cast<double>(level)/n_fracs_)*max_);
                 co_yield generate<depth+1>(level);
             }
         }
 
-        const fraction_t& validate_max(const fraction_t& max)
+        fraction_t validate_max(fraction_t max)
         {
             if (max<=fraction_t{0.0} || max>default_max_)
                 throw std::invalid_argument{"Maximum has to be in interval (0.0, 1.0]"};
             return max;
         }
 
+        std::size_t validate_n_fracs(std::size_t n_fracs)
+        {
+            if (n_fracs<n_levels)
+                throw std::invalid_argument{
+                        "The number of unique fractions must be greater than or equal to the number of levels"};
+            return n_fracs;
+        }
+
     public:
-        explicit levels_generator(size_t n_unique_fracs, const fraction_t& max = default_max_)
-                :n_fracs_(n_unique_fracs), max_(validate_max(max)) { }
+        explicit levels_generator(size_t n_unique_fracs = n_levels, fraction_t max = default_max_)
+                :n_fracs_(validate_n_fracs(n_unique_fracs)+1), max_(validate_max(max)) { }
 
         generator_type operator()()
         {
             co_yield generate();
+        }
+
+        fraction_t max() const
+        {
+            return max_;
         }
     };
 
@@ -67,7 +80,7 @@ namespace trading::systematic {
         requires (depth+1==n_sizes)
         generator_type generate(std::size_t remaining)
         {
-            std::get<depth>(sizes_) = fraction_t(static_cast<double>(remaining)/n_fracs_);
+            std::get<depth>(sizes_) = static_cast<double>(remaining)/n_fracs_;
             co_yield sizes_;
         }
 
@@ -77,14 +90,20 @@ namespace trading::systematic {
         {
             std::size_t max = (remaining>max_) ? max_ : remaining-1;
             for (std::size_t size{1}; size<=max; size++) {
-                std::get<depth>(sizes_) = fraction_t(static_cast<double>(size)/n_fracs_);
+                std::get<depth>(sizes_) = static_cast<double>(size)/n_fracs_;
                 co_yield generate<depth+1>(remaining-size);
             }
         }
 
+        std::size_t validate_n_unique_fracs(std::size_t n_unique_fracs)
+        {
+            if (n_unique_fracs==0)
+                throw std::invalid_argument{"The number of unique fractions has to be greater than zero"};
+            return n_unique_fracs;
+        }
     public:
         explicit sizes_generator(std::size_t n_unique_fracs)
-                :n_fracs_(n_sizes+n_unique_fracs-1), max_(n_fracs_-n_sizes+1) { }
+                :n_fracs_(n_sizes+validate_n_unique_fracs(n_unique_fracs)-1), max_(n_fracs_-n_sizes+1) { }
 
         generator_type operator()()
         {

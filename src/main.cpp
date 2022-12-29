@@ -16,8 +16,7 @@ auto create_trader(const bazooka::indicator_type& entry_ma,
     bazooka::long_strategy strategy{entry_ma, exit_ma, levels};
 
     // create market
-//    fraction_t fee{0.1/100};   // 0.1 %
-    fraction_t fee{0.0};
+    fraction_t fee{0.1/100};   // 0.1 %
     trading::wallet wallet{amount_t{10'000}};
     trading::market market{wallet, fee, fee};
 
@@ -63,7 +62,7 @@ void set_up()
 }
 
 template<typename Generator>
-void use_generator(Generator& gen)
+void use_generator(Generator&& gen)
 {
     std::size_t n_iter{0};
     for (auto seq: gen()) {
@@ -79,8 +78,8 @@ int main()
 {
     set_up();
     const std::size_t n_levels{3};
-    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+7, fraction_t{0.7}};
-    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+7};
+    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+6, 0.7};
+    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+6};
 
     // read candles
 //    std::time_t min_opened{1515024000};
@@ -99,18 +98,15 @@ int main()
     amount_t max_profit{0.0}, curr_profit;
     duration = measure_duration(to_function([&] {
         for (std::size_t entry_period: range<std::size_t>(5, 60, 5))
-            for (const auto& entry_ma: {bazooka::indicator_type{indicator::ema{entry_period}},
-                                        bazooka::indicator_type{indicator::sma{entry_period}}})
+            for (const auto& entry_ma: {bazooka::indicator_type{indicator::ema{entry_period}}})
                 for (const auto& levels: levels_gen())
                     for (const auto open_sizes: sizes_gen()) {
                         try {
                             auto stats = simulator(entry_ma, levels, open_sizes);
                             curr_profit = stats.total_profit();
                             max_profit = std::max(curr_profit, max_profit);
-                            std::cout << "n it: " << n_iter++ << ", curr profit: " << curr_profit
-//                                      << ", min close balance: " << stats.min_close_balance()
-//                                      << ", gross profit: " << stats.gross_profit()
-//                                      << ", gross loss: " << stats.gross_loss()
+                            std::cout << "n it: " << n_iter++
+                                      << ", pt ratio: " << stats.pt_ratio()
                                       << ", net profit: " << stats.net_profit()
                                       << ", max profit: " << max_profit << std::endl;
                         }

@@ -17,7 +17,7 @@ namespace trading {
         run_up_tracker run_up_;
 
     public:
-        explicit motion_stats(const amount_t& init)
+        explicit motion_stats(amount_t init)
                 :min_(init), max_(init), drawdown_(init), run_up_(init) { }
 
         void update(const amount_t& curr)
@@ -29,23 +29,23 @@ namespace trading {
         }
 
         template<class T>
-        T max_drawdown() const
+        auto max_drawdown() const
         {
             return drawdown_.max().value<T>();
         }
 
         template<class T>
-        T max_run_up() const
+        auto max_run_up() const
         {
             return run_up_.max().value<T>();
         }
 
-        const amount_t& min() const
+        amount_t min() const
         {
             return min_;
         }
 
-        const amount_t& max() const
+        amount_t max() const
         {
             return max_;
         }
@@ -56,7 +56,7 @@ namespace trading {
         amount_t gross_loss_{0.0};
 
     public:
-        void update(const amount_t& position_profit)
+        void update(amount_t position_profit)
         {
             if (position_profit<amount_t{0.0})
                 gross_loss_ += position_profit;
@@ -64,12 +64,12 @@ namespace trading {
                 gross_profit_ += position_profit;
         }
 
-        const amount_t& gross_profit() const
+        amount_t gross_profit() const
         {
             return gross_profit_;
         }
 
-        const amount_t& gross_loss() const
+        amount_t gross_loss() const
         {
             return gross_loss_;
         }
@@ -77,6 +77,12 @@ namespace trading {
         amount_t net_profit() const
         {
             return gross_profit_+gross_loss_;
+        }
+
+        double profit_factor() const
+        {
+//            assert(gross_loss_!=0.0);
+            return gross_profit_/(-gross_loss_);
         }
     };
 
@@ -91,25 +97,25 @@ namespace trading {
         std::size_t total_close_orders_{0};
 
     public:
-        explicit stats(const amount_t& init_balance)
+        explicit stats(amount_t init_balance)
                 :init_balance_{init_balance}, close_balance_{init_balance}, equity_{init_balance} { }
 
-        void update_equity(const amount_t& curr_equity)
+        void update_equity(amount_t curr_equity)
         {
             equity_.update(curr_equity);
         }
 
-        void update_close_balance(const amount_t& curr_balance)
+        void update_close_balance(amount_t curr_balance)
         {
             close_balance_.update(curr_balance);
         }
 
-        void update_profit(const amount_t& position_profit)
+        void update_profit(amount_t position_profit)
         {
             profit_.update(position_profit);
         }
 
-        void set_final_balance(const amount_t& final_balance)
+        void set_final_balance(amount_t final_balance)
         {
             final_balance_ = final_balance;
         }
@@ -119,7 +125,7 @@ namespace trading {
             total_duration_ = duration;
         }
 
-        void set_total_open_orders(size_t open_orders)
+        void set_total_open_orders(std::size_t open_orders)
         {
             total_open_orders_ = open_orders;
         }
@@ -127,6 +133,11 @@ namespace trading {
         void set_total_close_orders(size_t close_orders)
         {
             total_close_orders_ = close_orders;
+        }
+
+        amount_t final_balance() const
+        {
+            return final_balance_;
         }
 
         const std::chrono::nanoseconds& total_duration() const
@@ -149,56 +160,56 @@ namespace trading {
             return total_close_orders_;
         }
 
-        const amount_t& min_equity() const
+        amount_t min_equity() const
         {
             return equity_.min();
         }
 
-        const amount_t& max_equity() const
+        amount_t max_equity() const
         {
             return equity_.max();
         }
 
         template<class T>
-        T max_equity_drawdown() const
+        auto max_equity_drawdown() const
         {
             return equity_.max_drawdown<T>();
         }
 
         template<class T>
-        T max_equity_run_up() const
+        auto max_equity_run_up() const
         {
             return equity_.max_run_up<T>();
         }
 
-        const amount_t& min_close_balance() const
+        amount_t min_close_balance() const
         {
             return close_balance_.min();
         }
 
-        const amount_t& max_close_balance() const
+        amount_t max_close_balance() const
         {
             return close_balance_.max();
         }
 
         template<class T>
-        T max_close_balance_drawdown() const
+        auto max_close_balance_drawdown() const
         {
             return close_balance_.max_drawdown<T>();
         }
 
         template<class T>
-        T max_close_balance_run_up() const
+        auto max_close_balance_run_up() const
         {
             return close_balance_.max_run_up<T>();
         }
 
-        const amount_t& gross_profit() const
+        amount_t gross_profit() const
         {
             return profit_.gross_profit();
         }
 
-        const amount_t& gross_loss() const
+        amount_t gross_loss() const
         {
             return profit_.gross_loss();
         }
@@ -206,6 +217,16 @@ namespace trading {
         amount_t net_profit() const
         {
             return profit_.net_profit();
+        }
+
+        double profit_factor() const
+        {
+            return profit_.profit_factor();
+        }
+
+        double pt_ratio() const
+        {
+            return net_profit()/max_close_balance_drawdown<amount>();
         }
     };
 }

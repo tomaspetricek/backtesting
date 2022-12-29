@@ -45,7 +45,7 @@ namespace trading {
         {
             amount_t bought = current_value(order.price);
             total_realized_profit_ = current_profit<amount>(order.price);
-            size_ = amount_t{0.0};
+            size_ = 0.0;
             return bought;
         }
 

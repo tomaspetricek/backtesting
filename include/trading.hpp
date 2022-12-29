@@ -22,7 +22,6 @@
 #include "trading/optimizer/parallel/brute_force.hpp"
 #include <trading/validator/interval.hpp>
 #include <trading/view/candle_deserializer.hpp>
-#include <trading/view/stats.hpp>
 #include <trading/types.hpp>
 #include <trading/candle.hpp>
 #include <trading/currency.hpp>

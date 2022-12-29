@@ -98,16 +98,14 @@ namespace trading::bazooka {
         {
             // all levels passed
             if (curr_level_==n_levels) return false;
-
             assert(curr_level_<=n_levels);
-            auto entry = price_t{level_value(curr_level_)};
+            auto entry = level_value(curr_level_);
 
             // passed current level
             if (entry_comp_(curr, entry)) {
                 curr_level_++;
                 return true;
             }
-
             return false;
         }
 
@@ -115,7 +113,6 @@ namespace trading::bazooka {
         {
             // hasn't opened any positions yet
             if (!curr_level_) return false;
-
             auto exit = indicator_value(exit_ma_);
 
             // exceeded the value of the exit indicator
@@ -123,7 +120,6 @@ namespace trading::bazooka {
                 curr_level_ = 0;
                 return true;
             }
-
             return false;
         }
 
@@ -132,12 +128,12 @@ namespace trading::bazooka {
             curr_level_ = 0;
         }
 
-        indicator_type entry_ma() const
+        const indicator_type& entry_ma() const
         {
             return entry_ma_;
         }
 
-        indicator_type exit_ma() const
+        const indicator_type& exit_ma() const
         {
             return exit_ma_;
         }

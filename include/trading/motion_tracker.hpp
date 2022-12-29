@@ -25,7 +25,7 @@ namespace trading {
                 :motion(peak, trough) { }
 
         template<class T>
-        requires std::same_as<T, amount_t>
+        requires std::same_as<T, amount>
         amount_t value() const
         {
             assert(trough-peak<=0.0);
@@ -83,7 +83,7 @@ namespace trading {
                 curr_.trough = val;
             }
 
-            if (curr_.value<amount_t>()<max_.value<amount_t>())
+            if (curr_.value<amount>()<max_.value<amount>())
                 max_ = curr_;
         }
 
