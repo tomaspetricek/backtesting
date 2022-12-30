@@ -13,7 +13,7 @@
 
 namespace trading {
     class candle {
-        boost::posix_time::ptime opened_;
+        std::time_t opened_;
         price_t open_{};
         price_t high_{};
         price_t low_{};
@@ -22,7 +22,7 @@ namespace trading {
     public:
         candle() = default;
 
-        explicit candle(const boost::posix_time::ptime& opened, const price_t& open, const price_t& high,
+        explicit candle(std::time_t opened, const price_t& open, const price_t& high,
                 const price_t& low, const price_t& close)
                 :opened_(opened), open_(price_t{open}), high_(price_t{high}),
                  low_(price_t{low}), close_(price_t{close})
@@ -75,7 +75,7 @@ namespace trading {
             return os;
         }
 
-        boost::posix_time::ptime opened() const
+        std::time_t opened() const
         {
             return opened_;
         }

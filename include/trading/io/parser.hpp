@@ -40,6 +40,13 @@ namespace trading::io {
         }
 
         template<class T>
+        requires std::same_as<T, float>
+        inline static float parse(const std::string& data)
+        {
+            return std::stof(data);
+        }
+
+        template<class T>
         requires std::same_as<T, std::string>
         inline static std::string parse(const std::string& data)
         {

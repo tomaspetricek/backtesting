@@ -8,19 +8,16 @@
 #include <trading/candle.hpp>
 
 namespace trading::view {
-    auto candle_deserializer = [](long opened, double open, double high, double low, double close) {
+    auto candle_deserializer = [](std::time_t opened, price_t open, price_t high, price_t low, price_t close) {
         if (opened<0)
             throw std::invalid_argument("Candle time has to greater or equal to 0");
 
         if (open<0 || high<0 || low<0 || close<0)
             throw std::invalid_argument("Price has to be greater or equal to 0");
 
-        // convert to ptime
-        auto opened_ptime = boost::posix_time::from_time_t(opened);
-
         // create candle
         try {
-            return trading::candle(opened_ptime, price_t{open}, price_t{high}, price_t{low}, price_t{close});
+            return trading::candle(opened, open, high, low, close);
         }
         catch (...) {
             std::throw_with_nested(std::runtime_error("Cannot create candle"));

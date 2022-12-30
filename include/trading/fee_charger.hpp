@@ -24,9 +24,9 @@ namespace trading {
 
         fee_charger() = default;
 
-        inline amount_t apply_fee(amount_t amount) const
+        inline amount_t apply_fee(amount_t amount_) const
         {
-            return amount_t{amount*(1.0-fee_)};
+            return amount_*(1.0-fee_);
         }
 
         fraction_t fee() const

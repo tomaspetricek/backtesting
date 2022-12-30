@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_SUITE(fee_charger_test)
     BOOST_AUTO_TEST_CASE(constructor_test)
     {
         fee_charger charger{0.1};
-        BOOST_REQUIRE_EQUAL(charger.fee(), 0.1);
+        BOOST_REQUIRE_CLOSE(charger.fee(), 0.1, 0.0001);
     }
 
     BOOST_AUTO_TEST_CASE(usage_test)

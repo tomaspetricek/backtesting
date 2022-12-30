@@ -13,7 +13,7 @@
 namespace trading {
     class resampler {
         size_t period_{1};
-        boost::posix_time::ptime opened_;
+        std::time_t opened_{};
         price_t open_{};
         price_t high_{};
         price_t low_{};

@@ -11,10 +11,10 @@
 namespace trading {
     template<class Data>
     struct data_point {
-        boost::posix_time::ptime time;
+        std::time_t time;
         Data data;
 
-        explicit data_point(const boost::posix_time::ptime& time, const Data& data)
+        explicit data_point(const std::time_t& time, const Data& data)
                 :time(time), data(data) { }
     };
 

@@ -8,7 +8,7 @@
 //#include <boost/rational.hpp>
 
 namespace trading {
-    typedef double price_t, percent_t, fraction_t, amount_t;
+    typedef float price_t, percent_t, fraction_t, amount_t;
     typedef std::size_t index_t;
 
     using percent = struct percent_tag;

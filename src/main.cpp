@@ -38,13 +38,13 @@ auto read_candles(const std::filesystem::path& path, char sep,
 {
     io::csv::reader reader{path, sep};
     std::time_t opened;
-    double open, high, low, close;
+    price_t open, high, low, close;
     std::vector<candle> candles;
 
     // read rows
     while (reader.read_row(opened, open, high, low, close))
         if (opened>=min_opened && opened<=max_opened)
-            candles.emplace_back(candle{boost::posix_time::from_time_t(opened), open, high, low, close});
+            candles.emplace_back(candle{opened, open, high, low, close});
 
     return candles;
 }
@@ -64,14 +64,14 @@ void set_up()
 template<typename Generator>
 void use_generator(Generator&& gen)
 {
-    std::size_t n_iter{0};
+    std::size_t it{0};
     for (auto seq: gen()) {
         for (std::size_t i{0}; i<seq.size(); i++)
             std::cout << seq[i] << ", ";
         std::cout << std::endl;
-        n_iter++;
+        it++;
     }
-    std::cout << std::endl << "n iterations: " << n_iter << std::endl;
+    std::cout << std::endl << "n iterations: " << it << std::endl;
 }
 
 int main()
@@ -79,14 +79,14 @@ int main()
     set_up();
     const std::size_t n_levels{3};
     auto levels_gen = systematic::levels_generator<n_levels>{n_levels+6, 0.7};
-    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+6};
+    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+7};
 
     // read candles
-//    std::time_t min_opened{1515024000};
-//    std::time_t max_opened{1667066400};
+    std::time_t min_opened{1515024000};
+    std::time_t max_opened{1667066400};
     std::vector<trading::candle> candles;
     auto duration = measure_duration(to_function([&] {
-        return read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|');
+        return read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|', min_opened, max_opened);
     }), candles);
     std::cout << "read:" << std::endl
               << "n candles: " << candles.size() << std::endl
@@ -94,18 +94,19 @@ int main()
 
     std::chrono::minutes resampling_period{30};
     trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period};
-    std::size_t n_iter{0};
+    std::size_t it{0};
     amount_t max_profit{0.0}, curr_profit;
     duration = measure_duration(to_function([&] {
         for (std::size_t entry_period: range<std::size_t>(5, 60, 5))
-            for (const auto& entry_ma: {bazooka::indicator_type{indicator::ema{entry_period}}})
+            for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}},
+                                        bazooka::indicator_type{indicator::ema{entry_period}}})
                 for (const auto& levels: levels_gen())
                     for (const auto open_sizes: sizes_gen()) {
                         try {
                             auto stats = simulator(entry_ma, levels, open_sizes);
                             curr_profit = stats.total_profit();
                             max_profit = std::max(curr_profit, max_profit);
-                            std::cout << "n it: " << n_iter++
+                            std::cout << "it: " << it++
                                       << ", pt ratio: " << stats.pt_ratio()
                                       << ", net profit: " << stats.net_profit()
                                       << ", max profit: " << max_profit << std::endl;

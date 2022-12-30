@@ -9,15 +9,13 @@
 #include <boost/date_time/posix_time/ptime.hpp>
 #include <trading/types.hpp>
 
-using namespace boost::posix_time;
-
 namespace trading {
     struct order {
         amount_t sold;
         price_t price;
-        ptime created;
+        std::time_t created;
 
-        order(amount_t sold, price_t price, const ptime& created)
+        order(amount_t sold, price_t price, std::time_t created)
                 :sold(sold), price(price), created(created) { }
     };
 }

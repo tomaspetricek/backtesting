@@ -32,18 +32,18 @@ BOOST_AUTO_TEST_SUITE(resampler_test)
         const std::size_t n_resampled{n_samples/resampling_period};
 
         std::array<candle, n_samples> samples{
-                candle{boost::posix_time::ptime{}, 5'000, 15'000, 2'500, 10'000},
-                candle{boost::posix_time::ptime{}, 10'100, 12'000, 8'500, 11'000},
-                candle{boost::posix_time::ptime{}, 10'900, 17'000, 9'900, 13'000},
-                candle{boost::posix_time::ptime{}, 12'000, 20'000, 11'500, 18'000},
-                candle{boost::posix_time::ptime{}, 17'500, 20'300, 13'500, 16'400},
-                candle{boost::posix_time::ptime{}, 17'000, 25'000, 15'500, 23'400},
+                candle{0, 5'000, 15'000, 2'500, 10'000},
+                candle{0, 10'100, 12'000, 8'500, 11'000},
+                candle{0, 10'900, 17'000, 9'900, 13'000},
+                candle{0, 12'000, 20'000, 11'500, 18'000},
+                candle{0, 17'500, 20'300, 13'500, 16'400},
+                candle{0, 17'000, 25'000, 15'500, 23'400},
         };
 
         std::array<candle, n_resampled> actual_resampled{
-                candle{boost::posix_time::ptime{}, 5'000, 15'000, 2'500, 11'000},
-                candle{boost::posix_time::ptime{}, 10'900, 20'000, 9'900, 18'000},
-                candle{boost::posix_time::ptime{}, 17'500, 25'000, 13'500, 23'400},
+                candle{0, 5'000, 15'000, 2'500, 11'000},
+                candle{0, 10'900, 20'000, 9'900, 18'000},
+                candle{0, 17'500, 25'000, 13'500, 23'400},
         };
 
         trading::resampler resampler{resampling_period};

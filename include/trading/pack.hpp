@@ -22,7 +22,7 @@ auto sum(Type... vals)
 }
 
 template<typename... Type>
-double mean(Type... vals)
+double mean(const Type&... vals)
 {
     return static_cast<double>(sum(vals...))/sizeof...(vals);
 }
