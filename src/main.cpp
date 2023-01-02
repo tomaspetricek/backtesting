@@ -12,13 +12,12 @@ auto create_trader(const bazooka::indicator_type& entry_ma,
         const std::array<fraction_t, n_levels>& open_fracs)
 {
     // create strategy
-    const indicator::sma& exit_ma{30};
-    bazooka::long_strategy strategy{entry_ma, exit_ma, levels};
+    bazooka::long_strategy strategy{entry_ma, entry_ma, levels};
 
     // create market
     fraction_t fee{0.1/100};   // 0.1 %
-    trading::wallet wallet{amount_t{10'000}};
-    trading::market market{wallet, fee, fee};
+    amount_t init_balance{10'000};
+    trading::market market{wallet{init_balance}, fee, fee};
 
     // create open sizer
     sizer open_sizer{open_fracs};
@@ -82,8 +81,7 @@ int main()
     auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+7};
 
     // read candles
-    std::time_t min_opened{1515024000};
-    std::time_t max_opened{1667066400};
+    std::time_t min_opened{1515024000}, max_opened{1667066400};
     std::vector<trading::candle> candles;
     auto duration = measure_duration(to_function([&] {
         return read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|', min_opened, max_opened);
@@ -93,7 +91,8 @@ int main()
               << "total_duration[s]: " << static_cast<double>(duration.count())*1e-9 << std::endl;
 
     std::chrono::minutes resampling_period{30};
-    trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period};
+    trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period,
+                                 candle::ohlc4};
     std::size_t it{0};
     amount_t max_profit{0.0}, curr_profit;
     duration = measure_duration(to_function([&] {
