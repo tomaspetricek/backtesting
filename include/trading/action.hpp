@@ -9,7 +9,8 @@ namespace trading {
     enum class action {
         none = 0,
         opened = 1,
-        closed = 2
+        closed = 2,
+        closed_all = 3
     };
 }
 

@@ -31,7 +31,7 @@ namespace trading::bazooka {
             }
             else if (Strategy::should_close_all(curr.data)) {
                 Manager::create_close_all_order(curr);
-                done = action::closed;
+                done = action::closed_all;
             }
             return done;
         }

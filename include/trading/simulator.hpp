@@ -65,7 +65,7 @@ namespace trading {
 
             for (std::size_t i{0}; i<close_points_.size(); i++) {
                 if (trader.equity(close_points_[i].data)>min_allowed_equity) {
-                    if (trader.trade(price_point{close_points_[i].time, close_points_[i].data})==action::closed) {
+                    if (trader.trade(price_point{close_points_[i].time, close_points_[i].data})==action::closed_all) {
                         stats.update_close_balance(trader.wallet_balance());
                         stats.update_profit(
                                 trader.closed_positions().back().template total_realized_profit<amount>());
