@@ -13,12 +13,24 @@
 BOOST_AUTO_TEST_SUITE(enumerative_result_test)
     BOOST_AUTO_TEST_CASE(usage_test)
     {
-        std::vector<int> states{12, 12, 12, 11, 11, 10, 9, 8, 7, 7, 5, 4, 3, 1, 1, 0, -1, -1};
+        std::size_t n_states{100};
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        int bound{static_cast<int>(n_states)/2};
+        std::uniform_int_distribution<> distrib(-bound, bound);
+        std::vector<int> states;
+        states.reserve(n_states);
+
+        for (std::size_t i{0}; i<n_states; i++)
+            states.emplace_back(distrib(gen));
+
         auto expect_res{states};
-        std::shuffle(states.begin(), states.end(), std::default_random_engine{std::random_device{}()});
+        using comp_type = std::greater<>;
+        std::sort(expect_res.begin(), expect_res.end(), comp_type{});
+        std::shuffle(states.begin(), states.end(), std::default_random_engine{rd()});
 
         for (std::size_t n_best{0}; n_best<states.size()+3; n_best++) {
-            enumerative_result<int, std::greater<>> res{n_best};
+            enumerative_result<int, comp_type> res{n_best};
 
             for (const auto& state: states)
                 res.update(state);
