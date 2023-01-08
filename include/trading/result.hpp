@@ -8,12 +8,20 @@
 #include <vector>
 
 namespace trading {
+    template<class State>
+    struct better {
+        bool operator()(const State& rhs, const State& lhs)
+        {
+            return rhs.is_better(lhs);
+        }
+    };
+
     // Tracks the n best states.
     // Internally, it uses a heap data structure to efficiently update the best states.
-    template<class State, class Comp>
+    template<class State, class StateComparator>
     class enumerative_result {
         static const std::size_t padding_{2};
-        static constexpr Comp comp_{};
+        static constexpr StateComparator comp_{};
         const std::size_t n_best_;
         std::vector<State> best_;
 
