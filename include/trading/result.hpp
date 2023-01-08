@@ -34,9 +34,13 @@ namespace trading {
 
         void update(const State& candidate)
         {
-            if (best_.size()<best_.capacity()) {
+            if (best_.size()<best_.capacity()-1) {
                 best_.emplace_back(candidate);
                 std::push_heap(best_.begin(), best_.end(), comp_);
+            }
+            else if (best_.size()==best_.capacity()-1) {
+                best_.emplace_back(candidate);
+                pop_heap(best_.begin(), best_.end(), comp_);
             }
             else {
                 best_.back() = candidate;

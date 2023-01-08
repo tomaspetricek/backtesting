@@ -15,3 +15,4 @@
 #include "trading/view/stats.hpp"
 #include "trading/fee_charger.hpp"
 #include "trading/generators.hpp"
+#include "trading/result.hpp"
