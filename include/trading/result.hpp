@@ -18,21 +18,24 @@ namespace trading {
 
     // Tracks the n best states.
     // Internally, it uses a heap data structure to efficiently update the best states.
-    template<class State, class StateComparator>
+    template<class Type, class Comparator>
     class enumerative_result {
         static const std::size_t padding_{2};
-        static constexpr StateComparator comp_{};
-        const std::size_t n_best_;
-        std::vector<State> best_;
+        const std::size_t n_best_{};
+        Comparator comp_;
+        std::vector<Type> best_;
 
     public:
-        explicit enumerative_result(const size_t n_best)
-                :n_best_(n_best)
+        explicit enumerative_result(const size_t n_best, const Comparator& comp)
+                :n_best_(n_best), comp_{comp}
         {
             best_.reserve(n_best_+padding_);
         }
 
-        void update(const State& candidate)
+        explicit enumerative_result(const size_t n_best)
+                :enumerative_result(n_best, Comparator{}) { }
+
+        void update(const Type& candidate)
         {
             if (best_.size()<best_.capacity()-1) {
                 best_.emplace_back(candidate);
@@ -48,9 +51,9 @@ namespace trading {
             }
         }
 
-        std::vector<State> get() const
+        std::vector<Type> get() const
         {
-            std::vector<State> res{best_};
+            std::vector<Type> res{best_};
             std::sort_heap(res.begin(), res.end(), comp_);
             int n_remove{static_cast<int>(res.size()-n_best_)};
             if (n_remove>0) res.erase(res.end()-n_remove, res.end());

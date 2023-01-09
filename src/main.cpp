@@ -7,12 +7,17 @@
 using namespace trading;
 
 template<std::size_t n_levels>
-auto create_trader(const bazooka::indicator_type& entry_ma,
-        const std::array<fraction_t, n_levels>& levels,
-        const std::array<fraction_t, n_levels>& open_fracs)
+struct config {
+    bazooka::indicator_type ma;
+    std::array<fraction_t, n_levels> levels;
+    std::array<fraction_t, n_levels> open_fracs;
+};
+
+template<std::size_t n_levels>
+auto create_trader(const config<n_levels>& config)
 {
     // create strategy
-    bazooka::long_strategy strategy{entry_ma, entry_ma, levels};
+    bazooka::long_strategy strategy{config.ma, config.ma, config.levels};
 
     // create market
     fraction_t fee{0.1/100};   // 0.1 %
@@ -20,7 +25,7 @@ auto create_trader(const bazooka::indicator_type& entry_ma,
     trading::market market{wallet{init_balance}, fee, fee};
 
     // create open sizer
-    sizer open_sizer{open_fracs};
+    sizer open_sizer{config.open_fracs};
 
     // create close sizer
     std::array close_fracs{fraction_t{1.0}};
@@ -73,12 +78,20 @@ void use_generator(Generator&& gen)
     std::cout << std::endl << "n iterations: " << it << std::endl;
 }
 
+struct higher_profit {
+//    template<class State>
+    bool operator()(const stats& rhs, const stats& lhs)
+    {
+        return rhs.net_profit()>lhs.net_profit();
+    }
+};
+
 int main()
 {
     set_up();
     const std::size_t n_levels{3};
-    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+6, 0.7};
-    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+7};
+    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+2, 0.7};
+    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+1};
 
     // read candles
     std::time_t min_opened{1515024000}, max_opened{1667066400};
@@ -90,32 +103,37 @@ int main()
               << "n candles: " << candles.size() << std::endl
               << "total_duration[s]: " << static_cast<double>(duration.count())*1e-9 << std::endl;
 
-    std::chrono::minutes resampling_period{30};
-    trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period,
-                                 candle::ohlc4};
-    std::size_t it{0};
-    amount_t max_profit{0.0}, curr_profit;
-    duration = measure_duration(to_function([&] {
+    // create search space
+    auto search_space = [&]() -> cppcoro::generator<config<n_levels>> {
         for (std::size_t entry_period: range<std::size_t>(5, 60, 5))
             for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}},
                                         bazooka::indicator_type{indicator::ema{entry_period}}})
                 for (const auto& levels: levels_gen())
-                    for (const auto open_sizes: sizes_gen()) {
-                        try {
-                            auto stats = simulator(entry_ma, levels, open_sizes);
-                            curr_profit = stats.total_profit();
-                            max_profit = std::max(curr_profit, max_profit);
-                            std::cout << "it: " << it++
-                                      << ", pt ratio: " << stats.pt_ratio()
-                                      << ", net profit: " << stats.net_profit()
-                                      << ", max profit: " << max_profit << std::endl;
-                        }
-                        catch (const std::exception& ex) {
-                            print_exception(ex);
-                        }
-                    }
+                    for (const auto open_sizes: sizes_gen())
+                        co_yield config<n_levels>{entry_ma, levels, open_sizes};
+    };
+
+    // create simulator
+    std::chrono::minutes resampling_period{30};
+    trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period,
+                                 candle::ohlc4};
+
+    trading::enumerative_result<trading::stats, higher_profit> result{10};
+    std::size_t it{0};
+    duration = measure_duration(to_function([&] {
+        for (const auto& config: search_space()) {
+            try {
+                std::cout << "it: " << it++ << std::endl;
+                result.update(simulator(config));
+            }
+            catch (const std::exception& ex) {
+                print_exception(ex);
+            }
+        }
     }));
-    std::cout << "total_duration[ns]: " << static_cast<double>(duration.count()) << std::endl
-              << "max profit: " << max_profit << std::endl;
+    for (const auto& top: result.get())
+        std::cout << top.net_profit() << std::endl;
+
+    std::cout << "total_duration[ns]: " << static_cast<double>(duration.count()) << std::endl;
     return EXIT_SUCCESS;
 }

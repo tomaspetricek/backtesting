@@ -13,27 +13,27 @@
 BOOST_AUTO_TEST_SUITE(enumerative_result_test)
     BOOST_AUTO_TEST_CASE(usage_test)
     {
-        std::size_t n_states{100};
+        std::size_t n_nums{100};
         std::random_device rd;
         std::mt19937 gen(rd());
-        int bound{static_cast<int>(n_states)/2};
+        int bound{static_cast<int>(n_nums)/2};
         std::uniform_int_distribution<> distrib(-bound, bound);
-        std::vector<int> states;
-        states.reserve(n_states);
+        std::vector<int> nums;
+        nums.reserve(n_nums);
 
-        for (std::size_t i{0}; i<n_states; i++)
-            states.emplace_back(distrib(gen));
+        for (std::size_t i{0}; i<n_nums; i++)
+            nums.emplace_back(distrib(gen));
 
-        auto expect_res{states};
+        auto expect_res{nums};
         using comp_type = std::greater<>;
         std::sort(expect_res.begin(), expect_res.end(), comp_type{});
-        std::shuffle(states.begin(), states.end(), std::default_random_engine{rd()});
+        std::shuffle(nums.begin(), nums.end(), std::default_random_engine{rd()});
 
-        for (std::size_t n_best{0}; n_best<states.size()+3; n_best++) {
+        for (std::size_t n_best{0}; n_best<nums.size()+3; n_best++) {
             enumerative_result<int, comp_type> res{n_best};
 
-            for (const auto& state: states)
-                res.update(state);
+            for (const auto& num: nums)
+                res.update(num);
 
             auto actual_res = res.get();
             BOOST_CHECK(std::equal(actual_res.begin(), actual_res.end(), expect_res.begin()));
