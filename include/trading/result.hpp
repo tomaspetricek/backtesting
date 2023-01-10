@@ -9,10 +9,6 @@
 #include <optional>
 
 namespace trading {
-
-}
-
-namespace trading {
     template<class Type, class Comparator>
     class constructive_result {
         std::optional<Type> best_;

@@ -90,8 +90,8 @@ int main()
 {
     set_up();
     const std::size_t n_levels{3};
-    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+2, 0.7};
-    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+1};
+    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+6, 0.7};
+    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+7};
 
     // read candles
     std::time_t min_opened{1515024000}, max_opened{1667066400};
@@ -114,32 +114,24 @@ int main()
     };
 
     // create simulator
-    std::chrono::minutes resampling_period{30};
+    std::chrono::minutes resampling_period{std::chrono::hours(1)};
     trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period,
                                  candle::ohlc4};
 
-    // use brute force
-    trading::constructive_result<trading::stats, higher_profit> result;
-//    trading::enumerative_result<trading::stats, higher_profit> result{10};
-    std::size_t it{0};
+    // create optimizer
+    trading::optimizer::parallel::brute_force<config<n_levels>>
+            optimize{simulator, search_space};
+
+    trading::enumerative_result<trading::stats, higher_profit> res{10};
     duration = measure_duration(to_function([&] {
-        for (const auto& config: search_space()) {
-            try {
-                std::cout << "it: " << it++ << std::endl;
-                result.update(simulator(config));
-            }
-            catch (const std::exception& ex) {
-                print_exception(ex);
-            }
-        }
+        optimize(res);
     }));
 
-    auto best = result.get();
-    std::cout << best->net_profit() << std::endl;
+    auto best = res.get();
 
     // show results
-//    for (const auto& top: best)
-//        std::cout << top.net_profit() << std::endl;
+    for (const auto& top: best)
+        std::cout << top.net_profit() << std::endl;
     std::cout << "total_duration[ns]: " << static_cast<double>(duration.count()) << std::endl;
     return EXIT_SUCCESS;
 }

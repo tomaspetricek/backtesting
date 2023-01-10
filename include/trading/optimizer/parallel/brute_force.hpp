@@ -5,45 +5,39 @@
 #ifndef EMASTRATEGY_OPTIMIZER_BRUTE_FORCE_HPP
 #define EMASTRATEGY_OPTIMIZER_BRUTE_FORCE_HPP
 
-#include "cppcoro/generator.hpp"
+#include <functional>
+#include <cppcoro/generator.hpp>
+#include <trading/stats.hpp>
 
 namespace trading::optimizer::parallel {
-    template<class ...Args>
+    template<class Config>
     class brute_force {
-        using config = std::tuple<Args...>;
-        std::function<void(Args...)> objective_func_;
-        std::function<cppcoro::generator<config>()> search_space_;
-
-        void make_call(const config& curr)
-        {
-            #pragma omp critical
-            {
-                print(curr);
-            }
-
-            try {
-                call(objective_func_, curr);
-            }
-            catch (...) {
-                std::throw_with_nested(std::runtime_error("Exception thrown while calling a function"));
-            }
-        }
+        std::function<trading::stats(Config)> objective_func_;
+        std::function<cppcoro::generator<Config>()> search_space_;
 
     public:
-        explicit brute_force(const std::function<void(Args...)>& func,
-                std::function<cppcoro::generator<config>()> search_space)
-                :objective_func_(std::move(func)), search_space_{search_space} { }
+        explicit brute_force(const std::function<trading::stats(Config)>& objective_func,
+                const std::function<cppcoro::generator<Config>()>& search_space)
+        :objective_func_(objective_func), search_space_{search_space} { }
 
-        void operator()()
+        template<class Result>
+        void operator()(Result& res)
         {
             #pragma omp parallel
             {
                 #pragma omp single
                 {
-                    for (const config& curr: search_space_()) {
+                    for (const Config& curr: search_space_()) {
                         #pragma omp task
                         {
-                            make_call(curr);
+                            try {
+                                auto stats = objective_func_(curr);
+                                #pragma omp critical
+                                res.update(stats);
+                            }
+                            catch (...) {
+                                std::throw_with_nested(std::runtime_error("Exception thrown while calling a function"));
+                            }
                         }
                     }
                 }

@@ -20,15 +20,15 @@
 #include <trading/data_point.hpp>
 
 namespace trading {
-    template<class Trader, typename ...Args>
+    template<class Trader, typename Config>
     class simulator {
-        std::function<Trader(Args...)> initializer_;
+        std::function<Trader(const Config&)> initializer_;
         std::vector<price_point> close_points_;
         std::vector<price_t> indic_prices_;
         std::size_t resampling_period_;
 
     public:
-        simulator(const std::function<Trader(Args...)>& initializer, std::vector<candle>&& candles,
+        simulator(const std::function<Trader(const Config&)>& initializer, std::vector<candle>&& candles,
                 const std::chrono::minutes& resampling_period, const std::function<price_t(candle)>& averager)
                 :initializer_(initializer), resampling_period_(resampling_period.count())
         {
@@ -45,13 +45,13 @@ namespace trading {
             }
         }
 
-        auto operator()(Args... args)
+        trading::stats operator()(const Config& config)
         {
             Trader trader;
 
             // create trader
             try {
-                trader = initializer_(args...);
+                trader = initializer_(config);
             }
             catch (...) {
                 std::throw_with_nested(std::runtime_error("Cannot create strategy"));
