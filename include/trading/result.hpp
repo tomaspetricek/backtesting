@@ -6,13 +6,36 @@
 #define BACKTESTING_RESULT_HPP
 
 #include <vector>
+#include <optional>
 
 namespace trading {
-    template<class State>
-    struct better {
-        bool operator()(const State& rhs, const State& lhs)
+
+}
+
+namespace trading {
+    template<class Type, class Comparator>
+    class constructive_result {
+        std::optional<Type> best_;
+        Comparator comp_;
+
+    public:
+        explicit constructive_result(const Comparator& comp)
+                :comp_{comp} { }
+
+        constructive_result() = default;
+
+        void update(const Type& candidate)
         {
-            return rhs.is_better(lhs);
+            if (best_.has_value())
+                if (comp_(*best_, candidate))
+                    return;
+
+            best_ = std::make_optional<Type>(candidate);
+        }
+
+        std::optional<Type> get() const
+        {
+            return best_;
         }
     };
 
@@ -27,13 +50,13 @@ namespace trading {
 
     public:
         explicit enumerative_result(const size_t n_best, const Comparator& comp)
-                :n_best_(n_best), comp_{comp}
+                :enumerative_result(n_best), comp_{comp} { }
+
+        explicit enumerative_result(const size_t n_best)
+                :n_best_{n_best}
         {
             best_.reserve(n_best_+padding_);
         }
-
-        explicit enumerative_result(const size_t n_best)
-                :enumerative_result(n_best, Comparator{}) { }
 
         void update(const Type& candidate)
         {
