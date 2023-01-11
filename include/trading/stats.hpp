@@ -226,7 +226,7 @@ namespace trading {
 
         double pt_ratio() const
         {
-            return net_profit()/max_close_balance_drawdown<amount>();
+            return net_profit()/-max_close_balance_drawdown<amount>();
         }
     };
 }
