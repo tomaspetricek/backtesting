@@ -1,0 +1,292 @@
+[
+    {
+        "close balance": {
+            "max": 62652.23046875,
+            "max drawdown": {
+                "amount": -2565.314453125,
+                "percent": -11.068861961364746
+            },
+            "max run up": {
+                "amount": 52652.23046875,
+                "percent": 526.5222778320313
+            },
+            "min": 10000.0
+        },
+        "equity": {
+            "max": 62562.90234375,
+            "max drawdown": {
+                "amount": -9048.494140625,
+                "percent": -38.1495246887207
+            },
+            "max run up": {
+                "amount": 52983.6640625,
+                "percent": 553.1094970703125
+            },
+            "min": 9579.236328125
+        },
+        "net profit": 52652.2265625,
+        "profit factor": 16.58642578125,
+        "pt ratio": -20.524667739868164
+    },
+    {
+        "close balance": {
+            "max": 62652.23046875,
+            "max drawdown": {
+                "amount": -2565.314453125,
+                "percent": -11.068861961364746
+            },
+            "max run up": {
+                "amount": 52652.23046875,
+                "percent": 526.5222778320313
+            },
+            "min": 10000.0
+        },
+        "equity": {
+            "max": 62562.90234375,
+            "max drawdown": {
+                "amount": -9048.494140625,
+                "percent": -38.1495246887207
+            },
+            "max run up": {
+                "amount": 52983.6640625,
+                "percent": 553.1094970703125
+            },
+            "min": 9579.236328125
+        },
+        "net profit": 52652.2265625,
+        "profit factor": 16.58642578125,
+        "pt ratio": -20.524667739868164
+    },
+    {
+        "close balance": {
+            "max": 59927.55859375,
+            "max drawdown": {
+                "amount": -2629.775390625,
+                "percent": -11.34699821472168
+            },
+            "max run up": {
+                "amount": 49927.55859375,
+                "percent": 499.2756042480469
+            },
+            "min": 10000.0
+        },
+        "equity": {
+            "max": 59842.1171875,
+            "max drawdown": {
+                "amount": -8124.021484375,
+                "percent": -21.88147735595703
+            },
+            "max run up": {
+                "amount": 50262.8828125,
+                "percent": 524.7066040039063
+            },
+            "min": 9579.236328125
+        },
+        "net profit": 49927.5625,
+        "profit factor": 15.51120662689209,
+        "pt ratio": -18.985485076904297
+    },
+    {
+        "close balance": {
+            "max": 58000.49609375,
+            "max drawdown": {
+                "amount": -2256.55859375,
+                "percent": -11.068861961364746
+            },
+            "max run up": {
+                "amount": 48000.49609375,
+                "percent": 480.00494384765625
+            },
+            "min": 10000.0
+        },
+        "equity": {
+            "max": 58679.9375,
+            "max drawdown": {
+                "amount": -8374.34375,
+                "percent": -23.307558059692383
+            },
+            "max run up": {
+                "amount": 49224.12890625,
+                "percent": 520.5703125
+            },
+            "min": 9455.80859375
+        },
+        "net profit": 48000.4921875,
+        "profit factor": 14.551797866821289,
+        "pt ratio": -21.271547317504883
+    },
+    {
+        "close balance": {
+            "max": 58000.49609375,
+            "max drawdown": {
+                "amount": -2256.55859375,
+                "percent": -11.068861961364746
+            },
+            "max run up": {
+                "amount": 48000.49609375,
+                "percent": 480.00494384765625
+            },
+            "min": 10000.0
+        },
+        "equity": {
+            "max": 58679.9375,
+            "max drawdown": {
+                "amount": -8374.34375,
+                "percent": -23.307558059692383
+            },
+            "max run up": {
+                "amount": 49224.12890625,
+                "percent": 520.5703125
+            },
+            "min": 9455.80859375
+        },
+        "net profit": 48000.4921875,
+        "profit factor": 14.551797866821289,
+        "pt ratio": -21.271547317504883
+    },
+    {
+        "close balance": {
+            "max": 56906.78125,
+            "max drawdown": {
+                "amount": -3320.80078125,
+                "percent": -14.395039558410645
+            },
+            "max run up": {
+                "amount": 46906.78125,
+                "percent": 469.06781005859375
+            },
+            "min": 10000.0
+        },
+        "equity": {
+            "max": 57081.0390625,
+            "max drawdown": {
+                "amount": -8340.806640625,
+                "percent": -35.92591857910156
+            },
+            "max run up": {
+                "amount": 47501.8046875,
+                "percent": 495.88299560546875
+            },
+            "min": 9579.236328125
+        },
+        "net profit": 46906.77734375,
+        "profit factor": 15.125140190124512,
+        "pt ratio": -14.125140190124512
+    },
+    {
+        "close balance": {
+            "max": 56906.78125,
+            "max drawdown": {
+                "amount": -3320.80078125,
+                "percent": -14.395039558410645
+            },
+            "max run up": {
+                "amount": 46906.78125,
+                "percent": 469.06781005859375
+            },
+            "min": 10000.0
+        },
+        "equity": {
+            "max": 57081.0390625,
+            "max drawdown": {
+                "amount": -8340.806640625,
+                "percent": -35.92591857910156
+            },
+            "max run up": {
+                "amount": 47501.8046875,
+                "percent": 495.88299560546875
+            },
+            "min": 9579.236328125
+        },
+        "net profit": 46906.77734375,
+        "profit factor": 15.125140190124512,
+        "pt ratio": -14.125140190124512
+    },
+    {
+        "close balance": {
+            "max": 55439.7421875,
+            "max drawdown": {
+                "amount": -2313.259765625,
+                "percent": -11.346992492675781
+            },
+            "max run up": {
+                "amount": 45439.7421875,
+                "percent": 454.39739990234375
+            },
+            "min": 10000.0
+        },
+        "equity": {
+            "max": 56089.1875,
+            "max drawdown": {
+                "amount": -7786.220703125,
+                "percent": -21.738677978515625
+            },
+            "max run up": {
+                "amount": 46633.37890625,
+                "percent": 493.1717834472656
+            },
+            "min": 9455.80859375
+        },
+        "net profit": 45439.73828125,
+        "profit factor": 13.635905265808105,
+        "pt ratio": -19.643163681030273
+    },
+    {
+        "close balance": {
+            "max": 54368.0859375,
+            "max drawdown": {
+                "amount": -3289.47265625,
+                "percent": -14.259238243103027
+            },
+            "max run up": {
+                "amount": 44368.0859375,
+                "percent": 443.68084716796875
+            },
+            "min": 10000.0
+        },
+        "equity": {
+            "max": 54534.57421875,
+            "max drawdown": {
+                "amount": -7858.177734375,
+                "percent": -21.993343353271484
+            },
+            "max run up": {
+                "amount": 44955.3359375,
+                "percent": 469.2997741699219
+            },
+            "min": 9579.236328125
+        },
+        "net profit": 44368.08203125,
+        "profit factor": 14.487900733947754,
+        "pt ratio": -13.487900733947754
+    },
+    {
+        "close balance": {
+            "max": 53839.19921875,
+            "max drawdown": {
+                "amount": -2525.37109375,
+                "percent": -11.959799766540527
+            },
+            "max run up": {
+                "amount": 43839.19921875,
+                "percent": 438.3919982910156
+            },
+            "min": 10000.0
+        },
+        "equity": {
+            "max": 54043.44921875,
+            "max drawdown": {
+                "amount": -7745.4609375,
+                "percent": -22.6112003326416
+            },
+            "max run up": {
+                "amount": 44663.59375,
+                "percent": 476.16497802734375
+            },
+            "min": 9379.857421875
+        },
+        "net profit": 43839.1953125,
+        "profit factor": 18.119644165039063,
+        "pt ratio": -17.359506607055664
+    }
+]

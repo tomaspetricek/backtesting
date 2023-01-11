@@ -3,7 +3,9 @@
 #include <limits>
 #include <trading.hpp>
 #include <fmt/format.h>
+#include <nlohmann/json.hpp>
 
+using json = nlohmann::json;
 using namespace trading;
 
 template<std::size_t n_levels>
@@ -90,8 +92,8 @@ int main()
 {
     set_up();
     const std::size_t n_levels{3};
-    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+6, 0.7};
-    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+7};
+    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+1, 0.7};
+    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+2};
 
     // read candles
     std::time_t min_opened{1515024000}, max_opened{1667066400};
@@ -128,10 +130,56 @@ int main()
     }));
 
     auto best = res.get();
+    json doc;
+    for (const auto& top: best) {
+        doc.emplace_back(
+                json{
+                        {"net profit",    top.net_profit()},
+                        {"pt ratio",      top.pt_ratio()},
+                        {"profit factor", top.profit_factor()},
+                        {"close balance",
+                                          {
+                                                  {"min", top.min_close_balance()},
+                                                  {"max", top.max_close_balance()},
+                                                  {"max drawdown",
+                                                          {
+                                                                  {"percent", top.max_close_balance_drawdown<percent>()},
+                                                                  {"amount", top.max_close_balance_drawdown<amount>()}
+                                                          }
+                                                  },
+                                                  {"max run up",
+                                                          {
+                                                                  {"percent", top.max_close_balance_run_up<percent>()},
+                                                                  {"amount", top.max_close_balance_run_up<amount>()}
+                                                          }
+                                                  }
+                                          }
+                        },
+                        {"equity",
+                                          {
+                                                  {"min", top.min_equity()},
+                                                  {"max", top.max_equity()},
+                                                  {"max drawdown",
+                                                          {
+                                                                  {"percent", top.max_equity_drawdown<percent>()},
+                                                                  {"amount", top.max_equity_drawdown<amount>()}
+                                                          }
+                                                  },
+                                                  {"max run up",
+                                                          {
+                                                                  {"percent", top.max_equity_run_up<percent>()},
+                                                                  {"amount", top.max_equity_run_up<amount>()}
+                                                          }
+                                                  }
+                                          }
+                        }
+                }
+        );
+    }
 
-    // show results
-    for (const auto& top: best)
-        std::cout << top.net_profit() << std::endl;
+    std::cout << std::setw(4) << doc << std::endl;
+    std::ofstream writer{"../../src/data/out/results.json"};
+    writer << std::setw(4) << doc;
     std::cout << "total_duration[ns]: " << static_cast<double>(duration.count()) << std::endl;
     return EXIT_SUCCESS;
 }
