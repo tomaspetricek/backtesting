@@ -13,7 +13,7 @@ template<std::size_t n_levels>
 struct configuration {
     bazooka::indicator_type ma;
     std::array<fraction_t, n_levels> levels;
-    std::array<fraction_t, n_levels> open_fracs;
+    std::array<fraction_t, n_levels> open_sizes;
 };
 
 template<std::size_t n_levels>
@@ -28,7 +28,7 @@ auto create_trader(const configuration<n_levels>& config)
     trading::market market{wallet{init_balance}, fee, fee};
 
     // create open sizer
-    sizer open_sizer{config.open_fracs};
+    sizer open_sizer{config.open_sizes};
 
     // create close sizer
     std::array close_fracs{fraction_t{1.0}};
@@ -81,16 +81,23 @@ void use_generator(Generator&& gen)
     std::cout << std::endl << "n iterations: " << it << std::endl;
 }
 
+std::size_t indicator_period(const bazooka::indicator_type& ma)
+{
+    return std::visit([](const auto& indic) {
+        return indic.period();
+    }, ma);
+}
+
+template<class Config>
 struct setting {
     std::function<bool(statistics)> restrictions;
-    std::function<bool(statistics, statistics)> optim_criteria;
+    std::function<bool(state<Config>, state<Config>)> optim_criteria;
     std::string label;
 };
 
 json to_json(const statistics& stats)
 {
-    return {
-            {"net profit",         stats.net_profit()},
+    return {{"net profit",         stats.net_profit()},
             {"pt ratio",           stats.pt_ratio()},
             {"profit factor",      stats.profit_factor()},
             {"gross profit",       stats.gross_profit()},
@@ -133,8 +140,33 @@ json to_json(const statistics& stats)
                                                    }
                                            }
                                    }
-            }
-    };
+            }};
+}
+
+std::string moving_average_type(const bazooka::indicator_type& indic)
+{
+    return indic.index() ? "ema" : "sma";
+}
+
+json to_json(const bazooka::indicator_type& indic)
+{
+    return {{"period", indicator_period(indic)},
+            {"type",   moving_average_type(indic)}};
+}
+
+template<std::size_t n_levels>
+json to_json(const configuration<n_levels>& config)
+{
+    return {{"levels",          config.levels},
+            {"open sizes",      config.open_sizes},
+            {"moving average:", to_json(config.ma)}};
+}
+
+template<class Config>
+json to_json(const state<Config>& state)
+{
+    return {{"configuration", to_json(state.config)},
+            {"statistics",    to_json(state.stats)}};
 }
 
 int main()
@@ -168,23 +200,24 @@ int main()
     std::chrono::minutes resampling_period{std::chrono::hours(1)};
     trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period,
                                  candle::ohlc4};
+    using state_type = state<configuration<n_levels>>;
 
-    std::vector<setting> settings{
-            {
-                    [](const statistics&) {
-                        return true;
-                    },
-                    [](const statistics& rhs, const statistics& lhs) {
-                        return rhs.net_profit()>lhs.net_profit();
-                    },
-                    "net-profit"
-            },
+    std::vector<setting<configuration<n_levels>>> settings{
+//            {
+//                    [](const statistics&) {
+//                        return true;
+//                    },
+//                    [](const state_type& rhs, const state_type& lhs) {
+//                        return rhs.stats.net_profit()>lhs.stats.net_profit();
+//                    },
+//                    "net-profit"
+//            },
             {
                     [](const statistics& stats) {
-                        return stats.max_close_balance_drawdown<amount>()>0.0;
+                        return stats.max_close_balance_drawdown<amount>()<0.0;
                     },
-                    [](const statistics& rhs, const statistics& lhs) {
-                        return rhs.pt_ratio()>lhs.pt_ratio();
+                    [](const state_type& rhs, const state_type& lhs) {
+                        return rhs.stats.pt_ratio()>lhs.stats.pt_ratio();
                     },
                     "pt-ratio"
             },
@@ -192,8 +225,8 @@ int main()
                     [](const statistics& stats) {
                         return stats.total_close_orders()>0;
                     },
-                    [](const statistics& rhs, const statistics& lhs) {
-                        return rhs.order_ratio()>lhs.order_ratio();
+                    [](const state_type& rhs, const state_type& lhs) {
+                        return rhs.stats.order_ratio()>lhs.stats.order_ratio();
                     },
                     "order-ratio"
             },
@@ -201,26 +234,36 @@ int main()
                     [](const statistics& stats) {
                         return stats.gross_loss()<0.0;
                     },
-                    [](const statistics& rhs, const statistics& lhs) {
-                        return rhs.profit_factor()>lhs.profit_factor();
+                    [](const state_type& rhs, const state_type& lhs) {
+                        return rhs.stats.profit_factor()>lhs.stats.profit_factor();
                     },
                     "profit-factor"
             }
-
     };
 
     std::filesystem::path out_dir{"../../src/data/out"};
     for (const auto& set: settings) {
         trading::optimizer::parallel::brute_force<configuration<n_levels>> optimize{simulator, search_space};
-        trading::enumerative_result<trading::statistics> res{10, set.optim_criteria};
+        trading::enumerative_result<state_type> res{10, set.optim_criteria};
 
         duration = measure_duration(to_function([&] {
             optimize(res, set.restrictions);
         }));
 
-        json doc;
+        json results;
         for (const auto& top: res.get())
-            doc.emplace_back(to_json(top));
+            results.emplace_back(to_json(top));
+
+        json doc{
+                {"interval[min]", resampling_period.count()},
+                {"pair",
+                                  {
+                                          {"base", "ETH"},
+                                          {"quote", "USDT"}
+                                  }
+                },
+                {"results",       results}
+        };
 
         std::string filename{fmt::format("{}-results.json", set.label)};
         std::ofstream writer{out_dir/filename};

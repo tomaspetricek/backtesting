@@ -8,6 +8,7 @@
 #include <functional>
 #include <cppcoro/generator.hpp>
 #include <trading/statistics.hpp>
+#include <trading/state.hpp>
 
 namespace trading::optimizer::parallel {
     template<class Config>
@@ -34,7 +35,7 @@ namespace trading::optimizer::parallel {
                                 auto stats = objective_func_(curr);
                                 if (restrict(stats)) {
                                     #pragma omp critical
-                                    res.update(stats);
+                                    res.update(trading::state<Config>{curr, stats});
                                 }
                             }
                             catch (...) {

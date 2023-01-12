@@ -10,7 +10,6 @@
 namespace trading {
     typedef float price_t, percent_t, fraction_t, amount_t;
     typedef std::size_t index_t;
-
     using percent = struct percent_tag;
     using amount = struct amount_tag;
 }

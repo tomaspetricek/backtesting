@@ -44,6 +44,7 @@
 #include <trading/tuple.hpp>
 #include <trading/utils.hpp>
 #include <trading/sizer.hpp>
+#include <trading/state.hpp>
 #include <cppcoro/generator.hpp>
 #include <cppcoro/recursive_generator.hpp>
 
