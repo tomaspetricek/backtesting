@@ -7,21 +7,21 @@
 
 #include <functional>
 #include <cppcoro/generator.hpp>
-#include <trading/stats.hpp>
+#include <trading/statistics.hpp>
 
 namespace trading::optimizer::parallel {
     template<class Config>
     class brute_force {
-        std::function<trading::stats(Config)> objective_func_;
+        std::function<trading::statistics(Config)> objective_func_;
         std::function<cppcoro::generator<Config>()> search_space_;
 
     public:
-        explicit brute_force(const std::function<trading::stats(Config)>& objective_func,
+        explicit brute_force(const std::function<trading::statistics(Config)>& objective_func,
                 const std::function<cppcoro::generator<Config>()>& search_space)
-        :objective_func_(objective_func), search_space_{search_space} { }
+                :objective_func_(objective_func), search_space_{search_space} { }
 
-        template<class Result>
-        void operator()(Result& res)
+        template<class Restriction, class Result>
+        void operator()(Result& res, const Restriction& restrict)
         {
             #pragma omp parallel
             {
@@ -32,8 +32,10 @@ namespace trading::optimizer::parallel {
                         {
                             try {
                                 auto stats = objective_func_(curr);
-                                #pragma omp critical
-                                res.update(stats);
+                                if (restrict(stats)) {
+                                    #pragma omp critical
+                                    res.update(stats);
+                                }
                             }
                             catch (...) {
                                 std::throw_with_nested(std::runtime_error("Exception thrown while calling a function"));

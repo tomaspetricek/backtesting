@@ -15,7 +15,7 @@
 #include <trading/candle.hpp>
 #include <trading/motion_tracker.hpp>
 #include <trading/resampler.hpp>
-#include <trading/stats.hpp>
+#include <trading/statistics.hpp>
 #include <trading/action.hpp>
 #include <trading/data_point.hpp>
 
@@ -45,7 +45,7 @@ namespace trading {
             }
         }
 
-        trading::stats operator()(const Config& config)
+        trading::statistics operator()(const Config& config)
         {
             Trader trader;
 
@@ -60,7 +60,7 @@ namespace trading {
             // trade
             auto begin = std::chrono::high_resolution_clock::now();
             amount_t min_allowed_equity{100};
-            trading::stats stats{trader.wallet_balance()};
+            trading::statistics stats{trader.wallet_balance()};
             auto indic_prices_it = indic_prices_.begin();
 
             for (std::size_t i{0}; i<close_points_.size(); i++) {

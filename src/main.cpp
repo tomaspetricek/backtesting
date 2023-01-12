@@ -1,6 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <limits>
+#include <filesystem>
 #include <trading.hpp>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
@@ -9,14 +10,14 @@ using json = nlohmann::json;
 using namespace trading;
 
 template<std::size_t n_levels>
-struct config {
+struct configuration {
     bazooka::indicator_type ma;
     std::array<fraction_t, n_levels> levels;
     std::array<fraction_t, n_levels> open_fracs;
 };
 
 template<std::size_t n_levels>
-auto create_trader(const config<n_levels>& config)
+auto create_trader(const configuration<n_levels>& config)
 {
     // create strategy
     bazooka::long_strategy strategy{config.ma, config.ma, config.levels};
@@ -80,20 +81,68 @@ void use_generator(Generator&& gen)
     std::cout << std::endl << "n iterations: " << it << std::endl;
 }
 
-struct higher_profit {
-//    template<class State>
-    bool operator()(const stats& rhs, const stats& lhs)
-    {
-        return rhs.net_profit()>lhs.net_profit();
-    }
+struct setting {
+    std::function<bool(statistics)> restrictions;
+    std::function<bool(statistics, statistics)> optim_criteria;
+    std::string label;
 };
+
+json to_json(const statistics& stats)
+{
+    return {
+            {"net profit",         stats.net_profit()},
+            {"pt ratio",           stats.pt_ratio()},
+            {"profit factor",      stats.profit_factor()},
+            {"gross profit",       stats.gross_profit()},
+            {"gross loss",         stats.gross_loss()},
+            {"order ratio",        stats.order_ratio()},
+            {"total open orders",  stats.total_open_orders()},
+            {"total close orders", stats.total_close_orders()},
+            {"close balance",
+                                   {
+                                           {"min", stats.min_close_balance()},
+                                           {"max", stats.max_close_balance()},
+                                           {"max drawdown",
+                                                   {
+                                                           {"percent", stats.max_close_balance_drawdown<percent>()},
+                                                           {"amount", stats.max_close_balance_drawdown<amount>()}
+                                                   }
+                                           },
+                                           {"max run up",
+                                                   {
+                                                           {"percent", stats.max_close_balance_run_up<percent>()},
+                                                           {"amount", stats.max_close_balance_run_up<amount>()}
+                                                   }
+                                           }
+                                   }
+            },
+            {"equity",
+                                   {
+                                           {"min", stats.min_equity()},
+                                           {"max", stats.max_equity()},
+                                           {"max drawdown",
+                                                   {
+                                                           {"percent", stats.max_equity_drawdown<percent>()},
+                                                           {"amount", stats.max_equity_drawdown<amount>()}
+                                                   }
+                                           },
+                                           {"max run up",
+                                                   {
+                                                           {"percent", stats.max_equity_run_up<percent>()},
+                                                           {"amount", stats.max_equity_run_up<amount>()}
+                                                   }
+                                           }
+                                   }
+            }
+    };
+}
 
 int main()
 {
     set_up();
     const std::size_t n_levels{3};
-    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+1, 0.7};
-    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+2};
+    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+6, 0.7};
+    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+7};
 
     // read candles
     std::time_t min_opened{1515024000}, max_opened{1667066400};
@@ -106,13 +155,13 @@ int main()
               << "total_duration[s]: " << static_cast<double>(duration.count())*1e-9 << std::endl;
 
     // create search space
-    auto search_space = [&]() -> cppcoro::generator<config<n_levels>> {
+    auto search_space = [&]() -> cppcoro::generator<configuration<n_levels>> {
         for (std::size_t entry_period: range<std::size_t>(5, 60, 5))
             for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}},
                                         bazooka::indicator_type{indicator::ema{entry_period}}})
                 for (const auto& levels: levels_gen())
                     for (const auto open_sizes: sizes_gen())
-                        co_yield config<n_levels>{entry_ma, levels, open_sizes};
+                        co_yield configuration<n_levels>{entry_ma, levels, open_sizes};
     };
 
     // create simulator
@@ -120,66 +169,64 @@ int main()
     trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period,
                                  candle::ohlc4};
 
-    // create optimizer
-    trading::optimizer::parallel::brute_force<config<n_levels>>
-            optimize{simulator, search_space};
+    std::vector<setting> settings{
+            {
+                    [](const statistics&) {
+                        return true;
+                    },
+                    [](const statistics& rhs, const statistics& lhs) {
+                        return rhs.net_profit()>lhs.net_profit();
+                    },
+                    "net-profit"
+            },
+            {
+                    [](const statistics& stats) {
+                        return stats.max_close_balance_drawdown<amount>()>0.0;
+                    },
+                    [](const statistics& rhs, const statistics& lhs) {
+                        return rhs.pt_ratio()>lhs.pt_ratio();
+                    },
+                    "pt-ratio"
+            },
+            {
+                    [](const statistics& stats) {
+                        return stats.total_close_orders()>0;
+                    },
+                    [](const statistics& rhs, const statistics& lhs) {
+                        return rhs.order_ratio()>lhs.order_ratio();
+                    },
+                    "order-ratio"
+            },
+            {
+                    [](const statistics& stats) {
+                        return stats.gross_loss()<0.0;
+                    },
+                    [](const statistics& rhs, const statistics& lhs) {
+                        return rhs.profit_factor()>lhs.profit_factor();
+                    },
+                    "profit-factor"
+            }
 
-    trading::enumerative_result<trading::stats, higher_profit> res{10};
-    duration = measure_duration(to_function([&] {
-        optimize(res);
-    }));
+    };
 
-    auto best = res.get();
-    json doc;
-    for (const auto& top: best) {
-        doc.emplace_back(
-                json{
-                        {"net profit",    top.net_profit()},
-                        {"pt ratio",      top.pt_ratio()},
-                        {"profit factor", top.profit_factor()},
-                        {"close balance",
-                                          {
-                                                  {"min", top.min_close_balance()},
-                                                  {"max", top.max_close_balance()},
-                                                  {"max drawdown",
-                                                          {
-                                                                  {"percent", top.max_close_balance_drawdown<percent>()},
-                                                                  {"amount", top.max_close_balance_drawdown<amount>()}
-                                                          }
-                                                  },
-                                                  {"max run up",
-                                                          {
-                                                                  {"percent", top.max_close_balance_run_up<percent>()},
-                                                                  {"amount", top.max_close_balance_run_up<amount>()}
-                                                          }
-                                                  }
-                                          }
-                        },
-                        {"equity",
-                                          {
-                                                  {"min", top.min_equity()},
-                                                  {"max", top.max_equity()},
-                                                  {"max drawdown",
-                                                          {
-                                                                  {"percent", top.max_equity_drawdown<percent>()},
-                                                                  {"amount", top.max_equity_drawdown<amount>()}
-                                                          }
-                                                  },
-                                                  {"max run up",
-                                                          {
-                                                                  {"percent", top.max_equity_run_up<percent>()},
-                                                                  {"amount", top.max_equity_run_up<amount>()}
-                                                          }
-                                                  }
-                                          }
-                        }
-                }
-        );
+    std::filesystem::path out_dir{"../../src/data/out"};
+    for (const auto& set: settings) {
+        trading::optimizer::parallel::brute_force<configuration<n_levels>> optimize{simulator, search_space};
+        trading::enumerative_result<trading::statistics> res{10, set.optim_criteria};
+
+        duration = measure_duration(to_function([&] {
+            optimize(res, set.restrictions);
+        }));
+
+        json doc;
+        for (const auto& top: res.get())
+            doc.emplace_back(to_json(top));
+
+        std::string filename{fmt::format("{}-results.json", set.label)};
+        std::ofstream writer{out_dir/filename};
+        writer << std::setw(4) << doc;
+        std::cout << "total_duration[ns]: " << static_cast<double>(duration.count()) << std::endl;
     }
 
-    std::cout << std::setw(4) << doc << std::endl;
-    std::ofstream writer{"../../src/data/out/results.json"};
-    writer << std::setw(4) << doc;
-    std::cout << "total_duration[ns]: " << static_cast<double>(duration.count()) << std::endl;
     return EXIT_SUCCESS;
 }

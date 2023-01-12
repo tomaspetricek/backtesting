@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE(enumerative_result_test)
         std::shuffle(nums.begin(), nums.end(), std::default_random_engine{rd()});
 
         for (std::size_t n_best{0}; n_best<nums.size()+3; n_best++) {
-            enumerative_result<int, comp_type> res{n_best};
+            enumerative_result<int> res{n_best, comp_type{}};
 
             for (const auto& num: nums)
                 res.update(num);

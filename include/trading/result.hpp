@@ -7,15 +7,17 @@
 
 #include <vector>
 #include <optional>
+#include <functional>
 
 namespace trading {
-    template<class Type, class Comparator>
+    template<class Type>
     class constructive_result {
         std::optional<Type> best_;
-        Comparator comp_;
+        using comparator_type = std::function<bool(Type, Type)>;
+        comparator_type comp_;
 
     public:
-        explicit constructive_result(const Comparator& comp)
+        explicit constructive_result(const comparator_type& comp)
                 :comp_{comp} { }
 
         constructive_result() = default;
@@ -37,19 +39,17 @@ namespace trading {
 
     // Tracks the n best states.
     // Internally, it uses a heap data structure to efficiently update the best states.
-    template<class Type, class Comparator>
+    template<class Type>
     class enumerative_result {
         static const std::size_t padding_{2};
         const std::size_t n_best_{};
-        Comparator comp_;
+        using comparator_type = std::function<bool(Type, Type)>;
+        comparator_type comp_;
         std::vector<Type> best_;
 
     public:
-        explicit enumerative_result(const size_t n_best, const Comparator& comp)
-                :enumerative_result(n_best), comp_{comp} { }
-
-        explicit enumerative_result(const size_t n_best)
-                :n_best_{n_best}
+        explicit enumerative_result(const size_t n_best, const comparator_type& comp)
+                :n_best_(n_best), comp_{comp}
         {
             best_.reserve(n_best_+padding_);
         }

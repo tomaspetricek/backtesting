@@ -2,22 +2,22 @@
 // Created by Tomáš Petříček on 25.12.2022.
 //
 
-#ifndef BACKTESTING_STATS_HPP
-#define BACKTESTING_STATS_HPP
+#ifndef BACKTESTING_STATISTICS_HPP
+#define BACKTESTING_STATISTICS_HPP
 
 #include <array>
 #include <trading/types.hpp>
 #include <trading/motion_tracker.hpp>
 
 namespace trading {
-    class motion_stats {
+    class motion_statistics {
         amount_t min_;
         amount_t max_;
         drawdown_tracker drawdown_;
         run_up_tracker run_up_;
 
     public:
-        explicit motion_stats(amount_t init)
+        explicit motion_statistics(amount_t init)
                 :min_(init), max_(init), drawdown_(init), run_up_(init) { }
 
         void update(const amount_t& curr)
@@ -86,19 +86,20 @@ namespace trading {
         }
     };
 
-    class stats {
+    class statistics {
         amount_t init_balance_;
         amount_t final_balance_;
-        motion_stats close_balance_;
-        motion_stats equity_;
+        motion_statistics close_balance_;
+        motion_statistics equity_;
         profit_stats profit_;
         std::chrono::nanoseconds total_duration_{0};
         std::size_t total_open_orders_{0};
         std::size_t total_close_orders_{0};
 
     public:
-        explicit stats(amount_t init_balance)
-                :init_balance_{init_balance}, close_balance_{init_balance}, equity_{init_balance} { }
+        explicit statistics(amount_t init_balance)
+                :init_balance_{init_balance}, final_balance_{init_balance}, close_balance_{init_balance},
+                 equity_{init_balance} { }
 
         void update_equity(amount_t curr_equity)
         {
@@ -228,7 +229,12 @@ namespace trading {
         {
             return net_profit()/-max_close_balance_drawdown<amount>();
         }
+
+        double order_ratio() const
+        {
+            return static_cast<double>(total_open_orders_)/total_close_orders_;
+        }
     };
 }
 
-#endif //BACKTESTING_STATS_HPP
+#endif //BACKTESTING_STATISTICS_HPP
