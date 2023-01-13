@@ -173,8 +173,8 @@ int main()
 {
     set_up();
     const std::size_t n_levels{4};
-    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+6, 0.7};
-    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+7};
+    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+5, 0.5};
+    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+6};
 
     // read candles
     std::time_t min_opened{1515024000}, max_opened{1667066400};
@@ -188,13 +188,18 @@ int main()
 
     // create search space
     auto search_space = [&]() -> cppcoro::generator<configuration<n_levels>> {
-        for (std::size_t entry_period: range<std::size_t>(5, 35, 2))
+        for (std::size_t entry_period: range<std::size_t>(5, 65, 5))
             for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}},
                                         bazooka::indicator_type{indicator::ema{entry_period}}})
                 for (const auto& levels: levels_gen())
                     for (const auto open_sizes: sizes_gen())
                         co_yield configuration<n_levels>{entry_ma, levels, open_sizes};
     };
+
+//    std::size_t it{0};
+//    for (const auto& curr : search_space()) it++;
+//    std::cout << "it: " << it << std::endl;
+//    std::terminate();
 
     // create simulator
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
