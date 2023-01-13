@@ -172,7 +172,7 @@ json to_json(const state<Config>& state)
 int main()
 {
     set_up();
-    const std::size_t n_levels{3};
+    const std::size_t n_levels{4};
     auto levels_gen = systematic::levels_generator<n_levels>{n_levels+6, 0.7};
     auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+7};
 
@@ -184,11 +184,11 @@ int main()
     }), candles);
     std::cout << "read:" << std::endl
               << "n candles: " << candles.size() << std::endl
-              << "total_duration[s]: " << static_cast<double>(duration.count())*1e-9 << std::endl;
+              << "total_duration[s]: " << duration << std::endl;
 
     // create search space
     auto search_space = [&]() -> cppcoro::generator<configuration<n_levels>> {
-        for (std::size_t entry_period: range<std::size_t>(5, 60, 5))
+        for (std::size_t entry_period: range<std::size_t>(5, 35, 2))
             for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}},
                                         bazooka::indicator_type{indicator::ema{entry_period}}})
                 for (const auto& levels: levels_gen())
@@ -197,54 +197,54 @@ int main()
     };
 
     // create simulator
-    std::chrono::minutes resampling_period{std::chrono::hours(1)};
+    std::chrono::minutes resampling_period{std::chrono::minutes(30)};
     trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period,
                                  candle::ohlc4};
     using state_type = state<configuration<n_levels>>;
 
     std::vector<setting<configuration<n_levels>>> settings{
+            {
+                    [](const statistics&) {
+                        return true;
+                    },
+                    [](const state_type& rhs, const state_type& lhs) {
+                        return rhs.stats.net_profit()>lhs.stats.net_profit();
+                    },
+                    "net-profit"
+            },
 //            {
-//                    [](const statistics&) {
-//                        return true;
+//                    [](const statistics& stats) {
+//                        return stats.max_close_balance_drawdown<amount>()<0.0;
 //                    },
 //                    [](const state_type& rhs, const state_type& lhs) {
-//                        return rhs.stats.net_profit()>lhs.stats.net_profit();
+//                        return rhs.stats.pt_ratio()>lhs.stats.pt_ratio();
 //                    },
-//                    "net-profit"
+//                    "pt-ratio"
 //            },
-            {
-                    [](const statistics& stats) {
-                        return stats.max_close_balance_drawdown<amount>()<0.0;
-                    },
-                    [](const state_type& rhs, const state_type& lhs) {
-                        return rhs.stats.pt_ratio()>lhs.stats.pt_ratio();
-                    },
-                    "pt-ratio"
-            },
-            {
-                    [](const statistics& stats) {
-                        return stats.total_close_orders()>0;
-                    },
-                    [](const state_type& rhs, const state_type& lhs) {
-                        return rhs.stats.order_ratio()>lhs.stats.order_ratio();
-                    },
-                    "order-ratio"
-            },
-            {
-                    [](const statistics& stats) {
-                        return stats.gross_loss()<0.0;
-                    },
-                    [](const state_type& rhs, const state_type& lhs) {
-                        return rhs.stats.profit_factor()>lhs.stats.profit_factor();
-                    },
-                    "profit-factor"
-            }
+//            {
+//                    [](const statistics& stats) {
+//                        return stats.total_close_orders()>0;
+//                    },
+//                    [](const state_type& rhs, const state_type& lhs) {
+//                        return rhs.stats.order_ratio()>lhs.stats.order_ratio();
+//                    },
+//                    "order-ratio"
+//            },
+//            {
+//                    [](const statistics& stats) {
+//                        return stats.gross_loss()<0.0;
+//                    },
+//                    [](const state_type& rhs, const state_type& lhs) {
+//                        return rhs.stats.profit_factor()>lhs.stats.profit_factor();
+//                    },
+//                    "profit-factor"
+//            }
     };
 
     std::filesystem::path out_dir{"../../src/data/out"};
     for (const auto& set: settings) {
         trading::optimizer::parallel::brute_force<configuration<n_levels>> optimize{simulator, search_space};
-        trading::enumerative_result<state_type> res{10, set.optim_criteria};
+        trading::enumerative_result<state_type> res{30, set.optim_criteria};
 
         duration = measure_duration(to_function([&] {
             optimize(res, set.restrictions);
@@ -262,13 +262,14 @@ int main()
                                           {"quote", "USDT"}
                                   }
                 },
+                {"duration[ns]", duration.count()},
                 {"results",       results}
         };
 
         std::string filename{fmt::format("{}-results.json", set.label)};
         std::ofstream writer{out_dir/filename};
         writer << std::setw(4) << doc;
-        std::cout << "total_duration[ns]: " << static_cast<double>(duration.count()) << std::endl;
+        std::cout << "total duration: " << duration << std::endl;
     }
 
     return EXIT_SUCCESS;
