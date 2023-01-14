@@ -97,7 +97,7 @@ namespace trading::systematic {
 
         std::size_t validate_n_unique_fracs(std::size_t n_unique_fracs)
         {
-            if (n_unique_fracs==0)
+            if (!n_unique_fracs)
                 throw std::invalid_argument{"The number of unique fractions has to be greater than zero"};
             return n_unique_fracs;
         }

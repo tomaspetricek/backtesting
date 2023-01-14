@@ -5,6 +5,7 @@
 #include <trading.hpp>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 using json = nlohmann::json;
 using namespace trading;
@@ -173,7 +174,7 @@ int main()
 {
     set_up();
     const std::size_t n_levels{4};
-    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+5, 0.5};
+    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+6, 0.4};
     auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+6};
 
     // read candles
@@ -182,13 +183,20 @@ int main()
     auto duration = measure_duration(to_function([&] {
         return read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|', min_opened, max_opened);
     }), candles);
-    std::cout << "read:" << std::endl
-              << "n candles: " << candles.size() << std::endl
-              << "total_duration[s]: " << duration << std::endl;
+
+    auto from = boost::posix_time::from_time_t(min_opened);
+    auto to = boost::posix_time::from_time_t(max_opened);
+    std::size_t n_candles{candles.size()};
+    std::cout << "candles read:" << std::endl
+              << "from: " << from << std::endl
+              << "to: " << to << std::endl
+              << "difference: " << std::chrono::nanoseconds((to-from).total_nanoseconds()) << std::endl
+              << "count: " << n_candles << std::endl
+              << "duration: " << duration << std::endl;
 
     // create search space
     auto search_space = [&]() -> cppcoro::generator<configuration<n_levels>> {
-        for (std::size_t entry_period: range<std::size_t>(5, 65, 5))
+        for (std::size_t entry_period: range<std::size_t>(5, 21, 2))
             for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}},
                                         bazooka::indicator_type{indicator::ema{entry_period}}})
                 for (const auto& levels: levels_gen())
@@ -196,16 +204,17 @@ int main()
                         co_yield configuration<n_levels>{entry_ma, levels, open_sizes};
     };
 
-//    std::size_t it{0};
-//    for (const auto& curr : search_space()) it++;
-//    std::cout << "it: " << it << std::endl;
-//    std::terminate();
-
     // create simulator
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
     trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period,
                                  candle::ohlc4};
     using state_type = state<configuration<n_levels>>;
+
+    std::size_t n_states{0};
+    for (const auto& curr: search_space()) n_states++;
+
+    std::cout << "search space:" << std::endl
+              << "n states: " << n_states << std::endl;
 
     std::vector<setting<configuration<n_levels>>> settings{
             {
@@ -260,15 +269,23 @@ int main()
             results.emplace_back(to_json(top));
 
         json doc{
-                {"interval[min]", resampling_period.count()},
-                {"pair",
-                                  {
-                                          {"base", "ETH"},
-                                          {"quote", "USDT"}
-                                  }
+                {"setting",
+                                      {
+                                              {"candles",
+                                                      {
+                                                              {"from", to_time_t(from)},
+                                                              {"to", to_time_t(to)},
+                                                              {"count", n_candles},
+                                                              {"pair", "ETH/USDT"},
+                                                      }
+                                              },
+                                              {"optimization criteria", set.label},
+                                              {"resampling period[min]", resampling_period.count()},
+                                      }
                 },
-                {"duration[ns]", duration.count()},
-                {"results",       results}
+                {"duration[ns]",      duration.count()},
+                {"searched states", n_states},
+                {"results",           results}
         };
 
         std::string filename{fmt::format("{}-results.json", set.label)};
