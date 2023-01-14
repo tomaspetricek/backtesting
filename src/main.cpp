@@ -174,8 +174,8 @@ int main()
 {
     set_up();
     const std::size_t n_levels{4};
-    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+6, 0.4};
-    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+6};
+    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+5, 0.7};
+    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+5};
 
     // read candles
     std::time_t min_opened{1515024000}, max_opened{1667066400};
@@ -196,9 +196,9 @@ int main()
 
     // create search space
     auto search_space = [&]() -> cppcoro::generator<configuration<n_levels>> {
-        for (std::size_t entry_period: range<std::size_t>(5, 21, 2))
-            for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}},
-                                        bazooka::indicator_type{indicator::ema{entry_period}}})
+        for (std::size_t entry_period: range<std::size_t>(5, 35, 2))
+            for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}}})
+//                                        bazooka::indicator_type{indicator::ema{entry_period}}})
                 for (const auto& levels: levels_gen())
                     for (const auto open_sizes: sizes_gen())
                         co_yield configuration<n_levels>{entry_ma, levels, open_sizes};
@@ -270,22 +270,22 @@ int main()
 
         json doc{
                 {"setting",
-                                      {
-                                              {"candles",
-                                                      {
-                                                              {"from", to_time_t(from)},
-                                                              {"to", to_time_t(to)},
-                                                              {"count", n_candles},
-                                                              {"pair", "ETH/USDT"},
-                                                      }
-                                              },
-                                              {"optimization criteria", set.label},
-                                              {"resampling period[min]", resampling_period.count()},
-                                      }
+                                    {
+                                            {"candles",
+                                                    {
+                                                            {"from", to_time_t(from)},
+                                                            {"to", to_time_t(to)},
+                                                            {"count", n_candles},
+                                                            {"pair", "ETH/USDT"},
+                                                    }
+                                            },
+                                            {"optimization criteria", set.label},
+                                            {"resampling period[min]", resampling_period.count()},
+                                    }
                 },
-                {"duration[ns]",      duration.count()},
+                {"duration[ns]",    duration.count()},
                 {"searched states", n_states},
-                {"results",           results}
+                {"results",         results}
         };
 
         std::string filename{fmt::format("{}-results.json", set.label)};
