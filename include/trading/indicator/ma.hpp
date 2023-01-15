@@ -27,6 +27,11 @@ namespace trading::indicator {
         {
             return period_;
         }
+
+        void set_period(size_t period)
+        {
+            period_ = period;
+        }
     };
 }
 

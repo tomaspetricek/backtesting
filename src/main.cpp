@@ -124,7 +124,7 @@ json to_json(const statistics& stats)
                                            {"max drawdown", {
                                                                     {"percent", stats.max_equity_drawdown<percent>()},
                                                                     {"amount", stats.max_equity_drawdown<amount>()}
-                                                            } },
+                                                            }},
                                            {"max run up", {
                                                                   {"percent", stats.max_equity_run_up<percent>()},
                                                                   {"amount", stats.max_equity_run_up<amount>()}
@@ -162,9 +162,9 @@ int main()
 {
     set_up();
     const std::size_t n_levels{4};
-    std::size_t levels_unique_fracs{n_levels+2};
+    std::size_t levels_unique_fracs{n_levels+5};
     fraction_t levels_max_frac{0.7};
-    std::size_t open_sizes_unique_fracs{n_levels+2};
+    std::size_t open_sizes_unique_fracs{n_levels+5};
     auto levels_gen = systematic::levels_generator<n_levels>{levels_unique_fracs, levels_max_frac};
     auto sizes_gen = systematic::sizes_generator<n_levels>{open_sizes_unique_fracs};
 
@@ -189,8 +189,8 @@ int main()
     auto mov_avg_periods = range<std::size_t>(5, 35, 2);
     auto search_space = [&]() -> cppcoro::generator<configuration<n_levels>> {
         for (std::size_t entry_period: mov_avg_periods)
-            for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}}})
-//                                        bazooka::indicator_type{indicator::ema{entry_period}}})
+            for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}},
+                                        bazooka::indicator_type{indicator::ema{entry_period}}})
                 for (const auto& levels: levels_gen())
                     for (const auto open_sizes: sizes_gen())
                         co_yield configuration<n_levels>{entry_ma, levels, open_sizes};
@@ -204,14 +204,20 @@ int main()
 
     std::size_t n_states{0};
     for (const auto& curr: search_space()) n_states++;
-
     std::cout << "search space:" << std::endl
               << "n states: " << n_states << std::endl;
 
+    std::cerr << "Proceed to testing? y/n" << std::endl;
+    char answer;
+    std::cin >> answer;
+    if (answer!='y') return EXIT_SUCCESS;
+
+    std::cout << "began testing: " << boost::posix_time::second_clock::local_time() << std::endl;
+
     std::vector<setting<configuration<n_levels>>> settings{
             {
-                    [](const statistics&) {
-                        return true;
+                    [](const statistics& stats) {
+                        return stats.profit_factor()>20.0;
                     },
                     [](const state_type& rhs, const state_type& lhs) {
                         return rhs.stats.net_profit()>lhs.stats.net_profit();
@@ -270,11 +276,11 @@ int main()
                  {"search space", {
                          {"states count", n_states},
                          {"levels", {
-                                 {"unique fractions count", levels_unique_fracs},
-                                 {"max fraction", levels_max_frac},
+                                 {"unique count", levels_unique_fracs},
+                                 {"max", levels_max_frac},
                          }},
                          {"open order sizes", {
-                                 {"unique fractions count", open_sizes_unique_fracs}
+                                 {"unique count", open_sizes_unique_fracs}
                          }},
                          {"moving average", {
                                  {"types", {"sma", "ema"}},
@@ -289,14 +295,15 @@ int main()
                  {"resampling period[min]", resampling_period.count()},
                 }};
 
-        json doc{{"setting",         set_doc},
-                 {"duration[ns]",    duration.count()},
-                 {"results",         res_doc}};
+        json doc{{"setting",      set_doc},
+                 {"duration[ns]", duration.count()},
+                 {"results",      res_doc}};
 
         std::string filename{fmt::format("{}-results.json", set.label)};
         std::ofstream writer{out_dir/filename};
         writer << std::setw(4) << doc;
-        std::cout << "testing duration: " << duration << std::endl;
+        std::cout << "ended testing: " << boost::posix_time::second_clock::local_time() << std::endl
+                  << "testing duration: " << duration << std::endl;
     }
 
     return EXIT_SUCCESS;
