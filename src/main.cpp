@@ -106,42 +106,30 @@ json to_json(const statistics& stats)
             {"order ratio",        stats.order_ratio()},
             {"total open orders",  stats.total_open_orders()},
             {"total close orders", stats.total_close_orders()},
-            {"close balance",
-                                   {
+            {"close balance",      {
                                            {"min", stats.min_close_balance()},
                                            {"max", stats.max_close_balance()},
-                                           {"max drawdown",
-                                                   {
-                                                           {"percent", stats.max_close_balance_drawdown<percent>()},
-                                                           {"amount", stats.max_close_balance_drawdown<amount>()}
-                                                   }
-                                           },
-                                           {"max run up",
-                                                   {
-                                                           {"percent", stats.max_close_balance_run_up<percent>()},
-                                                           {"amount", stats.max_close_balance_run_up<amount>()}
-                                                   }
-                                           }
-                                   }
-            },
-            {"equity",
-                                   {
+                                           {"max drawdown", {
+                                                                    {"percent", stats.max_close_balance_drawdown<percent>()},
+                                                                    {"amount", stats.max_close_balance_drawdown<amount>()}
+                                                            }},
+                                           {"max run up", {
+                                                                  {"percent", stats.max_close_balance_run_up<percent>()},
+                                                                  {"amount", stats.max_close_balance_run_up<amount>()}
+                                                          }}
+                                   }},
+            {"equity",             {
                                            {"min", stats.min_equity()},
                                            {"max", stats.max_equity()},
-                                           {"max drawdown",
-                                                   {
-                                                           {"percent", stats.max_equity_drawdown<percent>()},
-                                                           {"amount", stats.max_equity_drawdown<amount>()}
-                                                   }
-                                           },
-                                           {"max run up",
-                                                   {
-                                                           {"percent", stats.max_equity_run_up<percent>()},
-                                                           {"amount", stats.max_equity_run_up<amount>()}
-                                                   }
-                                           }
-                                   }
-            }};
+                                           {"max drawdown", {
+                                                                    {"percent", stats.max_equity_drawdown<percent>()},
+                                                                    {"amount", stats.max_equity_drawdown<amount>()}
+                                                            } },
+                                           {"max run up", {
+                                                                  {"percent", stats.max_equity_run_up<percent>()},
+                                                                  {"amount", stats.max_equity_run_up<amount>()}
+                                                          }}
+                                   }}};
 }
 
 std::string moving_average_type(const bazooka::indicator_type& indic)
@@ -174,8 +162,11 @@ int main()
 {
     set_up();
     const std::size_t n_levels{4};
-    auto levels_gen = systematic::levels_generator<n_levels>{n_levels+5, 0.7};
-    auto sizes_gen = systematic::sizes_generator<n_levels>{n_levels+5};
+    std::size_t levels_unique_fracs{n_levels+2};
+    fraction_t levels_max_frac{0.7};
+    std::size_t open_size_unique_fracs{n_levels+2};
+    auto levels_gen = systematic::levels_generator<n_levels>{levels_unique_fracs, levels_max_frac};
+    auto sizes_gen = systematic::sizes_generator<n_levels>{open_size_unique_fracs};
 
     // read candles
     std::time_t min_opened{1515024000}, max_opened{1667066400};
@@ -195,8 +186,9 @@ int main()
               << "duration: " << duration << std::endl;
 
     // create search space
+    auto mov_avg_periods = range<std::size_t>(5, 35, 2);
     auto search_space = [&]() -> cppcoro::generator<configuration<n_levels>> {
-        for (std::size_t entry_period: range<std::size_t>(5, 35, 2))
+        for (std::size_t entry_period: mov_avg_periods)
             for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}}})
 //                                        bazooka::indicator_type{indicator::ema{entry_period}}})
                 for (const auto& levels: levels_gen())
@@ -264,34 +256,47 @@ int main()
             optimize(res, set.restrictions);
         }));
 
-        json results;
+        json res_doc;
         for (const auto& top: res.get())
-            results.emplace_back(to_json(top));
+            res_doc.emplace_back(to_json(top));
 
-        json doc{
-                {"setting",
-                                    {
-                                            {"candles",
-                                                    {
-                                                            {"from", to_time_t(from)},
-                                                            {"to", to_time_t(to)},
-                                                            {"count", n_candles},
-                                                            {"pair", "ETH/USDT"},
-                                                    }
-                                            },
-                                            {"optimization criteria", set.label},
-                                            {"resampling period[min]", resampling_period.count()},
-                                    }
-                },
-                {"duration[ns]",    duration.count()},
-                {"searched states", n_states},
-                {"results",         results}
-        };
+        json set_doc{
+                {{"candles", {
+                        {"from", to_time_t(from)},
+                        {"to", to_time_t(to)},
+                        {"count", n_candles},
+                        {"pair", "ETH/USDT"},
+                }},
+                 {"search space", {
+                         {"levels", {
+                                 {"unique fractions count", levels_unique_fracs},
+                                 {"max fraction", levels_max_frac},
+                         }},
+                         {"open order sizes", {
+                                 {"unique fractions count", open_size_unique_fracs}
+                         }},
+                         {"moving average", {
+                                 {"types", {"sma", "ema"}},
+                                 {"period", {
+                                         {"from", *mov_avg_periods.begin()},
+                                         {"to", *mov_avg_periods.end()},
+                                         {"step", mov_avg_periods.step()}
+                                 }}
+                         }},
+                 }},
+                 {"optimization criteria", set.label},
+                 {"resampling period[min]", resampling_period.count()},
+                }};
+
+        json doc{{"setting",         set_doc},
+                 {"duration[ns]",    duration.count()},
+                 {"searched states", n_states},
+                 {"results",         res_doc}};
 
         std::string filename{fmt::format("{}-results.json", set.label)};
         std::ofstream writer{out_dir/filename};
         writer << std::setw(4) << doc;
-        std::cout << "total duration: " << duration << std::endl;
+        std::cout << "testing duration: " << duration << std::endl;
     }
 
     return EXIT_SUCCESS;
