@@ -164,9 +164,9 @@ int main()
     const std::size_t n_levels{4};
     std::size_t levels_unique_fracs{n_levels+2};
     fraction_t levels_max_frac{0.7};
-    std::size_t open_size_unique_fracs{n_levels+2};
+    std::size_t open_sizes_unique_fracs{n_levels+2};
     auto levels_gen = systematic::levels_generator<n_levels>{levels_unique_fracs, levels_max_frac};
-    auto sizes_gen = systematic::sizes_generator<n_levels>{open_size_unique_fracs};
+    auto sizes_gen = systematic::sizes_generator<n_levels>{open_sizes_unique_fracs};
 
     // read candles
     std::time_t min_opened{1515024000}, max_opened{1667066400};
@@ -268,12 +268,13 @@ int main()
                         {"pair", "ETH/USDT"},
                 }},
                  {"search space", {
+                         {"states count", n_states},
                          {"levels", {
                                  {"unique fractions count", levels_unique_fracs},
                                  {"max fraction", levels_max_frac},
                          }},
                          {"open order sizes", {
-                                 {"unique fractions count", open_size_unique_fracs}
+                                 {"unique fractions count", open_sizes_unique_fracs}
                          }},
                          {"moving average", {
                                  {"types", {"sma", "ema"}},
@@ -290,7 +291,6 @@ int main()
 
         json doc{{"setting",         set_doc},
                  {"duration[ns]",    duration.count()},
-                 {"searched states", n_states},
                  {"results",         res_doc}};
 
         std::string filename{fmt::format("{}-results.json", set.label)};
