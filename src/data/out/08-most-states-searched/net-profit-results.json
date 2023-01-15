@@ -1,0 +1,1658 @@
+{
+    "duration[ns]": 7513953925468,
+    "results": [
+        {
+            "configuration": {
+                "levels": [
+                    0.9166666865348816,
+                    0.875,
+                    0.8333333134651184,
+                    0.7083333134651184
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.07692307978868484,
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 82480.09375,
+                    "max drawdown": {
+                        "amount": -1073.267578125,
+                        "percent": -4.266290187835693
+                    },
+                    "max run up": {
+                        "amount": 72480.09375,
+                        "percent": 724.8009643554688
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 82708.0390625,
+                    "max drawdown": {
+                        "amount": -18732.03515625,
+                        "percent": -32.88053894042969
+                    },
+                    "max run up": {
+                        "amount": 73426.2578125,
+                        "percent": 791.079345703125
+                    },
+                    "min": 9281.7822265625
+                },
+                "gross loss": -3534.50634765625,
+                "gross profit": 75872.3671875,
+                "net profit": 72337.859375,
+                "order ratio": 1.4947368421052631,
+                "profit factor": 21.466184616088867,
+                "pt ratio": 67.39965057373047,
+                "total close orders": 95,
+                "total open orders": 142
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.9166666865348816,
+                    0.875,
+                    0.7916666865348816,
+                    0.7083333134651184
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.07692307978868484,
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 78506.453125,
+                    "max drawdown": {
+                        "amount": -942.029296875,
+                        "percent": -3.852649688720703
+                    },
+                    "max run up": {
+                        "amount": 68506.453125,
+                        "percent": 685.0645751953125
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 78723.4140625,
+                    "max drawdown": {
+                        "amount": -17823.78515625,
+                        "percent": -32.479393005371094
+                    },
+                    "max run up": {
+                        "amount": 69434.2578125,
+                        "percent": 747.476318359375
+                    },
+                    "min": 9289.158203125
+                },
+                "gross loss": -2997.740478515625,
+                "gross profit": 71368.8359375,
+                "net profit": 68371.09375,
+                "order ratio": 1.4210526315789473,
+                "profit factor": 23.80754280090332,
+                "pt ratio": 72.57852172851563,
+                "total close orders": 95,
+                "total open orders": 135
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.7916666865348816,
+                    0.7083333134651184
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 78116.7265625,
+                    "max drawdown": {
+                        "amount": -649.466796875,
+                        "percent": -2.6035873889923096
+                    },
+                    "max run up": {
+                        "amount": 68116.7265625,
+                        "percent": 681.167236328125
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 78458.75,
+                    "max drawdown": {
+                        "amount": -17088.171875,
+                        "percent": -31.27596664428711
+                    },
+                    "max run up": {
+                        "amount": 69052.171875,
+                        "percent": 734.0841674804688
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -785.98046875,
+                "gross profit": 68902.71875,
+                "net profit": 68116.734375,
+                "order ratio": 1.625,
+                "profit factor": 87.6646728515625,
+                "pt ratio": 104.88101196289063,
+                "total close orders": 32,
+                "total open orders": 52
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.9166666865348816,
+                    0.875,
+                    0.75,
+                    0.7083333134651184
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.07692307978868484,
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 78085.3671875,
+                    "max drawdown": {
+                        "amount": -796.63671875,
+                        "percent": -3.3460917472839355
+                    },
+                    "max run up": {
+                        "amount": 68085.3671875,
+                        "percent": 680.8536376953125
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 78301.1640625,
+                    "max drawdown": {
+                        "amount": -17517.64453125,
+                        "percent": -32.21794128417969
+                    },
+                    "max run up": {
+                        "amount": 69012.0078125,
+                        "percent": 742.9307250976563
+                    },
+                    "min": 9289.158203125
+                },
+                "gross loss": -2694.9990234375,
+                "gross profit": 70645.7265625,
+                "net profit": 67950.7265625,
+                "order ratio": 1.4,
+                "profit factor": 26.21363639831543,
+                "pt ratio": 85.29700469970703,
+                "total close orders": 95,
+                "total open orders": 133
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.75,
+                    0.7083333134651184
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 77698.59375,
+                    "max drawdown": {
+                        "amount": -509.390625,
+                        "percent": -2.0966880321502686
+                    },
+                    "max run up": {
+                        "amount": 67698.59375,
+                        "percent": 676.9859619140625
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 78038.796875,
+                    "max drawdown": {
+                        "amount": -16790.90234375,
+                        "percent": -31.014719009399414
+                    },
+                    "max run up": {
+                        "amount": 68632.21875,
+                        "percent": 729.6196899414063
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -643.587890625,
+                "gross profit": 68342.171875,
+                "net profit": 67698.5859375,
+                "order ratio": 1.5625,
+                "profit factor": 106.18933868408203,
+                "pt ratio": 132.901123046875,
+                "total close orders": 32,
+                "total open orders": 50
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.75,
+                    0.6666666865348816
+                ],
+                "moving average:": {
+                    "period": 30,
+                    "type": "ema"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 77265.84375,
+                    "max drawdown": {
+                        "amount": -2162.818359375,
+                        "percent": -9.004579544067383
+                    },
+                    "max run up": {
+                        "amount": 67265.84375,
+                        "percent": 672.658447265625
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 77504.46875,
+                    "max drawdown": {
+                        "amount": -16173.7265625,
+                        "percent": -31.479549407958984
+                    },
+                    "max run up": {
+                        "amount": 68267.1171875,
+                        "percent": 739.0332641601563
+                    },
+                    "min": 9237.353515625
+                },
+                "gross loss": -3484.9228515625,
+                "gross profit": 70750.78125,
+                "net profit": 67265.859375,
+                "order ratio": 1.5384615384615385,
+                "profit factor": 20.301965713500977,
+                "pt ratio": 31.10102081298828,
+                "total close orders": 39,
+                "total open orders": 60
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.9166666865348816,
+                    0.875,
+                    0.7916666865348816,
+                    0.75
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.07692307978868484,
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 77149.0390625,
+                    "max drawdown": {
+                        "amount": -1029.4765625,
+                        "percent": -4.210285663604736
+                    },
+                    "max run up": {
+                        "amount": 67149.0390625,
+                        "percent": 671.4904174804688
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 77362.2578125,
+                    "max drawdown": {
+                        "amount": -17907.67578125,
+                        "percent": -32.966758728027344
+                    },
+                    "max run up": {
+                        "amount": 68073.1015625,
+                        "percent": 732.8231201171875
+                    },
+                    "min": 9289.158203125
+                },
+                "gross loss": -3441.26513671875,
+                "gross profit": 70457.25,
+                "net profit": 67015.984375,
+                "order ratio": 1.4210526315789473,
+                "profit factor": 20.47422981262207,
+                "pt ratio": 65.0971450805664,
+                "total close orders": 95,
+                "total open orders": 135
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.9166666865348816,
+                    0.875,
+                    0.8333333134651184,
+                    0.7083333134651184
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.07692307978868484,
+                    0.692307710647583,
+                    0.1538461595773697,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 76922.640625,
+                    "max drawdown": {
+                        "amount": -937.34765625,
+                        "percent": -3.8209705352783203
+                    },
+                    "max run up": {
+                        "amount": 66922.640625,
+                        "percent": 669.2263793945313
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 77135.234375,
+                    "max drawdown": {
+                        "amount": -16804.9296875,
+                        "percent": -31.65331268310547
+                    },
+                    "max run up": {
+                        "amount": 67802.21875,
+                        "percent": 726.4772338867188
+                    },
+                    "min": 9333.013671875
+                },
+                "gross loss": -2832.44580078125,
+                "gross profit": 69622.453125,
+                "net profit": 66790.0078125,
+                "order ratio": 1.4947368421052631,
+                "profit factor": 24.58032989501953,
+                "pt ratio": 71.25425720214844,
+                "total close orders": 95,
+                "total open orders": 142
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.7916666865348816,
+                    0.75
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 76784.625,
+                    "max drawdown": {
+                        "amount": -738.740234375,
+                        "percent": -2.9614672660827637
+                    },
+                    "max run up": {
+                        "amount": 66784.625,
+                        "percent": 667.8462524414063
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 77120.8125,
+                    "max drawdown": {
+                        "amount": -17180.0390625,
+                        "percent": -31.762941360473633
+                    },
+                    "max run up": {
+                        "amount": 67714.234375,
+                        "percent": 719.8607177734375
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -875.25390625,
+                "gross profit": 67659.8828125,
+                "net profit": 66784.625,
+                "order ratio": 1.625,
+                "profit factor": 77.30314636230469,
+                "pt ratio": 90.40339660644531,
+                "total close orders": 32,
+                "total open orders": 52
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.9166666865348816,
+                    0.875,
+                    0.8333333134651184,
+                    0.7916666865348816
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.07692307978868484,
+                    0.692307710647583,
+                    0.1538461595773697,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 75956.7265625,
+                    "max drawdown": {
+                        "amount": -1179.947265625,
+                        "percent": -4.685164928436279
+                    },
+                    "max run up": {
+                        "amount": 65956.7265625,
+                        "percent": 659.5672607421875
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 76166.640625,
+                    "max drawdown": {
+                        "amount": -17177.0546875,
+                        "percent": -32.405216217041016
+                    },
+                    "max run up": {
+                        "amount": 66833.625,
+                        "percent": 716.0990600585938
+                    },
+                    "min": 9333.013671875
+                },
+                "gross loss": -3363.63671875,
+                "gross profit": 69189.3984375,
+                "net profit": 65825.765625,
+                "order ratio": 1.5157894736842106,
+                "profit factor": 20.5698184967041,
+                "pt ratio": 55.78704071044922,
+                "total close orders": 95,
+                "total open orders": 144
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.9166666865348816,
+                    0.875,
+                    0.8333333134651184,
+                    0.75
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.07692307978868484,
+                    0.692307710647583,
+                    0.1538461595773697,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 75598.4296875,
+                    "max drawdown": {
+                        "amount": -1025.083984375,
+                        "percent": -4.178615570068359
+                    },
+                    "max run up": {
+                        "amount": 65598.4296875,
+                        "percent": 655.9843139648438
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 75807.359375,
+                    "max drawdown": {
+                        "amount": -16891.9140625,
+                        "percent": -32.142677307128906
+                    },
+                    "max run up": {
+                        "amount": 66474.34375,
+                        "percent": 712.24951171875
+                    },
+                    "min": 9333.013671875
+                },
+                "gross loss": -2991.23974609375,
+                "gross profit": 68459.296875,
+                "net profit": 65468.05859375,
+                "order ratio": 1.4947368421052631,
+                "profit factor": 22.8865966796875,
+                "pt ratio": 63.86604309082031,
+                "total close orders": 95,
+                "total open orders": 142
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.75,
+                    0.6666666865348816
+                ],
+                "moving average:": {
+                    "period": 30,
+                    "type": "ema"
+                },
+                "open sizes": [
+                    0.692307710647583,
+                    0.1538461595773697,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 73990.1875,
+                    "max drawdown": {
+                        "amount": -2071.32421875,
+                        "percent": -8.716607093811035
+                    },
+                    "max run up": {
+                        "amount": 63990.1875,
+                        "percent": 639.9019165039063
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 74196.515625,
+                    "max drawdown": {
+                        "amount": -14648.125,
+                        "percent": -30.472314834594727
+                    },
+                    "max run up": {
+                        "amount": 64836.359375,
+                        "percent": 692.6844482421875
+                    },
+                    "min": 9360.158203125
+                },
+                "gross loss": -3118.6796875,
+                "gross profit": 67108.859375,
+                "net profit": 63990.1796875,
+                "order ratio": 1.5384615384615385,
+                "profit factor": 21.518356323242188,
+                "pt ratio": 30.893367767333984,
+                "total close orders": 39,
+                "total open orders": 60
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.9166666865348816,
+                    0.875,
+                    0.8333333134651184,
+                    0.7083333134651184
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.07692307978868484,
+                    0.692307710647583,
+                    0.07692307978868484,
+                    0.1538461595773697
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 74087.65625,
+                    "max drawdown": {
+                        "amount": -590.578125,
+                        "percent": -2.54310941696167
+                    },
+                    "max run up": {
+                        "amount": 64087.65625,
+                        "percent": 640.8765258789063
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 74292.4140625,
+                    "max drawdown": {
+                        "amount": -15612.0703125,
+                        "percent": -30.498611450195313
+                    },
+                    "max run up": {
+                        "amount": 64952.02734375,
+                        "percent": 695.3889770507813
+                    },
+                    "min": 9340.3876953125
+                },
+                "gross loss": -2410.75439453125,
+                "gross profit": 66370.6875,
+                "net profit": 63959.93359375,
+                "order ratio": 1.4947368421052631,
+                "profit factor": 27.531085968017578,
+                "pt ratio": 108.30054473876953,
+                "total close orders": 95,
+                "total open orders": 142
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.7916666865348816,
+                    0.75,
+                    0.7083333134651184
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 73924.90625,
+                    "max drawdown": {
+                        "amount": -397.333984375,
+                        "percent": -1.6827690601348877
+                    },
+                    "max run up": {
+                        "amount": 63924.90625,
+                        "percent": 639.2490234375
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 74248.578125,
+                    "max drawdown": {
+                        "amount": -15961.6484375,
+                        "percent": -30.61390495300293
+                    },
+                    "max run up": {
+                        "amount": 64834.62890625,
+                        "percent": 688.7081909179688
+                    },
+                    "min": 9413.9482421875
+                },
+                "gross loss": -527.51171875,
+                "gross profit": 64452.41796875,
+                "net profit": 63924.90625,
+                "order ratio": 1.34375,
+                "profit factor": 122.18196105957031,
+                "pt ratio": 160.8845672607422,
+                "total close orders": 32,
+                "total open orders": 43
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.7083333134651184,
+                    0.5833333134651184
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 73880.453125,
+                    "max drawdown": {
+                        "amount": -736.095703125,
+                        "percent": -3.0298221111297607
+                    },
+                    "max run up": {
+                        "amount": 63880.453125,
+                        "percent": 638.8045654296875
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 74203.921875,
+                    "max drawdown": {
+                        "amount": -15854.85546875,
+                        "percent": -30.195026397705078
+                    },
+                    "max run up": {
+                        "amount": 64797.34765625,
+                        "percent": 688.8517456054688
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -878.4921875,
+                "gross profit": 64758.9453125,
+                "net profit": 63880.453125,
+                "order ratio": 1.46875,
+                "profit factor": 73.71601867675781,
+                "pt ratio": 86.78280639648438,
+                "total close orders": 32,
+                "total open orders": 47
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.7083333134651184,
+                    0.6666666865348816
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 73880.453125,
+                    "max drawdown": {
+                        "amount": -736.095703125,
+                        "percent": -3.0298221111297607
+                    },
+                    "max run up": {
+                        "amount": 63880.453125,
+                        "percent": 638.8045654296875
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 74203.921875,
+                    "max drawdown": {
+                        "amount": -15854.85546875,
+                        "percent": -30.195026397705078
+                    },
+                    "max run up": {
+                        "amount": 64797.34765625,
+                        "percent": 688.8517456054688
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -878.4921875,
+                "gross profit": 64758.9453125,
+                "net profit": 63880.453125,
+                "order ratio": 1.46875,
+                "profit factor": 73.71601867675781,
+                "pt ratio": 86.78280639648438,
+                "total close orders": 32,
+                "total open orders": 47
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.7083333134651184,
+                    0.625
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 73880.453125,
+                    "max drawdown": {
+                        "amount": -736.095703125,
+                        "percent": -3.0298221111297607
+                    },
+                    "max run up": {
+                        "amount": 63880.453125,
+                        "percent": 638.8045654296875
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 74203.921875,
+                    "max drawdown": {
+                        "amount": -15854.85546875,
+                        "percent": -30.195026397705078
+                    },
+                    "max run up": {
+                        "amount": 64797.34765625,
+                        "percent": 688.8517456054688
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -878.4921875,
+                "gross profit": 64758.9453125,
+                "net profit": 63880.453125,
+                "order ratio": 1.46875,
+                "profit factor": 73.71601867675781,
+                "pt ratio": 86.78280639648438,
+                "total close orders": 32,
+                "total open orders": 47
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.7083333134651184,
+                    0.5416666865348816
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 73880.453125,
+                    "max drawdown": {
+                        "amount": -736.095703125,
+                        "percent": -3.0298221111297607
+                    },
+                    "max run up": {
+                        "amount": 63880.453125,
+                        "percent": 638.8045654296875
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 74203.921875,
+                    "max drawdown": {
+                        "amount": -15854.85546875,
+                        "percent": -30.195026397705078
+                    },
+                    "max run up": {
+                        "amount": 64797.34765625,
+                        "percent": 688.8517456054688
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -878.4921875,
+                "gross profit": 64758.9453125,
+                "net profit": 63880.453125,
+                "order ratio": 1.46875,
+                "profit factor": 73.71601867675781,
+                "pt ratio": 86.78280639648438,
+                "total close orders": 32,
+                "total open orders": 47
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.7083333134651184,
+                    0.6666666865348816
+                ],
+                "moving average:": {
+                    "period": 30,
+                    "type": "ema"
+                },
+                "open sizes": [
+                    0.692307710647583,
+                    0.1538461595773697,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 73138.0078125,
+                    "max drawdown": {
+                        "amount": -1942.384765625,
+                        "percent": -8.391243934631348
+                    },
+                    "max run up": {
+                        "amount": 63138.0078125,
+                        "percent": 631.380126953125
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 73341.953125,
+                    "max drawdown": {
+                        "amount": -13955.453125,
+                        "percent": -29.69708824157715
+                    },
+                    "max run up": {
+                        "amount": 63979.9140625,
+                        "percent": 683.397216796875
+                    },
+                    "min": 9362.0390625
+                },
+                "gross loss": -3282.7666015625,
+                "gross profit": 66420.796875,
+                "net profit": 63138.03125,
+                "order ratio": 1.5128205128205128,
+                "profit factor": 20.233177185058594,
+                "pt ratio": 32.50542068481445,
+                "total close orders": 39,
+                "total open orders": 59
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.7916666865348816,
+                    0.625
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 72960.265625,
+                    "max drawdown": {
+                        "amount": -971.51171875,
+                        "percent": -3.8946034908294678
+                    },
+                    "max run up": {
+                        "amount": 62960.265625,
+                        "percent": 629.6026611328125
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 73279.71875,
+                    "max drawdown": {
+                        "amount": -16224.875,
+                        "percent": -30.943256378173828
+                    },
+                    "max run up": {
+                        "amount": 63873.14453125,
+                        "percent": 679.026611328125
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -1672.376953125,
+                "gross profit": 64632.65625,
+                "net profit": 62960.28125,
+                "order ratio": 1.53125,
+                "profit factor": 38.64718246459961,
+                "pt ratio": 64.80651092529297,
+                "total close orders": 32,
+                "total open orders": 49
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.7916666865348816,
+                    0.5833333134651184
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 72960.265625,
+                    "max drawdown": {
+                        "amount": -971.51171875,
+                        "percent": -3.8946034908294678
+                    },
+                    "max run up": {
+                        "amount": 62960.265625,
+                        "percent": 629.6026611328125
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 73279.71875,
+                    "max drawdown": {
+                        "amount": -16224.875,
+                        "percent": -30.943256378173828
+                    },
+                    "max run up": {
+                        "amount": 63873.14453125,
+                        "percent": 679.026611328125
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -1672.376953125,
+                "gross profit": 64632.65625,
+                "net profit": 62960.28125,
+                "order ratio": 1.53125,
+                "profit factor": 38.64718246459961,
+                "pt ratio": 64.80651092529297,
+                "total close orders": 32,
+                "total open orders": 49
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.7916666865348816,
+                    0.5416666865348816
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 72960.265625,
+                    "max drawdown": {
+                        "amount": -971.51171875,
+                        "percent": -3.8946034908294678
+                    },
+                    "max run up": {
+                        "amount": 62960.265625,
+                        "percent": 629.6026611328125
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 73279.71875,
+                    "max drawdown": {
+                        "amount": -16224.875,
+                        "percent": -30.943256378173828
+                    },
+                    "max run up": {
+                        "amount": 63873.14453125,
+                        "percent": 679.026611328125
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -1672.376953125,
+                "gross profit": 64632.65625,
+                "net profit": 62960.28125,
+                "order ratio": 1.53125,
+                "profit factor": 38.64718246459961,
+                "pt ratio": 64.80651092529297,
+                "total close orders": 32,
+                "total open orders": 49
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.7916666865348816,
+                    0.6666666865348816
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 72960.265625,
+                    "max drawdown": {
+                        "amount": -971.51171875,
+                        "percent": -3.8946034908294678
+                    },
+                    "max run up": {
+                        "amount": 62960.265625,
+                        "percent": 629.6026611328125
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 73279.71875,
+                    "max drawdown": {
+                        "amount": -16224.875,
+                        "percent": -30.943256378173828
+                    },
+                    "max run up": {
+                        "amount": 63873.14453125,
+                        "percent": 679.026611328125
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -1672.376953125,
+                "gross profit": 64632.65625,
+                "net profit": 62960.28125,
+                "order ratio": 1.53125,
+                "profit factor": 38.64718246459961,
+                "pt ratio": 64.80651092529297,
+                "total close orders": 32,
+                "total open orders": 49
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.7916666865348816,
+                    0.7083333134651184
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.692307710647583,
+                    0.1538461595773697,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 72794.65625,
+                    "max drawdown": {
+                        "amount": -524.849609375,
+                        "percent": -2.157956600189209
+                    },
+                    "max run up": {
+                        "amount": 62794.65625,
+                        "percent": 627.946533203125
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 73083.4609375,
+                    "max drawdown": {
+                        "amount": -15288.98046875,
+                        "percent": -30.043100357055664
+                    },
+                    "max run up": {
+                        "amount": 63625.65625,
+                        "percent": 672.7317504882813
+                    },
+                    "min": 9457.8046875
+                },
+                "gross loss": -645.2060546875,
+                "gross profit": 63439.87109375,
+                "net profit": 62794.6640625,
+                "order ratio": 1.625,
+                "profit factor": 98.32498168945313,
+                "pt ratio": 119.64315795898438,
+                "total close orders": 32,
+                "total open orders": 52
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.75,
+                    0.5833333134651184
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 72606.84375,
+                    "max drawdown": {
+                        "amount": -823.044921875,
+                        "percent": -3.3877112865448
+                    },
+                    "max run up": {
+                        "amount": 62606.84375,
+                        "percent": 626.0684204101563
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 72924.75,
+                    "max drawdown": {
+                        "amount": -15947.6640625,
+                        "percent": -30.6820011138916
+                    },
+                    "max run up": {
+                        "amount": 63518.17578125,
+                        "percent": 675.2529907226563
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -1324.1796875,
+                "gross profit": 63931.03515625,
+                "net profit": 62606.85546875,
+                "order ratio": 1.46875,
+                "profit factor": 48.279727935791016,
+                "pt ratio": 76.0673599243164,
+                "total close orders": 32,
+                "total open orders": 47
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.75,
+                    0.625
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 72606.84375,
+                    "max drawdown": {
+                        "amount": -823.044921875,
+                        "percent": -3.3877112865448
+                    },
+                    "max run up": {
+                        "amount": 62606.84375,
+                        "percent": 626.0684204101563
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 72924.75,
+                    "max drawdown": {
+                        "amount": -15947.6640625,
+                        "percent": -30.6820011138916
+                    },
+                    "max run up": {
+                        "amount": 63518.17578125,
+                        "percent": 675.2529907226563
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -1324.1796875,
+                "gross profit": 63931.03515625,
+                "net profit": 62606.85546875,
+                "order ratio": 1.46875,
+                "profit factor": 48.279727935791016,
+                "pt ratio": 76.0673599243164,
+                "total close orders": 32,
+                "total open orders": 47
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.75,
+                    0.6666666865348816
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 72606.84375,
+                    "max drawdown": {
+                        "amount": -823.044921875,
+                        "percent": -3.3877112865448
+                    },
+                    "max run up": {
+                        "amount": 62606.84375,
+                        "percent": 626.0684204101563
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 72924.75,
+                    "max drawdown": {
+                        "amount": -15947.6640625,
+                        "percent": -30.6820011138916
+                    },
+                    "max run up": {
+                        "amount": 63518.17578125,
+                        "percent": 675.2529907226563
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -1324.1796875,
+                "gross profit": 63931.03515625,
+                "net profit": 62606.85546875,
+                "order ratio": 1.46875,
+                "profit factor": 48.279727935791016,
+                "pt ratio": 76.0673599243164,
+                "total close orders": 32,
+                "total open orders": 47
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.75,
+                    0.5416666865348816
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.7692307829856873,
+                    0.07692307978868484,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 72606.84375,
+                    "max drawdown": {
+                        "amount": -823.044921875,
+                        "percent": -3.3877112865448
+                    },
+                    "max run up": {
+                        "amount": 62606.84375,
+                        "percent": 626.0684204101563
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 72924.75,
+                    "max drawdown": {
+                        "amount": -15947.6640625,
+                        "percent": -30.6820011138916
+                    },
+                    "max run up": {
+                        "amount": 63518.17578125,
+                        "percent": 675.2529907226563
+                    },
+                    "min": 9406.57421875
+                },
+                "gross loss": -1324.1796875,
+                "gross profit": 63931.03515625,
+                "net profit": 62606.85546875,
+                "order ratio": 1.46875,
+                "profit factor": 48.279727935791016,
+                "pt ratio": 76.0673599243164,
+                "total close orders": 32,
+                "total open orders": 47
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.875,
+                    0.8333333134651184,
+                    0.75,
+                    0.7083333134651184
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.692307710647583,
+                    0.1538461595773697,
+                    0.07692307978868484,
+                    0.07692307978868484
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 72404.5,
+                    "max drawdown": {
+                        "amount": -391.15234375,
+                        "percent": -1.6510587930679321
+                    },
+                    "max run up": {
+                        "amount": 62404.5,
+                        "percent": 624.0449829101563
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 72691.7578125,
+                    "max drawdown": {
+                        "amount": -15017.94140625,
+                        "percent": -29.780776977539063
+                    },
+                    "max run up": {
+                        "amount": 63233.953125,
+                        "percent": 668.5902099609375
+                    },
+                    "min": 9457.8046875
+                },
+                "gross loss": -509.47265625,
+                "gross profit": 62913.98046875,
+                "net profit": 62404.5078125,
+                "order ratio": 1.5625,
+                "profit factor": 123.48843383789063,
+                "pt ratio": 159.5401611328125,
+                "total close orders": 32,
+                "total open orders": 50
+            }
+        },
+        {
+            "configuration": {
+                "levels": [
+                    0.9166666865348816,
+                    0.875,
+                    0.8333333134651184,
+                    0.7916666865348816
+                ],
+                "moving average:": {
+                    "period": 15,
+                    "type": "sma"
+                },
+                "open sizes": [
+                    0.07692307978868484,
+                    0.692307710647583,
+                    0.07692307978868484,
+                    0.1538461595773697
+                ]
+            },
+            "statistics": {
+                "close balance": {
+                    "max": 72311.1640625,
+                    "max drawdown": {
+                        "amount": -1045.623046875,
+                        "percent": -4.271517753601074
+                    },
+                    "max run up": {
+                        "amount": 62311.1640625,
+                        "percent": 623.1116333007813
+                    },
+                    "min": 10000.0
+                },
+                "equity": {
+                    "max": 72511.0078125,
+                    "max drawdown": {
+                        "amount": -16342.65234375,
+                        "percent": -32.002418518066406
+                    },
+                    "max run up": {
+                        "amount": 63170.62109375,
+                        "percent": 676.31689453125
+                    },
+                    "min": 9340.3876953125
+                },
+                "gross loss": -2870.96435546875,
+                "gross profit": 65057.42578125,
+                "net profit": 62186.4609375,
+                "order ratio": 1.5157894736842106,
+                "profit factor": 22.660478591918945,
+                "pt ratio": 59.47311782836914,
+                "total close orders": 95,
+                "total open orders": 144
+            }
+        }
+    ],
+    "setting": [
+        {
+            "candles": {
+                "count": 2524282,
+                "from": 1515024000,
+                "pair": "ETH/USDT",
+                "to": 1667066400
+            },
+            "optimization criteria": "net-profit",
+            "resampling period[min]": 30,
+            "search space": {
+                "levels": {
+                    "max": 0.5,
+                    "unique count": 11
+                },
+                "moving average": {
+                    "period": {
+                        "from": 3,
+                        "step": 3,
+                        "to": 36
+                    },
+                    "types": [
+                        "sma",
+                        "ema"
+                    ]
+                },
+                "open order sizes": {
+                    "unique count": 10
+                },
+                "states count": 1597200
+            }
+        }
+    ]
+}

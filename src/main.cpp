@@ -162,9 +162,9 @@ int main()
 {
     set_up();
     const std::size_t n_levels{4};
-    std::size_t levels_unique_fracs{n_levels+5};
-    fraction_t levels_max_frac{0.7};
-    std::size_t open_sizes_unique_fracs{n_levels+5};
+    std::size_t levels_unique_fracs{n_levels+7};
+    fraction_t levels_max_frac{0.5};
+    std::size_t open_sizes_unique_fracs{n_levels+6};
     auto levels_gen = systematic::levels_generator<n_levels>{levels_unique_fracs, levels_max_frac};
     auto sizes_gen = systematic::sizes_generator<n_levels>{open_sizes_unique_fracs};
 
@@ -186,7 +186,7 @@ int main()
               << "duration: " << duration << std::endl;
 
     // create search space
-    auto mov_avg_periods = range<std::size_t>(5, 35, 2);
+    auto mov_avg_periods = range<std::size_t>(3, 36, 3);
     auto search_space = [&]() -> cppcoro::generator<configuration<n_levels>> {
         for (std::size_t entry_period: mov_avg_periods)
             for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}},
@@ -220,7 +220,7 @@ int main()
                         return stats.profit_factor()>20.0;
                     },
                     [](const state_type& rhs, const state_type& lhs) {
-                        return rhs.stats.net_profit()>lhs.stats.net_profit();
+                        return rhs.stats.net_profit()>=lhs.stats.net_profit();
                     },
                     "net-profit"
             },
