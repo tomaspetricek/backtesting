@@ -64,7 +64,7 @@ namespace trading {
             if (market_.has_active_position()) create_close_all_order(point);
         }
 
-        const std::vector<position>& closed_positions()
+        const std::vector<position>& closed_positions() const
         {
             return market_.closed_positions();
         }
@@ -84,7 +84,7 @@ namespace trading {
             return market_.has_active_position();
         }
 
-        amount_t wallet_balance()
+        amount_t wallet_balance() const
         {
             return market_.wallet_balance();
         }

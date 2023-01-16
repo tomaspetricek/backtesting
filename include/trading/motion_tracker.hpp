@@ -17,12 +17,16 @@ namespace trading {
         {
             assert(peak>=trough);
         }
+
+        motion() = default;
     };
 
     struct drawdown : public motion {
         // peak happens before trough
         explicit drawdown(amount_t peak, amount_t trough)
                 :motion(peak, trough) { }
+
+        drawdown() = default;
 
         template<class T>
         requires std::same_as<T, amount>
@@ -44,6 +48,8 @@ namespace trading {
         // note: trough happens before peak
         explicit run_up(amount_t trough, amount_t peak)
                 :motion(peak, trough) { }
+
+        run_up() = default;
 
         template<class T>
         requires std::same_as<T, amount>
@@ -70,6 +76,8 @@ namespace trading {
 
         explicit drawdown_tracker(amount_t init)
                 :max_(init, init), curr_(init, init) { }
+
+        drawdown_tracker() = default;
 
         void update(amount_t val)
         {
@@ -106,6 +114,8 @@ namespace trading {
 
         explicit run_up_tracker(const amount_t init)
                 :max_(init, init), curr_(init, init) { }
+
+        run_up_tracker() = default;
 
         void update(amount_t val)
         {

@@ -20,17 +20,19 @@
 #include <trading/data_point.hpp>
 
 namespace trading {
-    template<class Trader, typename Config>
+    template<class Trader, class Config, class Observer>
     class simulator {
         std::function<Trader(const Config&)> initializer_;
         std::vector<price_point> close_points_;
         std::vector<price_t> indic_prices_;
         std::size_t resampling_period_;
+        Observer observer_;
 
     public:
         simulator(const std::function<Trader(const Config&)>& initializer, std::vector<candle>&& candles,
-                const std::chrono::minutes& resampling_period, const std::function<price_t(candle)>& averager)
-                :initializer_(initializer), resampling_period_(resampling_period.count())
+                const std::chrono::minutes& resampling_period, const std::function<price_t(candle)>& averager,
+                const Observer& observer)
+                :initializer_(initializer), resampling_period_(resampling_period.count()), observer_{observer}
         {
             trading::resampler resampler{resampling_period_};
             candle indic_candle;
@@ -45,9 +47,10 @@ namespace trading {
             }
         }
 
-        trading::statistics operator()(const Config& config)
+        auto operator()(const Config& config)
         {
             Trader trader;
+            auto observer = observer_;
 
             // create trader
             try {
@@ -58,37 +61,29 @@ namespace trading {
             }
 
             // trade
-            auto begin = std::chrono::high_resolution_clock::now();
             amount_t min_allowed_equity{100};
-            trading::statistics stats{trader.wallet_balance()};
             auto indic_prices_it = indic_prices_.begin();
+            observer.begin(trader);
 
             for (std::size_t i{0}; i<close_points_.size(); i++) {
                 if (trader.equity(close_points_[i].data)>min_allowed_equity) {
-                    if (trader.trade(price_point{close_points_[i].time, close_points_[i].data})==action::closed_all) {
-                        stats.update_close_balance(trader.wallet_balance());
-                        stats.update_profit(
-                                trader.closed_positions().back().template total_realized_profit<amount>());
-                    }
+                    observer.traded(trader, trader.trade(price_point{close_points_[i].time, close_points_[i].data}));
 
                     if (trader.has_active_position())
-                        stats.update_equity(trader.equity(close_points_[i].data));
+                        observer.equity_updated(trader, trader.equity(close_points_[i].data));
 
-                    if (i && (i+1)%resampling_period_==0)
+                    if (i && (i+1)%resampling_period_==0) {
                         trader.update_indicators((*indic_prices_it++));
+                        observer.indicator_updated(trader);
+                    }
                 }
                 else {
                     trader.try_closing_active_position(close_points_[i]);
-                    stats.update_close_balance(trader.wallet_balance());
+                    observer.close_balance_updated(trader);
                 }
             }
-
-            auto end = std::chrono::high_resolution_clock::now();
-            stats.set_final_balance(trader.wallet_balance());
-            stats.set_total_duration(end-begin);
-            stats.set_total_open_orders(trader.open_orders().size());
-            stats.set_total_close_orders(trader.close_orders().size());
-            return stats;
+            observer.end(trader);
+            return observer.stats();
         }
     };
 }

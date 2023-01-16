@@ -8,6 +8,7 @@
 #include <trading/bazooka/indicator_values.hpp>
 #include <trading/bazooka/long_strategy.hpp>
 #include <trading/bazooka/short_strategy.hpp>
+#include <trading/bazooka/statistics.hpp>
 #include <trading/direction.hpp>
 #include <trading/market.hpp>
 #include <trading/order.hpp>

@@ -51,7 +51,7 @@ namespace trading {
             active_ = std::nullopt;
         }
 
-        amount_t wallet_balance()
+        amount_t wallet_balance() const
         {
             return wallet_.balance();
         }

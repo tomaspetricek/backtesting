@@ -137,6 +137,11 @@ namespace trading::bazooka {
         {
             return exit_ma_;
         }
+
+        size_t curr_level() const
+        {
+            return curr_level_;
+        }
     };
 }
 

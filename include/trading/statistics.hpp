@@ -20,6 +20,8 @@ namespace trading {
         explicit motion_statistics(amount_t init)
                 :min_(init), max_(init), drawdown_(init), run_up_(init) { }
 
+        motion_statistics() = default;
+
         void update(const amount_t& curr)
         {
             min_ = std::min(min_, curr);
@@ -92,7 +94,6 @@ namespace trading {
         motion_statistics close_balance_;
         motion_statistics equity_;
         profit_stats profit_;
-        std::chrono::nanoseconds total_duration_{0};
         std::size_t total_open_orders_{0};
         std::size_t total_close_orders_{0};
 
@@ -100,6 +101,8 @@ namespace trading {
         explicit statistics(amount_t init_balance)
                 :init_balance_{init_balance}, final_balance_{init_balance}, close_balance_{init_balance},
                  equity_{init_balance} { }
+
+        statistics() = default;
 
         void update_equity(amount_t curr_equity)
         {
@@ -121,11 +124,6 @@ namespace trading {
             final_balance_ = final_balance;
         }
 
-        void set_total_duration(const std::chrono::nanoseconds& duration)
-        {
-            total_duration_ = duration;
-        }
-
         void set_total_open_orders(std::size_t open_orders)
         {
             total_open_orders_ = open_orders;
@@ -139,11 +137,6 @@ namespace trading {
         amount_t final_balance() const
         {
             return final_balance_;
-        }
-
-        const std::chrono::nanoseconds& total_duration() const
-        {
-            return total_duration_;
         }
 
         amount_t total_profit() const

@@ -8,10 +8,10 @@
 #include <trading/statistics.hpp>
 
 namespace trading {
-    template<class Config>
+    template<class Config, class Stats>
     struct state {
         Config config;
-        statistics stats;
+        Stats stats;
     };
 }
 

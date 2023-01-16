@@ -11,13 +11,13 @@
 #include <trading/state.hpp>
 
 namespace trading::optimizer::parallel {
-    template<class Config>
+    template<class Config, class Stats>
     class brute_force {
-        std::function<trading::statistics(Config)> objective_func_;
+        std::function<Stats(Config)> objective_func_;
         std::function<cppcoro::generator<Config>()> search_space_;
 
     public:
-        explicit brute_force(const std::function<trading::statistics(Config)>& objective_func,
+        explicit brute_force(const std::function<Stats(Config)>& objective_func,
                 const std::function<cppcoro::generator<Config>()>& search_space)
                 :objective_func_(objective_func), search_space_{search_space} { }
 
@@ -35,7 +35,7 @@ namespace trading::optimizer::parallel {
                                 auto stats = objective_func_(curr);
                                 if (restrict(stats)) {
                                     #pragma omp critical
-                                    res.update(trading::state<Config>{curr, stats});
+                                    res.update(trading::state<Config, Stats>{curr, stats});
                                 }
                             }
                             catch (...) {

@@ -89,14 +89,15 @@ std::size_t indicator_period(const bazooka::indicator_type& ma)
     }, ma);
 }
 
-template<class Config>
+template<class Config, class Stats>
 struct setting {
-    std::function<bool(statistics)> restrictions;
-    std::function<bool(state<Config>, state<Config>)> optim_criteria;
+    std::function<bool(Stats)> restrictions;
+    std::function<bool(state<Config, Stats>, state<Config, Stats>)> optim_criteria;
     std::string label;
 };
 
-json to_json(const statistics& stats)
+template<std::size_t n_levels>
+json to_json(const bazooka::statistics<n_levels>& stats)
 {
     return {{"net profit",         stats.net_profit()},
             {"pt ratio",           stats.pt_ratio()},
@@ -106,28 +107,29 @@ json to_json(const statistics& stats)
             {"order ratio",        stats.order_ratio()},
             {"total open orders",  stats.total_open_orders()},
             {"total close orders", stats.total_close_orders()},
+            {"open order counts",  stats.open_order_counts()},
             {"close balance",      {
                                            {"min", stats.min_close_balance()},
                                            {"max", stats.max_close_balance()},
                                            {"max drawdown", {
-                                                                    {"percent", stats.max_close_balance_drawdown<percent>()},
-                                                                    {"amount", stats.max_close_balance_drawdown<amount>()}
+                                                                    {"percent", stats.template max_close_balance_drawdown<percent>()},
+                                                                    {"amount", stats.template max_close_balance_drawdown<amount>()}
                                                             }},
                                            {"max run up", {
-                                                                  {"percent", stats.max_close_balance_run_up<percent>()},
-                                                                  {"amount", stats.max_close_balance_run_up<amount>()}
+                                                                  {"percent", stats.template max_close_balance_run_up<percent>()},
+                                                                  {"amount", stats.template max_close_balance_run_up<amount>()}
                                                           }}
                                    }},
             {"equity",             {
                                            {"min", stats.min_equity()},
                                            {"max", stats.max_equity()},
                                            {"max drawdown", {
-                                                                    {"percent", stats.max_equity_drawdown<percent>()},
-                                                                    {"amount", stats.max_equity_drawdown<amount>()}
+                                                                    {"percent", stats.template max_equity_drawdown<percent>()},
+                                                                    {"amount", stats.template max_equity_drawdown<amount>()}
                                                             }},
                                            {"max run up", {
-                                                                  {"percent", stats.max_equity_run_up<percent>()},
-                                                                  {"amount", stats.max_equity_run_up<amount>()}
+                                                                  {"percent", stats.template max_equity_run_up<percent>()},
+                                                                  {"amount", stats.template max_equity_run_up<amount>()}
                                                           }}
                                    }}};
 }
@@ -151,12 +153,64 @@ json to_json(const configuration<n_levels>& config)
             {"moving average:", to_json(config.ma)}};
 }
 
-template<class Config>
-json to_json(const state<Config>& state)
+template<class Config, class Stats>
+json to_json(const state<Config, Stats>& state)
 {
     return {{"configuration", to_json(state.config)},
             {"statistics",    to_json(state.stats)}};
 }
+
+template<std::size_t n_levels>
+class observer {
+    bazooka::statistics<n_levels> stats_;
+
+public:
+    template<class Trader>
+    void begin(const Trader& trader)
+    {
+        stats_ = bazooka::statistics<n_levels>(trader.wallet_balance());
+    }
+
+    template<class Trader>
+    void traded(const Trader& trader, const trading::action& action)
+    {
+        if (action==action::closed_all) {
+            stats_.update_close_balance(trader.wallet_balance());
+            stats_.update_profit(trader.closed_positions().back().template total_realized_profit<amount>());
+        }
+        else if (action==action::opened) {
+            stats_.update_open_order_count(trader.curr_level()-1);
+        }
+    }
+
+    template<class Trader>
+    void close_balance_updated(const Trader& trader)
+    {
+        stats_.update_close_balance(trader.wallet_balance());
+    }
+
+    template<class Trader>
+    void equity_updated(const Trader& trader, amount_t equity)
+    {
+        stats_.update_equity(equity);
+    }
+
+    template<class Trader>
+    void indicator_updated(const Trader& trader) { }
+
+    template<class Trader>
+    void end(const Trader& trader)
+    {
+        stats_.set_final_balance(trader.wallet_balance());
+        stats_.set_total_open_orders(trader.open_orders().size());
+        stats_.set_total_close_orders(trader.close_orders().size());
+    }
+
+    const auto& stats() const
+    {
+        return stats_;
+    }
+};
 
 int main()
 {
@@ -199,8 +253,8 @@ int main()
     // create simulator
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
     trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period,
-                                 candle::ohlc4};
-    using state_type = state<configuration<n_levels>>;
+                                 candle::ohlc4, observer<n_levels>()};
+    using state_type = state<configuration<n_levels>, bazooka::statistics<n_levels>>;
 
     std::size_t n_states{0};
     for (const auto& curr: search_space()) n_states++;
@@ -214,48 +268,22 @@ int main()
 
     std::cout << "began testing: " << boost::posix_time::second_clock::local_time() << std::endl;
 
-    std::vector<setting<configuration<n_levels>>> settings{
+    std::vector<setting<configuration<n_levels>, bazooka::statistics<n_levels>>> settings{
             {
                     [](const statistics& stats) {
-                        return stats.profit_factor()>20.0;
+                        return stats.profit_factor()>80.0;
                     },
                     [](const state_type& rhs, const state_type& lhs) {
                         return rhs.stats.net_profit()>=lhs.stats.net_profit();
                     },
                     "net-profit"
             },
-//            {
-//                    [](const statistics& stats) {
-//                        return stats.max_close_balance_drawdown<amount>()<0.0;
-//                    },
-//                    [](const state_type& rhs, const state_type& lhs) {
-//                        return rhs.stats.pt_ratio()>lhs.stats.pt_ratio();
-//                    },
-//                    "pt-ratio"
-//            },
-//            {
-//                    [](const statistics& stats) {
-//                        return stats.total_close_orders()>0;
-//                    },
-//                    [](const state_type& rhs, const state_type& lhs) {
-//                        return rhs.stats.order_ratio()>lhs.stats.order_ratio();
-//                    },
-//                    "order-ratio"
-//            },
-//            {
-//                    [](const statistics& stats) {
-//                        return stats.gross_loss()<0.0;
-//                    },
-//                    [](const state_type& rhs, const state_type& lhs) {
-//                        return rhs.stats.profit_factor()>lhs.stats.profit_factor();
-//                    },
-//                    "profit-factor"
-//            }
     };
 
     std::filesystem::path out_dir{"../../src/data/out"};
     for (const auto& set: settings) {
-        trading::optimizer::parallel::brute_force<configuration<n_levels>> optimize{simulator, search_space};
+        trading::optimizer::parallel::brute_force<configuration<n_levels>, bazooka::statistics<n_levels>>
+                optimize{simulator, search_space};
         trading::enumerative_result<state_type> res{30, set.optim_criteria};
 
         duration = measure_duration(to_function([&] {
@@ -305,6 +333,5 @@ int main()
         std::cout << "ended testing: " << boost::posix_time::second_clock::local_time() << std::endl
                   << "testing duration: " << duration << std::endl;
     }
-
     return EXIT_SUCCESS;
 }
