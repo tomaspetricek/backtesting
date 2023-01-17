@@ -160,58 +160,6 @@ json to_json(const state<Config, Stats>& state)
             {"statistics",    to_json(state.stats)}};
 }
 
-template<std::size_t n_levels>
-class observer {
-    bazooka::statistics<n_levels> stats_;
-
-public:
-    template<class Trader>
-    void begin(const Trader& trader)
-    {
-        stats_ = bazooka::statistics<n_levels>(trader.wallet_balance());
-    }
-
-    template<class Trader>
-    void traded(const Trader& trader, const trading::action& action)
-    {
-        if (action==action::closed_all) {
-            stats_.update_close_balance(trader.wallet_balance());
-            stats_.update_profit(trader.closed_positions().back().template total_realized_profit<amount>());
-        }
-        else if (action==action::opened) {
-            stats_.update_open_order_count(trader.curr_level()-1);
-        }
-    }
-
-    template<class Trader>
-    void close_balance_updated(const Trader& trader)
-    {
-        stats_.update_close_balance(trader.wallet_balance());
-    }
-
-    template<class Trader>
-    void equity_updated(const Trader&, amount_t equity)
-    {
-        stats_.update_equity(equity);
-    }
-
-    template<class Trader>
-    void indicator_updated(const Trader&) { }
-
-    template<class Trader>
-    void end(const Trader& trader)
-    {
-        stats_.set_final_balance(trader.wallet_balance());
-        stats_.set_total_open_orders(trader.open_orders().size());
-        stats_.set_total_close_orders(trader.close_orders().size());
-    }
-
-    const auto& stats() const
-    {
-        return stats_;
-    }
-};
-
 int main()
 {
     set_up();
@@ -253,7 +201,7 @@ int main()
     // create simulator
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
     trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period,
-                                 candle::ohlc4, observer<n_levels>()};
+                                 candle::ohlc4, bazooka::statistics<n_levels>::observer()};
     using state_type = state<configuration<n_levels>, bazooka::statistics<n_levels>>;
 
     std::size_t n_states{0};
