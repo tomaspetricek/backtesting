@@ -59,9 +59,14 @@ namespace trading {
                 :market_(std::move(market)), open_sizer_(open_sizer), close_sizer_(close_sizer) { }
 
         // it closes active trade, if there is one
-        void try_closing_active_position(const price_point& point)
+        bool try_closing_active_position(const price_point& point)
         {
-            if (market_.has_active_position()) create_close_all_order(point);
+            bool traded{false};
+            if (market_.has_active_position()) {
+                create_close_all_order(point);
+                traded = true;
+            }
+            return traded;
         }
 
         const std::vector<position>& closed_positions() const
@@ -89,7 +94,7 @@ namespace trading {
             return market_.wallet_balance();
         }
 
-        amount_t equity(const price_t& market)
+        amount_t equity(const price_t& market) const
         {
             return market_.equity(market);
         }

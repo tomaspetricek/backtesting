@@ -30,21 +30,21 @@ namespace trading::bazooka {
             return open_order_counts_;
         }
 
+        template<class Trader>
         class observer {
             bazooka::statistics<n_levels> stats_;
 
         public:
-            template<class Trader>
-            void begin(const Trader& trader)
+            void begin(const Trader& trader, const price_point& first)
             {
                 stats_ = bazooka::statistics<n_levels>(trader.wallet_balance());
             }
 
-            template<class Trader>
-            void traded(const Trader& trader, const trading::action& action)
+            void traded(const Trader& trader, const trading::action& action, const price_point& curr)
             {
                 if (action==action::closed_all) {
                     stats_.update_close_balance(trader.wallet_balance());
+                    stats_.update_equity(trader.equity(curr.data));
                     stats_.update_profit(trader.closed_positions().back().template total_realized_profit<amount>());
                 }
                 else if (action==action::opened) {
@@ -52,22 +52,13 @@ namespace trading::bazooka {
                 }
             }
 
-            template<class Trader>
-            void close_balance_updated(const Trader& trader)
+            void position_active(const Trader& trader, const price_point& curr)
             {
-                stats_.update_close_balance(trader.wallet_balance());
+                stats_.update_equity(trader.equity(curr.data));
             }
 
-            template<class Trader>
-            void equity_updated(const Trader&, amount_t equity)
-            {
-                stats_.update_equity(equity);
-            }
+            void indicator_updated(const Trader&, const price_point&) { }
 
-            template<class Trader>
-            void indicator_updated(const Trader&) { }
-
-            template<class Trader>
             void end(const Trader& trader)
             {
                 stats_.set_final_balance(trader.wallet_balance());

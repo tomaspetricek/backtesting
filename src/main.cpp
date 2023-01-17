@@ -160,6 +160,51 @@ json to_json(const state<Config, Stats>& state)
             {"statistics",    to_json(state.stats)}};
 }
 
+template<class Trader, std::size_t n_levels>
+struct chart_series_observer {
+    std::vector<data_point<price_t>> open_order_series;
+    std::vector<data_point<price_t>> close_order_series;
+    std::vector<data_point<amount_t>> close_balance_series;
+    std::vector<data_point<amount_t>> equity_series;
+    std::vector<data_point<std::array<price_t, n_levels>>> entry_values_series;
+    std::vector<data_point<price_t>> exit_value_series;
+
+public:
+    void begin(const Trader& trader, const price_point& first)
+    {
+        equity_series.template emplace_back(first.time, trader.equity(first.data));
+        close_balance_series.template emplace_back(first.time, trader.wallet_balance());
+    }
+
+    void traded(const Trader& trader, const trading::action& action, const price_point& curr)
+    {
+        if (action==action::closed_all) {
+            equity_series.template emplace_back(curr.time, trader.equity(curr.data));
+            close_balance_series.template emplace_back(curr.time, trader.wallet_balance());
+        }
+    }
+
+    void position_active(const Trader& trader, const price_point& curr)
+    {
+        equity_series.template emplace_back(curr.time, trader.equity(curr.data));
+    }
+
+    void indicator_updated(const Trader& trader, const price_point& curr)
+    {
+        entry_values_series.template emplace_back(curr.time, trader.entry_values());
+        exit_value_series.template emplace_back(curr.time, trader.exit_value());
+    }
+
+    void end(const Trader& trader)
+    {
+        for (const auto& open: trader.open_orders())
+            open_order_series.template emplace_back(open.created, open.price);
+
+        for (const auto& close: trader.close_orders())
+            close_order_series.template emplace_back(close.created, close.price);
+    }
+};
+
 int main()
 {
     set_up();
@@ -200,9 +245,10 @@ int main()
 
     // create simulator
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
-    trading::simulator simulator{to_function(create_trader<n_levels>), std::move(candles), resampling_period,
-                                 candle::ohlc4, bazooka::statistics<n_levels>::observer()};
+    trading::simulator simulator{to_function(create_trader<n_levels>), candles, resampling_period, candle::ohlc4};
     using state_type = state<configuration<n_levels>, bazooka::statistics<n_levels>>;
+
+    using trader_type = decltype(create_trader<n_levels>(configuration<n_levels>()));
 
     std::size_t n_states{0};
     for (const auto& curr: search_space()) n_states++;
@@ -215,70 +261,77 @@ int main()
     if (answer!='y') return EXIT_SUCCESS;
 
     std::cout << "began testing: " << boost::posix_time::second_clock::local_time() << std::endl;
-    std::vector<setting<configuration<n_levels>, bazooka::statistics<n_levels>>> settings{
-            {
-                    [](const statistics& stats) {
-                        return stats.profit_factor()>80.0;
-                    },
-                    [](const state_type& rhs, const state_type& lhs) {
-                        return rhs.stats.net_profit()>=lhs.stats.net_profit();
-                    },
-                    "net-profit"
+    setting<configuration<n_levels>, bazooka::statistics<n_levels>> set{
+            [](const statistics& stats) {
+                return stats.profit_factor()>80.0;
             },
+            [](const state_type& rhs, const state_type& lhs) {
+                return rhs.stats.net_profit()>=lhs.stats.net_profit();
+            },
+            "net-profit"
     };
 
     std::filesystem::path out_dir{"../../src/data/out"};
-    for (const auto& set: settings) {
-        trading::optimizer::parallel::brute_force<configuration<n_levels>, bazooka::statistics<n_levels>>
-                optimize{simulator, search_space};
-        trading::enumerative_result<state_type> res{30, set.optim_criteria};
+    trading::optimizer::parallel::brute_force<configuration<n_levels>, bazooka::statistics<n_levels>>
+            optimize{[&](const configuration<n_levels>& config) {
+        bazooka::statistics<n_levels>::observer<trader_type> observer{};
+        simulator.trade(config, observer);
+        return observer.stats();
+    }, search_space};
+    trading::enumerative_result<state_type> res{30, set.optim_criteria};
 
-        duration = measure_duration(to_function([&] {
-            optimize(res, set.restrictions);
-        }));
+    duration = measure_duration(to_function([&] {
+        optimize(res, set.restrictions);
+    }));
 
-        json res_doc;
-        for (const auto& top: res.get())
-            res_doc.emplace_back(to_json(top));
+    json res_doc;
+    for (const auto& top: res.get())
+        res_doc.emplace_back(to_json(top));
 
-        json set_doc{
-                {{"candles", {
-                        {"from", to_time_t(from)},
-                        {"to", to_time_t(to)},
-                        {"count", n_candles},
-                        {"pair", "ETH/USDT"},
-                }},
-                 {"search space", {
-                         {"states count", n_states},
-                         {"levels", {
-                                 {"unique count", levels_unique_fracs},
-                                 {"max", levels_max_frac},
-                         }},
-                         {"open order sizes", {
-                                 {"unique count", open_sizes_unique_fracs}
-                         }},
-                         {"moving average", {
-                                 {"types", {"sma", "ema"}},
-                                 {"period", {
-                                         {"from", *mov_avg_periods.begin()},
-                                         {"to", *mov_avg_periods.end()},
-                                         {"step", mov_avg_periods.step()}
-                                 }}
-                         }},
-                 }},
-                 {"optimization criteria", set.label},
-                 {"resampling period[min]", resampling_period.count()},
-                }};
+    json set_doc{
+            {{"candles", {
+                    {"from", to_time_t(from)},
+                    {"to", to_time_t(to)},
+                    {"count", n_candles},
+                    {"pair", "ETH/USDT"},
+            }},
+             {"search space", {
+                     {"states count", n_states},
+                     {"levels", {
+                             {"unique count", levels_unique_fracs},
+                             {"max", levels_max_frac},
+                     }},
+                     {"open order sizes", {
+                             {"unique count", open_sizes_unique_fracs}
+                     }},
+                     {"moving average", {
+                             {"types", {"sma", "ema"}},
+                             {"period", {
+                                     {"from", *mov_avg_periods.begin()},
+                                     {"to", *mov_avg_periods.end()},
+                                     {"step", mov_avg_periods.step()}
+                             }}
+                     }},
+             }},
+             {"optimization criteria", set.label},
+             {"resampling period[min]", resampling_period.count()},
+            }};
 
-        json doc{{"setting",      set_doc},
-                 {"duration[ns]", duration.count()},
-                 {"results",      res_doc}};
+    json doc{{"setting",      set_doc},
+             {"duration[ns]", duration.count()},
+             {"results",      res_doc}};
 
-        std::string filename{fmt::format("{}-results.json", set.label)};
-        std::ofstream writer{out_dir/filename};
-        writer << std::setw(4) << doc;
-        std::cout << "ended testing: " << boost::posix_time::second_clock::local_time() << std::endl
-                  << "testing duration: " << duration << std::endl;
-    }
+    std::string filename{fmt::format("{}-results.json", set.label)};
+    std::ofstream writer{out_dir/filename};
+    writer << std::setw(4) << doc;
+    std::cout << "ended testing: " << boost::posix_time::second_clock::local_time() << std::endl
+              << "testing duration: " << duration << std::endl;
+
+    chart_series_observer<trader_type, n_levels> chart_series;
+    auto best = res.get()[0];
+    simulator.trade(best.config, chart_series);
+    assert(chart_series.equity_series.front().data==chart_series.close_balance_series.front().data);
+    assert(chart_series.equity_series.back().data==chart_series.close_balance_series.back().data);
+    assert(chart_series.close_order_series.size()==chart_series.close_balance_series.size()-1);
     return EXIT_SUCCESS;
 }

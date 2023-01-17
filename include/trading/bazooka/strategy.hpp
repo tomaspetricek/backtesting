@@ -63,7 +63,7 @@ namespace trading::bazooka {
         }
 
     protected:
-        double level_value(index_t level)
+        price_t level_value(index_t level) const
         {
             assert(level>=0 && level<n_levels);
             auto baseline = indicator_value(entry_ma_);
@@ -78,20 +78,22 @@ namespace trading::bazooka {
         strategy() = default;
 
     public:
-        void update_indicators(price_t price)
+        bool update_indicators(price_t price)
         {
             ready_ = indicator_update(entry_ma_, price) && indicator_update(exit_ma_, price);
+            return ready_;
         }
 
-        indicator_values<n_levels> get_indicator_values()
+        std::array<price_t, n_levels> entry_values() const
         {
-            assert(ready_);
-            std::array<double, n_levels> levels;
+            std::array<price_t, n_levels> entry_values;
+            for (index_t i{0}; i<n_levels; i++) entry_values[i] = level_value(i);
+            return entry_values;
+        }
 
-            for (index_t i{0}; i<n_levels; i++)
-                levels[i] = level_value(i);
-
-            return indicator_values<n_levels>{indicator_value(entry_ma_), indicator_value(exit_ma_), levels};
+        price_t exit_value() const
+        {
+            return indicator_value(exit_ma_);
         }
 
         bool should_open(price_t curr)

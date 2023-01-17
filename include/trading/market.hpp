@@ -63,7 +63,7 @@ namespace trading {
             return active_->template current_profit<Type>(market);
         }
 
-        amount_t equity(price_t market)
+        amount_t equity(price_t market) const
         {
             amount_t equity = wallet_.balance();
             if (active_) equity += active_->current_value(market);
