@@ -50,7 +50,7 @@ namespace trading {
         auto operator()(const Config& config)
         {
             Trader trader;
-            auto observer = observer_;
+            auto observer{observer_};
 
             // create trader
             try {

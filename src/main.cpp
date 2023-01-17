@@ -164,9 +164,9 @@ int main()
 {
     set_up();
     const std::size_t n_levels{4};
-    std::size_t levels_unique_fracs{n_levels+7};
+    std::size_t levels_unique_fracs{n_levels+1};
     fraction_t levels_max_frac{0.5};
-    std::size_t open_sizes_unique_fracs{n_levels+6};
+    std::size_t open_sizes_unique_fracs{n_levels+1};
     auto levels_gen = systematic::levels_generator<n_levels>{levels_unique_fracs, levels_max_frac};
     auto sizes_gen = systematic::sizes_generator<n_levels>{open_sizes_unique_fracs};
 

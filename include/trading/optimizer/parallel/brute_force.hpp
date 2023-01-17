@@ -24,27 +24,27 @@ namespace trading::optimizer::parallel {
         template<class Restriction, class Result>
         void operator()(Result& res, const Restriction& restrict)
         {
-            #pragma omp parallel
-            {
-                #pragma omp single
-                {
+//            #pragma omp parallel
+//            {
+//                #pragma omp single
+//                {
                     for (const Config& curr: search_space_()) {
-                        #pragma omp task
-                        {
+//                        #pragma omp task
+//                        {
                             try {
                                 auto stats = objective_func_(curr);
                                 if (restrict(stats)) {
-                                    #pragma omp critical
+//                                    #pragma omp critical
                                     res.update(trading::state<Config, Stats>{curr, stats});
                                 }
                             }
                             catch (...) {
                                 std::throw_with_nested(std::runtime_error("Exception thrown while calling a function"));
                             }
-                        }
+//                        }
                     }
-                }
-            }
+//                }
+//            }
         }
     };
 }
