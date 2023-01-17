@@ -79,11 +79,7 @@ namespace trading {
                             observer.indicator_updated(trader, curr);
                 }
             }
-
-            if (trader.try_closing_active_position(curr))
-                observer.traded(trader, action::closed_all, curr);
-
-            observer.end(trader);
+            observer.end(trader, close_points_.back());
         }
     };
 }

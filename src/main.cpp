@@ -166,8 +166,8 @@ struct chart_series_observer {
     std::vector<data_point<price_t>> close_order_series;
     std::vector<data_point<amount_t>> close_balance_series;
     std::vector<data_point<amount_t>> equity_series;
-    std::vector<data_point<std::array<price_t, n_levels>>> entry_values_series;
-    std::vector<data_point<price_t>> exit_value_series;
+    std::vector<data_point<std::array<price_t, n_levels>>> entry_series;
+    std::vector<data_point<price_t>> exit_series;
 
 public:
     void begin(const Trader& trader, const price_point& first)
@@ -191,19 +191,46 @@ public:
 
     void indicator_updated(const Trader& trader, const price_point& curr)
     {
-        entry_values_series.template emplace_back(curr.time, trader.entry_values());
-        exit_value_series.template emplace_back(curr.time, trader.exit_value());
+        entry_series.template emplace_back(curr.time, trader.entry_values());
+        exit_series.template emplace_back(curr.time, trader.exit_value());
     }
 
-    void end(const Trader& trader)
+    void end(const Trader& trader, const price_point& last)
     {
         for (const auto& open: trader.open_orders())
             open_order_series.template emplace_back(open.created, open.price);
 
         for (const auto& close: trader.close_orders())
             close_order_series.template emplace_back(close.created, close.price);
+
+        if (close_balance_series.back().time!=last.time)
+            close_balance_series.template emplace_back(last);
+
+        if (equity_series.back().time!=last.time)
+            equity_series.template emplace_back(last);
     }
 };
+
+template<class Writer, class Data, std::size_t N, std::size_t... Is>
+void write_series_impl(Writer&& writer, const std::vector<data_point<std::array<Data, N>>>& series,
+        std::index_sequence<Is...>)
+{
+    for (const auto& point: series)
+        writer.write_row(point.time, point.data[Is]...);
+}
+
+template<class Writer, class Data, std::size_t N>
+void write_series(Writer&& writer, const std::vector<data_point<std::array<Data, N>>>& series)
+{
+    write_series_impl(writer, series, std::make_index_sequence<N>{});
+}
+
+template<class Writer, class Data>
+void write_series(Writer&& writer, const std::vector<data_point<Data>>& series)
+{
+    for (const auto& point: series)
+        writer.write_row(point.time, point.data);
+}
 
 int main()
 {
@@ -332,6 +359,16 @@ int main()
     simulator.trade(best.config, chart_series);
     assert(chart_series.equity_series.front().data==chart_series.close_balance_series.front().data);
     assert(chart_series.equity_series.back().data==chart_series.close_balance_series.back().data);
-    assert(chart_series.close_order_series.size()==chart_series.close_balance_series.size()-1);
+    assert(chart_series.close_order_series.size()==chart_series.close_balance_series.size()-2);
+
+    // write series
+    std::filesystem::path best_dir{out_dir/"best-series"};
+    std::filesystem::create_directory(best_dir);
+    write_series(io::csv::writer{best_dir/"entry-series.csv"}, chart_series.entry_series);
+    write_series(io::csv::writer{best_dir/"exit-series.csv"}, chart_series.exit_series);
+    write_series(io::csv::writer{best_dir/"open-order-series.csv"}, chart_series.open_order_series);
+    write_series(io::csv::writer{best_dir/"close-order-series.csv"}, chart_series.close_order_series);
+    write_series(io::csv::writer{best_dir/"close-balance-series.csv"}, chart_series.close_balance_series);
+    write_series(io::csv::writer{best_dir/"equity-series.csv"}, chart_series.equity_series);
     return EXIT_SUCCESS;
 }

@@ -35,7 +35,7 @@ namespace trading::bazooka {
             bazooka::statistics<n_levels> stats_;
 
         public:
-            void begin(const Trader& trader, const price_point& first)
+            void begin(const Trader& trader, const price_point&)
             {
                 stats_ = bazooka::statistics<n_levels>(trader.wallet_balance());
             }
@@ -59,7 +59,7 @@ namespace trading::bazooka {
 
             void indicator_updated(const Trader&, const price_point&) { }
 
-            void end(const Trader& trader)
+            void end(const Trader& trader, const price_point&)
             {
                 stats_.set_final_balance(trader.wallet_balance());
                 stats_.set_total_open_orders(trader.open_orders().size());
