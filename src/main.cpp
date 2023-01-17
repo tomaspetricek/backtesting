@@ -190,13 +190,13 @@ public:
     }
 
     template<class Trader>
-    void equity_updated(const Trader& trader, amount_t equity)
+    void equity_updated(const Trader&, amount_t equity)
     {
         stats_.update_equity(equity);
     }
 
     template<class Trader>
-    void indicator_updated(const Trader& trader) { }
+    void indicator_updated(const Trader&) { }
 
     template<class Trader>
     void end(const Trader& trader)
@@ -267,7 +267,6 @@ int main()
     if (answer!='y') return EXIT_SUCCESS;
 
     std::cout << "began testing: " << boost::posix_time::second_clock::local_time() << std::endl;
-
     std::vector<setting<configuration<n_levels>, bazooka::statistics<n_levels>>> settings{
             {
                     [](const statistics& stats) {
