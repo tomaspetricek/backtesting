@@ -195,19 +195,13 @@ public:
         exit_series.template emplace_back(curr.time, trader.exit_value());
     }
 
-    void end(const Trader& trader, const price_point& last)
+    void end(const Trader& trader, const price_point&)
     {
         for (const auto& open: trader.open_orders())
             open_order_series.template emplace_back(open.created, open.price);
 
         for (const auto& close: trader.close_orders())
             close_order_series.template emplace_back(close.created, close.price);
-
-        if (close_balance_series.back().time!=last.time)
-            close_balance_series.template emplace_back(last);
-
-        if (equity_series.back().time!=last.time)
-            equity_series.template emplace_back(last);
     }
 };
 

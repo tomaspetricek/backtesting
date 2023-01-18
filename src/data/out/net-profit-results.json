@@ -1,5 +1,5 @@
 {
-    "duration[ns]": 25004453398,
+    "duration[ns]": 21663600448,
     "results": [
         {
             "configuration": {
@@ -676,8 +676,8 @@
                 "open sizes": [
                     0.25,
                     0.125,
-                    0.375,
-                    0.25
+                    0.5,
+                    0.125
                 ]
             },
             "statistics": {
@@ -796,8 +796,8 @@
                 "open sizes": [
                     0.25,
                     0.125,
-                    0.5,
-                    0.125
+                    0.375,
+                    0.25
                 ]
             },
             "statistics": {
