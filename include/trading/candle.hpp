@@ -27,26 +27,25 @@ namespace trading {
                 :opened_(opened), open_(price_t{open}), high_(price_t{high}),
                  low_(price_t{low}), close_(price_t{close})
         {
-            if (high<low)
-                throw std::invalid_argument("High price has to be lower or equal to low price");
+            if (high<low) throw std::invalid_argument("High price has to be lower or equal to low price");
         }
 
         // mean high and low
         static price_t hl2(const candle& candle)
         {
-            return mean(candle.high_, candle.low_);
+            return mean<price_t>(candle.high_, candle.low_);
         }
 
         // mean open, high, low, close
         static price_t hlc3(const candle& candle)
         {
-            return mean(candle.high_, candle.low_);
+            return mean<price_t>(candle.high_, candle.low_);
         }
 
         // mean open, high, low, close
         static price_t ohlc4(const candle& candle)
         {
-            return mean(candle.open_, candle.high_, candle.low_, candle.close_);
+            return mean<price_t>(candle.open_, candle.high_, candle.low_, candle.close_);
         }
 
         bool risen() const

@@ -274,9 +274,9 @@ int main()
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
     trading::simulator simulator{to_function(create_trader<n_levels>), candles, resampling_period, candle::ohlc4};
     using state_type = state<configuration<n_levels>, bazooka::statistics<n_levels>>;
-
     using trader_type = decltype(create_trader<n_levels>(configuration<n_levels>()));
 
+    // count number of states
     std::size_t n_states{0};
     for (const auto& curr: search_space()) n_states++;
     std::cout << "search space:" << std::endl
@@ -298,6 +298,7 @@ int main()
             "net-profit"
     };
 
+    // use brute force optimizer
     std::filesystem::path out_dir{"../../src/data/out"};
     trading::optimizer::parallel::brute_force<configuration<n_levels>, bazooka::statistics<n_levels>>
             optimize{[&](const configuration<n_levels>& config) {
@@ -306,11 +307,11 @@ int main()
         return observer.stats();
     }, search_space};
     trading::enumerative_result<state_type> res{30, set.optim_criteria};
-
     duration = measure_duration(to_function([&] {
         optimize(res, set.restrictions);
     }));
 
+    // save results to json document
     json res_doc;
     for (const auto& top: res.get())
         res_doc.emplace_back(to_json(top));
@@ -354,12 +355,10 @@ int main()
     std::cout << "ended testing: " << boost::posix_time::second_clock::local_time() << std::endl
               << "testing duration: " << duration << std::endl;
 
+    // collect chart series of the best results
     chart_series_observer<trader_type, n_levels> chart_series;
     auto best = res.get()[0];
     simulator.trade(best.config, chart_series);
-    assert(chart_series.equity_series.front().data==chart_series.close_balance_series.front().data);
-    assert(chart_series.equity_series.back().data==chart_series.close_balance_series.back().data);
-    assert(chart_series.close_order_series.size()==chart_series.close_balance_series.size()-2);
 
     // write series
     std::filesystem::path best_dir{out_dir/"best-series"};

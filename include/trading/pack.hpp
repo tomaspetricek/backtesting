@@ -21,10 +21,11 @@ auto sum(Type... vals)
     return (vals + ...);
 }
 
-template<typename... Type>
-double mean(const Type&... vals)
+template <class R, class... Ts>
+R mean(Ts... vals)
 {
-    return static_cast<double>(sum(vals...))/sizeof...(vals);
+    static_assert(std::is_floating_point<R>::value);
+    return static_cast<R>(sum(vals...))/sizeof...(vals);
 }
 
 #endif //EMASTRATEGY_PACK_HPP
