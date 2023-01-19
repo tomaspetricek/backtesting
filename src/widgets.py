@@ -69,8 +69,10 @@ class CandlestickWidget:
     def _plot_data_points(self, min_time, max_time):
         self._ax.clear()
         addons = [
-            mpf.make_addplot(self._entry_indic_series.loc[min_time:max_time], ax=self._ax, type='line'),
-            mpf.make_addplot(self._exit_indic_series.loc[min_time:max_time], ax=self._ax, type='line'),
+            mpf.make_addplot(self._entry_indic_series.loc[min_time:max_time], ax=self._ax,
+                             type='scatter', markersize=1, marker='*'),
+            mpf.make_addplot(self._exit_indic_series.loc[min_time:max_time], ax=self._ax,
+                             type='scatter', markersize=1, marker='*'),
             mpf.make_addplot(self._close_order_series.loc[min_time:max_time], ax=self._ax,
                              type='scatter', markersize=200, marker='v'),
             mpf.make_addplot(self._open_order_series.loc[min_time:max_time], ax=self._ax,

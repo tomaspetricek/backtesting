@@ -1,5 +1,5 @@
 {
-    "duration[ns]": 22309851801,
+    "duration[ns]": 23349787404,
     "results": [
         {
             "configuration": {
@@ -616,8 +616,8 @@
                 "open sizes": [
                     0.25,
                     0.125,
-                    0.25,
-                    0.375
+                    0.125,
+                    0.5
                 ]
             },
             "statistics": {
@@ -736,8 +736,8 @@
                 "open sizes": [
                     0.25,
                     0.125,
-                    0.125,
-                    0.5
+                    0.25,
+                    0.375
                 ]
             },
             "statistics": {
@@ -858,21 +858,4 @@
                     "unique count": 5
                 },
                 "moving average": {
-                    "period": {
-                        "from": 3,
-                        "step": 3,
-                        "to": 36
-                    },
-                    "types": [
-                        "sma",
-                        "ema"
-                    ]
-                },
-                "open order sizes": {
-                    "unique count": 5
-                },
-                "states count": 3850
-            }
-        }
-    ]
-}
+       
