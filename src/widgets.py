@@ -6,17 +6,17 @@ from matplotlib.dates import num2date, date2num
 
 
 class CandlestickWidget:
-    def __init__(self, candlestick_points, indic_points, mean_price_points, open_points, closed_points,
+    def __init__(self, candle_series, entry_indic_series, exit_indic_series, open_order_series, close_order_series,
                  fig_title, n_points_visible=250):
-        self._candlestick_points = candlestick_points
-        self._min_time = self._candlestick_points.index[0]
-        self._indic_points = indic_points
-        self._mean_price_points = mean_price_points
-        self._open_points = open_points
-        self._closed_points = closed_points
+        self._candle_series = candle_series
+        self._min_time = self._candle_series.index[0]
+        self._entry_indic_series = entry_indic_series
+        self._exit_indic_series = exit_indic_series
+        self._open_order_series = open_order_series
+        self._close_order_series = close_order_series
         self._n_points_visible = n_points_visible
-        min_time = self._candlestick_points.index[0]
-        max_time = self._candlestick_points.index[n_points_visible]
+        min_time = self._candle_series.index[0]
+        max_time = self._candle_series.index[n_points_visible]
         self._delta_time = max_time - min_time
         self._create_labels()
         self._create_figure(fig_title)
@@ -40,16 +40,17 @@ class CandlestickWidget:
     def _create_labels(self):
         self._labels = [
             'candlestick wick', 'candlestick body',
-            *list(self._indic_points), *list(self._mean_price_points),
-            "open position", "closed position"
+            *list(self._entry_indic_series),
+            *list(self._exit_indic_series),
+            "open order", "close order"
         ]
 
     def _create_slider(self):
         slider_ax = plt.axes([0.18, 0.05, 0.6, 0.03])
-        min_time = self._candlestick_points.index[0]
+        min_time = self._candle_series.index[0]
         slider_min_val = date2num(min_time)
-        slider_max_index = len(self._candlestick_points.index) - self._n_points_visible - 1
-        slider_max_time = self._candlestick_points.index[slider_max_index]
+        slider_max_index = len(self._candle_series.index) - self._n_points_visible - 1
+        slider_max_time = self._candle_series.index[slider_max_index]
         slider_max_val = date2num(slider_max_time)
         self._time_slider = Slider(slider_ax, "time", slider_min_val, slider_max_val)
 
@@ -68,18 +69,14 @@ class CandlestickWidget:
     def _plot_data_points(self, min_time, max_time):
         self._ax.clear()
         addons = [
-            mpf.make_addplot(self._indic_points.loc[min_time:max_time], ax=self._ax),
-            mpf.make_addplot(self._mean_price_points.loc[min_time:max_time], ax=self._ax),
-            mpf.make_addplot(self._closed_points.loc[min_time:max_time], ax=self._ax,
+            mpf.make_addplot(self._entry_indic_series.loc[min_time:max_time], ax=self._ax, type='line'),
+            mpf.make_addplot(self._exit_indic_series.loc[min_time:max_time], ax=self._ax, type='line'),
+            mpf.make_addplot(self._close_order_series.loc[min_time:max_time], ax=self._ax,
                              type='scatter', markersize=200, marker='v'),
+            mpf.make_addplot(self._open_order_series.loc[min_time:max_time], ax=self._ax,
+                             type='scatter', markersize=200, marker='^'),
         ]
-
-        # add open points - can be more in one time
-        for open_points in self._open_points:
-            addons.append(mpf.make_addplot(open_points.loc[min_time:max_time], ax=self._ax,
-                                           type='scatter', markersize=200, marker='^'))
-
-        mpf.plot(self._candlestick_points.loc[min_time:max_time], ax=self._ax,
+        mpf.plot(self._candle_series.loc[min_time:max_time], ax=self._ax,
                  addplot=addons, type='candle', style='binance')
         self._ax.legend(self._labels, loc='center left', bbox_to_anchor=(1, 0.5))
 

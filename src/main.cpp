@@ -166,7 +166,8 @@ struct chart_series_observer {
     std::vector<data_point<price_t>> close_order_series;
     std::vector<data_point<amount_t>> close_balance_series;
     std::vector<data_point<amount_t>> equity_series;
-    std::vector<data_point<std::array<price_t, n_levels>>> entry_series;
+    std::vector<data_point<std::array<price_t, n_levels>>>
+    entry_series;
     std::vector<data_point<price_t>> exit_series;
 
 public:
@@ -206,24 +207,48 @@ public:
 };
 
 template<class Writer, class Data, std::size_t N, std::size_t... Is>
-void write_series_impl(Writer&& writer, const std::vector<data_point<std::array<Data, N>>>& series,
-        std::index_sequence<Is...>)
+void write_series_impl(Writer&& writer, const std::vector<data_point<std::array<Data, N>>
+>& series,
+std::index_sequence<Is...>)
 {
-    for (const auto& point: series)
-        writer.write_row(point.time, point.data[Is]...);
+for (
+const auto& point
+: series)
+writer.
+write_row(point
+.time, point.data[Is]...);
 }
 
 template<class Writer, class Data, std::size_t N>
-void write_series(Writer&& writer, const std::vector<data_point<std::array<Data, N>>>& series)
+void write_series(Writer&& writer, const std::vector<data_point<std::array<Data, N>>
+>& series)
 {
-    write_series_impl(writer, series, std::make_index_sequence<N>{});
+write_series_impl(writer, series, std::make_index_sequence<N>{}
+);
 }
 
 template<class Writer, class Data>
-void write_series(Writer&& writer, const std::vector<data_point<Data>>& series)
+void write_series(Writer&& writer, const std::vector<data_point<Data>>
+& series)
 {
-    for (const auto& point: series)
-        writer.write_row(point.time, point.data);
+for (
+const auto& point
+: series)
+writer.
+write_row(point
+.time, point.data);
+}
+
+template<std::size_t n_cols, class Data>
+void write_csv(const std::filesystem::path& path, const std::array<std::string, n_cols>& header,
+        const std::vector<data_point<Data>>
+& series)
+{
+io::csv::writer writer{path};
+writer.
+template write_header(header);
+write_series(writer, series
+);
 }
 
 int main()
@@ -282,7 +307,8 @@ int main()
     if (answer!='y') return EXIT_SUCCESS;
 
     std::cout << "began testing: " << boost::posix_time::second_clock::local_time() << std::endl;
-    setting<configuration<n_levels>, bazooka::statistics<n_levels>> set{
+    setting<configuration<n_levels>, bazooka::statistics<n_levels>>
+    set{
             [](const statistics& stats) {
                 return stats.profit_factor()>80.0;
             },
@@ -357,11 +383,20 @@ int main()
     // write series
     std::filesystem::path best_dir{out_dir/"best-series"};
     std::filesystem::create_directory(best_dir);
-    write_series(io::csv::writer{best_dir/"entry-series.csv"}, chart_series.entry_series);
-    write_series(io::csv::writer{best_dir/"exit-series.csv"}, chart_series.exit_series);
-    write_series(io::csv::writer{best_dir/"open-order-series.csv"}, chart_series.open_order_series);
-    write_series(io::csv::writer{best_dir/"close-order-series.csv"}, chart_series.close_order_series);
-    write_series(io::csv::writer{best_dir/"close-balance-series.csv"}, chart_series.close_balance_series);
-    write_series(io::csv::writer{best_dir/"equity-series.csv"}, chart_series.equity_series);
+    std::array<std::string, n_levels+1> entry_header;
+    entry_header[0] = "time";
+    for (std::size_t i{1}; i<entry_header.size(); i++)
+        entry_header[i] = fmt::format("level {}", i);
+    write_csv({best_dir/"entry-indic-series.csv"}, entry_header, chart_series.entry_series);
+    write_csv({best_dir/"exit-indic-series.csv"}, std::array<std::string, 2>{"time", "exit indicator"},
+            chart_series.exit_series);
+    write_csv({best_dir/"open-order-series.csv"}, std::array<std::string, 2>{"time", "open order"},
+            chart_series.open_order_series);
+    write_csv({best_dir/"close-order-series.csv"}, std::array<std::string, 2>{"time", "close order"},
+            chart_series.close_order_series);
+    write_csv({best_dir/"close-balance-series.csv"}, std::array<std::string, 2>{"time", "close balance"},
+            chart_series.close_balance_series);
+    write_csv({best_dir/"equity-series.csv"}, std::array<std::string, 2>{"time", "equity"},
+            chart_series.equity_series);
     return EXIT_SUCCESS;
 }
