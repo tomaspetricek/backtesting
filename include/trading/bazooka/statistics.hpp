@@ -8,6 +8,7 @@
 #include <array>
 #include <trading/statistics.hpp>
 #include <trading/action.hpp>
+#include <trading/data_point.hpp>
 
 namespace trading::bazooka {
     template<std::size_t n_levels>
@@ -31,7 +32,7 @@ namespace trading::bazooka {
         }
 
         template<class Trader>
-        class observer {
+        class collector {
             bazooka::statistics<n_levels> stats_;
 
         public:
@@ -66,7 +67,7 @@ namespace trading::bazooka {
                 stats_.set_total_close_orders(trader.close_orders().size());
             }
 
-            const auto& stats() const
+            const auto& get() const
             {
                 return stats_;
             }

@@ -15,11 +15,22 @@
 #include <trading/indicator/ema.hpp>
 #include <trading/tuple.hpp>
 #include <trading/exception.hpp>
-#include <trading/bazooka/indicator_values.hpp>
 #include <trading/types.hpp>
 
 namespace trading::bazooka {
     using indicator_type = std::variant<indicator::sma, indicator::ema>;
+
+    std::string moving_average_type(const indicator_type& indic)
+    {
+        return indic.index() ? "ema" : "sma";
+    }
+
+    std::size_t moving_average_period(const indicator_type& ma)
+    {
+        return std::visit([](const auto& indic) {
+            return indic.period();
+        }, ma);
+    }
 
     // entry levels: 0 - first level, n_levels-1 - last level
     template<class EntryComp, class ExitComp, std::size_t n_levels>

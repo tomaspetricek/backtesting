@@ -6,11 +6,15 @@
 #define BACKTESTING_CONFIG_HPP
 
 #include <array>
+#include <trading/bazooka/strategy.hpp>
+#include <trading/types.hpp>
 
 namespace trading::bazooka {
     template<std::size_t n_levels>
-    class config {
-
+    struct configuration {
+        bazooka::indicator_type ma;
+        std::array<fraction_t, n_levels> levels;
+        std::array<fraction_t, n_levels> open_sizes;
     };
 }
 

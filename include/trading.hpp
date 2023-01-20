@@ -5,9 +5,10 @@
 #ifndef TRADING_TRADING_HPP
 #define TRADING_TRADING_HPP
 
-#include <trading/bazooka/indicator_values.hpp>
+#include <trading/bazooka/configuration.hpp>
 #include <trading/bazooka/long_strategy.hpp>
 #include <trading/bazooka/short_strategy.hpp>
+#include <trading/bazooka/state.hpp>
 #include <trading/bazooka/statistics.hpp>
 #include <trading/direction.hpp>
 #include <trading/market.hpp>
@@ -25,6 +26,8 @@
 #include <trading/view/candle_deserializer.hpp>
 #include <trading/types.hpp>
 #include <trading/candle.hpp>
+#include <trading/chart_series.hpp>
+#include <trading/convert.hpp>
 #include <trading/currency.hpp>
 #include <trading/data_point.hpp>
 #include <trading/exception.hpp>
