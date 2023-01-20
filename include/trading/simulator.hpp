@@ -47,8 +47,8 @@ namespace trading {
             }
         }
 
-        template<class Observer>
-        void trade(const Config& config, Observer& observer)
+        template<class... Observer>
+        void trade(const Config& config, Observer&... observers)
         {
             Trader trader;
 
@@ -63,23 +63,23 @@ namespace trading {
             // trade
             amount_t min_allowed_equity{100};
             auto indic_prices_it = indic_prices_.begin();
-            observer.begin(trader, close_points_.front());
+            (observers.begin(trader, close_points_.front()), ...);
             price_point curr;
 
             for (std::size_t i{0}; i<close_points_.size(); i++) {
                 curr = close_points_[i];
                 if (trader.equity(close_points_[i].data)>min_allowed_equity) {
-                    observer.traded(trader, trader.trade(curr), curr);
+                    (observers.traded(trader, trader.trade(curr), curr), ...);
 
                     if (trader.has_active_position())
-                        observer.position_active(trader, curr);
+                        (observers.position_active(trader, curr), ...);
 
                     if (i && (i+1)%resampling_period_==0)
                         if (trader.update_indicators((*indic_prices_it++)))
-                            observer.indicator_updated(trader, curr);
+                            (observers.indicator_updated(trader, curr), ...);
                 }
             }
-            observer.end(trader, close_points_.back());
+            (observers.end(trader, close_points_.back()), ...);
         }
     };
 }
