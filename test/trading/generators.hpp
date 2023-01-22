@@ -3,6 +3,8 @@
 //
 
 #include <boost/test/unit_test.hpp>
+#include <unordered_map>
+#include <array>
 #include <exception>
 #include <trading/generators.hpp>
 
@@ -22,13 +24,9 @@ void test_usage(Generator&& gen, const std::vector<std::array<fraction_t, seq_si
     BOOST_REQUIRE_EQUAL(expect_seqs.size(), n_gen);
 }
 
-BOOST_AUTO_TEST_SUITE(levels_generator_test)
+BOOST_AUTO_TEST_SUITE(systematic_levels_generator_test)
     BOOST_AUTO_TEST_CASE(constructor_exception_test)
     {
-        // max lower than 0.0
-        BOOST_REQUIRE_THROW(trading::systematic::levels_generator<2>(2, -0.1), std::invalid_argument);
-        // max higher than 1.0
-        BOOST_REQUIRE_THROW(trading::systematic::levels_generator<2>(2, 1.1), std::invalid_argument);
         // too few number of unique values
         BOOST_REQUIRE_THROW(trading::systematic::levels_generator<2>(1), std::invalid_argument);
     }
@@ -64,22 +62,9 @@ BOOST_AUTO_TEST_SUITE(levels_generator_test)
                         {static_cast<fraction_t>(2./denom), static_cast<fraction_t>(1./denom)},
                 });
     }
-
-    BOOST_AUTO_TEST_CASE(max_fraction_usage_test)
-    {
-        constexpr std::size_t n_levels{4};
-        std::size_t n_fracs{n_levels};
-        fraction_t max{0.5};
-        double denom{(static_cast<fraction_t>(n_fracs)+1)*(1/max)}; // 10
-        test_usage(trading::systematic::levels_generator<n_levels>(n_fracs, max),
-                std::vector<std::array<fraction_t, n_levels>>{
-                        {static_cast<fraction_t>(9./denom), static_cast<fraction_t>(8./denom),
-                         static_cast<fraction_t>(7./denom), static_cast<fraction_t>(6.f/denom)}
-                });
-    }
 BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE(sizes_generator_test)
+BOOST_AUTO_TEST_SUITE(systematic_sizes_generator_test)
     BOOST_AUTO_TEST_CASE(constructor_exception_test)
     {
         BOOST_REQUIRE_THROW(trading::systematic::sizes_generator<2>(0), std::invalid_argument);
@@ -127,6 +112,48 @@ BOOST_AUTO_TEST_SUITE(sizes_generator_test)
                 });
     }
 
+BOOST_AUTO_TEST_SUITE_END()
+
+template<class RandomGenerator, class SystematicGenerator>
+void test_accessibility(RandomGenerator& rand_gen, SystematicGenerator& sys_gen, std::size_t max_it)
+{
+    using map_type = std::map<typename RandomGenerator::return_type, bool>;
+    map_type all;
+
+    for (const auto& sizes: sys_gen())
+        all.insert(typename map_type::value_type{sizes, false});
+
+    std::size_t it{0};
+    while (++it!=max_it) {
+        const auto& sizes = rand_gen();
+        BOOST_REQUIRE(all.contains(sizes));
+        all[sizes] = true;
+    }
+
+    for (const auto& [sizes, generated]: all)
+        BOOST_REQUIRE(generated);
+}
+
+BOOST_AUTO_TEST_SUITE(random_sizes_generator_test)
+    BOOST_AUTO_TEST_CASE(accessibility_test)
+    {
+        const std::size_t n_levels{3};
+        std::size_t n_unique{15};
+        trading::random::sizes_generator<n_levels> rand_gen{n_unique};
+        trading::systematic::sizes_generator<n_levels> sys_gen{n_unique};
+        test_accessibility(rand_gen, sys_gen, 1'000);
+    }
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(random_levels_generator_test)
+    BOOST_AUTO_TEST_CASE(accessibility_test)
+    {
+        const std::size_t n_levels{3};
+        std::size_t n_unique{15};
+        trading::random::levels_generator<n_levels> rand_gen{n_unique};
+        trading::systematic::levels_generator<n_levels> sys_gen{n_unique};
+        test_accessibility(rand_gen, sys_gen, 10'000);
+    }
 BOOST_AUTO_TEST_SUITE_END()
 
 #endif //BACKTESTING_TEST_GENERATORS_HPP
