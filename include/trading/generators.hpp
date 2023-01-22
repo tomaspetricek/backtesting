@@ -17,8 +17,8 @@ namespace trading {
     protected:
         static_assert(n_sizes>1);
         std::array<fraction_t, n_sizes> sizes_;
-        std::size_t n_fracs_;
-        std::size_t max_;
+        std::size_t denom_;
+        std::size_t max_num_;
 
         std::size_t validate_n_unique(std::size_t n_unique)
         {
@@ -29,7 +29,7 @@ namespace trading {
 
     public:
         explicit sizes_generator(std::size_t n_unique)
-                :n_fracs_(n_sizes+validate_n_unique(n_unique)-1), max_(n_fracs_-n_sizes+1) { }
+                :denom_(n_sizes+validate_n_unique(n_unique)-1), max_num_(denom_-n_sizes+1) { }
     };
 
     template<std::size_t n_levels>
@@ -38,7 +38,7 @@ namespace trading {
     protected:
 //        constexpr static fraction_t default_max{1.0};
         std::array<fraction_t, n_levels> levels_;
-        std::size_t n_fracs_;
+        std::size_t denom_;
 
         std::size_t validate_n_unique(std::size_t n_unique)
         {
@@ -50,7 +50,7 @@ namespace trading {
 
     public:
         explicit levels_generator(size_t n_unique = n_levels)
-                :n_fracs_(validate_n_unique(n_unique)+1) { }
+                :denom_(validate_n_unique(n_unique)+1) { }
     };
 
     namespace random {
@@ -67,7 +67,7 @@ namespace trading {
             {
                 nums_.reserve(n_unique);
                 for (std::size_t i{0}; i<n_unique; i++)
-                    nums_.emplace_back(static_cast<double>(i+1)/this->n_fracs_);
+                    nums_.emplace_back(static_cast<double>(i+1)/this->denom_);
             }
 
             const return_type& operator()()
@@ -90,7 +90,7 @@ namespace trading {
 
             explicit sizes_generator(size_t n_unique)
                     :trading::sizes_generator<n_sizes>(n_unique), gen_(std::random_device{}()),
-                     distrib_(1, this->max_)
+                     distrib_(1, this->max_num_)
             {
                 for (std::size_t i{0}; i<indices_.size(); i++)
                     indices_[i] = i;
@@ -98,18 +98,18 @@ namespace trading {
 
             const return_type& operator()()
             {
-                std::size_t remaining{this->n_fracs_};
+                std::size_t remaining{this->denom_};
                 std::size_t num, curr_max;
                 std::shuffle(indices_.begin(), indices_.end(), gen_);
 
                 for (std::size_t i{0}; i<n_sizes-1; i++) {
-                    curr_max = (remaining>this->max_) ? this->max_ : remaining-1;
+                    curr_max = (remaining>this->max_num_) ? this->max_num_ : remaining-1;
                     distrib_.param(std::uniform_int_distribution<std::size_t>::param_type{1, curr_max});
                     num = distrib_(gen_);
-                    this->sizes_[indices_[i]] = static_cast<fraction_t>(num)/this->n_fracs_;
+                    this->sizes_[indices_[i]] = static_cast<fraction_t>(num)/this->denom_;
                     remaining -= num;
                 }
-                this->sizes_[indices_.back()] = static_cast<fraction_t>(remaining)/this->n_fracs_;
+                this->sizes_[indices_.back()] = static_cast<fraction_t>(remaining)/this->denom_;
                 return this->sizes_;
             }
         };
@@ -149,7 +149,7 @@ namespace trading {
 
             return_type operator()()
             {
-                co_yield generate<0>(this->n_fracs_);
+                co_yield generate<0>(this->denom_);
             }
 
         private:
@@ -162,7 +162,7 @@ namespace trading {
             return_type generate(std::size_t prev_num)
             {
                 for (std::size_t num{--prev_num}; num>n_levels-depth-1; num--) {
-                    std::get<depth>(this->levels_) = static_cast<double>(num)/this->n_fracs_;
+                    std::get<depth>(this->levels_) = static_cast<double>(num)/this->denom_;
                     co_yield generate<depth+1>(num);
                 }
             }
@@ -177,7 +177,7 @@ namespace trading {
             requires (depth+1==n_sizes)
             return_type generate(std::size_t remaining)
             {
-                std::get<depth>(this->sizes_) = static_cast<double>(remaining)/this->n_fracs_;
+                std::get<depth>(this->sizes_) = static_cast<double>(remaining)/this->denom_;
                 co_yield this->sizes_;
             }
 
@@ -185,9 +185,9 @@ namespace trading {
             requires (depth+1<n_sizes)
             return_type generate(std::size_t remaining)
             {
-                std::size_t max = (remaining>this->max_) ? this->max_ : remaining-1;
+                std::size_t max = (remaining>this->max_num_) ? this->max_num_ : remaining-1;
                 for (std::size_t size{1}; size<=max; size++) {
-                    std::get<depth>(this->sizes_) = static_cast<double>(size)/this->n_fracs_;
+                    std::get<depth>(this->sizes_) = static_cast<double>(size)/this->denom_;
                     co_yield generate<depth+1>(remaining-size);
                 }
             }
@@ -198,7 +198,7 @@ namespace trading {
 
             return_type operator()()
             {
-                co_yield generate<0>(this->n_fracs_);
+                co_yield generate<0>(this->denom_);
             }
         };
     }
