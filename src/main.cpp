@@ -131,13 +131,32 @@ void to_csv(chart_series<n_levels>&& series, const std::filesystem::path& out_di
 
 int main()
 {
+    {
+        const std::size_t n_levels{3};
+        std::size_t n_unique{10};
+        auto sizes_gen = trading::random::sizes_generator<n_levels>{n_unique};
+        std::size_t it{0}, max_it{1'000};
+
+        std::cout << "systematic" << std::endl;
+        use_generator(trading::systematic::sizes_generator<n_levels>{n_unique});
+
+        std::cout << "random" << std::endl;
+        while(++it!=max_it) {
+            const auto& sizes = sizes_gen();
+            for (std::size_t i{0}; i<sizes.size(); i++)
+                std::cout << sizes[i] << ", ";
+            std::cout << std::endl;
+        }
+    }
+    std::terminate();
+
     set_up();
     std::filesystem::path out_dir{"../../src/data/out"};
     const std::size_t n_levels{4};
     std::size_t levels_unique_fracs{n_levels+1};
     fraction_t levels_max_frac{0.5};
     std::size_t open_sizes_unique_fracs{n_levels+1};
-    auto levels_gen = systematic::levels_generator<n_levels>{levels_unique_fracs, levels_max_frac};
+    auto levels_gen = systematic::levels_generator<n_levels>{levels_unique_fracs};
     auto sizes_gen = systematic::sizes_generator<n_levels>{open_sizes_unique_fracs};
 
     // read candles
@@ -179,10 +198,10 @@ int main()
     std::cout << "search space:" << std::endl
               << "n states: " << n_states << std::endl;
 
-    std::cerr << "Proceed to testing? y/n" << std::endl;
-    char answer;
-    std::cin >> answer;
-    if (answer!='y') return EXIT_SUCCESS;
+//    std::cerr << "Proceed to testing? y/n" << std::endl;
+//    char answer;
+//    std::cin >> answer;
+//    if (answer!='y') return EXIT_SUCCESS;
 
     std::cout << "began testing: " << boost::posix_time::second_clock::local_time() << std::endl;
     setting<bazooka::configuration<n_levels>, bazooka::statistics<n_levels>> set{
@@ -258,10 +277,11 @@ int main()
             {0.7692307829856873, 0.07692307978868484, 0.07692307978868484, 0.07692307978868484}
     };
 
-    chart_series<n_levels>::collector<trader_type> collector;
-    simulator.trade(config, collector);
+    chart_series<n_levels>::collector<trader_type> series_collector;
+    bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
+    simulator.trade(config, series_collector, stats_collector);
     std::filesystem::path best_dir{out_dir/"best-series"};
     std::filesystem::create_directory(best_dir);
-    to_csv(collector.get(), best_dir);
+    to_csv(series_collector.get(), best_dir);
     return EXIT_SUCCESS;
 }

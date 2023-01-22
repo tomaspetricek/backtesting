@@ -8,42 +8,6 @@
 #include <functional>
 #include <cmath>
 
-#include <random>
-
-
-template<typename T>
-class rand_int_range_generator {
-private:
-    std::random_device _rand_dev;
-    std::mt19937 _gen;
-    std::uniform_int_distribution<T> _distrib;
-
-public:
-    explicit rand_int_range_generator(const T from, const T to)
-            : _rand_dev{}, _gen{_rand_dev()}, _distrib{from, to} {}
-
-    T operator()() {
-        return _distrib(_gen);
-    }
-};
-
-
-template<typename T>
-class rand_real_range_generator {
-private:
-    std::random_device _rand_dev;
-    std::mt19937 _gen;
-    std::uniform_real_distribution<T> _distrib;
-
-public:
-    explicit rand_real_range_generator(const T from, const T to)
-            : _rand_dev{}, _gen{_rand_dev()}, _distrib{from, to} {}
-
-    T operator()() {
-        return _distrib(_gen);
-    }
-};
-
 namespace trading {
     template<class Config>
     class simulated_annealing {
