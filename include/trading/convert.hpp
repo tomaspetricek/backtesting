@@ -9,68 +9,86 @@
 #include <trading/bazooka/strategy.hpp>
 #include <trading/bazooka/configuration.hpp>
 #include <nlohmann/json.hpp>
+#include <fmt/format.h>
 
 using json = nlohmann::json;
 
-namespace trading::convert {
-    template<std::size_t n_levels>
-    json to_json(const bazooka::statistics<n_levels>& stats)
-    {
-        return {{"net profit",         stats.net_profit()},
-                {"pt ratio",           stats.pt_ratio()},
-                {"profit factor",      stats.profit_factor()},
-                {"gross profit",       stats.gross_profit()},
-                {"gross loss",         stats.gross_loss()},
-                {"order ratio",        stats.order_ratio()},
-                {"total open orders",  stats.total_open_orders()},
-                {"total close orders", stats.total_close_orders()},
-                {"open order counts",  stats.open_order_counts()},
-                {"close balance",      {
-                                               {"min", stats.min_close_balance()},
-                                               {"max", stats.max_close_balance()},
-                                               {"max drawdown", {
-                                                                        {"percent", stats.template max_close_balance_drawdown<percent>()},
-                                                                        {"amount", stats.template max_close_balance_drawdown<amount>()}
-                                                                }},
-                                               {"max run up", {
-                                                                      {"percent", stats.template max_close_balance_run_up<percent>()},
-                                                                      {"amount", stats.template max_close_balance_run_up<amount>()}
-                                                              }}
-                                       }},
-                {"equity",             {
-                                               {"min", stats.min_equity()},
-                                               {"max", stats.max_equity()},
-                                               {"max drawdown", {
-                                                                        {"percent", stats.template max_equity_drawdown<percent>()},
-                                                                        {"amount", stats.template max_equity_drawdown<amount>()}
-                                                                }},
-                                               {"max run up", {
-                                                                      {"percent", stats.template max_equity_run_up<percent>()},
-                                                                      {"amount", stats.template max_equity_run_up<amount>()}
-                                                              }}
-                                       }}};
-    }
-
-    json to_json(const bazooka::indicator_type& indic)
-    {
-        return {{"period", bazooka::moving_average_period(indic)},
-                {"type",   bazooka::moving_average_type(indic)}};
-    }
+namespace nlohmann {
+    template<typename T>
+    struct adl_serializer<boost::rational<T>> {
+        static void to_json(json& j, const boost::rational<T>& frac)
+        {
+            j = fmt::format("{}/{}", frac.numerator(), frac.denominator());
+        }
+    };
 
     template<std::size_t n_levels>
-    json to_json(const bazooka::configuration<n_levels>& config)
-    {
-        return {{"levels",          config.levels},
-                {"open sizes",      config.open_sizes},
-                {"moving average:", to_json(config.ma)}};
-    }
+    struct adl_serializer<trading::bazooka::statistics<n_levels>> {
+        static void to_json(json& j, const trading::bazooka::statistics<n_levels>& stats)
+        {
+            j = {{"net profit",         stats.net_profit()},
+                 {"pt ratio",           stats.pt_ratio()},
+                 {"profit factor",      stats.profit_factor()},
+                 {"gross profit",       stats.gross_profit()},
+                 {"gross loss",         stats.gross_loss()},
+                 {"order ratio",        stats.order_ratio()},
+                 {"total open orders",  stats.total_open_orders()},
+                 {"total close orders", stats.total_close_orders()},
+                 {"open order counts",  stats.open_order_counts()},
+                 {"close balance",      {
+                                                {"min", stats.min_close_balance()},
+                                                {"max", stats.max_close_balance()},
+                                                {"max drawdown", {
+                                                                         {"percent", stats.template max_close_balance_drawdown<trading::percent>()},
+                                                                         {"amount", stats.template max_close_balance_drawdown<trading::amount>()}
+                                                                 }},
+                                                {"max run up", {
+                                                                       {"percent", stats.template max_close_balance_run_up<trading::percent>()},
+                                                                       {"amount", stats.template max_close_balance_run_up<trading::amount>()}
+                                                               }}
+                                        }},
+                 {"equity",             {
+                                                {"min", stats.min_equity()},
+                                                {"max", stats.max_equity()},
+                                                {"max drawdown", {
+                                                                         {"percent", stats.template max_equity_drawdown<trading::percent>()},
+                                                                         {"amount", stats.template max_equity_drawdown<trading::amount>()}
+                                                                 }},
+                                                {"max run up", {
+                                                                       {"percent", stats.template max_equity_run_up<trading::percent>()},
+                                                                       {"amount", stats.template max_equity_run_up<trading::amount>()}
+                                                               }}
+                                        }}};
+        }
+    };
+
+    template<>
+    struct adl_serializer<trading::bazooka::indicator_type> {
+        static void to_json(json& j, const trading::bazooka::indicator_type& indic)
+        {
+            j = {{"period", trading::bazooka::moving_average_period(indic)},
+                 {"type",   trading::bazooka::moving_average_type(indic)}};
+        }
+    };
+
+    template<std::size_t n_levels>
+    struct adl_serializer<trading::bazooka::configuration<n_levels>> {
+        static void to_json(json& j, const trading::bazooka::configuration<n_levels>& config)
+        {
+            j = {{"levels",          config.levels},
+                 {"open sizes",      config.open_sizes},
+                 {"moving average:", config.ma}};
+        }
+    };
 
     template<class Config, class Stats>
-    json to_json(const state<Config, Stats>& state)
-    {
-        return {{"configuration", to_json(state.config)},
-                {"statistics",    to_json(state.stats)}};
-    }
+    struct adl_serializer<trading::state<Config, Stats>> {
+        static void to_json(json& j, const trading::state<Config, Stats>& state)
+        {
+            j = {{"configuration", state.config},
+                 {"statistics",    state.stats}};
+        }
+    };
 }
 
 #endif //BACKTESTING_CONVERT_HPP

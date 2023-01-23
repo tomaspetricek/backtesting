@@ -18,7 +18,7 @@ void test_usage(Generator&& gen, const std::vector<std::array<fraction_t, seq_si
     for (const auto& actual_seq: gen()) {
         BOOST_REQUIRE_EQUAL(actual_seq.size(), seq_size);
         for (std::size_t i{0}; i<actual_seq.size(); i++)
-            BOOST_REQUIRE_CLOSE(actual_seq[i], expect_seqs[n_gen][i], 0.0001);
+            BOOST_REQUIRE_EQUAL(actual_seq[i], expect_seqs[n_gen][i]);
         n_gen++;
     }
     BOOST_REQUIRE_EQUAL(expect_seqs.size(), n_gen);
@@ -35,31 +35,31 @@ BOOST_AUTO_TEST_SUITE(systematic_levels_generator_test)
     {
         constexpr std::size_t n_levels{2};
         std::size_t n_fracs{n_levels};
-        double denom{static_cast<fraction_t>(n_fracs)+1}; // 3
+        std::size_t denom{n_fracs+1}; // 3
         test_usage(trading::systematic::levels_generator<n_levels>(n_fracs),
                 std::vector<std::array<fraction_t, n_levels>>{
-                        {static_cast<fraction_t>(2./denom), static_cast<fraction_t>(1./denom)}
+                        {fraction_t{2, denom}, fraction_t{1, denom}}
                 });
 
         n_fracs = n_levels+1;
-        denom = static_cast<fraction_t>(n_fracs)+1;
+        denom = n_fracs+1;
         test_usage(trading::systematic::levels_generator<n_levels>(n_fracs),
                 std::vector<std::array<fraction_t, n_levels>>{
-                        {static_cast<fraction_t>(3./denom), static_cast<fraction_t>(2./denom)},
-                        {static_cast<fraction_t>(3./denom), static_cast<fraction_t>(1./denom)},
-                        {static_cast<fraction_t>(2./denom), static_cast<fraction_t>(1./denom)}
+                        {fraction_t{3, denom}, fraction_t{2, denom}},
+                        {fraction_t{3, denom}, fraction_t{1, denom}},
+                        {fraction_t{2, denom}, fraction_t{1, denom}}
                 });
 
         n_fracs = n_levels+2; // 4
-        denom = static_cast<double>(n_fracs)+1; // 5
+        denom = n_fracs+1; // 5
         test_usage(trading::systematic::levels_generator<n_levels>(n_fracs),
                 std::vector<std::array<fraction_t, n_levels>>{
-                        {static_cast<fraction_t>(4./denom), static_cast<fraction_t>(3./denom)},
-                        {static_cast<fraction_t>(4./denom), static_cast<fraction_t>(2./denom)},
-                        {static_cast<fraction_t>(4./denom), static_cast<fraction_t>(1./denom)},
-                        {static_cast<fraction_t>(3./denom), static_cast<fraction_t>(2./denom)},
-                        {static_cast<fraction_t>(3./denom), static_cast<fraction_t>(1./denom)},
-                        {static_cast<fraction_t>(2./denom), static_cast<fraction_t>(1./denom)},
+                        {fraction_t{4, denom}, fraction_t{3, denom}},
+                        {fraction_t{4, denom}, fraction_t{2, denom}},
+                        {fraction_t{4, denom}, fraction_t{1, denom}},
+                        {fraction_t{3, denom}, fraction_t{2, denom}},
+                        {fraction_t{3, denom}, fraction_t{1, denom}},
+                        {fraction_t{2, denom}, fraction_t{1, denom}},
                 });
     }
 BOOST_AUTO_TEST_SUITE_END()
@@ -74,41 +74,31 @@ BOOST_AUTO_TEST_SUITE(systematic_sizes_generator_test)
     {
         constexpr std::size_t n_sizes{3};
         std::size_t n_unique_fracs{1};
-        double denom{static_cast<fraction_t>(n_sizes+n_unique_fracs-1)};
+        std::size_t denom{n_sizes+n_unique_fracs-1};
         test_usage(trading::systematic::sizes_generator<n_sizes>(n_unique_fracs),
                 std::vector<std::array<fraction_t, n_sizes>>{
-                        {static_cast<fraction_t>(1./denom), static_cast<fraction_t>(1./denom),
-                         static_cast<fraction_t>(1./denom)}
+                        {fraction_t{1, denom}, fraction_t{1, denom}, fraction_t{1, denom}}
                 });
 
         n_unique_fracs = 2;
-        denom = static_cast<fraction_t>(n_sizes+n_unique_fracs-1);
+        denom = n_sizes+n_unique_fracs-1;
         test_usage(trading::systematic::sizes_generator<n_sizes>(n_unique_fracs),
                 std::vector<std::array<fraction_t, n_sizes>>{
-                        {static_cast<fraction_t>(1./denom), static_cast<fraction_t>(1./denom), static_cast<fraction_t>(
-                                                                                                       2./denom)},
-                        {static_cast<fraction_t>(1./denom), static_cast<fraction_t>(2./denom), static_cast<fraction_t>(
-                                                                                                       1./denom)},
-                        {static_cast<fraction_t>(2./denom), static_cast<fraction_t>(1./denom), static_cast<fraction_t>(
-                                                                                                       1./denom)}
+                        {fraction_t{1, denom}, fraction_t{1, denom}, fraction_t{2, denom}},
+                        {fraction_t{1, denom}, fraction_t{2, denom}, fraction_t{1, denom}},
+                        {fraction_t{2, denom}, fraction_t{1, denom}, fraction_t{1, denom}}
                 });
 
         n_unique_fracs = 3;
-        denom = static_cast<fraction_t>(n_sizes+n_unique_fracs-1);
+        denom = n_sizes+n_unique_fracs-1;
         test_usage(trading::systematic::sizes_generator<n_sizes>(n_unique_fracs),
                 std::vector<std::array<fraction_t, n_sizes>>{
-                        {static_cast<fraction_t>(1./denom), static_cast<fraction_t>(1./denom), static_cast<fraction_t>(
-                                                                                                       3./denom)},
-                        {static_cast<fraction_t>(1./denom), static_cast<fraction_t>(2./denom), static_cast<fraction_t>(
-                                                                                                       2./denom)},
-                        {static_cast<fraction_t>(1./denom), static_cast<fraction_t>(3./denom), static_cast<fraction_t>(
-                                                                                                       1./denom)},
-                        {static_cast<fraction_t>(2./denom), static_cast<fraction_t>(1./denom), static_cast<fraction_t>(
-                                                                                                       2./denom)},
-                        {static_cast<fraction_t>(2./denom), static_cast<fraction_t>(2./denom), static_cast<fraction_t>(
-                                                                                                       1./denom)},
-                        {static_cast<fraction_t>(3./denom), static_cast<fraction_t>(1./denom), static_cast<fraction_t>(
-                                                                                                       1./denom)}
+                        {fraction_t{1, denom}, fraction_t{1, denom}, fraction_t{3, denom}},
+                        {fraction_t{1, denom}, fraction_t{2, denom}, fraction_t{2, denom}},
+                        {fraction_t{1, denom}, fraction_t{3, denom}, fraction_t{1, denom}},
+                        {fraction_t{2, denom}, fraction_t{1, denom}, fraction_t{2, denom}},
+                        {fraction_t{2, denom}, fraction_t{2, denom}, fraction_t{1, denom}},
+                        {fraction_t{3, denom}, fraction_t{1, denom}, fraction_t{1, denom}}
                 });
     }
 

@@ -17,8 +17,8 @@ namespace trading {
         trading::wallet wallet_;
         std::optional<position> active_{std::nullopt};
         std::vector<position> closed_{};
-        fraction_t open_fee_{0.0};
-        fraction_t close_fee_{0.0};
+        fraction_t open_fee_{};
+        fraction_t close_fee_{};
 
     public:
         explicit market(const wallet& wallet, fraction_t open_fee, fraction_t close_fee)

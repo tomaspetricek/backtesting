@@ -12,12 +12,17 @@
 
 namespace trading {
     class position {
-        constexpr static fraction_t default_fee{0.0};
+        constexpr static fraction_t default_fee{0};
         amount_t size_{0.0};
         amount_t total_invested_{0.0};
         amount_t total_realized_profit_{0.0};
         fraction_t open_fee_{default_fee};
         fraction_t close_fee_{default_fee};
+
+        inline amount_t apply_fee(amount_t a, const fraction_t& fee) const
+        {
+            return a*boost::rational_cast<amount_t>(fraction_t{1}-fee);
+        }
 
     public:
         explicit position(const order& order, fraction_t open_fee = default_fee,
@@ -31,12 +36,12 @@ namespace trading {
 
         amount_t current_value(price_t market) const
         {
-            return market*size_*(1.0-close_fee_);
+            return apply_fee(market*size_, close_fee_);
         }
 
         void increase(const order& order)
         {
-            amount_t bought = (order.sold/order.price)*(1.0-open_fee_);
+            amount_t bought = apply_fee(order.sold/order.price, open_fee_);
             size_ += bought;
             total_invested_ += order.sold;
         }

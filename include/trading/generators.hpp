@@ -67,7 +67,7 @@ namespace trading {
             {
                 nums_.reserve(n_unique);
                 for (std::size_t i{0}; i<n_unique; i++)
-                    nums_.emplace_back(static_cast<double>(i+1)/this->denom_);
+                    nums_.emplace_back(i+1, this->denom_);
             }
 
             const return_type& operator()()
@@ -106,10 +106,10 @@ namespace trading {
                     curr_max = (remaining>this->max_num_) ? this->max_num_ : remaining-1;
                     distrib_.param(std::uniform_int_distribution<std::size_t>::param_type{1, curr_max});
                     num = distrib_(gen_);
-                    this->sizes_[indices_[i]] = static_cast<fraction_t>(num)/this->denom_;
+                    this->sizes_[indices_[i]] = fraction_t{(num), this->denom_};
                     remaining -= num;
                 }
-                this->sizes_[indices_.back()] = static_cast<fraction_t>(remaining)/this->denom_;
+                this->sizes_[indices_.back()] = fraction_t{remaining, this->denom_};
                 return this->sizes_;
             }
         };
@@ -162,7 +162,7 @@ namespace trading {
             return_type generate(std::size_t prev_num)
             {
                 for (std::size_t num{--prev_num}; num>n_levels-depth-1; num--) {
-                    std::get<depth>(this->levels_) = static_cast<double>(num)/this->denom_;
+                    std::get<depth>(this->levels_) = fraction_t{num, this->denom_};
                     co_yield generate<depth+1>(num);
                 }
             }
@@ -177,7 +177,7 @@ namespace trading {
             requires (depth+1==n_sizes)
             return_type generate(std::size_t remaining)
             {
-                std::get<depth>(this->sizes_) = static_cast<double>(remaining)/this->denom_;
+                std::get<depth>(this->sizes_) = fraction_t{remaining, this->denom_};
                 co_yield this->sizes_;
             }
 
@@ -187,7 +187,7 @@ namespace trading {
             {
                 std::size_t max = (remaining>this->max_num_) ? this->max_num_ : remaining-1;
                 for (std::size_t size{1}; size<=max; size++) {
-                    std::get<depth>(this->sizes_) = static_cast<double>(size)/this->denom_;
+                    std::get<depth>(this->sizes_) = fraction_t{size, this->denom_};
                     co_yield generate<depth+1>(remaining-size);
                 }
             }

@@ -17,7 +17,7 @@ auto create_trader(const bazooka::configuration<n_levels>& config)
     bazooka::long_strategy strategy{config.ma, config.ma, config.levels};
 
     // create market
-    fraction_t fee{0.1/100};   // 0.1 %
+    fraction_t fee{1, 1'000};   // 0.1 %
     amount_t init_balance{10'000};
     trading::market market{wallet{init_balance}, fee, fee};
 
@@ -25,7 +25,7 @@ auto create_trader(const bazooka::configuration<n_levels>& config)
     sizer open_sizer{config.open_sizes};
 
     // create close sizer
-    std::array close_fracs{fraction_t{1.0}};
+    std::array close_fracs{fraction_t{1}};
     sizer close_sizer{close_fracs};
 
     // create trade manager
@@ -131,33 +131,14 @@ void to_csv(chart_series<n_levels>&& series, const std::filesystem::path& out_di
 
 int main()
 {
-    {
-        const std::size_t n_levels{3};
-        std::size_t n_unique{10};
-        auto sizes_gen = trading::random::sizes_generator<n_levels>{n_unique};
-        std::size_t it{0}, max_it{1'000};
-
-        std::cout << "systematic" << std::endl;
-        use_generator(trading::systematic::sizes_generator<n_levels>{n_unique});
-
-        std::cout << "random" << std::endl;
-        while(++it!=max_it) {
-            const auto& sizes = sizes_gen();
-            for (std::size_t i{0}; i<sizes.size(); i++)
-                std::cout << sizes[i] << ", ";
-            std::cout << std::endl;
-        }
-    }
-    std::terminate();
-
     set_up();
     std::filesystem::path out_dir{"../../src/data/out"};
     const std::size_t n_levels{4};
     std::size_t levels_unique_fracs{n_levels+1};
-    fraction_t levels_max_frac{0.5};
+    fraction_t levels_max_frac{1, 2};
     std::size_t open_sizes_unique_fracs{n_levels+1};
-    auto levels_gen = systematic::levels_generator<n_levels>{levels_unique_fracs};
-    auto sizes_gen = systematic::sizes_generator<n_levels>{open_sizes_unique_fracs};
+    systematic::levels_generator<n_levels> levels_gen{levels_unique_fracs};
+    systematic::sizes_generator<n_levels> sizes_gen{open_sizes_unique_fracs};
 
     // read candles
     std::time_t min_opened{1515024000}, max_opened{1667066400};
@@ -177,7 +158,7 @@ int main()
               << "duration: " << duration << std::endl;
 
     // create search space
-    auto mov_avg_periods = range<std::size_t>(3, 36, 3);
+    range<std::size_t> mov_avg_periods{3, 36, 3};
     auto search_space = [&]() -> cppcoro::generator<bazooka::configuration<n_levels>> {
         for (std::size_t entry_period: mov_avg_periods)
             for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}},
@@ -226,10 +207,14 @@ int main()
         optimize(res, set.restrictions);
     }));
 
+    std::size_t n_top{0};
     // save results to json document
     json res_doc;
-    for (const auto& top: res.get())
-        res_doc.emplace_back(trading::convert::to_json(top));
+    for (const auto& top: res.get()) {
+        res_doc.emplace_back(top);
+        n_top++;
+    }
+    std::cout << "n top: " << n_top << std::endl;
 
     json set_doc{
             {{"candles", {
@@ -271,17 +256,17 @@ int main()
               << "testing duration: " << duration << std::endl;
 
     // collect chart series of the best results
-    bazooka::configuration<n_levels> config{
-            indicator::sma{15},
-            {0.875, 0.8333333134651184, 0.7916666865348816, 0.7083333134651184},
-            {0.7692307829856873, 0.07692307978868484, 0.07692307978868484, 0.07692307978868484}
-    };
-
-    chart_series<n_levels>::collector<trader_type> series_collector;
-    bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
-    simulator.trade(config, series_collector, stats_collector);
-    std::filesystem::path best_dir{out_dir/"best-series"};
-    std::filesystem::create_directory(best_dir);
-    to_csv(series_collector.get(), best_dir);
+//    bazooka::configuration<n_levels> config{
+//            indicator::sma{15},
+//            {0.875, 0.8333333134651184, 0.7916666865348816, 0.7083333134651184},
+//            {0.7692307829856873, 0.07692307978868484, 0.07692307978868484, 0.07692307978868484}
+//    };
+//
+//    chart_series<n_levels>::collector<trader_type> series_collector;
+//    bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
+//    simulator.trade(config, series_collector, stats_collector);
+//    std::filesystem::path best_dir{out_dir/"best-series"};
+//    std::filesystem::create_directory(best_dir);
+//    to_csv(series_collector.get(), best_dir);
     return EXIT_SUCCESS;
 }
