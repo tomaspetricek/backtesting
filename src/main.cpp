@@ -206,15 +206,11 @@ int main()
     duration = measure_duration(to_function([&] {
         optimize(res, set.restrictions);
     }));
-
-    std::size_t n_top{0};
+     
     // save results to json document
     json res_doc;
-    for (const auto& top: res.get()) {
+    for (const auto& top: res.get())
         res_doc.emplace_back(top);
-        n_top++;
-    }
-    std::cout << "n top: " << n_top << std::endl;
 
     json set_doc{
             {{"candles", {
@@ -255,18 +251,12 @@ int main()
     std::cout << "ended testing: " << boost::posix_time::second_clock::local_time() << std::endl
               << "testing duration: " << duration << std::endl;
 
-    // collect chart series of the best results
-//    bazooka::configuration<n_levels> config{
-//            indicator::sma{15},
-//            {0.875, 0.8333333134651184, 0.7916666865348816, 0.7083333134651184},
-//            {0.7692307829856873, 0.07692307978868484, 0.07692307978868484, 0.07692307978868484}
-//    };
-//
-//    chart_series<n_levels>::collector<trader_type> series_collector;
-//    bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
-//    simulator.trade(config, series_collector, stats_collector);
-//    std::filesystem::path best_dir{out_dir/"best-series"};
-//    std::filesystem::create_directory(best_dir);
-//    to_csv(series_collector.get(), best_dir);
+    auto config = res.get()[0].config;
+    chart_series<n_levels>::collector<trader_type> series_collector;
+    bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
+    simulator.trade(config, series_collector, stats_collector);
+    std::filesystem::path best_dir{out_dir/"best-series"};
+    std::filesystem::create_directory(best_dir);
+    to_csv(series_collector.get(), best_dir);
     return EXIT_SUCCESS;
 }

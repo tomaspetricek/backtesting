@@ -23,7 +23,7 @@ namespace trading {
         std::size_t validate_n_unique(std::size_t n_unique)
         {
             if (!n_unique)
-                throw std::invalid_argument{"The number of unique fractions has to be greater than zero"};
+                throw std::invalid_argument{"The number of unique sizes has to be greater than zero"};
             return n_unique;
         }
 
@@ -98,18 +98,21 @@ namespace trading {
 
             const return_type& operator()()
             {
-                std::size_t remaining{this->denom_};
-                std::size_t num, curr_max;
+                std::size_t num, remaining{this->denom_};
+                std::size_t curr_max_num{this->max_num_};
                 std::shuffle(indices_.begin(), indices_.end(), gen_);
+                std::size_t i{0};
 
-                for (std::size_t i{0}; i<n_sizes-1; i++) {
-                    curr_max = (remaining>this->max_num_) ? this->max_num_ : remaining-1;
-                    distrib_.param(std::uniform_int_distribution<std::size_t>::param_type{1, curr_max});
+                for (; i<n_sizes-1; i++) {
+                    distrib_.param(std::uniform_int_distribution<std::size_t>::param_type{1, curr_max_num});
                     num = distrib_(gen_);
-                    this->sizes_[indices_[i]] = fraction_t{(num), this->denom_};
+                    this->sizes_[indices_[i]] = fraction_t{num, this->denom_};
                     remaining -= num;
+                    curr_max_num = (curr_max_num==num) ? 1 : curr_max_num-num;
                 }
+
                 this->sizes_[indices_.back()] = fraction_t{remaining, this->denom_};
+
                 return this->sizes_;
             }
         };

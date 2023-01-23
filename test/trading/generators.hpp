@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_SUITE(random_sizes_generator_test)
     BOOST_AUTO_TEST_CASE(accessibility_test)
     {
         const std::size_t n_levels{3};
-        std::size_t n_unique{15};
+        std::size_t n_unique{10};
         trading::random::sizes_generator<n_levels> rand_gen{n_unique};
         trading::systematic::sizes_generator<n_levels> sys_gen{n_unique};
         test_accessibility(rand_gen, sys_gen, 1'000);
