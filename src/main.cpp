@@ -141,12 +141,11 @@ void use_exponential(std::size_t max)
 
 int main()
 {
-    set_up();
     {
-        const std::size_t n_levels{3}, n_unique{100};
+        const std::size_t n_levels{10}, n_unique{n_levels+10};
         auto rand_gen = trading::random::levels_generator<n_levels>{n_unique};
         auto sys_gen = trading::systematic::levels_generator<n_levels>{n_unique};
-        std::size_t it{0}, max_it{10'000'000};
+        std::size_t it{0}, max_it{1'000'000};
         using map_type = std::map<random::sizes_generator<n_levels>::result_type, std::size_t>;
         map_type options;
 
@@ -154,14 +153,17 @@ int main()
             options.insert(typename map_type::value_type{sizes, 0});
 
         auto origin = rand_gen();
-        while (it++!=max_it) {
-            origin = rand_gen(origin, 1);
-            assert(options.contains(origin));
-            options[origin] += 1;
-        }
+        auto duration = measure_duration([&](){
+            while (it++!=max_it) {
+                origin = rand_gen(origin, 1);
+//            assert(options.contains(origin));
+                options[origin] += 1;
+            }
+        });
 
         for (const auto& [sizes, count]: options)
             std::cout << json{sizes} << ", " << count << std::endl;
+        std::cout << "duration: " << duration << std::endl;
     }
     return EXIT_SUCCESS;
 

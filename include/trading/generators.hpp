@@ -10,15 +10,8 @@
 #include <random>
 #include <trading/types.hpp>
 #include <cppcoro/recursive_generator.hpp>
+#include <etl/flat_multiset.h>
 
-template<class Type, class Comp>
-void insert_sorted(Type* arr, std::size_t n, Type val, const Comp& comp)
-{
-    std::size_t i{n-1};
-    for (; !comp(arr[i], val) && i>=0; i--)
-        arr[i+1] = arr[i];
-    arr[i+1] = val;
-}
 
 namespace trading {
     template<std::size_t n_sizes>
@@ -97,19 +90,21 @@ namespace trading {
                 std::size_t keep{n_levels-change_n};
                 std::shuffle(indices_.begin(), indices_.end(), gen_);
                 std::sort(indices_.begin(), indices_.begin()+static_cast<int>(keep));
+                etl::flat_multiset<fraction_t, n_levels, std::greater<>> unique;
                 std::size_t i;
 
                 for (i = 0; i<keep; i++)
-                    this->levels_[i] = origin[indices_[i]];
+                    unique.emplace(origin[indices_[i]]);
 
                 std::shuffle(all_options_.begin(), all_options_.end(), gen_);
                 auto options_it = all_options_.begin();
 
                 for (; i<n_levels; i++) {
-                    while (std::binary_search(this->levels_.begin(), this->levels_.begin()+i, *options_it,
-                            std::greater<>())) options_it++;
-                    insert_sorted(this->levels_.data(), i, *options_it, std::greater<>());
+                    while (unique.contains(*options_it)) options_it++;
+                    unique.insert(*options_it);
                 }
+
+                std::copy(unique.begin(), unique.end(), this->levels_.begin());
                 return this->levels_;
             }
         };
