@@ -129,9 +129,42 @@ void to_csv(chart_series<n_levels>&& series, const std::filesystem::path& out_di
     write_csv({out_dir/"equity-series.csv"}, std::array<std::string, 2>{"time", "equity"}, series.equity);
 }
 
+void use_exponential(std::size_t max)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    // if particles decay once per second on average,
+    // how much time, in seconds, until the next one?
+    std::exponential_distribution<> d(1);
+}
+
 int main()
 {
     set_up();
+    {
+        const std::size_t n_levels{3}, n_unique{100};
+        auto rand_gen = trading::random::levels_generator<n_levels>{n_unique};
+        auto sys_gen = trading::systematic::levels_generator<n_levels>{n_unique};
+        std::size_t it{0}, max_it{10'000'000};
+        using map_type = std::map<random::sizes_generator<n_levels>::result_type, std::size_t>;
+        map_type options;
+
+        for (const auto& sizes: sys_gen())
+            options.insert(typename map_type::value_type{sizes, 0});
+
+        auto origin = rand_gen();
+        while (it++!=max_it) {
+            origin = rand_gen(origin, 1);
+            assert(options.contains(origin));
+            options[origin] += 1;
+        }
+
+        for (const auto& [sizes, count]: options)
+            std::cout << json{sizes} << ", " << count << std::endl;
+    }
+    return EXIT_SUCCESS;
+
     std::filesystem::path out_dir{"../../src/data/out"};
     const std::size_t n_levels{4};
     std::size_t levels_unique_fracs{n_levels+1};
@@ -206,7 +239,7 @@ int main()
     duration = measure_duration(to_function([&] {
         optimize(res, set.restrictions);
     }));
-     
+
     // save results to json document
     json res_doc;
     for (const auto& top: res.get())

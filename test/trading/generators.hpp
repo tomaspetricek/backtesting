@@ -105,9 +105,9 @@ BOOST_AUTO_TEST_SUITE(systematic_sizes_generator_test)
 BOOST_AUTO_TEST_SUITE_END()
 
 template<class RandomGenerator, class SystematicGenerator>
-void test_accessibility(RandomGenerator& rand_gen, SystematicGenerator& sys_gen, std::size_t max_it)
+void test_reachability(RandomGenerator& rand_gen, SystematicGenerator& sys_gen, std::size_t max_it)
 {
-    using map_type = std::map<typename RandomGenerator::return_type, bool>;
+    using map_type = std::map<typename RandomGenerator::result_type, bool>;
     map_type all;
 
     for (const auto& sizes: sys_gen())
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_SUITE(random_sizes_generator_test)
         std::size_t n_unique{10};
         trading::random::sizes_generator<n_levels> rand_gen{n_unique};
         trading::systematic::sizes_generator<n_levels> sys_gen{n_unique};
-        test_accessibility(rand_gen, sys_gen, 1'000);
+        test_reachability(rand_gen, sys_gen, 1'000);
     }
 BOOST_AUTO_TEST_SUITE_END()
 
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_SUITE(random_levels_generator_test)
         std::size_t n_unique{15};
         trading::random::levels_generator<n_levels> rand_gen{n_unique};
         trading::systematic::levels_generator<n_levels> sys_gen{n_unique};
-        test_accessibility(rand_gen, sys_gen, 10'000);
+        test_reachability(rand_gen, sys_gen, 10'000);
     }
 BOOST_AUTO_TEST_SUITE_END()
 
