@@ -142,26 +142,39 @@ void use_exponential(std::size_t max)
 int main()
 {
     {
-        const std::size_t n_levels{10}, n_unique{n_levels+10};
-        auto rand_gen = trading::random::levels_generator<n_levels>{n_unique};
-        auto sys_gen = trading::systematic::levels_generator<n_levels>{n_unique};
-        std::size_t it{0}, max_it{1'000'000};
-        using map_type = std::map<random::sizes_generator<n_levels>::result_type, std::size_t>;
+        const std::size_t n_sizes{3}, n_unique{6};
+        using result_type = random::sizes_generator<n_sizes>::result_type;
+        auto rand_gen = trading::random::sizes_generator<n_sizes>{n_unique};
+        auto sys_gen = trading::systematic::sizes_generator<n_sizes>{n_unique};
+        std::size_t it{0}, max_it{1'000};
+        using map_type = std::map<result_type, std::size_t>;
         map_type options;
 
         for (const auto& sizes: sys_gen())
             options.insert(typename map_type::value_type{sizes, 0});
 
         auto origin = rand_gen();
-        auto duration = measure_duration([&](){
+        auto duration = measure_duration([&]() {
             while (it++!=max_it) {
-                origin = rand_gen(origin, 1);
-//            assert(options.contains(origin));
+                origin = rand_gen();
+                assert(options.contains(origin));
                 options[origin] += 1;
             }
         });
 
-        for (const auto& [sizes, count]: options)
+        using pair_type = std::pair<result_type, std::size_t>;
+        std::vector<pair_type> counts;
+        counts.reserve(options.size());
+
+        for (auto opt: options)
+            counts.emplace_back(opt);
+
+//        std::sort(counts.begin(), counts.end(), [=](const pair_type& a, const pair_type& b) {
+//            return std::max_element(a.first.begin(), a.first.end())
+//                    >std::max_element(b.first.begin(), b.first.end());
+//        });
+
+        for (const auto& [sizes, count]: counts)
             std::cout << json{sizes} << ", " << count << std::endl;
         std::cout << "duration: " << duration << std::endl;
     }

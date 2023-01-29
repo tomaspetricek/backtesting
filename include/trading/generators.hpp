@@ -10,7 +10,7 @@
 #include <random>
 #include <trading/types.hpp>
 #include <cppcoro/recursive_generator.hpp>
-#include <etl/flat_multiset.h>
+#include <etl/flat_set.h>
 
 
 namespace trading {
@@ -90,7 +90,7 @@ namespace trading {
                 std::size_t keep{n_levels-change_n};
                 std::shuffle(indices_.begin(), indices_.end(), gen_);
                 std::sort(indices_.begin(), indices_.begin()+static_cast<int>(keep));
-                etl::flat_multiset<fraction_t, n_levels, std::greater<>> unique;
+                etl::flat_set<fraction_t, n_levels, std::greater<>> unique;
                 std::size_t i;
 
                 for (i = 0; i<keep; i++)
@@ -137,7 +137,7 @@ namespace trading {
                     num = distrib_(gen_);
                     this->sizes_[indices_[i]] = fraction_t{num, this->denom_};
                     remaining -= num;
-                    curr_max_num = (curr_max_num==num) ? 1 : curr_max_num-num;
+                    curr_max_num = (curr_max_num==num) ? 1 : curr_max_num-num+1;
                 }
                 this->sizes_[indices_.back()] = fraction_t{remaining, this->denom_};
                 return this->sizes_;
