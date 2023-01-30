@@ -30,7 +30,7 @@ namespace trading::indicator {
 
         void set_period(size_t period)
         {
-            period_ = period;
+            period_ = validate_period(period);
         }
     };
 }

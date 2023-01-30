@@ -129,44 +129,64 @@ void to_csv(chart_series<n_levels>&& series, const std::filesystem::path& out_di
     write_csv({out_dir/"equity-series.csv"}, std::array<std::string, 2>{"time", "equity"}, series.equity);
 }
 
+template<class SystemicGenerator, class RandomGenerator>
+void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen){
+    const std::size_t seq_size{4}, n_unique{11};
+    using value_type = typename RandomGenerator::value_type;
+    std::size_t it{0}, total_it{1'000'000};
+    using map_type = std::map<value_type, std::size_t>;
+    map_type options;
+
+    for (const auto& sizes: sys_gen())
+        options.insert(typename map_type::value_type{sizes, 0});
+
+    auto origin = rand_gen();
+    auto duration = measure_duration([&]() {
+        while (it++!=total_it) {
+            origin = rand_gen();
+            assert(options.contains(origin));
+            options[origin] += 1;
+        }
+    });
+
+    using pair_type = std::pair<value_type, std::size_t>;
+    std::vector<pair_type> counts;
+    counts.reserve(options.size());
+    std::copy(options.begin(), options.end(), std::back_inserter(counts));
+
+    std::sort(counts.begin(), counts.end(), [=](const pair_type& a, const pair_type& b) {
+        return a.second>b.second;
+    });
+
+    for (const auto& [sizes, count]: counts) {
+        assert(count);
+        std::cout << json{sizes} << ", " << std::setprecision(2) << (static_cast<double>(count)/total_it)*100
+                  << " %"
+                  << std::endl;
+    }
+    std::cout << "duration: " << duration << std::endl;
+}
+
 int main()
 {
     {
+        const std::size_t n_levels{4};
+        trading::random::sizes_generator<n_levels> open_sizes_gen{11};
+        trading::random::levels_generator<n_levels> levels_gen{11};
+        trading::random::range<std::size_t> period_gen{10, 50, 10};
+        bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
+        bazooka::configuration<n_levels> origin{indicator::sma{period_gen.from()}, levels_gen(), open_sizes_gen()};
+        auto next = neighbor.get(origin);
+    }
+    {
+        std::size_t from{10}, to{50}, step{10};
+        test_generators(trading::systematic::range<std::size_t>{from, to, step},
+                trading::random::range<std::size_t>{from, to, step});
+    }
+    {
         const std::size_t seq_size{4}, n_unique{11};
-        using result_type = random::sizes_generator<seq_size>::result_type;
-        auto rand_gen = trading::random::sizes_generator<seq_size>{n_unique};
-        auto sys_gen = trading::systematic::sizes_generator<seq_size>{n_unique};
-        std::size_t it{0}, total_it{1'000'000};
-        using map_type = std::map<result_type, std::size_t>;
-        map_type options;
-
-        for (const auto& sizes: sys_gen())
-            options.insert(typename map_type::value_type{sizes, 0});
-
-        auto origin = rand_gen();
-        auto duration = measure_duration([&]() {
-            while (it++!=total_it) {
-                origin = rand_gen(origin, 2);
-                assert(options.contains(origin));
-                options[origin] += 1;
-            }
-        });
-
-        using pair_type = std::pair<result_type, std::size_t>;
-        std::vector<pair_type> counts;
-        counts.reserve(options.size());
-        std::copy(options.begin(), options.end(), std::back_inserter(counts));
-
-        std::sort(counts.begin(), counts.end(), [=](const pair_type& a, const pair_type& b) {
-            return a.second>b.second;
-        });
-
-        for (const auto& [sizes, count]: counts) {
-            assert(count);
-            std::cout << json{sizes} << ", " << std::setprecision(2) << (static_cast<double>(count)/total_it)*100 << " %"
-                      << std::endl;
-        }
-        std::cout << "duration: " << duration << std::endl;
+        test_generators(trading::systematic::sizes_generator<seq_size>{n_unique},
+                trading::random::sizes_generator<seq_size>{n_unique});
     }
     return EXIT_SUCCESS;
 
@@ -196,9 +216,9 @@ int main()
               << "duration: " << duration << std::endl;
 
     // create search space
-    range<std::size_t> mov_avg_periods{3, 36, 3};
+    systematic::range<std::size_t> mov_avg_periods{3, 36, 3};
     auto search_space = [&]() -> cppcoro::generator<bazooka::configuration<n_levels>> {
-        for (std::size_t entry_period: mov_avg_periods)
+        for (std::size_t entry_period: mov_avg_periods())
             for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}},
                                         bazooka::indicator_type{indicator::ema{entry_period}}})
                 for (const auto& levels: levels_gen())
@@ -269,8 +289,8 @@ int main()
                      {"moving average", {
                              {"types", {"sma", "ema"}},
                              {"period", {
-                                     {"from", *mov_avg_periods.begin()},
-                                     {"to", *mov_avg_periods.end()},
+                                     {"from", mov_avg_periods.from()},
+                                     {"to", mov_avg_periods.to()},
                                      {"step", mov_avg_periods.step()}
                              }}
                      }},

@@ -32,6 +32,13 @@ namespace trading::bazooka {
         }, ma);
     }
 
+    void moving_average_set_period(indicator_type& ma, std::size_t period)
+    {
+        return std::visit([&](auto& indic) {
+            return indic.set_period(period);
+        }, ma);
+    }
+
     // entry levels: 0 - first level, n_levels-1 - last level
     template<class EntryComp, class ExitComp, std::size_t n_levels>
     class strategy : public trading::strategy {

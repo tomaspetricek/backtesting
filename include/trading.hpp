@@ -7,6 +7,7 @@
 
 #include <trading/bazooka/configuration.hpp>
 #include <trading/bazooka/long_strategy.hpp>
+#include <trading/bazooka/neighbor.hpp>
 #include <trading/bazooka/short_strategy.hpp>
 #include <trading/bazooka/state.hpp>
 #include <trading/bazooka/statistics.hpp>
@@ -37,7 +38,6 @@
 #include <trading/labels.hpp>
 #include <trading/motion_tracker.hpp>
 #include <trading/pack.hpp>
-#include <trading/range.hpp>
 #include <trading/resampler.hpp>
 #include <trading/result.hpp>
 #include <trading/side.hpp>
