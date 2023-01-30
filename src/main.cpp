@@ -129,24 +129,14 @@ void to_csv(chart_series<n_levels>&& series, const std::filesystem::path& out_di
     write_csv({out_dir/"equity-series.csv"}, std::array<std::string, 2>{"time", "equity"}, series.equity);
 }
 
-void use_exponential(std::size_t max)
-{
-    std::random_device rd;
-    std::mt19937 gen(rd());
-
-    // if particles decay once per second on average,
-    // how much time, in seconds, until the next one?
-    std::exponential_distribution<> d(1);
-}
-
 int main()
 {
     {
-        const std::size_t n_sizes{3}, n_unique{6};
-        using result_type = random::sizes_generator<n_sizes>::result_type;
-        auto rand_gen = trading::random::sizes_generator<n_sizes>{n_unique};
-        auto sys_gen = trading::systematic::sizes_generator<n_sizes>{n_unique};
-        std::size_t it{0}, max_it{1'000};
+        const std::size_t seq_size{4}, n_unique{11};
+        using result_type = random::sizes_generator<seq_size>::result_type;
+        auto rand_gen = trading::random::sizes_generator<seq_size>{n_unique};
+        auto sys_gen = trading::systematic::sizes_generator<seq_size>{n_unique};
+        std::size_t it{0}, total_it{1'000'000};
         using map_type = std::map<result_type, std::size_t>;
         map_type options;
 
@@ -155,8 +145,8 @@ int main()
 
         auto origin = rand_gen();
         auto duration = measure_duration([&]() {
-            while (it++!=max_it) {
-                origin = rand_gen();
+            while (it++!=total_it) {
+                origin = rand_gen(origin, 2);
                 assert(options.contains(origin));
                 options[origin] += 1;
             }
@@ -165,17 +155,17 @@ int main()
         using pair_type = std::pair<result_type, std::size_t>;
         std::vector<pair_type> counts;
         counts.reserve(options.size());
+        std::copy(options.begin(), options.end(), std::back_inserter(counts));
 
-        for (auto opt: options)
-            counts.emplace_back(opt);
+        std::sort(counts.begin(), counts.end(), [=](const pair_type& a, const pair_type& b) {
+            return a.second>b.second;
+        });
 
-//        std::sort(counts.begin(), counts.end(), [=](const pair_type& a, const pair_type& b) {
-//            return std::max_element(a.first.begin(), a.first.end())
-//                    >std::max_element(b.first.begin(), b.first.end());
-//        });
-
-        for (const auto& [sizes, count]: counts)
-            std::cout << json{sizes} << ", " << count << std::endl;
+        for (const auto& [sizes, count]: counts) {
+            assert(count);
+            std::cout << json{sizes} << ", " << std::setprecision(2) << (static_cast<double>(count)/total_it)*100 << " %"
+                      << std::endl;
+        }
         std::cout << "duration: " << duration << std::endl;
     }
     return EXIT_SUCCESS;

@@ -12,7 +12,6 @@
 #include <cppcoro/recursive_generator.hpp>
 #include <etl/flat_set.h>
 
-
 namespace trading {
     template<std::size_t n_sizes>
     class sizes_generator {
@@ -87,22 +86,19 @@ namespace trading {
             const result_type& operator()(const result_type& origin, std::size_t change_n)
             {
                 assert(change_n<=n_levels);
-                std::size_t keep{n_levels-change_n};
+                std::size_t keep_n{n_levels-change_n};
                 std::shuffle(indices_.begin(), indices_.end(), gen_);
-                std::sort(indices_.begin(), indices_.begin()+static_cast<int>(keep));
+                std::sort(indices_.begin(), indices_.begin()+static_cast<int>(keep_n));
                 etl::flat_set<fraction_t, n_levels, std::greater<>> unique;
-                std::size_t i;
 
-                for (i = 0; i<keep; i++)
+                for (std::size_t i{0}; i<keep_n; i++)
                     unique.emplace(origin[indices_[i]]);
 
                 std::shuffle(all_options_.begin(), all_options_.end(), gen_);
                 auto options_it = all_options_.begin();
 
-                for (; i<n_levels; i++) {
-                    while (unique.contains(*options_it)) options_it++;
-                    unique.insert(*options_it);
-                }
+                while (!unique.full())
+                    unique.insert(*options_it++);
 
                 std::copy(unique.begin(), unique.end(), this->levels_.begin());
                 return this->levels_;
@@ -115,6 +111,18 @@ namespace trading {
             std::uniform_int_distribution<std::size_t> distrib_;
             std::array<std::size_t, n_sizes> indices_;
 
+            void fill_rest(std::size_t rest_num_sum, std::size_t curr_max_num, std::size_t first_index = 0)
+            {
+                std::size_t num;
+                for (std::size_t i{first_index}; i<n_sizes-1; i++) {
+                    distrib_.param(std::uniform_int_distribution<std::size_t>::param_type{1, curr_max_num});
+                    num = distrib_(gen_);
+                    this->sizes_[indices_[i]] = fraction_t{num, this->denom_};
+                    rest_num_sum -= num;
+                    curr_max_num = (curr_max_num==num) ? 1 : curr_max_num-num+1;
+                }
+                this->sizes_[indices_.back()] = fraction_t{rest_num_sum, this->denom_};
+            }
         public:
             using result_type = std::array<fraction_t, n_sizes>;
 
@@ -128,18 +136,26 @@ namespace trading {
 
             const result_type& operator()()
             {
-                std::size_t num, remaining{this->denom_};
-                std::size_t curr_max_num{this->max_num_};
                 std::shuffle(indices_.begin(), indices_.end(), gen_);
+                fill_rest(this->denom_, this->max_num_);
+                return this->sizes_;
+            }
 
-                for (std::size_t i{0}; i<n_sizes-1; i++) {
-                    distrib_.param(std::uniform_int_distribution<std::size_t>::param_type{1, curr_max_num});
-                    num = distrib_(gen_);
-                    this->sizes_[indices_[i]] = fraction_t{num, this->denom_};
-                    remaining -= num;
-                    curr_max_num = (curr_max_num==num) ? 1 : curr_max_num-num+1;
+            const result_type& operator()(const result_type& origin, std::size_t change_n)
+            {
+                assert(change_n>1 && change_n<=n_sizes);
+                std::size_t i, keep_n{n_sizes-change_n};
+                std::shuffle(indices_.begin(), indices_.end(), gen_);
+                std::size_t rest_num_sum{this->denom_};
+
+                for (i = 0; i<keep_n; i++) {
+                    auto idx = indices_[i];
+                    auto size = origin[idx];
+                    this->sizes_[idx] = size;
+                    rest_num_sum -= (size*this->denom_).numerator();
                 }
-                this->sizes_[indices_.back()] = fraction_t{remaining, this->denom_};
+                std::size_t curr_max_num{rest_num_sum-change_n+1};
+                fill_rest(rest_num_sum, curr_max_num, i);
                 return this->sizes_;
             }
         };
