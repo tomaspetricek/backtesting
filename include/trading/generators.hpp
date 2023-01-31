@@ -8,10 +8,18 @@
 #include <array>
 #include <numeric>
 #include <random>
+#include <utility>
+#include <tuple>
 #include <trading/types.hpp>
 #include <cppcoro/recursive_generator.hpp>
 #include <etl/flat_set.h>
 #include <fmt/format.h>
+
+template<class T1, class T2>
+auto make_tuple(std::pair<T1, T2>&& p)
+{
+    return std::make_tuple(std::get<0>(p), std::get<1>(p));
+}
 
 namespace trading {
     template<std::size_t n_sizes>
@@ -54,21 +62,19 @@ namespace trading {
                 :denom_(validate_n_unique(n_unique)+1) { }
     };
 
-    template<typename Type>
-    class range {
-        static_assert(!std::is_floating_point<Type>::value);
+    class int_range {
     protected:
-        Type from_;
-        Type to_;
-        Type step_;
+        int from_;
+        int to_;
+        int step_;
 
-        static Type validate_step(Type step)
+        static int validate_step(int step)
         {
             if (step==0) throw std::invalid_argument("Step cannot be zero");
             return step;
         }
 
-        range(const Type& from, const Type& to, Type step)
+        int_range(int from, int to, int step)
                 :from_{from}, to_{to}, step_(validate_step(step))
         {
             if (from==to) {
@@ -91,17 +97,17 @@ namespace trading {
         }
 
     public:
-        Type step() const
+        int step() const
         {
             return step_;
         }
 
-        Type from() const
+        int from() const
         {
             return from_;
         }
 
-        Type to() const
+        int to() const
         {
             return to_;
         }
@@ -252,23 +258,47 @@ namespace trading {
         template<class Type>
         using int_range_generator = numeric_range_generator<Type, std::uniform_int_distribution>;
 
-        template<typename Type>
-        class range : public trading::range<Type> {
+        class int_range : public trading::int_range {
             std::mt19937 gen_;
-            std::uniform_int_distribution<std::size_t> distrib_;
+            std::uniform_int_distribution<int> distrib_;
+            std::size_t change_span_;
+            std::size_t n_vals_;
+            int min_val_;
+            int max_val_;
 
         public:
-            using value_type = Type;
+            using value_type = int;
 
-            explicit range(Type from, Type to, Type step)
-                    :trading::range<Type>(from, to, step)
+            explicit int_range(int from, int to, int step, std::size_t change_span = 1)
+                    :trading::int_range(from, to, step), change_span_{change_span}
             {
-                distrib_.param(std::uniform_int_distribution<std::size_t>::param_type{from/step, to/step});
+                n_vals_ = (to-from+this->step_)/this->step_;
+                int max_span = static_cast<int>(n_vals_)/2;
+                if (!change_span_ || change_span>max_span)
+                    throw std::invalid_argument(fmt::format("Change span has to be in interval [1,{}]", max_span));
+
+                std::tie(min_val_, max_val_) = make_tuple(std::minmax(from, to));
             }
 
-            Type operator()()
+            int operator()()
             {
-                return distrib_(gen_)*this->step_;
+                distrib_.param(std::uniform_int_distribution<int>::param_type{this->from_/this->step_, this->to_/this->step_});
+                int num = distrib_(gen_);
+                return num*this->step_;
+            }
+
+            int operator()(int origin)
+            {
+                int curr_from = origin-static_cast<int>(change_span_*this->step_);
+                int curr_to = origin+static_cast<int>(change_span_*this->step_);
+                distrib_.param(std::uniform_int_distribution<int>::param_type{curr_from/this->step_, curr_to/this->step_});
+                int val = distrib_(gen_)*this->step_;
+
+                if (val<min_val_)
+                    val += static_cast<int>(n_vals_*std::abs(this->step_));
+                if (val>max_val_)
+                    val -= static_cast<int>(n_vals_*std::abs(this->step_));
+                return val;
             }
         };
     }
@@ -339,19 +369,17 @@ namespace trading {
             }
         };
 
-        // based on: https://stackoverflow.com/questions/7185437/is-there-a-range-class-in-c11-for-use-with-range-based-for-loops
-        template<typename Type>
-        class range : public trading::range<Type> {
+        class int_range : public trading::int_range {
         public:
-            using value_type = cppcoro::generator<Type>;
+            using value_type = cppcoro::generator<int>;
 
-            range(Type from, Type to, Type step)
-                    :trading::range<Type>(from, to, step) { }
+            int_range(int from, int to, int step)
+                    :trading::int_range(from, to, step) { }
 
             value_type operator()()
             {
-                for (Type num{this->from_}; num<=this->to_; num += this->step_)
-                    co_yield num;
+                for (int val{this->from_}; val!=this->to_+this->step_; val += this->step_)
+                    co_yield val;
             }
         };
     }

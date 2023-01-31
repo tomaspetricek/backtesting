@@ -22,11 +22,11 @@ namespace trading::bazooka {
         std::mt19937 gen_{std::random_device{}()};
         trading::random::levels_generator<n_levels> levels_gen_;
         trading::random::sizes_generator<n_levels> open_sizes_gen_;
-        trading::random::range<std::size_t> period_gen_;
+        trading::random::int_range period_gen_;
 
     public:
         explicit neighbor(const random::levels_generator<n_levels>& levels_gen,
-                const random::sizes_generator<n_levels>& open_sizes_gen, const random::range<size_t>& period_gen)
+                const random::sizes_generator<n_levels>& open_sizes_gen, const random::int_range& period_gen)
                 :levels_gen_(levels_gen), open_sizes_gen_(open_sizes_gen), period_gen_(period_gen) { }
 
         configuration<n_levels> get(const configuration<n_levels>& origin)
@@ -34,7 +34,7 @@ namespace trading::bazooka {
             auto next = origin;
             switch (choose_(gen_)) {
             case 0:
-                moving_average_set_period(next.ma, period_gen_());
+                moving_average_set_period(next.ma, static_cast<std::size_t>(period_gen_()));
                 break;
             case 1: {
                 std::size_t period = moving_average_period(next.ma);

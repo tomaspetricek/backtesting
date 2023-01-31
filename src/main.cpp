@@ -130,10 +130,11 @@ void to_csv(chart_series<n_levels>&& series, const std::filesystem::path& out_di
 }
 
 template<class SystemicGenerator, class RandomGenerator>
-void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen){
+void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen, std::size_t n_it)
+{
     const std::size_t seq_size{4}, n_unique{11};
     using value_type = typename RandomGenerator::value_type;
-    std::size_t it{0}, total_it{1'000'000};
+    std::size_t it{0};
     using map_type = std::map<value_type, std::size_t>;
     map_type options;
 
@@ -142,8 +143,8 @@ void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen){
 
     auto origin = rand_gen();
     auto duration = measure_duration([&]() {
-        while (it++!=total_it) {
-            origin = rand_gen();
+        while (it++!=n_it) {
+            origin = rand_gen(origin);
             assert(options.contains(origin));
             options[origin] += 1;
         }
@@ -159,8 +160,8 @@ void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen){
     });
 
     for (const auto& [sizes, count]: counts) {
-        assert(count);
-        std::cout << json{sizes} << ", " << std::setprecision(2) << (static_cast<double>(count)/total_it)*100
+//        assert(count);
+        std::cout << json{sizes} << ", " << std::setprecision(2) << (static_cast<double>(count)/n_it)*100
                   << " %"
                   << std::endl;
     }
@@ -173,20 +174,33 @@ int main()
         const std::size_t n_levels{4};
         trading::random::sizes_generator<n_levels> open_sizes_gen{11};
         trading::random::levels_generator<n_levels> levels_gen{11};
-        trading::random::range<std::size_t> period_gen{10, 50, 10};
+        trading::random::int_range period_gen{10, 50, 10};
         bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
-        bazooka::configuration<n_levels> origin{indicator::sma{period_gen.from()}, levels_gen(), open_sizes_gen()};
+        bazooka::configuration<n_levels> origin{indicator::sma{static_cast<std::size_t>(period_gen())}, levels_gen(),
+                                                open_sizes_gen()};
         auto next = neighbor.get(origin);
     }
     {
-        std::size_t from{10}, to{50}, step{10};
-        test_generators(trading::systematic::range<std::size_t>{from, to, step},
-                trading::random::range<std::size_t>{from, to, step});
+//        int from{20}, to{-20}, step{-5};
+//        int from{20}, to{-20}, step{-10};
+//        int from{10}, to{50}, step{10};
+//        int from{-100}, to{-50}, step{10};
+//        int from{-20}, to{20}, step{10};
+        int from{5}, to{60}, step{5};
+        test_generators(trading::systematic::int_range{from, to, step},
+                trading::random::int_range{from, to, step, 2}, 1'000'000);
     }
     {
-        const std::size_t seq_size{4}, n_unique{11};
+        std::cout << "sizes" << std::endl;
+        const std::size_t seq_size{3}, n_unique{11};
         test_generators(trading::systematic::sizes_generator<seq_size>{n_unique},
-                trading::random::sizes_generator<seq_size>{n_unique});
+                trading::random::sizes_generator<seq_size>{n_unique}, 10'000'000);
+    }
+    {
+        std::cout << "levels" << std::endl;
+        const std::size_t seq_size{3}, n_unique{10};
+        test_generators(trading::systematic::levels_generator<seq_size>{n_unique},
+                trading::random::levels_generator<seq_size>{n_unique}, 10'000'000);
     }
     return EXIT_SUCCESS;
 
@@ -216,11 +230,12 @@ int main()
               << "duration: " << duration << std::endl;
 
     // create search space
-    systematic::range<std::size_t> mov_avg_periods{3, 36, 3};
+    systematic::int_range mov_avg_periods{3, 36, 3};
     auto search_space = [&]() -> cppcoro::generator<bazooka::configuration<n_levels>> {
         for (std::size_t entry_period: mov_avg_periods())
-            for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{entry_period}},
-                                        bazooka::indicator_type{indicator::ema{entry_period}}})
+            for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{static_cast<std::size_t>(entry_period)}},
+                                        bazooka::indicator_type{
+                                                indicator::ema{static_cast<std::size_t>(entry_period)}}})
                 for (const auto& levels: levels_gen())
                     for (const auto open_sizes: sizes_gen())
                         co_yield bazooka::configuration<n_levels>{entry_ma, levels, open_sizes};
