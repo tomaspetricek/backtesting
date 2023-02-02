@@ -34,7 +34,8 @@ namespace trading::bazooka {
             auto next = origin;
             switch (choose_(gen_)) {
             case 0:
-                moving_average_set_period(next.ma, static_cast<std::size_t>(period_gen_()));
+                moving_average_set_period(next.ma,
+                        static_cast<std::size_t>(period_gen_(moving_average_period(next.ma))));
                 break;
             case 1: {
                 std::size_t period = moving_average_period(next.ma);

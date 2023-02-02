@@ -21,7 +21,7 @@ namespace trading::optimizer::parallel {
                 const std::function<cppcoro::generator<typename State::config_type>()>& search_space)
                 :objective_func_(objective_func), search_space_{search_space} { }
 
-        template<class Restriction, class Result>
+        template<class Result, class Restriction>
         void operator()(Result& res, const Restriction& restrict)
         {
             #pragma omp parallel

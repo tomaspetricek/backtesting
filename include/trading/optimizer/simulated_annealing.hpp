@@ -7,105 +7,195 @@
 
 #include <functional>
 #include <cmath>
+#include <trading/generators.hpp>
 
-namespace trading {
-    template<class Config>
+namespace trading::optimizer {
+    template<class State>
     class simulated_annealing {
     private:
-        const double _start_temp;
-        const double _min_temp;
-        const int _n_tries;
-        double _curr_temp;
-        state<n_lits> _best_state;
-        state<n_lits> _curr_state;
-        std::function<> _cool;
-        std::function<> _find_neighbor;
-        rand_real_range_generator<double> _rand_prob_gen;
-        std::size_t _it;
-        std::vector<std::function<>> _observers;
+        double start_temp_;
+        double min_temp_;
+        int n_tries_;
+        double curr_temp_;
+        State init_state_;
+        std::function<void(simulated_annealing<State>&)> cool_;
+        std::function<State(State)> find_neighbor_;
+        std::function<double(State, State)> cost_func_;
+        random::real_range_generator<double> rand_prob_gen_{0.0, 1.0};
+        std::size_t it_{0};
 
-        void try_update() {
-            Config new_config = _find_neighbor(*this);
-            int new_optim_val = optim_crit_val<n_lits>(_inst, new_config);
-            int new_n_satisfied = _inst.formula_n_satisfied(new_config);
-
-            double diff = _curr_state.n_satisfied - new_n_satisfied;
-
-            // if it's worse
-            if (diff > 0)
-                diff = (((_inst.formula_n_clauses() + std::pow(diff, 1.7)) / diff));
-
-            if (diff <= 0 || _rand_prob_gen() < exp(-diff / _curr_temp)) {
-                _curr_state = {new_config, new_optim_val, new_n_satisfied};
-
-                if (_curr_state.n_satisfied > _best_state.n_satisfied ||
-                        (_curr_state.n_satisfied == _best_state.n_satisfied
-                                && _curr_state.total_weight > _best_state.total_weight)) {
-                    _best_state = _curr_state;
-                }
-            }
-        };
-
-        void update_observers() {
-            for (const auto &observer : _observers) observer();
-        }
-
-        static double validate_min_temp(const double min_temp) {
-            if (min_temp <= 0.0) throw std::invalid_argument("Min temp has to be greater than 0");
+        static double validate_min_temp(const double min_temp)
+        {
+            if (min_temp<=0.0)
+                throw std::invalid_argument("Min temp has to be greater than 0");
             return min_temp;
         }
 
-        static double validate_start_temp(const double min_temp, const double start_temp) {
-            if (start_temp <= min_temp) throw std::invalid_argument("Start temp has to be greater than min temp");
+        static double validate_start_temp(const double min_temp, const double start_temp)
+        {
+            if (start_temp<=min_temp)
+                throw std::invalid_argument("Start temp has to be greater than min temp");
             return start_temp;
         }
 
     public:
+        explicit simulated_annealing(double start_temp, double min_temp, int n_tries,
+                const State& init_state, const std::function<void(simulated_annealing<State>&)>& cool,
+                const std::function<State(State)>& find_neighbor, const std::function<double(State, State)>& cost_func)
+                :start_temp_(validate_start_temp(min_temp, start_temp)), min_temp_(validate_min_temp(min_temp)),
+                 n_tries_(n_tries), curr_temp_(start_temp), init_state_{init_state}, cool_(cool),
+                 find_neighbor_(find_neighbor), cost_func_{cost_func} { }
 
-        simulated_annealing(double start_temp, double min_temp, int n_tries, const instance<n_lits> &inst,
-                const std::array<bool, n_lits> &init_config, const std::function<>& cool, const std::function<>& find_neighbor)
-                : _min_temp(validate_min_temp(min_temp)), _start_temp(validate_start_temp(min_temp, start_temp)),
-                  _n_tries(n_tries), _inst(inst), _curr_temp(start_temp),
-                  _cool(cool), _find_neighbor(find_neighbor), _rand_prob_gen(0.0, 1.0), _it{0} {
-            _best_state = {init_config, optim_crit_val<n_lits>(_inst, init_config),
-                           _inst.formula_n_satisfied(init_config)};
-            _curr_state = _best_state;
-        }
-
-        void operator()() {
+        template<class Result, class Restriction, class... Observer>
+        void operator()(Result& res, const Restriction& restrict, Observer& ... observers)
+        {
+            State curr_state{init_state_};
+            it_ = 0;
+            (observers.begin(*this), ...);
             // frozen
-            for (; _curr_temp > _min_temp; _it++) {
+            for (; curr_temp_>min_temp_; it_++) {
                 // equilibrium
-                for (int i{0}; i < _n_tries; i++) try_update();
-                cool(*this);
-                update_observers();
+                for (int i{0}; i<n_tries_; i++) {
+                    State candidate = find_neighbor_(curr_state);
+
+                    if (res.compare(curr_state, candidate)) {
+                        curr_state = candidate;
+                        (observers.better_accepted(*this), ...);
+
+                        if (restrict(curr_state))
+                            res.update(curr_state);
+                    }
+                    else {
+                        double diff = cost_func_(curr_state, candidate);
+                        if (rand_prob_gen_()<std::exp(-diff/curr_temp_)) {
+                            curr_state = candidate;
+                            (observers.worse_accepted(*this), ...);
+                        }
+                    }
+                }
+                cool_(*this);
+                (observers.cooled(*this, curr_state), ...);
             }
-            return {found, solution<n_lits>{_inst.id(), _best_state.total_weight, _best_state.config}};
+            (observers.end(*this), ...);
         }
 
-        void register_observer(const std::function<> &observer) {
-            _observers.push_back(observer);
+        double current_temperature() const
+        {
+            return curr_temp_;
         }
 
-        double current_temperature() const {
-            return _curr_temp;
+        void current_temperature(double temp)
+        {
+            curr_temp_ = temp;
         }
 
-        std::size_t it() const {
-            return _it;
+        std::size_t it() const
+        {
+            return it_;
         }
 
-        double start_temperature() const {
-            return _start_temp;
+        double start_temperature() const
+        {
+            return start_temp_;
         }
 
-        const state<n_lits> &best_state() const {
-            return _best_state;
-        }
+        class cooler {
+        protected:
+            float decay_;
 
-        const state<n_lits> &current_state() const {
-            return _curr_state;
-        }
+            explicit cooler(const float decay)
+                    :decay_(decay) { }
+
+            float decay() const
+            {
+                return decay_;
+            }
+        };
+
+        class lin_cooler : public cooler {
+        public:
+            explicit lin_cooler(float decay)
+                    :cooler(decay) { }
+
+            void operator()(simulated_annealing<State>& solver)
+            {
+                solver.curr_temp(solver.curr_temp()-this->decay_);
+            }
+
+            static std::string name()
+            {
+                return "lin cooler";
+            }
+        };
+
+        class exp_mul_cooler : public cooler {
+            static float validate(const float decay)
+            {
+                if (decay<0.8 || decay>1.0) {
+                    throw std::invalid_argument("Decay has to be greater than 0.8 and lower than 1.0");
+                }
+                else {
+                    return decay;
+                }
+            }
+
+        public:
+            explicit exp_mul_cooler(float decay)
+                    :cooler(validate(decay)) { }
+
+            void operator()(simulated_annealing<State>& solver)
+            {
+                solver.current_temperature(solver.start_temperature()*std::pow(this->decay_, solver.it()));
+            }
+
+            static std::string name()
+            {
+                return "exp mul cooler";
+            }
+        };
+
+        class log_mul_cooler : public cooler {
+        private:
+            static float validate(const float decay)
+            {
+                if (decay<1.0) {
+                    throw std::invalid_argument("Decay has to be greater than 1");
+                }
+                else {
+                    return decay;
+                }
+            }
+
+        public:
+            explicit log_mul_cooler(float decay)
+                    :cooler(validate(decay)) { }
+
+            void operator()(simulated_annealing<State>& solver)
+            {
+                solver.curr_temp(solver.start_temp()/(1+this->decay_*std::log(1+solver.it())));
+            }
+
+            static std::string name()
+            {
+                return "log mul cooler";
+            }
+        };
+
+        class basic_cooler : public cooler {
+        public:
+            basic_cooler()
+                    :cooler(std::nan("")) { }
+
+            void operator()(simulated_annealing<State>& solver)
+            {
+                solver.curr_temp(solver.start_temp()/(1+std::log(1+solver.it())));
+            }
+
+            static std::string name()
+            {
+                return "basic cooler";
+            }
+        };
     };
 }
 

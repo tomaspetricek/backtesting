@@ -22,7 +22,8 @@
 #include <trading/io/csv/reader.hpp>
 #include <trading/io/parser.hpp>
 #include <trading/io/stringifier.hpp>
-#include "trading/optimizer/parallel/brute_force.hpp"
+#include <trading/optimizer/parallel/brute_force.hpp>
+#include <trading/optimizer/simulated_annealing.hpp>
 #include <trading/validator/interval.hpp>
 #include <trading/view/candle_deserializer.hpp>
 #include <trading/types.hpp>

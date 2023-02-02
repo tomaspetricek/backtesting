@@ -78,6 +78,11 @@ namespace trading {
             if (n_remove>0) res.erase(res.end()-n_remove, res.end());
             return res;
         }
+
+        bool compare(const Type& rhs, const Type& lhs)
+        {
+            return comp_(rhs, lhs);
+        }
     };
 }
 
