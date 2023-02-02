@@ -139,9 +139,18 @@ namespace trading {
             return final_balance_;
         }
 
+        template<class T>
+        requires std::same_as<T, amount>
         amount_t total_profit() const
         {
             return final_balance_-init_balance_;
+        }
+
+        template<class T>
+        requires std::same_as<T, percent>
+        amount_t total_profit() const
+        {
+            return ((final_balance_-init_balance_)/init_balance_)*100;
         }
 
         std::size_t total_open_orders() const

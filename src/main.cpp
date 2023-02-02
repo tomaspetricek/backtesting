@@ -281,7 +281,8 @@ struct observer {
     std::size_t n_it;
     std::vector<std::size_t> worse_accepted_counts;
     std::vector<std::size_t> better_accepted_counts;
-    std::vector<amount_t> curr_net_profits;
+    std::vector<amount_t> curr_state_net_profits;
+    std::vector<double> threshold_progress;
 
     void begin(const optimizer_type& optimizer)
     {
@@ -290,21 +291,25 @@ struct observer {
         better_accepted_counts.template emplace_back(0);
     }
 
-    void better_accepted(const optimizer_type& optimizer)
+    void better_accepted(const optimizer_type&)
     {
         better_accepted_counts.back()++;
     }
 
-    void worse_accepted(const optimizer_type& optimizer)
+    void worse_accepted(const optimizer_type&, double threshold)
     {
         worse_accepted_counts.back()++;
+        threshold_progress.template emplace_back(threshold);
+        std::cout << "threshold: " << threshold << std::endl;
     }
 
     void cooled(const optimizer_type& optimizer, const State& curr)
     {
         worse_accepted_counts.template emplace_back(0);
         better_accepted_counts.template emplace_back(0);
-        curr_net_profits.template emplace_back(curr.stats.net_profit());
+        curr_state_net_profits.template emplace_back(curr.stats.net_profit());
+        std::cout << "curr: temp: " << optimizer.current_temperature() <<
+                  ", net profit: " << curr.stats.net_profit() << std::endl;
     }
 
     void end(const optimizer_type& optimizer)
@@ -346,8 +351,8 @@ void use_simulated_annealing(const std::vector<candle>& candles)
     simulator.trade(init_config, collector);
     state_type init_state{init_config, collector.get()};
 
-    double start_temp{10'000}, min_temp{1'000};
-    int n_tries{10};
+    double start_temp{100}, min_temp{10};
+    int n_tries{100};
     float decay{0.999};
     optimizer::simulated_annealing<state_type> optimizer{
             start_temp, min_temp, n_tries, init_state,
@@ -358,7 +363,7 @@ void use_simulated_annealing(const std::vector<candle>& candles)
                 return state_type{config, collector.get()};
             },
             [](const state_type& current, const state_type& candidate) {
-                return current.stats.net_profit()-candidate.stats.net_profit();
+                return current.stats.total_profit<percent>()-candidate.stats.total_profit<percent>();
             }
     };
 
@@ -368,16 +373,23 @@ void use_simulated_annealing(const std::vector<candle>& candles)
 
     std::filesystem::path out_dir{"../../src/data/out"};
     std::filesystem::path optim_dir{out_dir/"simulated-annealing"};
-    std::filesystem::path res_dir{optim_dir/"01"};
+    std::filesystem::path res_dir{optim_dir/"06"};
 
     std::filesystem::create_directory(optim_dir);
     std::filesystem::create_directory(res_dir);
 
-    io::csv::writer<1> writer(res_dir/"curr-state.csv");
-    writer.write_header({"net profit"});
-
-    for (const auto& net_profit : optim_observer.curr_net_profits)
-        writer.write_row(net_profit);
+    {
+        io::csv::writer<1> writer(res_dir/"curr-state-net-profit.csv");
+        writer.write_header({"net profit"});
+        for (const auto& net_profit: optim_observer.curr_state_net_profits)
+            writer.write_row(net_profit);
+    }
+    {
+        io::csv::writer<1> writer(res_dir/"threshold.csv");
+        writer.write_header({"threshold"});
+        for (const auto& threshold: optim_observer.threshold_progress)
+            writer.write_row(threshold);
+    }
 }
 
 int main()

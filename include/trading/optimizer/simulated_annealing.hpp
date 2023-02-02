@@ -58,7 +58,7 @@ namespace trading::optimizer {
                 for (int i{0}; i<n_tries_; i++) {
                     State candidate = find_neighbor_(curr_state);
 
-                    if (res.compare(curr_state, candidate)) {
+                    if (res.compare(candidate, curr_state)) {
                         curr_state = candidate;
                         (observers.better_accepted(*this), ...);
 
@@ -67,9 +67,12 @@ namespace trading::optimizer {
                     }
                     else {
                         double diff = cost_func_(curr_state, candidate);
-                        if (rand_prob_gen_()<std::exp(-diff/curr_temp_)) {
+                        double threshold = std::exp(-diff/curr_temp_);
+                        assert(threshold>0.0 && threshold<1.0);
+
+                        if (rand_prob_gen_()<threshold) {
                             curr_state = candidate;
-                            (observers.worse_accepted(*this), ...);
+                            (observers.worse_accepted(*this, threshold), ...);
                         }
                     }
                 }
