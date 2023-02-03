@@ -12,7 +12,6 @@
 #include <boost/range.hpp>
 #include <trading/types.hpp>
 
-
 namespace trading {
 // https://stackoverflow.com/questions/6245735/pretty-print-stdtuple
     template<class TupType, size_t... I>
@@ -58,18 +57,6 @@ namespace trading {
     // https://stackoverflow.com/questions/1198260/how-can-you-iterate-over-the-elements-of-an-stdtuple
     template<std::size_t I = 0, typename Func, typename... Tp>
     inline typename std::enable_if<I==sizeof...(Tp), void>::type
-    for_each(std::tuple<Tp...>&, Func) { }
-
-    template<std::size_t I = 0, typename Func, typename... Tp>
-    inline typename std::enable_if<I<sizeof...(Tp), void>::type
-    for_each(std::tuple<Tp...>& t, Func f)
-    {
-        f(std::get<I>(t), I);
-        for_each<I+1, Func, Tp...>(t, f);
-    }
-
-    template<std::size_t I = 0, typename Func, typename... Tp>
-    inline typename std::enable_if<I==sizeof...(Tp), void>::type
     for_each(const std::tuple<Tp...>&, Func) { }
 
     template<std::size_t I = 0, typename Func, typename... Tp>
@@ -85,6 +72,15 @@ namespace trading {
     auto zip(T&& ... containers) -> boost::iterator_range<boost::zip_iterator<decltype(boost::make_tuple(
             std::begin(containers)...))>>
     {
+        std::size_t first_size;
+        for_each(std::make_tuple(containers...), [&](auto container, std::size_t i) {
+            if (!i)
+                first_size = container.size();
+            else {
+                if (first_size!=container.size())
+                    throw std::invalid_argument("Containers must have same sizes");
+            }
+        });
         auto zip_begin = boost::make_zip_iterator(boost::make_tuple(std::begin(containers)...));
         auto zip_end = boost::make_zip_iterator(boost::make_tuple(std::end(containers)...));
         return boost::make_iterator_range(zip_begin, zip_end);

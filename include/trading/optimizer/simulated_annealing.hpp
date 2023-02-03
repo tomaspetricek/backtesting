@@ -51,7 +51,7 @@ namespace trading::optimizer {
         {
             State curr_state{init_state_};
             it_ = 0;
-            (observers.begin(*this), ...);
+            (observers.begin(*this, curr_state), ...);
             // frozen
             for (; curr_temp_>min_temp_; it_++) {
                 // equilibrium

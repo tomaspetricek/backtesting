@@ -277,16 +277,15 @@ void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen, st
 template<class State>
 struct observer {
     using optimizer_type = optimizer::simulated_annealing<State>;
-    double start_temperature;
     std::size_t n_it;
     std::vector<std::size_t> worse_accepted_counts;
     std::vector<std::size_t> better_accepted_counts;
     std::vector<amount_t> curr_state_net_profits;
     std::vector<double> threshold_progress;
+    std::vector<double> temperature;
 
-    void begin(const optimizer_type& optimizer)
+    void begin(const optimizer_type& optimizer, const State& curr)
     {
-        start_temperature = optimizer.start_temperature();
         worse_accepted_counts.template emplace_back(0);
         better_accepted_counts.template emplace_back(0);
     }
@@ -308,6 +307,7 @@ struct observer {
         worse_accepted_counts.template emplace_back(0);
         better_accepted_counts.template emplace_back(0);
         curr_state_net_profits.template emplace_back(curr.stats.net_profit());
+        temperature.template emplace_back(optimizer.current_temperature());
         std::cout << "curr: temp: " << optimizer.current_temperature() <<
                   ", net profit: " << curr.stats.net_profit() << std::endl;
     }
@@ -323,19 +323,21 @@ struct observer {
 void use_simulated_annealing(const std::vector<candle>& candles)
 {
     constexpr std::size_t n_levels = 4;
-    setting<bazooka::configuration<n_levels>, bazooka::statistics<n_levels>> set{
-            [](const bazooka::state<n_levels>&) {
-                return true;
-            },
-            [](const bazooka::state<n_levels>& rhs, const bazooka::state<n_levels>& lhs) {
-                return rhs.stats.net_profit()>=lhs.stats.net_profit();
-            },
-            "net-profit"
+    using state_type = bazooka::state<n_levels>;
+    using config_type = state_type::config_type;
+    using trader_type = typename std::invoke_result<decltype(create_trader<n_levels>), config_type>::type;
+
+    std::size_t n_best{30};
+    auto optim_criteria = [](const state_type& rhs, const state_type& lhs) {
+        return rhs.stats.net_profit()>=lhs.stats.net_profit();
+    };
+    auto restrictions = [](const state_type&) {
+        return true;
     };
 
-    trading::random::sizes_generator<n_levels> open_sizes_gen{11};
+    trading::random::sizes_generator<n_levels> open_sizes_gen{10};
     trading::random::levels_generator<n_levels> levels_gen{11};
-    trading::random::int_range period_gen{10, 50, 10};
+    trading::random::int_range period_gen{3, 60, 3};
     bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
     bazooka::configuration<n_levels> init_config{indicator::sma{static_cast<std::size_t>(period_gen())}, levels_gen(),
                                                  open_sizes_gen()};
@@ -343,46 +345,44 @@ void use_simulated_annealing(const std::vector<candle>& candles)
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
     trading::simulator simulator{to_function(create_trader<n_levels>), candles, resampling_period, candle::ohlc4};
 
-    using config_type = bazooka::configuration<n_levels>;
-    using state_type = bazooka::state<n_levels>;
-    using trader_type = typename std::invoke_result<decltype(create_trader<n_levels>), config_type>::type;
-    trading::bazooka::statistics<n_levels>::collector<trader_type> collector;
 
-    simulator.trade(init_config, collector);
-    state_type init_state{init_config, collector.get()};
+    trading::bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
+    simulator.trade(init_config, stats_collector);
+    state_type init_state{init_config, stats_collector.get()};
 
-    double start_temp{100}, min_temp{10};
-    int n_tries{100};
-    float decay{0.999};
+    double start_temp{57}, min_temp{37};
+    int n_tries{25};
+    float decay{0.995};
     optimizer::simulated_annealing<state_type> optimizer{
             start_temp, min_temp, n_tries, init_state,
             optimizer::simulated_annealing<state_type>::exp_mul_cooler{decay},
             [&](const state_type& origin) {
                 auto config = neighbor.get(origin.config);
-                simulator.trade(config, collector);
-                return state_type{config, collector.get()};
+                simulator.trade(config, stats_collector);
+                return state_type{config, stats_collector.get()};
             },
             [](const state_type& current, const state_type& candidate) {
                 return current.stats.total_profit<percent>()-candidate.stats.total_profit<percent>();
             }
     };
 
-    trading::enumerative_result<state_type> res{30, set.optim_criteria};
+    trading::enumerative_result<state_type> res{n_best, optim_criteria};
     observer<state_type> optim_observer;
-    optimizer(res, set.restrictions, optim_observer);
+    optimizer(res, restrictions, optim_observer);
 
     std::filesystem::path out_dir{"../../src/data/out"};
     std::filesystem::path optim_dir{out_dir/"simulated-annealing"};
-    std::filesystem::path res_dir{optim_dir/"06"};
+    std::filesystem::path res_dir{optim_dir/"09"};
 
     std::filesystem::create_directory(optim_dir);
     std::filesystem::create_directory(res_dir);
 
     {
-        io::csv::writer<1> writer(res_dir/"curr-state-net-profit.csv");
-        writer.write_header({"net profit"});
-        for (const auto& net_profit: optim_observer.curr_state_net_profits)
-            writer.write_row(net_profit);
+        io::csv::writer<2> writer(res_dir/"iteration-progress.csv");
+        writer.write_header({"curr state net profit", "temperature"});
+        for (const auto& [net_profit, temperature]: zip(optim_observer.curr_state_net_profits,
+                optim_observer.temperature))
+            writer.write_row(net_profit, temperature);
     }
     {
         io::csv::writer<1> writer(res_dir/"threshold.csv");
