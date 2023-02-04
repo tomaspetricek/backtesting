@@ -1,0 +1,39 @@
+[
+    {
+        "candles": {
+            "count": 2526055,
+            "from": 1515024000,
+            "pair": "LTC/USDT",
+            "to": 1667066400
+        },
+        "cooler": {
+            "type": "basic cooler"
+        },
+        "optimizer": {
+            "minimum temperature": 26.0,
+            "start temperature": 128.0,
+            "tries count": 256
+        },
+        "resampling period[min]": 30,
+        "search space": {
+            "levels": {
+                "count": 4,
+                "unique count": 30
+            },
+            "moving average": {
+                "period": {
+                    "from": 1,
+                    "step": 1,
+                    "to": 60
+                },
+                "types": [
+                    "sma",
+                    "ema"
+                ]
+            },
+            "open order sizes": {
+                "unique count": 30
+            }
+        }
+    }
+]

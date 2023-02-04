@@ -423,7 +423,7 @@ void use_simulated_annealing(const std::vector<candle>& candles)
                      {"from", candles.front().opened()},
                      {"to", candles.back().opened()},
                      {"count", candles.size()},
-                     {"pair", "ETH/USDT"},
+                     {"pair", "XRP/USDT"},
              }},
              {"search space", {
                      {"levels", {
@@ -461,7 +461,7 @@ int main()
     std::time_t min_opened{1515024000}, max_opened{1667066400};
     std::vector<trading::candle> candles;
     auto duration = measure_duration(to_function([&] {
-        return read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|', min_opened, max_opened);
+        return read_candles({"../../src/data/in/ohlcv-xrp-usdt-1-min.csv"}, '|', min_opened, max_opened);
     }), candles);
 
     auto from = boost::posix_time::from_time_t(min_opened);
