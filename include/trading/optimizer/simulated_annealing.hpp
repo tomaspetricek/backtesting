@@ -109,6 +109,7 @@ namespace trading::optimizer {
             explicit cooler(const float decay)
                     :decay_(decay) { }
 
+        public:
             float decay() const
             {
                 return decay_;
@@ -175,7 +176,7 @@ namespace trading::optimizer {
 
             void operator()(simulated_annealing<State>& solver)
             {
-                solver.curr_temp(solver.start_temp()/(1+this->decay_*std::log(1+solver.it())));
+                solver.current_temperature(solver.start_temperature()/(1+this->decay_*std::log(1+solver.it())));
             }
 
             static std::string name()
@@ -191,7 +192,7 @@ namespace trading::optimizer {
 
             void operator()(simulated_annealing<State>& solver)
             {
-                solver.curr_temp(solver.start_temp()/(1+std::log(1+solver.it())));
+                solver.current_temperature(solver.start_temperature()/(1+std::log(1+solver.it())));
             }
 
             static std::string name()

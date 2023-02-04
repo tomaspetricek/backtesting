@@ -275,19 +275,27 @@ void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen, st
 //}
 
 template<class State>
-struct observer {
+struct progress_observer {
     using optimizer_type = optimizer::simulated_annealing<State>;
     std::size_t n_it;
     std::vector<std::size_t> worse_accepted_counts;
     std::vector<std::size_t> better_accepted_counts;
     std::vector<amount_t> curr_state_net_profits;
-    std::vector<double> threshold_progress;
+    std::vector<double> worse_acceptance_mean_thresholds;
+    double threshold_sum;
+    std::size_t threshold_count;
     std::vector<double> temperature;
 
-    void begin(const optimizer_type& optimizer, const State& curr)
+    void reset_counters()
     {
         worse_accepted_counts.template emplace_back(0);
         better_accepted_counts.template emplace_back(0);
+        threshold_count = threshold_sum = 0;
+    }
+
+    void begin(const optimizer_type&, const State&)
+    {
+        reset_counters();
     }
 
     void better_accepted(const optimizer_type&)
@@ -298,16 +306,20 @@ struct observer {
     void worse_accepted(const optimizer_type&, double threshold)
     {
         worse_accepted_counts.back()++;
-        threshold_progress.template emplace_back(threshold);
+        threshold_sum += threshold;
+        threshold_count++;
         std::cout << "threshold: " << threshold << std::endl;
     }
 
     void cooled(const optimizer_type& optimizer, const State& curr)
     {
-        worse_accepted_counts.template emplace_back(0);
-        better_accepted_counts.template emplace_back(0);
         curr_state_net_profits.template emplace_back(curr.stats.net_profit());
         temperature.template emplace_back(optimizer.current_temperature());
+
+        auto mean_threshold = (threshold_sum==0.0) ? 0.0 : threshold_sum/threshold_count;
+        worse_acceptance_mean_thresholds.template emplace_back(mean_threshold);
+
+        reset_counters();
         std::cout << "curr: temp: " << optimizer.current_temperature() <<
                   ", net profit: " << curr.stats.net_profit() << std::endl;
     }
@@ -320,12 +332,37 @@ struct observer {
     }
 };
 
+inline std::string name_experiment_directory(std::size_t num)
+{
+    return fmt::format("{:02d}", num);
+}
+
+std::filesystem::path try_create_experiment_directory(const std::filesystem::path& optim_dir)
+{
+    auto dir_it = std::filesystem::directory_iterator(optim_dir);
+    std::size_t n_dirs = std::count_if(
+            begin(dir_it),
+            end(dir_it),
+            [](const auto& entry) { return entry.is_directory(); }
+    );
+    std::filesystem::path last_dir{optim_dir/name_experiment_directory(n_dirs)};
+    std::filesystem::path empty_dir = (std::filesystem::is_empty(last_dir)) ? last_dir :
+                                      optim_dir/name_experiment_directory(n_dirs+1);
+    std::filesystem::create_directory(empty_dir);
+    return empty_dir;
+}
+
 void use_simulated_annealing(const std::vector<candle>& candles)
 {
     constexpr std::size_t n_levels = 4;
     using state_type = bazooka::state<n_levels>;
     using config_type = state_type::config_type;
     using trader_type = typename std::invoke_result<decltype(create_trader<n_levels>), config_type>::type;
+
+    std::filesystem::path out_dir{"../../src/data/out"};
+    std::filesystem::path optim_dir{out_dir/"simulated-annealing"};
+    std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
+    std::filesystem::create_directory(optim_dir);
 
     std::size_t n_best{30};
     auto optim_criteria = [](const state_type& rhs, const state_type& lhs) {
@@ -335,9 +372,11 @@ void use_simulated_annealing(const std::vector<candle>& candles)
         return true;
     };
 
-    trading::random::sizes_generator<n_levels> open_sizes_gen{10};
-    trading::random::levels_generator<n_levels> levels_gen{11};
-    trading::random::int_range period_gen{3, 60, 3};
+    std::size_t open_sizes_unique_count{30};
+    trading::random::sizes_generator<n_levels> open_sizes_gen{open_sizes_unique_count};
+    std::size_t levels_unique_count{30};
+    trading::random::levels_generator<n_levels> levels_gen{levels_unique_count};
+    trading::random::int_range period_gen{1, 60, 1};
     bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
     bazooka::configuration<n_levels> init_config{indicator::sma{static_cast<std::size_t>(period_gen())}, levels_gen(),
                                                  open_sizes_gen()};
@@ -345,17 +384,17 @@ void use_simulated_annealing(const std::vector<candle>& candles)
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
     trading::simulator simulator{to_function(create_trader<n_levels>), candles, resampling_period, candle::ohlc4};
 
-
     trading::bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
     simulator.trade(init_config, stats_collector);
     state_type init_state{init_config, stats_collector.get()};
 
-    double start_temp{57}, min_temp{37};
-    int n_tries{25};
-    float decay{0.995};
+    double start_temp{128}, min_temp{26};
+    int n_tries{256};
+//    float decay{50};
+    auto cooler = optimizer::simulated_annealing<state_type>::basic_cooler{};
     optimizer::simulated_annealing<state_type> optimizer{
             start_temp, min_temp, n_tries, init_state,
-            optimizer::simulated_annealing<state_type>::exp_mul_cooler{decay},
+            cooler,
             [&](const state_type& origin) {
                 auto config = neighbor.get(origin.config);
                 simulator.trade(config, stats_collector);
@@ -367,29 +406,53 @@ void use_simulated_annealing(const std::vector<candle>& candles)
     };
 
     trading::enumerative_result<state_type> res{n_best, optim_criteria};
-    observer<state_type> optim_observer;
-    optimizer(res, restrictions, optim_observer);
+    progress_observer<state_type> progress_observer;
+    optimizer(res, restrictions, progress_observer);
 
-    std::filesystem::path out_dir{"../../src/data/out"};
-    std::filesystem::path optim_dir{out_dir/"simulated-annealing"};
-    std::filesystem::path res_dir{optim_dir/"09"};
+    json settings_doc{
+            {{"optimizer", {
+                    {"start temperature", start_temp},
+                    {"minimum temperature", min_temp},
+                    {"tries count", n_tries}
+            }},
+             {"cooler", {
+                     {"type", decltype(cooler)::name()},
+//                     {"decay", cooler.decay()}
+             }},
+             {"candles", {
+                     {"from", candles.front().opened()},
+                     {"to", candles.back().opened()},
+                     {"count", candles.size()},
+                     {"pair", "ETH/USDT"},
+             }},
+             {"search space", {
+                     {"levels", {
+                             {"count", n_levels},
+                             {"unique count", levels_unique_count},
+                     }},
+                     {"open order sizes", {
+                             {"unique count", open_sizes_unique_count}
+                     }},
+                     {"moving average", {
+                             {"types", {"sma", "ema"}},
+                             {"period", {
+                                     {"from", period_gen.from()},
+                                     {"to", period_gen.to()},
+                                     {"step", period_gen.step()}
+                             }}
+                     }},
+             }},
+             {"resampling period[min]", resampling_period.count()},
+            }};
 
-    std::filesystem::create_directory(optim_dir);
-    std::filesystem::create_directory(res_dir);
+    std::ofstream settings_file{experiment_dir/"settings.json"};
+    settings_file << std::setw(4) << settings_doc;
 
-    {
-        io::csv::writer<2> writer(res_dir/"iteration-progress.csv");
-        writer.write_header({"curr state net profit", "temperature"});
-        for (const auto& [net_profit, temperature]: zip(optim_observer.curr_state_net_profits,
-                optim_observer.temperature))
-            writer.write_row(net_profit, temperature);
-    }
-    {
-        io::csv::writer<1> writer(res_dir/"threshold.csv");
-        writer.write_header({"threshold"});
-        for (const auto& threshold: optim_observer.threshold_progress)
-            writer.write_row(threshold);
-    }
+    io::csv::writer<3> writer(experiment_dir/"iteration-progress.csv");
+    writer.write_header({"curr state net profit", "temperature", "mean threshold worse acceptance"});
+    for (const auto& [net_profit, temperature, threshold]: zip(progress_observer.curr_state_net_profits,
+            progress_observer.temperature, progress_observer.worse_acceptance_mean_thresholds))
+        writer.write_row(net_profit, temperature, threshold);
 }
 
 int main()

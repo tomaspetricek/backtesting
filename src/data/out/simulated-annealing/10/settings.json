@@ -1,0 +1,40 @@
+[
+    {
+        "candles": {
+            "count": 2524282,
+            "from": 1515024000,
+            "pair": "ETH/USDT",
+            "to": 1666960020
+        },
+        "cooler": {
+            "decay": 0.9950000047683716,
+            "type": "exp mul cooler"
+        },
+        "optimizer": {
+            "minimum temperature": 37.0,
+            "start temperature": 57.0,
+            "tries count": 25
+        },
+        "resampling period[min]": 30,
+        "search space": {
+            "levels": {
+                "count": 4,
+                "unique count": 11
+            },
+            "moving average": {
+                "period": {
+                    "from": 3,
+                    "step": 3,
+                    "to": 60
+                },
+                "types": [
+                    "sma",
+                    "ema"
+                ]
+            },
+            "open order sizes": {
+                "unique count": 10
+            }
+        }
+    }
+]
