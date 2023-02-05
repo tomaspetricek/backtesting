@@ -372,11 +372,11 @@ void use_simulated_annealing(const std::vector<candle>& candles)
         return true;
     };
 
-    std::size_t open_sizes_unique_count{30};
+    std::size_t open_sizes_unique_count{120};
     trading::random::sizes_generator<n_levels> open_sizes_gen{open_sizes_unique_count};
-    std::size_t levels_unique_count{30};
+    std::size_t levels_unique_count{120};
     trading::random::levels_generator<n_levels> levels_gen{levels_unique_count};
-    trading::random::int_range period_gen{1, 60, 1};
+    trading::random::int_range period_gen{2, 120, 1};
     bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
     bazooka::configuration<n_levels> init_config{indicator::sma{static_cast<std::size_t>(period_gen())}, levels_gen(),
                                                  open_sizes_gen()};
@@ -388,8 +388,8 @@ void use_simulated_annealing(const std::vector<candle>& candles)
     simulator.trade(init_config, stats_collector);
     state_type init_state{init_config, stats_collector.get()};
 
-    double start_temp{128}, min_temp{26};
-    int n_tries{256};
+    double start_temp{512}, min_temp{45};
+    int n_tries{128};
 //    float decay{50};
     auto cooler = optimizer::simulated_annealing<state_type>::basic_cooler{};
     optimizer::simulated_annealing<state_type> optimizer{
@@ -423,7 +423,7 @@ void use_simulated_annealing(const std::vector<candle>& candles)
                      {"from", candles.front().opened()},
                      {"to", candles.back().opened()},
                      {"count", candles.size()},
-                     {"pair", "XRP/USDT"},
+                     {"pair", "ETH/USDT"},
              }},
              {"search space", {
                      {"levels", {
@@ -453,6 +453,9 @@ void use_simulated_annealing(const std::vector<candle>& candles)
     for (const auto& [net_profit, temperature, threshold]: zip(progress_observer.curr_state_net_profits,
             progress_observer.temperature, progress_observer.worse_acceptance_mean_thresholds))
         writer.write_row(net_profit, temperature, threshold);
+
+    std::ofstream results_file{experiment_dir/"results.json"};
+    results_file << std::setw(4) << json{res.get()};
 }
 
 int main()
@@ -461,7 +464,7 @@ int main()
     std::time_t min_opened{1515024000}, max_opened{1667066400};
     std::vector<trading::candle> candles;
     auto duration = measure_duration(to_function([&] {
-        return read_candles({"../../src/data/in/ohlcv-xrp-usdt-1-min.csv"}, '|', min_opened, max_opened);
+        return read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|', min_opened, max_opened);
     }), candles);
 
     auto from = boost::posix_time::from_time_t(min_opened);
