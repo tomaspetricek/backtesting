@@ -36,7 +36,6 @@
 #include <trading/fee_charger.hpp>
 #include <trading/function.hpp>
 #include <trading/generators.hpp>
-#include <trading/labels.hpp>
 #include <trading/motion_tracker.hpp>
 #include <trading/pack.hpp>
 #include <trading/resampler.hpp>

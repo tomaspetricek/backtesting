@@ -46,10 +46,12 @@ namespace trading::bazooka {
                 if (action==action::closed_all) {
                     stats_.update_close_balance(trader.wallet_balance());
                     stats_.update_equity(trader.equity(curr.data));
-                    stats_.update_profit(trader.closed_positions().back().template total_realized_profit<amount>());
+                    stats_.update_profit(trader.last_closed_position().template total_realized_profit<amount>());
+                    stats_.increase_total_close_orders();
                 }
                 else if (action==action::opened) {
                     stats_.update_open_order_count(trader.curr_level()-1);
+                    stats_.increase_total_open_orders();
                 }
             }
 
@@ -62,9 +64,7 @@ namespace trading::bazooka {
 
             void end(const Trader& trader, const price_point&)
             {
-                stats_.set_final_balance(trader.wallet_balance());
-                stats_.set_total_open_orders(trader.open_orders().size());
-                stats_.set_total_close_orders(trader.close_orders().size());
+                stats_.set_final_balance(trader.wallet_balance());;
             }
 
             const auto& get() const

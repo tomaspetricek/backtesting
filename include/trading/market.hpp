@@ -16,7 +16,7 @@ namespace trading {
     protected:
         trading::wallet wallet_;
         std::optional<position> active_{std::nullopt};
-        std::vector<position> closed_{};
+        position last_closed_{};
         fraction_t open_fee_{};
         fraction_t close_fee_{};
 
@@ -47,7 +47,7 @@ namespace trading {
             assert(received>=amount_t{0.0});
             wallet_.deposit(received);
             assert(wallet_balance()==equity(order.price));
-            closed_.emplace_back(*active_);
+            last_closed_ = *active_;
             active_ = std::nullopt;
         }
 
@@ -81,9 +81,9 @@ namespace trading {
             return *active_;
         }
 
-        const std::vector<position>& closed_positions() const
+        const position& last_closed_position() const
         {
-            return closed_;
+            return last_closed_;
         }
     };
 }

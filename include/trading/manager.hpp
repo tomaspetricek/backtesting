@@ -25,15 +25,15 @@ namespace trading {
         market market_;
         sizer<n_open> open_sizer_;
         sizer<n_close> close_sizer_;
-        std::vector<order> open_orders_;
-        std::vector<order> close_orders_;
+        order last_open_order_;
+        order last_close_order_;
 
         void create_open_order(const price_point& point)
         {
             amount_t size = open_sizer_(market_.wallet_balance());
             trading::order order{size, point.data, point.time};
             market_.fill_open_order(order);
-            open_orders_.emplace_back(order);
+            last_open_order_ = order;
         }
 
         void reset_fractioners()
@@ -47,7 +47,7 @@ namespace trading {
             amount_t size = market_.active_position().size();
             trading::order order{size, point.data, point.time};
             market_.fill_close_all_order(order);
-            close_orders_.emplace_back(order);
+            last_close_order_ = order;
             reset_fractioners();
         }
 
@@ -56,7 +56,7 @@ namespace trading {
 
         manager(trading::market market, const sizer<n_open>& open_sizer,
                 const sizer<n_close>& close_sizer)
-                :market_(std::move(market)), open_sizer_(open_sizer), close_sizer_(close_sizer) { }
+                :market_(market), open_sizer_(open_sizer), close_sizer_(close_sizer) { }
 
         // it closes active trade, if there is one
         bool try_closing_active_position(const price_point& point)
@@ -69,19 +69,19 @@ namespace trading {
             return traded;
         }
 
-        const std::vector<position>& closed_positions() const
+        const position& last_closed_position() const
         {
-            return market_.closed_positions();
+            return market_.last_closed_position();
         }
 
-        const auto& open_orders() const
+        const auto& last_open_order() const
         {
-            return open_orders_;
+            return last_open_order_;
         }
 
-        const auto& close_orders() const
+        const auto& last_close_order() const
         {
-            return close_orders_;
+            return last_close_order_;
         }
 
         bool has_active_position()

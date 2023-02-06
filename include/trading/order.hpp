@@ -14,9 +14,6 @@ namespace trading {
         amount_t sold;
         price_t price;
         std::time_t created;
-
-        order(amount_t sold, price_t price, std::time_t created)
-                :sold(sold), price(price), created(created) { }
     };
 }
 

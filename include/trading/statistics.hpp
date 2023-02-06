@@ -124,14 +124,14 @@ namespace trading {
             final_balance_ = final_balance;
         }
 
-        void set_total_open_orders(std::size_t open_orders)
+        void increase_total_open_orders()
         {
-            total_open_orders_ = open_orders;
+            total_open_orders_++;
         }
 
-        void set_total_close_orders(size_t close_orders)
+        void increase_total_close_orders()
         {
-            total_close_orders_ = close_orders;
+            total_close_orders_++;
         }
 
         amount_t final_balance() const

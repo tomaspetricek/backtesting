@@ -31,22 +31,34 @@ namespace trading {
         }
 
         // mean high and low
-        static price_t hl2(const candle& candle)
-        {
-            return mean<price_t>(candle.high_, candle.low_);
-        }
+        struct hl2 {
+            price_t operator()(const candle& candle) const
+            {
+                return mean<price_t>(candle.high_, candle.low_);
+            }
+
+            static constexpr std::string_view name = "hl2";
+        };
 
         // mean open, high, low, close
-        static price_t hlc3(const candle& candle)
-        {
-            return mean<price_t>(candle.high_, candle.low_);
-        }
+        struct hlc3 {
+            price_t operator()(const candle& candle) const
+            {
+                return mean<price_t>(candle.high_, candle.low_);
+            }
+
+            static constexpr std::string_view name = "hlc3";
+        };
 
         // mean open, high, low, close
-        static price_t ohlc4(const candle& candle)
-        {
-            return mean<price_t>(candle.open_, candle.high_, candle.low_, candle.close_);
-        }
+        struct ohlc4 {
+            price_t operator()(const candle& candle) const
+            {
+                return mean<price_t>(candle.open_, candle.high_, candle.low_, candle.close_);
+            }
+
+            static constexpr std::string_view name = "ohlc4";
+        };
 
         bool risen() const
         {

@@ -320,6 +320,7 @@ struct progress_observer {
         worse_acceptance_mean_thresholds.template emplace_back(mean_threshold);
 
         reset_counters();
+
         std::cout << "curr: temp: " << optimizer.current_temperature() <<
                   ", net profit: " << curr.stats.net_profit() << std::endl;
     }
@@ -368,28 +369,27 @@ void use_simulated_annealing(const std::vector<candle>& candles)
     auto optim_criteria = [](const state_type& rhs, const state_type& lhs) {
         return rhs.stats.net_profit()>=lhs.stats.net_profit();
     };
-    auto restrictions = [](const state_type&) {
-        return true;
-    };
+    auto restrictions = [](const state_type&) { return true; };
 
-    std::size_t open_sizes_unique_count{120};
+    std::size_t open_sizes_unique_count{30};
     trading::random::sizes_generator<n_levels> open_sizes_gen{open_sizes_unique_count};
-    std::size_t levels_unique_count{120};
+    std::size_t levels_unique_count{30};
     trading::random::levels_generator<n_levels> levels_gen{levels_unique_count};
-    trading::random::int_range period_gen{2, 120, 1};
+    trading::random::int_range period_gen{1, 60, 1};
     bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
     bazooka::configuration<n_levels> init_config{indicator::sma{static_cast<std::size_t>(period_gen())}, levels_gen(),
                                                  open_sizes_gen()};
 
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
-    trading::simulator simulator{to_function(create_trader<n_levels>), candles, resampling_period, candle::ohlc4};
+    auto averager = candle::ohlc4{};
+    trading::simulator simulator{to_function(create_trader<n_levels>), candles, resampling_period, averager};
 
     trading::bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
     simulator.trade(init_config, stats_collector);
     state_type init_state{init_config, stats_collector.get()};
 
-    double start_temp{512}, min_temp{45};
-    int n_tries{128};
+    double start_temp{128}, min_temp{26};
+    int n_tries{256};
 //    float decay{50};
     auto cooler = optimizer::simulated_annealing<state_type>::basic_cooler{};
     optimizer::simulated_annealing<state_type> optimizer{
@@ -416,7 +416,7 @@ void use_simulated_annealing(const std::vector<candle>& candles)
                     {"tries count", n_tries}
             }},
              {"cooler", {
-                     {"type", decltype(cooler)::name()},
+                     {"type", decltype(cooler)::name},
 //                     {"decay", cooler.decay()}
              }},
              {"candles", {
@@ -442,7 +442,10 @@ void use_simulated_annealing(const std::vector<candle>& candles)
                              }}
                      }},
              }},
-             {"resampling period[min]", resampling_period.count()},
+             {"resampling", {
+                     {"period[min]", resampling_period.count()},
+                     {"averaging method name", decltype(averager)::name}
+             }},
             }};
 
     std::ofstream settings_file{experiment_dir/"settings.json"};
