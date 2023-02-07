@@ -30,6 +30,7 @@
 #include <trading/candle.hpp>
 #include <trading/chart_series.hpp>
 #include <trading/convert.hpp>
+#include <trading/crossover.hpp>
 #include <trading/currency.hpp>
 #include <trading/data_point.hpp>
 #include <trading/exception.hpp>

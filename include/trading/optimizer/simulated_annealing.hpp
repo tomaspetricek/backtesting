@@ -13,28 +13,26 @@ namespace trading::optimizer {
     template<class State>
     class simulated_annealing {
     private:
-        double start_temp_;
-        double min_temp_;
+        double start_temp_, min_temp_, curr_temp_;
         int n_tries_;
-        double curr_temp_;
         State init_state_;
         std::function<void(simulated_annealing<State>&)> cool_;
         std::function<State(State)> find_neighbor_;
         std::function<double(State, State)> compute_cost_;
-        random::real_range_generator<double> rand_prob_gen_{0.0, 1.0};
+        random::real_generator<double> rand_prob_gen_{0.0, 1.0};
         std::size_t it_{0};
 
         static double validate_min_temp(const double min_temp)
         {
             if (min_temp<=0.0)
-                throw std::invalid_argument("Min temp has to be greater than 0");
+                throw std::invalid_argument("Minimum temperature has to be greater than 0");
             return min_temp;
         }
 
         static double validate_start_temp(const double min_temp, const double start_temp)
         {
             if (start_temp<=min_temp)
-                throw std::invalid_argument("Start temp has to be greater than min temp");
+                throw std::invalid_argument("Start temperature has to be greater than minimum temperature");
             return start_temp;
         }
 
@@ -43,14 +41,13 @@ namespace trading::optimizer {
                 const State& init_state, const std::function<void(simulated_annealing<State>&)>& cool,
                 const std::function<State(State)>& find_neighbor, const std::function<double(State, State)>& compute_cost)
                 :start_temp_(validate_start_temp(min_temp, start_temp)), min_temp_(validate_min_temp(min_temp)),
-                 n_tries_(n_tries), curr_temp_(start_temp), init_state_{init_state}, cool_(cool),
+                 curr_temp_(start_temp), n_tries_(n_tries), init_state_{init_state}, cool_(cool),
                  find_neighbor_(find_neighbor), compute_cost_{compute_cost} { }
 
         template<class Result, class Restriction, class... Observer>
         void operator()(Result& res, const Restriction& restrict, Observer& ... observers)
         {
             State curr_state{init_state_};
-            it_ = 0;
             (observers.begin(*this, curr_state), ...);
             // frozen
             for (; curr_temp_>min_temp_; it_++) {

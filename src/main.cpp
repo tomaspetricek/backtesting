@@ -3,10 +3,15 @@
 #include <limits>
 #include <filesystem>
 #include <type_traits>
+#include <set>
 #include <trading.hpp>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <etl/vector.h>
+#include <etl/set.h>
+#include <etl/flat_set.h>
+#include <etl/numeric.h>
 
 using json = nlohmann::json;
 using namespace trading;
@@ -277,13 +282,13 @@ void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen, st
 template<class State>
 struct progress_observer {
     using optimizer_type = optimizer::simulated_annealing<State>;
-    std::size_t n_it;
+    std::size_t n_it{0};
     std::vector<std::size_t> worse_accepted_counts;
     std::vector<std::size_t> better_accepted_counts;
     std::vector<amount_t> curr_state_net_profits;
     std::vector<double> worse_acceptance_mean_thresholds;
-    double threshold_sum;
-    std::size_t threshold_count;
+    double threshold_sum{0};
+    std::size_t threshold_count{0};
     std::vector<double> temperature;
 
     void reset_counters()
@@ -353,17 +358,39 @@ std::filesystem::path try_create_experiment_directory(const std::filesystem::pat
     return empty_dir;
 }
 
-void use_simulated_annealing(const std::vector<candle>& candles)
+void use_simulated_annealing()
 {
     constexpr std::size_t n_levels = 4;
     using state_type = bazooka::state<n_levels>;
     using config_type = state_type::config_type;
     using trader_type = typename std::invoke_result<decltype(create_trader<n_levels>), config_type>::type;
 
-    std::filesystem::path out_dir{"../../src/data/out"};
+    // read candles
+    std::time_t min_opened{1515024000}, max_opened{1667066400};
+
+    std::filesystem::path data_dir{"../../src/data"};
+    std::filesystem::path in_dir{data_dir/"in"};
+    std::string base{"eth"}, quote{"usdt"};
+    std::filesystem::path candles_path{in_dir/fmt::format("ohlcv-{}-{}-1-min.csv", base, quote)};
+
+    std::vector<trading::candle> candles;
+    auto duration = measure_duration(to_function([&] {
+        return read_candles(candles_path, '|', min_opened, max_opened);
+    }), candles);
+
+    auto from = boost::posix_time::from_time_t(min_opened);
+    auto to = boost::posix_time::from_time_t(max_opened);
+    std::cout << "candles read:" << std::endl
+              << "from: " << from << std::endl
+              << "to: " << to << std::endl
+              << "difference: " << std::chrono::nanoseconds((to-from).total_nanoseconds()) << std::endl
+              << "count: " << candles.size() << std::endl
+              << "duration: " << duration << std::endl;
+
+    std::filesystem::path out_dir{data_dir/"out"};
     std::filesystem::path optim_dir{out_dir/"simulated-annealing"};
-    std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
     std::filesystem::create_directory(optim_dir);
+    std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
 
     std::size_t n_best{30};
     auto optim_criteria = [](const state_type& rhs, const state_type& lhs) {
@@ -371,14 +398,12 @@ void use_simulated_annealing(const std::vector<candle>& candles)
     };
     auto restrictions = [](const state_type&) { return true; };
 
-    std::size_t open_sizes_unique_count{30};
-    trading::random::sizes_generator<n_levels> open_sizes_gen{open_sizes_unique_count};
-    std::size_t levels_unique_count{30};
-    trading::random::levels_generator<n_levels> levels_gen{levels_unique_count};
+    trading::random::sizes_generator<n_levels> open_sizes_gen{30};
+    trading::random::levels_generator<n_levels> levels_gen{30};
     trading::random::int_range period_gen{1, 60, 1};
     bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
-    bazooka::configuration<n_levels> init_config{indicator::sma{static_cast<std::size_t>(period_gen())}, levels_gen(),
-                                                 open_sizes_gen()};
+    bazooka::configuration<n_levels> init_config{indicator::sma{static_cast<std::size_t>(period_gen())},
+                                                 levels_gen(), open_sizes_gen()};
 
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
     auto averager = candle::ohlc4{};
@@ -407,7 +432,11 @@ void use_simulated_annealing(const std::vector<candle>& candles)
 
     trading::enumerative_result<state_type> res{n_best, optim_criteria};
     progress_observer<state_type> progress_observer;
-    optimizer(res, restrictions, progress_observer);
+
+    duration = measure_duration([&]() {
+        optimizer(res, restrictions, progress_observer);
+    });
+    std::cout << "duration: " << duration << std::endl;
 
     json settings_doc{
             {{"optimizer", {
@@ -423,15 +452,18 @@ void use_simulated_annealing(const std::vector<candle>& candles)
                      {"from", candles.front().opened()},
                      {"to", candles.back().opened()},
                      {"count", candles.size()},
-                     {"pair", "ETH/USDT"},
+                     {"currency pair", {
+                             {"base", base},
+                             {"quote", quote}
+                     }},
              }},
              {"search space", {
                      {"levels", {
                              {"count", n_levels},
-                             {"unique count", levels_unique_count},
+                             {"unique count", levels_gen.unique_count()},
                      }},
                      {"open order sizes", {
-                             {"unique count", open_sizes_unique_count}
+                             {"unique count", open_sizes_gen.unique_count()}
                      }},
                      {"moving average", {
                              {"types", {"sma", "ema"}},
@@ -461,25 +493,34 @@ void use_simulated_annealing(const std::vector<candle>& candles)
     results_file << std::setw(4) << json{res.get()};
 }
 
+std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
+{
+    return os << frac.numerator() << '/' << frac.denominator() << ")";
+}
+
 int main()
 {
-    // read candles
-    std::time_t min_opened{1515024000}, max_opened{1667066400};
-    std::vector<trading::candle> candles;
-    auto duration = measure_duration(to_function([&] {
-        return read_candles({"../../src/data/in/ohlcv-eth-usdt-1-min.csv"}, '|', min_opened, max_opened);
-    }), candles);
+    {
+        constexpr std::size_t n_levels{4};
+        using gen_type = trading::random::levels_generator<n_levels>;
+        gen_type levels_gen{10};
+        auto mother = levels_gen();
+        auto father = levels_gen();
+        std::size_t it{0}, max_it{1'000};
+        trading::levels_crossover<n_levels> crossover;
 
-    auto from = boost::posix_time::from_time_t(min_opened);
-    auto to = boost::posix_time::from_time_t(max_opened);
-    std::size_t n_candles{candles.size()};
-    std::cout << "candles read:" << std::endl
-              << "from: " << from << std::endl
-              << "to: " << to << std::endl
-              << "difference: " << std::chrono::nanoseconds((to-from).total_nanoseconds()) << std::endl
-              << "count: " << n_candles << std::endl
-              << "duration: " << duration << std::endl;
+        auto duration = measure_duration([&]() {
+            while (it++!=max_it) {
+                auto child = crossover(mother, father);
+                fmt::print("child: {}\n", fmt::join(child, ", "));
+            }
+        });
 
-    use_simulated_annealing(candles);
+        std::cout << "duration: " << duration << std::endl;
+        fmt::print("mother: {}\n", fmt::join(mother, ", "));
+        fmt::print("father: {}\n", fmt::join(father, ", "));
+    }
+
+//    use_simulated_annealing();
     return EXIT_SUCCESS;
 }

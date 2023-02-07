@@ -8,6 +8,7 @@
 #include <trading/bazooka/statistics.hpp>
 #include <trading/bazooka/strategy.hpp>
 #include <trading/bazooka/configuration.hpp>
+#include <trading/types.hpp>
 #include <nlohmann/json.hpp>
 #include <fmt/format.h>
 
@@ -90,5 +91,17 @@ namespace nlohmann {
         }
     };
 }
+
+template<>
+class fmt::formatter<trading::fraction_t> {
+public:
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+    template<typename Context>
+    constexpr auto format(const trading::fraction_t& frac, Context& ctx) const
+    {
+        return format_to(ctx.out(), "{}/{}", frac.numerator(), frac.denominator());
+    }
+};
 
 #endif //BACKTESTING_CONVERT_HPP

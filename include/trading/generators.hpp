@@ -37,9 +37,15 @@ namespace trading {
             return n_unique;
         }
 
-    public:
         explicit sizes_generator(std::size_t n_unique)
                 :denom_(n_sizes+validate_n_unique(n_unique)-1), max_num_(denom_-n_sizes+1) { }
+
+    public:
+
+        std::size_t unique_count()
+        {
+            return denom_-n_sizes+1;
+        }
     };
 
     template<std::size_t n_levels>
@@ -57,9 +63,14 @@ namespace trading {
             return n_unique;
         }
 
-    public:
         explicit levels_generator(size_t n_unique = n_levels)
                 :denom_(validate_n_unique(n_unique)+1) { }
+
+    public:
+        std::size_t unique_count()
+        {
+            return denom_-1;
+        }
     };
 
     class int_range {
@@ -115,7 +126,7 @@ namespace trading {
 
     namespace random {
         template<std::size_t n_levels>
-        class levels_generator : trading::levels_generator<n_levels> {
+        class levels_generator : public trading::levels_generator<n_levels> {
             std::mt19937 gen_;
             std::vector<fraction_t> all_options_;
             std::array<std::size_t, n_levels> indices_;
@@ -237,13 +248,13 @@ namespace trading {
         };
 
         template<class Type, template<class> class Distribution>
-        class numeric_range_generator {
+        class numeric_generator {
         private:
             std::mt19937 _gen;
             Distribution<Type> _distrib;
 
         public:
-            explicit numeric_range_generator(const Type& from, const Type& to)
+            explicit numeric_generator(const Type& from, const Type& to)
                     :_gen{std::random_device{}()}, _distrib{from, to} { }
 
             Type operator()()
@@ -253,10 +264,10 @@ namespace trading {
         };
 
         template<class Type>
-        using real_range_generator = numeric_range_generator<Type, std::uniform_real_distribution>;
+        using real_generator = numeric_generator<Type, std::uniform_real_distribution>;
 
         template<class Type>
-        using int_range_generator = numeric_range_generator<Type, std::uniform_int_distribution>;
+        using int_generator = numeric_generator<Type, std::uniform_int_distribution>;
 
         class int_range : public trading::int_range {
             std::mt19937 gen_;
@@ -282,7 +293,8 @@ namespace trading {
 
             int operator()()
             {
-                distrib_.param(std::uniform_int_distribution<int>::param_type{this->from_/this->step_, this->to_/this->step_});
+                distrib_.param(
+                        std::uniform_int_distribution<int>::param_type{this->from_/this->step_, this->to_/this->step_});
                 int num = distrib_(gen_);
                 return num*this->step_;
             }
@@ -291,7 +303,8 @@ namespace trading {
             {
                 int curr_from = origin-static_cast<int>(change_span_*this->step_);
                 int curr_to = origin+static_cast<int>(change_span_*this->step_);
-                distrib_.param(std::uniform_int_distribution<int>::param_type{curr_from/this->step_, curr_to/this->step_});
+                distrib_.param(
+                        std::uniform_int_distribution<int>::param_type{curr_from/this->step_, curr_to/this->step_});
                 int val = distrib_(gen_)*this->step_;
 
                 if (val<min_val_)
@@ -306,7 +319,7 @@ namespace trading {
     namespace systematic {
         // generates unique subsequent fractions in interval (0, max), such as max is in interval (0.0, 1.0]
         template<std::size_t n_levels>
-        class levels_generator : trading::levels_generator<n_levels> {
+        class levels_generator : public trading::levels_generator<n_levels> {
         public:
             using value_type = cppcoro::recursive_generator<std::array<fraction_t, n_levels>>;
 
