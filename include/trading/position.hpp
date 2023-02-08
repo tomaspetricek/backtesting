@@ -21,7 +21,7 @@ namespace trading {
 
         inline amount_t apply_fee(amount_t a, const fraction_t& fee) const
         {
-            return a*boost::rational_cast<amount_t>(fraction_t{1}-fee);
+            return a*fraction_cast<amount_t>(fraction_t{fee.denominator(), fee.denominator()}-fee);
         }
 
     public:

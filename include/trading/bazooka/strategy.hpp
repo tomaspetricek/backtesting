@@ -67,10 +67,11 @@ namespace trading::bazooka {
 
         static auto validate_entry_levels(const std::array<fraction_t, n_levels>& entry_levels)
         {
-            fraction_t prev_level{1}; // 1.0 - represents baseline - value of entry ma
+            auto denom = entry_levels[0].denominator();
+            fraction_t prev_level{denom, denom}; // 1.0 - represents baseline - value of entry ma
 
             for (const auto& curr_level: entry_levels) {
-                if (curr_level<fraction_t{0} || entry_comp_(prev_level, curr_level))
+                if (curr_level<fraction_t{0, denom} || entry_comp_(prev_level, curr_level))
                     throw std::invalid_argument(
                             "The current level must be further from the baseline than the previous level");
 
@@ -85,7 +86,7 @@ namespace trading::bazooka {
         {
             assert(level>=0 && level<n_levels);
             auto baseline = indicator_value(entry_ma_);
-            return baseline*boost::rational_cast<price_t>(entry_levels_[level]); // move baseline
+            return baseline*fraction_cast<price_t>(entry_levels_[level]); // move baseline
         }
 
         explicit strategy(indicator_type entry_ma, indicator_type exit_ma,

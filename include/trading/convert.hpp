@@ -8,6 +8,7 @@
 #include <trading/bazooka/statistics.hpp>
 #include <trading/bazooka/strategy.hpp>
 #include <trading/bazooka/configuration.hpp>
+#include <trading/state.hpp>
 #include <trading/types.hpp>
 #include <nlohmann/json.hpp>
 #include <fmt/format.h>
@@ -16,8 +17,8 @@ using json = nlohmann::json;
 
 namespace nlohmann {
     template<typename T>
-    struct adl_serializer<boost::rational<T>> {
-        static void to_json(json& j, const boost::rational<T>& frac)
+    struct adl_serializer<trading::fraction<T>> {
+        static void to_json(json& j, const trading::fraction<T>& frac)
         {
             j = fmt::format("{}/{}", frac.numerator(), frac.denominator());
         }

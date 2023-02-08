@@ -239,7 +239,7 @@ namespace trading {
                     auto idx = indices_[i];
                     auto size = origin[idx];
                     this->sizes_[idx] = size;
-                    rest_num_sum -= (size*this->denom_).numerator();
+                    rest_num_sum -= size.numerator();
                 }
                 std::size_t curr_max_num{rest_num_sum-change_n_+1};
                 fill_rest(rest_num_sum, curr_max_num, i);

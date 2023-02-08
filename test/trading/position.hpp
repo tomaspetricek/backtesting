@@ -12,7 +12,7 @@ BOOST_AUTO_TEST_SUITE(position_test)
     BOOST_AUTO_TEST_CASE(spot_test)
     {
         price_t open{9'414.21};
-        trading::position pos{order(1159.0478454228034, open, 0)};
+        trading::position pos{order{1159.0478454228034, open, 0}};
         pos.close(order(pos.size(), 9'693.60, 0));
         BOOST_REQUIRE_CLOSE(pos.total_realized_profit<amount>(), 34.40, 0.01);
         BOOST_REQUIRE_CLOSE(pos.total_realized_profit<percent>(), 2.97, 0.1);

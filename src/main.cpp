@@ -8,9 +8,6 @@
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <etl/vector.h>
-#include <etl/set.h>
-#include <etl/flat_set.h>
 #include <etl/numeric.h>
 
 using json = nlohmann::json;
@@ -498,8 +495,55 @@ std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
     return os << frac.numerator() << '/' << frac.denominator() << ")";
 }
 
+template<std::size_t n_sizes>
+class sizes_crossover {
+public:
+    using value_type = std::array<fraction_t, n_sizes>;
+
+    value_type operator()(const value_type& mother, const value_type& father)
+    {
+        value_type child;
+        value_type max;
+        std::size_t denom;
+
+        for (std::size_t i{0}; i<n_sizes; i++) {
+            std::tie(child[i], max[i]) = make_tuple(std::minmax(mother[i], father[i]));
+
+            if (i) {
+                std::lcm(child[i].denominator(), denom);
+            }
+            else {
+                denom = child[i].denominator();
+            }
+        }
+
+        fmt::print("child: {}\n", fmt::join(child, ", "));
+        fmt::print("max: {}\n", fmt::join(max, ", "));
+        std::cout << "denom: " << denom << std::endl;
+        return child;
+    }
+};
+
 int main()
 {
+    {
+        constexpr std::size_t n_levels{3};
+        using value_type = sizes_crossover<n_levels>::value_type;
+        value_type mother{{{1, 4}, {1, 4}, {2, 4}}};
+        value_type father{{{2, 4}, {1, 4}, {1, 4}}};
+        auto crossover = sizes_crossover<n_levels>{};
+        crossover(mother, father);
+        return EXIT_SUCCESS;
+    }
+    {
+        constexpr std::size_t n_levels{3};
+        using gen_type = trading::random::sizes_generator<n_levels>;
+        gen_type sizes_gen{30};
+        std::size_t n_seq{2};
+
+        for (std::size_t i{0}; i<n_seq; i++)
+            fmt::print("{}\n", fmt::join(sizes_gen(), ", "));
+    }
     {
         constexpr std::size_t n_levels{4};
         using gen_type = trading::random::levels_generator<n_levels>;
@@ -521,6 +565,6 @@ int main()
         fmt::print("father: {}\n", fmt::join(father, ", "));
     }
 
-//    use_simulated_annealing();
+    use_simulated_annealing();
     return EXIT_SUCCESS;
 }

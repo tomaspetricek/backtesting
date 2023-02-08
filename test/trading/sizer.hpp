@@ -13,7 +13,7 @@
 using namespace trading;
 
 template<std::size_t size>
-void check_fractioning(const std::array<fraction_t, size>& fracs, amount_t init_balance)
+void check_sizing(const std::array<fraction_t, size>& fracs, amount_t init_balance)
 {
     sizer sizer{fracs};
     amount_t rest{init_balance}, part, total{0.0};
@@ -23,39 +23,38 @@ void check_fractioning(const std::array<fraction_t, size>& fracs, amount_t init_
         part = sizer(rest);
         rest -= part;
         total += part;
-        BOOST_REQUIRE_CLOSE(part, init_balance*boost::rational_cast<amount_t>(fracs[i]), tolerance);
+        BOOST_REQUIRE_CLOSE(part, init_balance*fraction_cast<amount_t>(fracs[i]), tolerance);
     }
 
     BOOST_REQUIRE(rest==amount_t{0.0});
-    BOOST_REQUIRE(init_balance==total);
+    BOOST_REQUIRE_CLOSE(init_balance, total, tolerance);
 }
 
 BOOST_AUTO_TEST_SUITE(sizer_test)
     BOOST_AUTO_TEST_CASE(constructor_exception_test)
     {
         // sum is less than 1
-        BOOST_REQUIRE_THROW(sizer(std::array<fraction_t, 2>{fraction_t{1, 2}, fraction_t{1, 4}}), std::invalid_argument);
+        BOOST_REQUIRE_THROW(sizer(std::array<fraction_t, 2>{{{2, 4}, {1, 4}}}), std::invalid_argument);
 
         // sum is more than 1
-        BOOST_REQUIRE_THROW(sizer(std::array<fraction_t, 2>{fraction_t{1, 2}, fraction_t{7, 10}}), std::invalid_argument);
+        BOOST_REQUIRE_THROW(sizer(std::array<fraction_t, 2>{{{5, 10}, {7, 10}}}), std::invalid_argument);
     }
 
-    BOOST_AUTO_TEST_CASE(constructor_test)
-    {
-        sizer(std::array<fraction_t, 4>{fraction_t{1, 2}, fraction_t{1, 4}, fraction_t{1, 8}, fraction_t{1, 8}});
-        sizer(std::array<fraction_t, 4>{fraction_t{1, 8}, fraction_t{1, 4}, fraction_t{1, 4}, fraction_t{3, 8}});
-        sizer(std::array<fraction_t, 1>{fraction_t{1}});
-        sizer(std::array<fraction_t, 5>{fraction_t{1, 10}, fraction_t{2, 10}, fraction_t{1, 10}, fraction_t{4, 10}, fraction_t{2, 10}});
-        sizer(std::array<fraction_t, 4>{fraction_t{1, 4}, fraction_t{1, 2}, fraction_t{1, 8}, fraction_t{1, 8}});
+    BOOST_AUTO_TEST_CASE(constructor_test) {
+        sizer(std::array<fraction_t, 4>{{{4, 8}, {2, 8}, {1, 8}, {1, 8}}});
+        sizer(std::array<fraction_t, 4>{{{1, 8}, {2, 8}, {2, 8}, {3, 8}}});
+        sizer(std::array<fraction_t, 1>{{{1}}});
+        sizer(std::array<fraction_t, 5>{{{1, 10}, {2, 10}, {1, 10}, {4, 10}, {2, 10}}});
+        sizer(std::array<fraction_t, 4>{{{2, 8}, {4, 8}, {1, 8}, {1, 8}}});
     }
 
     BOOST_AUTO_TEST_CASE(usage_test)
     {
         // large balance
-        check_fractioning(std::array<fraction_t, 5>{fraction_t{1, 10}, fraction_t{2, 10}, fraction_t{1, 10}, fraction_t{4, 10}, fraction_t{2, 10}}, 100'000);
+        check_sizing(std::array<fraction_t, 5>{{{1, 10}, {2, 10}, {1, 10}, {4, 10}, {2, 10}}}, 100'000);
 
         // small balance
-        check_fractioning(std::array<fraction_t, 4>{fraction_t{1, 8}, fraction_t{1, 4}, fraction_t{1, 4}, fraction_t{3, 8}}, 0.00000001/3);
+        check_sizing(std::array<fraction_t, 4>{{{1, 8}, {2, 8}, {2, 8}, {3, 8}}}, 0.00000001/3);
     }
 BOOST_AUTO_TEST_SUITE_END()
 

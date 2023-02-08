@@ -36,7 +36,7 @@ namespace trading {
             last_open_order_ = order;
         }
 
-        void reset_fractioners()
+        void reset_sizers()
         {
             open_sizer_.reset();
             close_sizer_.reset();
@@ -48,7 +48,7 @@ namespace trading {
             trading::order order{size, point.data, point.time};
             market_.fill_close_all_order(order);
             last_close_order_ = order;
-            reset_fractioners();
+            reset_sizers();
         }
 
     public:

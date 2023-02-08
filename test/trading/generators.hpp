@@ -38,28 +38,28 @@ BOOST_AUTO_TEST_SUITE(systematic_levels_generator_test)
         std::size_t denom{n_fracs+1}; // 3
         test_usage(trading::systematic::levels_generator<n_levels>(n_fracs),
                 std::vector<std::array<fraction_t, n_levels>>{
-                        {fraction_t{2, denom}, fraction_t{1, denom}}
+                        {{{{2, denom}, {1, denom}}}}
                 });
 
         n_fracs = n_levels+1;
         denom = n_fracs+1;
         test_usage(trading::systematic::levels_generator<n_levels>(n_fracs),
                 std::vector<std::array<fraction_t, n_levels>>{
-                        {fraction_t{3, denom}, fraction_t{2, denom}},
-                        {fraction_t{3, denom}, fraction_t{1, denom}},
-                        {fraction_t{2, denom}, fraction_t{1, denom}}
+                        {{{3, denom}, {2, denom}}},
+                        {{{3, denom}, {1, denom}}},
+                        {{{2, denom}, {1, denom}}},
                 });
 
         n_fracs = n_levels+2; // 4
         denom = n_fracs+1; // 5
         test_usage(trading::systematic::levels_generator<n_levels>(n_fracs),
                 std::vector<std::array<fraction_t, n_levels>>{
-                        {fraction_t{4, denom}, fraction_t{3, denom}},
-                        {fraction_t{4, denom}, fraction_t{2, denom}},
-                        {fraction_t{4, denom}, fraction_t{1, denom}},
-                        {fraction_t{3, denom}, fraction_t{2, denom}},
-                        {fraction_t{3, denom}, fraction_t{1, denom}},
-                        {fraction_t{2, denom}, fraction_t{1, denom}},
+                        {{{4, denom}, {3, denom}}},
+                        {{{4, denom}, {2, denom}}},
+                        {{{4, denom}, {1, denom}}},
+                        {{{3, denom}, {2, denom}}},
+                        {{{3, denom}, {1, denom}}},
+                        {{{2, denom}, {1, denom}}},
                 });
     }
 BOOST_AUTO_TEST_SUITE_END()
@@ -77,28 +77,28 @@ BOOST_AUTO_TEST_SUITE(systematic_sizes_generator_test)
         std::size_t denom{n_sizes+n_unique_fracs-1};
         test_usage(trading::systematic::sizes_generator<n_sizes>(n_unique_fracs),
                 std::vector<std::array<fraction_t, n_sizes>>{
-                        {fraction_t{1, denom}, fraction_t{1, denom}, fraction_t{1, denom}}
+                        {{{1, denom}, {1, denom}, {1, denom}}}
                 });
 
         n_unique_fracs = 2;
         denom = n_sizes+n_unique_fracs-1;
         test_usage(trading::systematic::sizes_generator<n_sizes>(n_unique_fracs),
                 std::vector<std::array<fraction_t, n_sizes>>{
-                        {fraction_t{1, denom}, fraction_t{1, denom}, fraction_t{2, denom}},
-                        {fraction_t{1, denom}, fraction_t{2, denom}, fraction_t{1, denom}},
-                        {fraction_t{2, denom}, fraction_t{1, denom}, fraction_t{1, denom}}
+                        {{{1, denom}, {1, denom}, {2, denom}}},
+                        {{{1, denom}, {2, denom}, {1, denom}}},
+                        {{{2, denom}, {1, denom}, {1, denom}}},
                 });
 
         n_unique_fracs = 3;
         denom = n_sizes+n_unique_fracs-1;
         test_usage(trading::systematic::sizes_generator<n_sizes>(n_unique_fracs),
                 std::vector<std::array<fraction_t, n_sizes>>{
-                        {fraction_t{1, denom}, fraction_t{1, denom}, fraction_t{3, denom}},
-                        {fraction_t{1, denom}, fraction_t{2, denom}, fraction_t{2, denom}},
-                        {fraction_t{1, denom}, fraction_t{3, denom}, fraction_t{1, denom}},
-                        {fraction_t{2, denom}, fraction_t{1, denom}, fraction_t{2, denom}},
-                        {fraction_t{2, denom}, fraction_t{2, denom}, fraction_t{1, denom}},
-                        {fraction_t{3, denom}, fraction_t{1, denom}, fraction_t{1, denom}}
+                        {{{1, denom}, {1, denom}, {3, denom}}},
+                        {{{1, denom}, {2, denom}, {2, denom}}},
+                        {{{1, denom}, {3, denom}, {1, denom}}},
+                        {{{2, denom}, {1, denom}, {2, denom}}},
+                        {{{2, denom}, {2, denom}, {1, denom}}},
+                        {{{3, denom}, {1, denom}, {1, denom}}},
                 });
     }
 
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_SUITE_END()
 template<class RandomGenerator, class SystematicGenerator>
 void test_reachability(RandomGenerator& rand_gen, SystematicGenerator& sys_gen, std::size_t max_it)
 {
-    using map_type = std::map<typename RandomGenerator::result_type, bool>;
+    using map_type = std::map<typename RandomGenerator::value_type, bool>;
     map_type all;
 
     for (const auto& sizes: sys_gen())

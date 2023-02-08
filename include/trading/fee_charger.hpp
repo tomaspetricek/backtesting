@@ -13,7 +13,8 @@ namespace trading {
 
         static fraction_t validate_fee(fraction_t fee)
         {
-            if (fee<fraction_t{0} || fee>fraction_t{1})
+            auto denom = fee.denominator();
+            if (fee<fraction_t{0, denom} || fee>fraction_t{denom, denom})
                 throw std::invalid_argument("Fee has to be in interval: [0.0, 1.0]");
             return fee;
         }
@@ -26,7 +27,8 @@ namespace trading {
 
         inline amount_t apply_fee(amount_t amount_) const
         {
-            return amount_*boost::rational_cast<double>(fraction_t{1}-(fee_));
+            auto denom = fee_.denominator();
+            return amount_*fraction_cast<amount_t>(fraction_t{denom, denom}-(fee_));
         }
 
         fraction_t fee() const
