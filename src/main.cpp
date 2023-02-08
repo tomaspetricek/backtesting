@@ -4,11 +4,13 @@
 #include <filesystem>
 #include <type_traits>
 #include <set>
+#include <list>
 #include <trading.hpp>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <etl/numeric.h>
+#include <etl/list.h>
 
 using json = nlohmann::json;
 using namespace trading;
@@ -495,76 +497,46 @@ std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
     return os << frac.numerator() << '/' << frac.denominator() << ")";
 }
 
-template<std::size_t n_sizes>
-class sizes_crossover {
-public:
-    using value_type = std::array<fraction_t, n_sizes>;
-
-    value_type operator()(const value_type& mother, const value_type& father)
-    {
-        value_type child;
-        value_type max;
-        std::size_t denom;
-
-        for (std::size_t i{0}; i<n_sizes; i++) {
-            std::tie(child[i], max[i]) = make_tuple(std::minmax(mother[i], father[i]));
-
-            if (i) {
-                std::lcm(child[i].denominator(), denom);
-            }
-            else {
-                denom = child[i].denominator();
-            }
-        }
-
-        fmt::print("child: {}\n", fmt::join(child, ", "));
-        fmt::print("max: {}\n", fmt::join(max, ", "));
-        std::cout << "denom: " << denom << std::endl;
-        return child;
-    }
-};
-
 int main()
 {
-    {
-        constexpr std::size_t n_levels{3};
-        using value_type = sizes_crossover<n_levels>::value_type;
-        value_type mother{{{1, 4}, {1, 4}, {2, 4}}};
-        value_type father{{{2, 4}, {1, 4}, {1, 4}}};
-        auto crossover = sizes_crossover<n_levels>{};
-        crossover(mother, father);
-        return EXIT_SUCCESS;
-    }
-    {
-        constexpr std::size_t n_levels{3};
-        using gen_type = trading::random::sizes_generator<n_levels>;
-        gen_type sizes_gen{30};
-        std::size_t n_seq{2};
+    std::size_t max_it{100'000};
 
-        for (std::size_t i{0}; i<n_seq; i++)
-            fmt::print("{}\n", fmt::join(sizes_gen(), ", "));
+    {
+        constexpr std::size_t n_levels{4};
+        trading::random::sizes_generator<n_levels> sizes_gen{30};
+        auto mother = sizes_gen();
+        auto father = sizes_gen();
+        auto crossover = sizes_crossover<n_levels>{};
+
+        fmt::print("mother: {}\n", fmt::join(mother, ", "));
+        fmt::print("father: {}\n", fmt::join(father, ", "));
+        auto duration = measure_duration([&]() {
+            std::size_t it{0};
+            while (it++!=max_it)
+                volatile auto child = crossover(mother, father);
+        });
+        std::cout << "duration: " << duration << std::endl;
     }
+
     {
         constexpr std::size_t n_levels{4};
         using gen_type = trading::random::levels_generator<n_levels>;
         gen_type levels_gen{10};
         auto mother = levels_gen();
         auto father = levels_gen();
-        std::size_t it{0}, max_it{1'000};
         trading::levels_crossover<n_levels> crossover;
 
         auto duration = measure_duration([&]() {
-            while (it++!=max_it) {
-                auto child = crossover(mother, father);
-                fmt::print("child: {}\n", fmt::join(child, ", "));
-            }
+            std::size_t it{0};
+            while (it++!=max_it)
+                volatile auto child = crossover(mother, father);
         });
 
-        std::cout << "duration: " << duration << std::endl;
         fmt::print("mother: {}\n", fmt::join(mother, ", "));
         fmt::print("father: {}\n", fmt::join(father, ", "));
+        std::cout << "duration: " << duration << std::endl;
     }
 
-    use_simulated_annealing();
+//    use_simulated_annealing();
     return EXIT_SUCCESS;
 }
