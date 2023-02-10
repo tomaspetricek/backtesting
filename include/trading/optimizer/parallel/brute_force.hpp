@@ -11,28 +11,30 @@
 #include <trading/state.hpp>
 
 namespace trading::optimizer::parallel {
+    template<class ConcreteFunction, class State>
+    concept ObjectiveFunction = std::invocable<ConcreteFunction, const typename State::config_type&> &&
+            std::same_as<typename State::stats_type, std::invoke_result_t<ConcreteFunction, const typename State::config_type&>>;
+
+    template<class ConcreteSearchSpace, class State>
+    concept SearchSpace = std::invocable<ConcreteSearchSpace> &&
+            std::same_as<cppcoro::generator<typename State::config_type>, std::invoke_result_t<ConcreteSearchSpace>>;
+
     template<class State>
-    class brute_force {
-        std::function<typename State::stats_type(typename State::config_type)> objective_func_;
-        std::function<cppcoro::generator<typename State::config_type>()> search_space_;
-
-    public:
-        explicit brute_force(const std::function<typename State::stats_type(typename State::config_type)>& objective_func,
-                const std::function<cppcoro::generator<typename State::config_type>()>& search_space)
-                :objective_func_(objective_func), search_space_{search_space} { }
-
+    struct brute_force {
         template<class Result, class Restriction>
-        void operator()(Result& res, const Restriction& restrict)
+        void operator()(Result& res, const Restriction& restrict,
+                ObjectiveFunction<State> auto&& objective_func,
+                SearchSpace<State> auto&& search_space) const
         {
             #pragma omp parallel
             {
                 #pragma omp single
                 {
-                    for (const typename State::config_type& curr: search_space_()) {
+                    for (const typename State::config_type& curr: search_space()) {
                         #pragma omp task
                         {
                             try {
-                                auto stats = objective_func_(curr);
+                                auto stats = objective_func(curr);
                                 if (restrict(stats)) {
                                     #pragma omp critical
                                     res.update(State{curr, stats});

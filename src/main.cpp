@@ -172,15 +172,44 @@ void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen, st
     std::cout << "duration: " << duration << std::endl;
 }
 
-//template<std::size_t n_levels>
-//int use_brute_force(const std::vector<candle>& candles,
-//        const setting<bazooka::configuration<n_levels>, bazooka::statistics<n_levels>>& set)
+//int use_brute_force()
 //{
+//    constexpr std::size_t n_levels{4};
+//    using state_type = bazooka::state<n_levels>;
+//    using stats_type = state_type::stats_type;
+//    using config_type = state_type::config_type;
 //    std::filesystem::path out_dir{"../../src/data/out"};
 //
+//    // read candles
+//    std::time_t min_opened{1515024000}, max_opened{1667066400};
+//
+//    std::filesystem::path data_dir{"../../src/data"};
+//    std::filesystem::path in_dir{data_dir/"in"};
+//    std::string base{"eth"}, quote{"usdt"};
+//    std::filesystem::path candles_path{in_dir/fmt::format("ohlcv-{}-{}-1-min.csv", base, quote)};
+//
+//    std::vector<trading::candle> candles;
+//    auto duration = measure_duration(to_function([&] {
+//        return read_candles(candles_path, '|', min_opened, max_opened);
+//    }), candles);
+//
+//    auto from = boost::posix_time::from_time_t(min_opened);
+//    auto to = boost::posix_time::from_time_t(max_opened);
+//    std::cout << "candles read:" << std::endl
+//              << "from: " << from << std::endl
+//              << "to: " << to << std::endl
+//              << "difference: " << std::chrono::nanoseconds((to-from).total_nanoseconds()) << std::endl
+//              << "count: " << candles.size() << std::endl
+//              << "duration: " << duration << std::endl;
+//
+//    auto optim_criteria = [](const state_type& rhs, const state_type& lhs) {
+//        return rhs.stats.net_profit()>=lhs.stats.net_profit();
+//    };
+//    auto restrictions = [](const stats_type&) { return true; };
+//
 //    std::chrono::minutes resampling_period{std::chrono::minutes(30)};
-//    trading::simulator simulator{to_function(create_trader<n_levels>), candles, resampling_period, candle::ohlc4};
-//    using trader_type = decltype(create_trader<n_levels>(bazooka::configuration<n_levels>()));
+//    trading::simulator simulator{to_function(create_trader<n_levels>), candles, resampling_period, candle::ohlc4{}};
+//    using trader_type = decltype(create_trader<n_levels>(config_type()));
 //
 //    std::size_t levels_unique_fracs{n_levels+1};
 //    fraction_t levels_max_frac{1, 2};
@@ -190,14 +219,14 @@ void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen, st
 //
 //    // create search space
 //    systematic::int_range mov_avg_periods{3, 36, 3};
-//    auto search_space = [&]() -> cppcoro::generator<bazooka::configuration<n_levels>> {
+//    auto search_space = [&]() -> cppcoro::generator<config_type> {
 //        for (std::size_t entry_period: mov_avg_periods())
 //            for (const auto& entry_ma: {bazooka::indicator_type{indicator::sma{static_cast<std::size_t>(entry_period)}},
 //                                        bazooka::indicator_type{
 //                                                indicator::ema{static_cast<std::size_t>(entry_period)}}})
 //                for (const auto& levels: levels_gen())
 //                    for (const auto open_sizes: sizes_gen())
-//                        co_yield bazooka::configuration<n_levels>{entry_ma, levels, open_sizes};
+//                        co_yield config_type{entry_ma, levels, open_sizes};
 //    };
 //
 //    // count number of states
@@ -212,24 +241,24 @@ void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen, st
 //    if (answer!='y') return EXIT_SUCCESS;
 //
 //    // use brute force optimizer
-//    optimizer::parallel::brute_force<bazooka::state<n_levels>> optimize{
-//            [&](const bazooka::configuration<n_levels>& config) {
-//                bazooka::statistics<n_levels>::collector<trader_type> collector{};
-//                simulator.trade(config, collector);
-//                return collector.get();
-//            }, search_space};
-//    trading::enumerative_result<bazooka::state<n_levels>> res{30, set.optim_criteria};
+//    optimizer::parallel::brute_force<state_type> optimize{};
+//    trading::enumerative_result<state_type> result{30, optim_criteria};
 //
 //    std::cout << "began testing: " << boost::posix_time::second_clock::local_time() << std::endl;
-//    auto duration = measure_duration(to_function([&] {
-//        optimize(res, set.restrictions);
+//    duration = measure_duration(to_function([&] {
+//        optimize(result, restrictions,
+//                [&](const auto& config) {
+//                    stats_type::template collector<trader_type> collector{};
+//                    simulator.trade(config, collector);
+//                    return collector.get();
+//                }, search_space);
 //    }));
 //    std::cout << "ended testing: " << boost::posix_time::second_clock::local_time() << std::endl
 //              << "testing duration: " << duration << std::endl;
 //
 //    // save results to json document
 //    json res_doc;
-//    for (const auto& top: res.get())
+//    for (const auto& top: result.get())
 //        res_doc.emplace_back(top);
 //
 //    json set_doc{
@@ -257,7 +286,6 @@ void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen, st
 //                             }}
 //                     }},
 //             }},
-//             {"optimization criteria", set.label},
 //             {"resampling period[min]", resampling_period.count()},
 //            }};
 //
@@ -265,22 +293,22 @@ void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen, st
 //             {"duration[ns]", duration.count()},
 //             {"results",      res_doc}};
 //
-//    std::string filename{fmt::format("{}-results.json", set.label)};
+//    std::string filename{fmt::format("{}-results.json", "")};
 //    std::ofstream writer{out_dir/filename};
 //    writer << std::setw(4) << doc;
 //
-//    auto config = res.get()[0].config;
+//    auto config = result.get()[0].config;
 //    chart_series<n_levels>::collector<trader_type> series_collector;
-//    bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
-//    simulator.trade(config, series_collector, stats_collector);
+//    stats_type::collector<trader_type> stats_collector;
+//    simulator.trade(config, stats_collector);
 //    std::filesystem::path best_dir{out_dir/"best-series"};
 //    std::filesystem::create_directory(best_dir);
-//    to_csv(series_collector.get(), best_dir);
+////    to_csv(series_collector.get(), best_dir);
 //}
 
 template<class State>
 struct progress_observer {
-    using optimizer_type = optimizer::simulated_annealing<State>;
+    using optimizer_type = optimizer::simulated_annealing;
     std::size_t n_it{0};
     std::vector<std::size_t> worse_accepted_counts;
     std::vector<std::size_t> better_accepted_counts;
@@ -415,25 +443,23 @@ void use_simulated_annealing()
     double start_temp{128}, min_temp{26};
     int n_tries{256};
 //    float decay{50};
-    auto cooler = optimizer::simulated_annealing<state_type>::basic_cooler{};
-    optimizer::simulated_annealing<state_type> optimizer{
-            start_temp, min_temp, n_tries, init_state,
-            cooler,
-            [&](const state_type& origin) {
-                auto config = neighbor.get(origin.config);
-                simulator.trade(config, stats_collector);
-                return state_type{config, stats_collector.get()};
-            },
-            [](const state_type& current, const state_type& candidate) {
-                return current.stats.total_profit<percent>()-candidate.stats.total_profit<percent>();
-            }
-    };
+    auto cooler = optimizer::simulated_annealing::basic_cooler{};
+    optimizer::simulated_annealing optimizer{start_temp, min_temp, n_tries};
 
-    trading::enumerative_result<state_type> res{n_best, optim_criteria};
+    trading::enumerative_result<state_type> result{n_best, optim_criteria};
     progress_observer<state_type> progress_observer;
 
     duration = measure_duration([&]() {
-        optimizer(res, restrictions, progress_observer);
+        optimizer(init_state, result, restrictions, cooler,
+                [&](const state_type& origin) {
+                    auto config = neighbor.get(origin.config);
+                    simulator.trade(config, stats_collector);
+                    return state_type{config, stats_collector.get()};
+                },
+                [](const state_type& current, const state_type& candidate) -> double {
+                    return current.stats.total_profit<percent>()-candidate.stats.total_profit<percent>();
+                },
+                progress_observer);
     });
     std::cout << "duration: " << duration << std::endl;
 
@@ -489,7 +515,7 @@ void use_simulated_annealing()
         writer.write_row(net_profit, temperature, threshold);
 
     std::ofstream results_file{experiment_dir/"results.json"};
-    results_file << std::setw(4) << json{res.get()};
+    results_file << std::setw(4) << json{result.get()};
 }
 
 std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
@@ -537,6 +563,6 @@ int main()
         std::cout << "duration: " << duration << std::endl;
     }
 
-//    use_simulated_annealing();
+    use_simulated_annealing();
     return EXIT_SUCCESS;
 }

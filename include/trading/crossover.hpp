@@ -72,12 +72,12 @@ namespace trading {
             auto it = available_indices.begin();
             while (rest) {
                 idx = *it;
-
                 max_add = std::min(rest, max_num_add[idx]);
+
                 if (!max_add)
                     available_indices.erase(it++);
                 else {
-                    distrib_.param(std::uniform_int_distribution<std::size_t>::param_type{0, max_add});
+                    distrib_.param(std::uniform_int_distribution<std::size_t>::param_type{1, max_add});
                     add = distrib_(gen_);
                     child[idx] += add;
                     rest -= add;

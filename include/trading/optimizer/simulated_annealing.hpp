@@ -10,15 +10,23 @@
 #include <trading/generators.hpp>
 
 namespace trading::optimizer {
-    template<class State>
+    // https://youtu.be/l6Y9PqyK1Mc
+    template<class ConcreteCooler, class SimulatedAnnealing>
+    concept Cooler = std::invocable<ConcreteCooler, SimulatedAnnealing&> &&
+            std::same_as<void, std::invoke_result_t<ConcreteCooler, SimulatedAnnealing&>>;
+
+    template<class ConcreteNeighbor, class State>
+    concept Neighbor = std::invocable<ConcreteNeighbor, State> &&
+            std::same_as<State, std::invoke_result_t<ConcreteNeighbor, const State&>>;
+
+    template<class ConcreteAppraiser, class State>
+    concept Appraiser = std::invocable<ConcreteAppraiser, const State&, const State&> &&
+            std::same_as<double, std::invoke_result_t<ConcreteAppraiser, const State&, const State&>>;
+
     class simulated_annealing {
     private:
         double start_temp_, min_temp_, curr_temp_;
         int n_tries_;
-        State init_state_;
-        std::function<void(simulated_annealing<State>&)> cool_;
-        std::function<State(State)> find_neighbor_;
-        std::function<double(State, State)> compute_cost_;
         random::real_generator<double> rand_prob_gen_{0.0, 1.0};
         std::size_t it_{0};
 
@@ -37,23 +45,22 @@ namespace trading::optimizer {
         }
 
     public:
-        explicit simulated_annealing(double start_temp, double min_temp, int n_tries,
-                const State& init_state, const std::function<void(simulated_annealing<State>&)>& cool,
-                const std::function<State(State)>& find_neighbor, const std::function<double(State, State)>& compute_cost)
+        explicit simulated_annealing(double start_temp, double min_temp, int n_tries)
                 :start_temp_(validate_start_temp(min_temp, start_temp)), min_temp_(validate_min_temp(min_temp)),
-                 curr_temp_(start_temp), n_tries_(n_tries), init_state_{init_state}, cool_(cool),
-                 find_neighbor_(find_neighbor), compute_cost_{compute_cost} { }
+                 curr_temp_(start_temp), n_tries_(n_tries) { }
 
-        template<class Result, class Restriction, class... Observer>
-        void operator()(Result& res, const Restriction& restrict, Observer& ... observers)
+        template<class State, class Result, class Restriction, class... Observer>
+        void operator()(const State& init_state, Result& res, const Restriction& restrict,
+                Cooler<simulated_annealing> auto&& cooler, Neighbor<State> auto&& neighbor,
+                Appraiser<State> auto&& appraiser, Observer& ... observers)
         {
-            State curr_state{init_state_};
+            State curr_state{init_state};
             (observers.begin(*this, curr_state), ...);
             // frozen
             for (; curr_temp_>min_temp_; it_++) {
                 // equilibrium
                 for (int i{0}; i<n_tries_; i++) {
-                    State candidate = find_neighbor_(curr_state);
+                    State candidate = neighbor(curr_state);
 
                     if (res.compare(candidate, curr_state)) {
                         curr_state = candidate;
@@ -63,7 +70,7 @@ namespace trading::optimizer {
                             res.update(curr_state);
                     }
                     else {
-                        double diff = compute_cost_(curr_state, candidate);
+                        double diff = appraiser(curr_state, candidate);
                         double threshold = std::exp(-diff/curr_temp_);
                         assert(threshold>0.0 && threshold<1.0);
 
@@ -73,7 +80,7 @@ namespace trading::optimizer {
                         }
                     }
                 }
-                cool_(*this);
+                cooler(*this);
                 (observers.cooled(*this, curr_state), ...);
             }
             (observers.end(*this), ...);
@@ -118,9 +125,9 @@ namespace trading::optimizer {
             explicit lin_cooler(float decay)
                     :cooler(decay) { }
 
-            void operator()(simulated_annealing<State>& solver)
+            void operator()(simulated_annealing& solver)
             {
-                solver.curr_temp(solver.curr_temp()-this->decay_);
+                solver.current_temperature(solver.current_temperature()-this->decay_);
             }
 
             static constexpr std::string_view name = "lin cooler";
@@ -141,7 +148,7 @@ namespace trading::optimizer {
             explicit exp_mul_cooler(float decay)
                     :cooler(validate(decay)) { }
 
-            void operator()(simulated_annealing<State>& solver)
+            void operator()(simulated_annealing& solver)
             {
                 solver.current_temperature(solver.start_temperature()*std::pow(this->decay_, solver.it()));
             }
@@ -165,7 +172,7 @@ namespace trading::optimizer {
             explicit log_mul_cooler(float decay)
                     :cooler(validate(decay)) { }
 
-            void operator()(simulated_annealing<State>& solver)
+            void operator()(simulated_annealing& solver)
             {
                 solver.current_temperature(solver.start_temperature()/(1+this->decay_*std::log(1+solver.it())));
             }
@@ -178,7 +185,7 @@ namespace trading::optimizer {
             basic_cooler()
                     :cooler(std::nan("")) { }
 
-            void operator()(simulated_annealing<State>& solver)
+            void operator()(simulated_annealing& solver)
             {
                 solver.current_temperature(solver.start_temperature()/(1+std::log(1+solver.it())));
             }
