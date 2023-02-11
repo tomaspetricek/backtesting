@@ -441,13 +441,25 @@ void use_simulated_annealing()
     state_type init_state{init_config, stats_collector.get()};
 
     double start_temp{128}, min_temp{26};
-    int n_tries{256};
+    std::size_t n_tries{256};
 //    float decay{50};
-    auto cooler = optimizer::simulated_annealing::basic_cooler{};
-    optimizer::simulated_annealing optimizer{start_temp, min_temp, n_tries};
+    auto cooler = trading::basic_cooler{};
+    optimizer::simulated_annealing optimizer{start_temp, min_temp};
 
     trading::enumerative_result<state_type> result{n_best, optim_criteria};
     progress_observer<state_type> progress_observer;
+
+    struct equilibrium {
+        std::size_t n_tries, it{0};
+
+        explicit equilibrium(std::size_t n_tries)
+                :n_tries(n_tries) { }
+
+        bool operator()()
+        {
+            return ++it%(n_tries+1);
+        }
+    };
 
     duration = measure_duration([&]() {
         optimizer(init_state, result, restrictions, cooler,
@@ -459,6 +471,7 @@ void use_simulated_annealing()
                 [](const state_type& current, const state_type& candidate) -> double {
                     return current.stats.total_profit<percent>()-candidate.stats.total_profit<percent>();
                 },
+                equilibrium{n_tries},
                 progress_observer);
     });
     std::cout << "duration: " << duration << std::endl;
