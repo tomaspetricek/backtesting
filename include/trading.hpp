@@ -23,6 +23,7 @@
 #include <trading/io/parser.hpp>
 #include <trading/io/stringifier.hpp>
 #include <trading/optimizer/parallel/brute_force.hpp>
+#include <trading/optimizer/genetic_algorithm.hpp>
 #include <trading/optimizer/simulated_annealing.hpp>
 #include <trading/validator/interval.hpp>
 #include <trading/view/candle_deserializer.hpp>
@@ -34,6 +35,7 @@
 #include <trading/crossover.hpp>
 #include <trading/currency.hpp>
 #include <trading/data_point.hpp>
+#include <trading/equilibrium.hpp>
 #include <trading/exception.hpp>
 #include <trading/fee_charger.hpp>
 #include <trading/function.hpp>
@@ -44,8 +46,9 @@
 #include <trading/result.hpp>
 #include <trading/side.hpp>
 #include <trading/table.hpp>
+#include <trading/termination.hpp>
 #include <trading/simulator.hpp>
-#include "trading/manager.hpp"
+#include <trading/manager.hpp>
 #include <trading/bazooka/trader.hpp>
 #include <trading/tuple.hpp>
 #include <trading/utils.hpp>

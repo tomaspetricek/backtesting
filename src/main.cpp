@@ -449,18 +449,6 @@ void use_simulated_annealing()
     trading::enumerative_result<state_type> result{n_best, optim_criteria};
     progress_observer<state_type> progress_observer;
 
-    struct equilibrium {
-        std::size_t n_tries, it{0};
-
-        explicit equilibrium(std::size_t n_tries)
-                :n_tries(n_tries) { }
-
-        bool operator()()
-        {
-            return ++it%(n_tries+1);
-        }
-    };
-
     duration = measure_duration([&]() {
         optimizer(init_state, result, restrictions, cooler,
                 [&](const state_type& origin) {
@@ -471,7 +459,7 @@ void use_simulated_annealing()
                 [](const state_type& current, const state_type& candidate) -> double {
                     return current.stats.total_profit<percent>()-candidate.stats.total_profit<percent>();
                 },
-                equilibrium{n_tries},
+                basic_equilibrium{n_tries},
                 progress_observer);
     });
     std::cout << "duration: " << duration << std::endl;
@@ -536,10 +524,16 @@ std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
     return os << frac.numerator() << '/' << frac.denominator() << ")";
 }
 
+struct config_crossover {
+    using config_type = bazooka::configuration<3>;
+    constexpr static std::size_t n_children{1}, n_parents{2};
+
+    std::array<config_type, n_children> operator()(const std::array<config_type, n_parents>& parents);
+};
+
 int main()
 {
     std::size_t max_it{100'000};
-
     {
         constexpr std::size_t n_levels{4};
         trading::random::sizes_generator<n_levels> sizes_gen{30};
@@ -576,6 +570,9 @@ int main()
         std::cout << "duration: " << duration << std::endl;
     }
 
-    use_simulated_annealing();
+    {
+        optimizer::Crossover<config_crossover::config_type> auto crossover = config_crossover();
+    }
+//    use_simulated_annealing();
     return EXIT_SUCCESS;
 }
