@@ -15,9 +15,9 @@ namespace trading {
         std::discrete_distribution<std::size_t> distrib_;
 
     public:
-        template<class Individual, class FitnessFunction>
+        template<class Individual, class FitnessValueGetter>
         std::vector<Individual>
-        operator()(std::size_t select_n, const std::vector<Individual>& population, const FitnessFunction& fitness)
+        operator()(std::size_t select_n, const std::vector<Individual>& population, const FitnessValueGetter& fitness)
         {
             fitness_vals_.clear();
             fitness_vals_.reserve(population.size());

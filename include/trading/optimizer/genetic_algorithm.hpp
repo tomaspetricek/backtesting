@@ -42,28 +42,35 @@ namespace trading::optimizer {
         std::size_t it_{0};
 
     public:
-        template<class Population>
-        void operator()(const Population& init_population,
-                Selection<Population> auto&& selection,
+        using population_type = std::vector<State>;
+
+        template<class FitnessValueGetter>
+        void operator()(const population_type& init_population,
+                Selection<population_type> auto&& selection,
                 Crossover<State> auto&& crossover,
                 Mutation<State> auto&& mutation,
-                Replacement<Population> auto&& replacement,
-                TerminationCriteria<genetic_algorithm<State>> auto&& termination)
+                Replacement<population_type> auto&& replacement,
+                TerminationCriteria<genetic_algorithm<State>> auto&& termination,
+                FitnessValueGetter&& fitness_getter)
         {
-            Population population{init_population}, children;
+            population_type population{init_population}, children;
+            std::size_t select_n;
 
             do {
-                auto parents = selection(population);
+                select_n = population.size()/2;
+                auto parents = selection(select_n, population, fitness_getter);
 
                 // mate
                 for (const auto& mates: parents.match())
                     for (auto&& child: crossover(mates))
                         children.template emplace_back(mutation(std::move(child)));
 
-                population = replacement(parents, children);
+                population = replacement(std::move(parents), std::move(children));
                 it_++;
             }
             while (termination(*this));
+
+            return population;
         }
 
         std::size_t it()

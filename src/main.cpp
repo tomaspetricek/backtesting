@@ -539,7 +539,7 @@ int main()
         std::vector<double> fitness_vals{current_generation.begin(), current_generation.end()};
         auto fitness_vals_it = fitness_vals.begin();
 
-        auto next_generation = selection(20, current_generation, [&](const auto&) {
+        auto next_generation = selection(4, current_generation, [&](const auto&) {
             return *fitness_vals_it++;
         });
 
