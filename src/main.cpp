@@ -533,6 +533,19 @@ struct config_crossover {
 
 int main()
 {
+    {
+        roulette_selection selection;
+        std::vector<int> current_generation{1, 2, 3, 4, 5, 6, 7, 8, 9};
+        std::vector<double> fitness_vals{current_generation.begin(), current_generation.end()};
+        auto fitness_vals_it = fitness_vals.begin();
+
+        auto next_generation = selection(20, current_generation, [&](const auto&) {
+            return *fitness_vals_it++;
+        });
+
+        fmt::print("next generation: {}\n", fmt::join(next_generation, ", "));
+    }
+
     std::size_t max_it{100'000};
     {
         constexpr std::size_t n_levels{4};

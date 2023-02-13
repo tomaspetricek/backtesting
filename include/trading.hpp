@@ -44,6 +44,7 @@
 #include <trading/pack.hpp>
 #include <trading/resampler.hpp>
 #include <trading/result.hpp>
+#include <trading/selection.hpp>
 #include <trading/side.hpp>
 #include <trading/table.hpp>
 #include <trading/termination.hpp>
