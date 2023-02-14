@@ -21,8 +21,11 @@ namespace trading {
         static constexpr std::size_t n_parents = n_parents_;
 
         template<class Individual>
-        cppcoro::generator<std::array<Individual, n_parents>> operator()(std::vector<Individual>& parents) {
-            assert(parents.size()>=n_parents);
+        cppcoro::generator<std::array<Individual, n_parents>> operator()(std::vector<Individual>& parents)
+        {
+            if (parents.size()<n_parents)
+                co_return;
+
             std::shuffle(parents.begin(), parents.end(), gen_);
             std::array<Individual, n_parents> match;
 
