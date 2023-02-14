@@ -29,7 +29,7 @@ namespace trading::bazooka {
                 const random::sizes_generator<n_levels>& open_sizes_gen, const random::int_range& period_gen)
                 :levels_gen_(levels_gen), open_sizes_gen_(open_sizes_gen), period_gen_(period_gen) { }
 
-        configuration<n_levels> get(const configuration<n_levels>& origin)
+        configuration<n_levels> operator()(const configuration<n_levels>& origin)
         {
             auto next = origin;
             switch (choose_(gen_)) {

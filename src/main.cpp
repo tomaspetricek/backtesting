@@ -452,7 +452,7 @@ void use_simulated_annealing()
     duration = measure_duration([&]() {
         optimizer(init_state, result, restrictions, cooler,
                 [&](const state_type& origin) {
-                    auto config = neighbor.get(origin.config);
+                    auto config = neighbor(origin.config);
                     simulator.trade(config, stats_collector);
                     return state_type{config, stats_collector.get()};
                 },
@@ -531,19 +531,56 @@ struct config_crossover {
     std::array<config_type, n_children> operator()(const std::array<config_type, n_parents>& parents);
 };
 
+template<std::size_t n_levels>
+class crossover {
+    sizes_crossover<n_levels> sizes_crossover_;
+    levels_crossover<n_levels> levels_crossover_;
+    std::mt19937 gen_{std::random_device{}()};
+    std::uniform_int_distribution<std::size_t> coin_flip_{0, 1};
+
+public:
+    constexpr static std::size_t n_children{2}, n_parents{2};
+    using config_type = bazooka::configuration<n_levels>;
+
+    std::array<config_type, n_children> operator()(const std::array<config_type, n_parents>& parents)
+    {
+        std::array<config_type, n_children> children;
+        const auto& mother = parents[0];
+        const auto& father = parents[1];
+
+        for (std::size_t i{0}; i<n_children; i++) {
+            children[i] = (coin_flip_(gen_)) ? mother.ma : father.ma;
+            std::size_t period = (coin_flip_(gen_)) ? bazooka::moving_average_period(mother.ma)
+                                                    : bazooka::moving_average_period(father.ma);
+            bazooka::moving_average_set_period(children[i], period);
+            children[i] = sizes_crossover_(mother.open_sizes, father.open_sizes);
+            children[i] = levels_crossover_(mother.levels, father.levels);
+        }
+
+        return children;
+    }
+};
+
 int main()
 {
     {
-        roulette_selection selection;
-        std::vector<int> current_generation{1, 2, 3, 4, 5, 6, 7, 8, 9};
-        std::vector<double> fitness_vals{current_generation.begin(), current_generation.end()};
-        auto fitness_vals_it = fitness_vals.begin();
-
-        auto next_generation = selection(4, current_generation, [&](const auto&) {
-            return *fitness_vals_it++;
-        });
-
-        fmt::print("next generation: {}\n", fmt::join(next_generation, ", "));
+        random_matchmaker<2> matchmaker{};
+        std::vector<int> vec{1, 2, 3, 4, 5, 6, 7};
+        for (const auto& match : matchmaker(vec))
+            fmt::print("{}\n", fmt::join(match, ", "));
+    }
+    {
+        constexpr std::size_t n_levels{4};
+        using config_type = bazooka::configuration<n_levels>;
+        optimizer::Crossover<config_type> auto crossover_ = crossover<n_levels>{};
+        random::sizes_generator<n_levels> open_sizes_gen{30};
+        random::levels_generator<n_levels> levels_gen{30};
+        random::int_range period_gen{1, 60, 1};
+        optimizer::Mutation<config_type> auto mutation = bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen};
+        optimizer::Selection<config_type> auto selection = roulette_selection{};
+        optimizer::TerminationCriteria<optimizer::genetic_algorithm<config_type>> auto termination = iteration_based_termination{255};
+        optimizer::Replacement<config_type> auto replacement = en_block_replacement{};
+        optimizer::Matchmaker<config_type> auto match = random_matchmaker<2>{};
     }
 
     std::size_t max_it{100'000};
@@ -583,9 +620,6 @@ int main()
         std::cout << "duration: " << duration << std::endl;
     }
 
-    {
-        optimizer::Crossover<config_crossover::config_type> auto crossover = config_crossover();
-    }
 //    use_simulated_annealing();
     return EXIT_SUCCESS;
 }

@@ -9,11 +9,11 @@
 
 namespace trading {
     class en_block_replacement {
-
+    public:
         template<class Individual>
-        std::vector<Individual> operator()(std::vector<Individual>&&, std::vector<Individual>&& children)
+        void operator()(const std::vector<Individual>&, const std::vector<Individual>& children, std::vector<Individual>& next_generation)
         {
-            return children;
+            next_generation = children;
         }
     };
 }

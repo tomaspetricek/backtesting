@@ -13,6 +13,7 @@
 #include <trading/bazooka/statistics.hpp>
 #include <trading/direction.hpp>
 #include <trading/market.hpp>
+#include <trading/matchmaker.hpp>
 #include <trading/order.hpp>
 #include <trading/position.hpp>
 #include <trading/indicator/ema.hpp>
@@ -42,6 +43,7 @@
 #include <trading/generators.hpp>
 #include <trading/motion_tracker.hpp>
 #include <trading/pack.hpp>
+#include <trading/replacement.hpp>
 #include <trading/resampler.hpp>
 #include <trading/result.hpp>
 #include <trading/selection.hpp>
