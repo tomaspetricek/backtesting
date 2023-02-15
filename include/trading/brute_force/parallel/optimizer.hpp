@@ -2,15 +2,15 @@
 // Created by Tomáš Petříček on 29.07.2022.
 //
 
-#ifndef EMASTRATEGY_OPTIMIZER_BRUTE_FORCE_HPP
-#define EMASTRATEGY_OPTIMIZER_BRUTE_FORCE_HPP
+#ifndef BACKTESTING_PARALLEL_BRUTE_FORCE_OPTIMIZER_HPP
+#define BACKTESTING_PARALLEL_BRUTE_FORCE_OPTIMIZER_HPP
 
 #include <functional>
 #include <cppcoro/generator.hpp>
 #include <trading/statistics.hpp>
 #include <trading/state.hpp>
 
-namespace trading::optimizer::parallel {
+namespace trading::brute_force::parallel {
     template<class ConcreteFunction, class State>
     concept ObjectiveFunction = std::invocable<ConcreteFunction, const typename State::config_type&> &&
             std::same_as<typename State::stats_type, std::invoke_result_t<ConcreteFunction, const typename State::config_type&>>;
@@ -20,7 +20,7 @@ namespace trading::optimizer::parallel {
             std::same_as<cppcoro::generator<typename State::config_type>, std::invoke_result_t<ConcreteSearchSpace>>;
 
     template<class State>
-    struct brute_force {
+    struct optimizer {
         template<class Result, class Restriction>
         void operator()(Result& res, const Restriction& restrict,
                 ObjectiveFunction<State> auto&& objective_func,
@@ -51,4 +51,4 @@ namespace trading::optimizer::parallel {
     };
 }
 
-#endif //EMASTRATEGY_OPTIMIZER_BRUTE_FORCE_HPP
+#endif //BACKTESTING_PARALLEL_BRUTE_FORCE_OPTIMIZER_HPP

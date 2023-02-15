@@ -48,7 +48,7 @@ namespace trading {
         }
 
         template<class... Observer>
-        void trade(const Config& config, Observer&... observers)
+        void operator()(const Config& config, Observer&... observers)
         {
             Trader trader;
 

@@ -10,16 +10,11 @@
 #include <random>
 #include <utility>
 #include <tuple>
-#include <trading/types.hpp>
 #include <cppcoro/recursive_generator.hpp>
 #include <etl/flat_set.h>
 #include <fmt/format.h>
-
-template<class T1, class T2>
-auto make_tuple(std::pair<T1, T2>&& p)
-{
-    return std::make_tuple(std::get<0>(p), std::get<1>(p));
-}
+#include <trading/types.hpp>
+#include <trading/tuple.hpp>
 
 namespace trading {
     template<std::size_t n_sizes>

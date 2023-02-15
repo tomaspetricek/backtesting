@@ -2,12 +2,12 @@
 // Created by Tomáš Petříček on 13.02.2023.
 //
 
-#ifndef BACKTESTING_REPLACEMENT_HPP
-#define BACKTESTING_REPLACEMENT_HPP
+#ifndef BACKTESTING_GENETIC_ALGORITHM_REPLACEMENT_HPP
+#define BACKTESTING_GENETIC_ALGORITHM_REPLACEMENT_HPP
 
 #include <vector>
 
-namespace trading {
+namespace trading::genetic_algorithm {
     class en_block_replacement {
     public:
         template<class Individual>
@@ -18,4 +18,4 @@ namespace trading {
     };
 }
 
-#endif //BACKTESTING_REPLACEMENT_HPP
+#endif //BACKTESTING_GENETIC_ALGORITHM_REPLACEMENT_HPP

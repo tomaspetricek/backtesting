@@ -2,12 +2,12 @@
 // Created by Tomáš Petříček on 12.02.2023.
 //
 
-#ifndef BACKTESTING_TERMINATION_HPP
-#define BACKTESTING_TERMINATION_HPP
+#ifndef BACKTESTING_GENETIC_ALGORITHM_TERMINATION_HPP
+#define BACKTESTING_GENETIC_ALGORITHM_TERMINATION_HPP
 
 #include <array>
 
-namespace trading {
+namespace trading::genetic_algorithm {
     class iteration_based_termination {
         std::size_t max_it_;
 
@@ -28,4 +28,4 @@ namespace trading {
     };
 }
 
-#endif //BACKTESTING_TERMINATION_HPP
+#endif //BACKTESTING_GENETIC_ALGORITHM_TERMINATION_HPP

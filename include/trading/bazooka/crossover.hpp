@@ -1,18 +1,21 @@
 //
-// Created by Tomáš Petříček on 07.02.2023.
+// Created by Tomáš Petříček on 15.02.2023.
 //
 
 #ifndef BACKTESTING_CROSSOVER_HPP
 #define BACKTESTING_CROSSOVER_HPP
 
+#include <array>
 #include <random>
 #include <array>
-#include <trading/types.hpp>
 #include <etl/vector.h>
 #include <etl/set.h>
 #include <etl/list.h>
+#include <trading/types.hpp>
+#include <trading/tuple.hpp>
+#include <trading/bazooka/configuration.hpp>
 
-namespace trading {
+namespace trading::bazooka {
     template<std::size_t n_levels>
     class levels_crossover {
         std::mt19937 gen_{std::random_device{}()};
@@ -89,6 +92,38 @@ namespace trading {
                     it = available_indices.begin();
             }
             return child;
+        }
+    };
+
+    template<std::size_t n_levels, std::size_t n_children_>
+    class configuration_crossover {
+        static_assert(n_levels>0 && n_children_>0);
+        sizes_crossover<n_levels> sizes_crossover_;
+        levels_crossover<n_levels> levels_crossover_;
+        std::mt19937 gen_{std::random_device{}()};
+        std::uniform_int_distribution<std::size_t> coin_flip_{0, 1};
+
+    public:
+        constexpr static std::size_t n_parents{2}, n_children{n_children_};
+        using config_type = bazooka::configuration<n_levels>;
+
+        template<class Individual>
+        std::array<config_type, n_children> operator()(const std::array<Individual, n_parents>& parents)
+        {
+            std::array<config_type, n_children> children;
+            config_type mother = parents[0].genes;
+            config_type father = parents[1].genes;
+
+            for (std::size_t i{0}; i<n_children; i++) {
+                children[i].ma = (coin_flip_(gen_)) ? mother.ma : father.ma;
+                std::size_t period = (coin_flip_(gen_)) ? bazooka::moving_average_period(mother.ma)
+                                                        : bazooka::moving_average_period(father.ma);
+                bazooka::moving_average_set_period(children[i].ma, period);
+                children[i].open_sizes = sizes_crossover_(mother.open_sizes, father.open_sizes);
+                children[i].levels = levels_crossover_(mother.levels, father.levels);
+            }
+
+            return children;
         }
     };
 }

@@ -85,6 +85,12 @@ namespace trading {
         auto zip_end = boost::make_zip_iterator(boost::make_tuple(std::end(containers)...));
         return boost::make_iterator_range(zip_begin, zip_end);
     }
+
+    template<class T1, class T2>
+    auto make_tuple(std::pair<T1, T2>&& p)
+    {
+        return std::make_tuple(std::get<0>(p), std::get<1>(p));
+    }
 }
 
 #endif //EMASTRATEGY_TUPLE_HPP

@@ -1,15 +1,15 @@
 //
-// Created by Tomáš Petříček on 20.01.2023.
+// Created by Tomáš Petříček on 15.02.2023.
 //
 
-#ifndef BACKTESTING_SIMULATED_ANNEALING_HPP
-#define BACKTESTING_SIMULATED_ANNEALING_HPP
+#ifndef BACKTESTING_SIMULATED_ANNEALING_OPTIMIZER_HPP
+#define BACKTESTING_SIMULATED_ANNEALING_OPTIMIZER_HPP
 
 #include <functional>
 #include <cmath>
 #include <trading/generators.hpp>
 
-namespace trading::optimizer {
+namespace trading::simulated_annealing {
     // https://youtu.be/l6Y9PqyK1Mc
     template<class ConcreteCooler, class SimulatedAnnealing>
     concept Cooler = std::invocable<ConcreteCooler, SimulatedAnnealing&> &&
@@ -27,8 +27,7 @@ namespace trading::optimizer {
     concept Equilibrium = std::invocable<ConcreteEquilibrium> &&
             std::same_as<bool, std::invoke_result_t<ConcreteEquilibrium>>;
 
-    class simulated_annealing {
-    private:
+    class optimizer {
         double start_temp_, min_temp_, curr_temp_;
         random::real_generator<double> rand_prob_gen_{0.0, 1.0};
         std::size_t it_{0};
@@ -48,13 +47,13 @@ namespace trading::optimizer {
         }
 
     public:
-        explicit simulated_annealing(double start_temp, double min_temp)
+        explicit optimizer(double start_temp, double min_temp)
                 :start_temp_(validate_start_temp(min_temp, start_temp)), min_temp_(validate_min_temp(min_temp)),
                  curr_temp_(start_temp) { }
 
         template<class State, class Result, class Restriction, class... Observer>
         void operator()(const State& init_state, Result& res, const Restriction& restrict,
-                Cooler<simulated_annealing> auto&& cooler, Neighbor<State> auto&& neighbor,
+                Cooler<optimizer> auto&& cooler, Neighbor<State> auto&& neighbor,
                 Appraiser<State> auto&& appraiser, Equilibrium auto&& equilibrium,
                 Observer& ... observers)
         {
@@ -108,7 +107,12 @@ namespace trading::optimizer {
         {
             return start_temp_;
         }
+
+        double minimum_temperature() const
+        {
+            return min_temp_;
+        }
     };
 }
 
-#endif //BACKTESTING_SIMULATED_ANNEALING_HPP
+#endif //BACKTESTING_SIMULATED_ANNEALING_OPTIMIZER_HPP

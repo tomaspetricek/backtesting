@@ -2,13 +2,13 @@
 // Created by Tomáš Petříček on 10.02.2023.
 //
 
-#ifndef BACKTESTING_COOLER_HPP
-#define BACKTESTING_COOLER_HPP
+#ifndef BACKTESTING_SIMULATED_ANNEALING_COOLER_HPP
+#define BACKTESTING_SIMULATED_ANNEALING_COOLER_HPP
 
 #include <string>
 #include <cmath>
 
-namespace trading {
+namespace trading::simulated_annealing {
     class cooler {
     protected:
         float decay_;
@@ -101,4 +101,4 @@ namespace trading {
     };
 }
 
-#endif //BACKTESTING_COOLER_HPP
+#endif //BACKTESTING_SIMULATED_ANNEALING_COOLER_HPP

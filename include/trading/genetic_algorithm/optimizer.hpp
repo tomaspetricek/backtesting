@@ -1,9 +1,9 @@
 //
-// Created by Tomáš Petříček on 06.02.2023.
+// Created by Tomáš Petříček on 15.02.2023.
 //
 
-#ifndef BACKTESTING_GENETIC_ALGORITHM_HPP
-#define BACKTESTING_GENETIC_ALGORITHM_HPP
+#ifndef BACKTESTING_GENETIC_ALGORITHM_OPTIMIZER_HPP
+#define BACKTESTING_GENETIC_ALGORITHM_OPTIMIZER_HPP
 
 #include <vector>
 #include <tuple>
@@ -17,7 +17,7 @@
 template<typename T, typename ...Ts>
 inline constexpr bool all_same = std::conjunction_v<std::is_same<T, Ts>...>;
 
-namespace trading::optimizer {
+namespace trading::genetic_algorithm {
     template<class T>
     concept Object = std::is_class<T>::value;
 
@@ -60,7 +60,7 @@ namespace trading::optimizer {
             std::same_as<double, std::invoke_result_t<ConcreteFitnessFunction, const Genes&>>;
 
     template<class Genes>
-    class genetic_algorithm {
+    class optimizer {
         struct individual {
             Genes genes;
             double fitness_value;
@@ -77,7 +77,7 @@ namespace trading::optimizer {
                 Crossover<Genes> auto&& crossover,
                 Mutation<Genes> auto&& mutation,
                 Replacement<individual> auto&& replacement,
-                TerminationCriteria<genetic_algorithm<Genes>> auto&& termination)
+                TerminationCriteria<optimizer<Genes>> auto&& termination)
         {
             current_generation_.clear();
             current_generation_.reserve(init_genes.size());
@@ -104,6 +104,13 @@ namespace trading::optimizer {
                 // replace
                 current_generation_.clear();
                 replacement(parents, children, current_generation_);
+
+                // TODO: use observer instead
+                double sum = 0;
+                std::for_each(current_generation_.begin(), current_generation_.end(), [&](const auto& individual){
+                    sum += individual.fitness_value;
+                });
+                std::cout << "it: " << it_  << ", mean fitness: " <<  sum/current_generation_.size() << std::endl;
                 it_++;
             };
 
@@ -122,4 +129,4 @@ namespace trading::optimizer {
     };
 }
 
-#endif //BACKTESTING_GENETIC_ALGORITHM_HPP
+#endif //BACKTESTING_GENETIC_ALGORITHM_OPTIMIZER_HPP

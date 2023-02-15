@@ -2,16 +2,16 @@
 // Created by Tomáš Petříček on 14.02.2023.
 //
 
-#ifndef BACKTESTING_MATCHMAKER_HPP
-#define BACKTESTING_MATCHMAKER_HPP
+#ifndef BACKTESTING_GENETIC_ALGORITHM_MATCHMAKER_HPP
+#define BACKTESTING_GENETIC_ALGORITHM_MATCHMAKER_HPP
 
 #include <array>
 #include <vector>
 #include <cassert>
 #include <random>
-#include <cppcoro/generator.hpp>
+#include "cppcoro/generator.hpp"
 
-namespace trading {
+namespace trading::genetic_algorithm {
     template<std::size_t n_parents_>
     class random_matchmaker {
         std::mt19937 gen_{std::random_device{}()};
@@ -42,4 +42,4 @@ namespace trading {
     };
 }
 
-#endif //BACKTESTING_MATCHMAKER_HPP
+#endif //BACKTESTING_GENETIC_ALGORITHM_MATCHMAKER_HPP

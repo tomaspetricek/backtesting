@@ -26,6 +26,7 @@ namespace trading {
         {
             return trade{sold, sold*price, price, time};
         }
+
     private:
         explicit trade(amount_t sold, amount_t bought, price_t price, const ptime& time)
                 :sold(sold), bought(bought), price(price), time(time) { }

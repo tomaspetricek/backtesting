@@ -2,14 +2,14 @@
 // Created by Tomáš Petříček on 13.02.2023.
 //
 
-#ifndef BACKTESTING_SELECTION_HPP
-#define BACKTESTING_SELECTION_HPP
+#ifndef BACKTESTING_GENETIC_ALGORITHM_SELECTION_HPP
+#define BACKTESTING_GENETIC_ALGORITHM_SELECTION_HPP
 
 #include <vector>
 #include <random>
 #include <algorithm>
 
-namespace trading {
+namespace trading::genetic_algorithm {
     class roulette_selection {
         std::mt19937 gen_{std::random_device{}()};
         std::discrete_distribution<std::size_t> distrib_;
@@ -33,4 +33,4 @@ namespace trading {
     };
 }
 
-#endif //BACKTESTING_SELECTION_HPP
+#endif //BACKTESTING_GENETIC_ALGORITHM_SELECTION_HPP
