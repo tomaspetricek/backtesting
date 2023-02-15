@@ -20,19 +20,18 @@
 #include <trading/data_point.hpp>
 
 namespace trading {
-    template<class Trader, class Config>
+    template<class ConcreteAverager>
+    concept Averager = std::invocable<ConcreteAverager, const candle&> &&
+            std::same_as<price_t, std::invoke_result_t<ConcreteAverager, const candle&>>;
+
     class simulator {
-        std::function<Trader(const Config&)> initializer_;
         std::vector<price_point> close_points_;
         std::vector<price_t> indic_prices_;
         std::size_t resampling_period_;
 
     public:
-        using trader_type = Trader;
-
-        simulator(const std::function<Trader(const Config&)>& initializer, const std::vector<candle>& candles,
-                const std::chrono::minutes& resampling_period, const std::function<price_t(candle)>& averager)
-                :initializer_(initializer), resampling_period_(resampling_period.count())
+        simulator(const std::vector<candle>& candles, const std::chrono::minutes& resampling_period, Averager auto&& averager)
+                :resampling_period_(resampling_period.count())
         {
             trading::resampler resampler{resampling_period_};
             candle indic_candle;
@@ -47,19 +46,9 @@ namespace trading {
             }
         }
 
-        template<class... Observer>
-        void operator()(const Config& config, Observer&... observers)
+        template<class Trader, class... Observer>
+        void operator()(Trader&& trader, Observer&... observers)
         {
-            Trader trader;
-
-            // create trader
-            try {
-                trader = initializer_(config);
-            }
-            catch (...) {
-                std::throw_with_nested(std::runtime_error("Cannot create strategy"));
-            }
-
             // trade
             amount_t min_allowed_equity{100};
             auto indic_prices_it = indic_prices_.begin();

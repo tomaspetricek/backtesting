@@ -178,6 +178,7 @@ int use_brute_force(std::vector<candle>&& candles, Simulator&& simulator, json&&
     using state_type = bazooka::state<n_levels>;
     using stats_type = state_type::stats_type;
     using config_type = state_type::config_type;
+    using trader_type = decltype(create_trader<n_levels>(config_type()));
     std::filesystem::path out_dir{"../../src/data/out"};
 
     auto optim_criteria = [](const state_type& rhs, const state_type& lhs) {
@@ -222,8 +223,9 @@ int use_brute_force(std::vector<candle>&& candles, Simulator&& simulator, json&&
     auto duration = measure_duration(to_function([&] {
         optimize(result, restrictions,
                 [&](const auto& config) {
-                    stats_type::template collector<typename Simulator::trader_type> collector{};
-                    simulator(config, collector);
+                    stats_type::template collector<trader_type> collector{};
+                    auto trader = create_trader(config);
+                    simulator(simulator, collector);
                     return collector.get();
                 }, search_space);
     }));
@@ -339,6 +341,7 @@ void use_simulated_annealing(std::vector<candle>&& candles, Simulator&& simulato
         optimizer(init_state, result, restrictions, cooler,
                 [&](const state_type& origin) {
                     auto config = neighbor(origin.config);
+                    auto trader = create_trader(config);
                     simulator(config, stats_collector);
                     return state_type{config, stats_collector.get()};
                 },
@@ -407,6 +410,8 @@ use_genetic_algorithm(std::vector<candle>&& candles, Simulator&& simulator, json
 {
     constexpr std::size_t n_levels{4};
     using config_type = bazooka::configuration<n_levels>;
+    using trader_type = decltype(create_trader<n_levels>(config_type()));
+
     random::sizes_generator<n_levels> open_sizes_gen{30};
     random::levels_generator<n_levels> levels_gen{30};
     random::int_range period_gen{1, 60, 1};
@@ -423,11 +428,12 @@ use_genetic_algorithm(std::vector<candle>&& candles, Simulator&& simulator, json
     for (std::size_t i{0}; i<n_init_genes; i++)
         init_genes.emplace_back(rand_genes());
 
-    bazooka::statistics<n_levels>::collector<typename Simulator::trader_type> stats_collector;
+    bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
 
     auto last_generation = optimizer(init_genes,
             [&](const config_type& genes) -> double {
-                simulator(genes, stats_collector);
+                auto trader = create_trader(genes);
+                simulator(trader, stats_collector);
                 return static_cast<double>(stats_collector.get().template total_profit<percent>());
             },
             genetic_algorithm::roulette_selection{},
@@ -523,7 +529,7 @@ int main()
     // create simulator
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
     auto averager = candle::ohlc4{};
-    trading::simulator simulator{to_function(create_trader<n_levels>), candles, resampling_period, averager};
+    trading::simulator simulator{candles, resampling_period, averager};
 
     json resampling_doc = json{{"resampling", {
             {"period[min]", resampling_period.count()},
