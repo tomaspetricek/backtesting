@@ -28,19 +28,19 @@ namespace trading::optimizer {
         it.end();
     });
 
-    template<class ConcreteMutation, class State>
-    concept Mutation = std::invocable<ConcreteMutation, State&&> &&
-            std::same_as<State, std::invoke_result_t<ConcreteMutation, State&&>>;
+    template<class ConcreteMutation, class Genes>
+    concept Mutation = std::invocable<ConcreteMutation, Genes&&> &&
+            std::same_as<Genes, std::invoke_result_t<ConcreteMutation, Genes&&>>;
 
-    template<class ConcreteCrossover, class State>
-    concept Crossover = std::invocable<ConcreteCrossover, const std::array<State, ConcreteCrossover::n_parents>&> &&
-            std::same_as<std::array<State, ConcreteCrossover::n_children>, std::invoke_result_t<ConcreteCrossover,
-                    const std::array<State, ConcreteCrossover::n_parents>&>>;
+    template<class ConcreteCrossover, class Genes>
+    concept Crossover = std::invocable<ConcreteCrossover, const std::array<Genes, ConcreteCrossover::n_parents>&> &&
+            std::same_as<std::array<Genes, ConcreteCrossover::n_children>, std::invoke_result_t<ConcreteCrossover,
+                    const std::array<Genes, ConcreteCrossover::n_parents>&>>;
 
     template<class ConcreteSelection, class Individual>
     concept Selection =
-    std::invocable<ConcreteSelection, std::size_t, const std::vector<Individual>&, const std::vector<double>&, std::vector<Individual>&>
-            && std::same_as<void, std::invoke_result_t<ConcreteSelection, std::size_t, const std::vector<Individual>&, const std::vector<double>&, std::vector<Individual>&>>;
+    std::invocable<ConcreteSelection, std::size_t, const std::vector<Individual>&, std::vector<Individual>&>
+            && std::same_as<void, std::invoke_result_t<ConcreteSelection, std::size_t, const std::vector<Individual>&, std::vector<Individual>&>>;
 
     template<class ConcreteTerminationCriteria, class Optimizer>
     concept TerminationCriteria = std::invocable<ConcreteTerminationCriteria, const Optimizer&> &&
@@ -55,59 +55,67 @@ namespace trading::optimizer {
     concept Matchmaker = std::invocable<ConcreteMatchmaker, std::vector<Individual>&>
             && std::same_as<cppcoro::generator<std::array<Individual, ConcreteMatchmaker::n_parents>>, std::invoke_result_t<ConcreteMatchmaker, std::vector<Individual>&>>;
 
-    template<class State>
+    template<class ConcreteFitnessFunction, class Genes>
+    concept FitnessFunction = std::invocable<ConcreteFitnessFunction, const Genes&> &&
+            std::same_as<double, std::invoke_result_t<ConcreteFitnessFunction, const Genes&>>;
+
+    template<class Genes>
     class genetic_algorithm {
+        struct individual {
+            Genes genes;
+            double fitness_value;
+        };
+
         std::size_t it_{0};
-        std::vector<State> current_generation_;
+        std::vector<individual> current_generation_;
 
     public:
-        using population_type = std::vector<State>;
-
-        template<class FitnessValueGetter>
-        void operator()(const population_type& init_population,
-                Selection<State> auto&& selection,
-                Matchmaker<State> auto&& match,
-                Crossover<State> auto&& crossover,
-                Mutation<State> auto&& mutation,
-                Replacement<State> auto&& replacement,
-                TerminationCriteria<genetic_algorithm<State>> auto&& termination,
-                FitnessValueGetter&& fitness_getter)
+        std::vector<individual> operator()(const std::vector<Genes>& init_genes,
+                FitnessFunction<Genes> auto&& compute_fitness,
+                Selection<individual> auto&& selection,
+                Matchmaker<individual> auto&& match,
+                Crossover<Genes> auto&& crossover,
+                Mutation<Genes> auto&& mutation,
+                Replacement<individual> auto&& replacement,
+                TerminationCriteria<genetic_algorithm<Genes>> auto&& termination)
         {
-            current_generation_ = init_population;
-            population_type parents, children;
-            std::size_t select_n;
-            std::vector<double> fitness_values;
+            current_generation_.clear();
+            current_generation_.reserve(init_genes.size());
+            for (const auto& genes: init_genes)
+                current_generation_.template emplace_back(std::move(individual{genes, compute_fitness(genes)}));
 
-            do {
+            std::vector<individual> parents, children;
+            std::size_t select_n;
+
+            while (current_generation_.size() && termination(*this)) {
                 select_n = current_generation_.size()/2;
-                fitness_values.clear(), parents.clear();
-                std::for_each(current_generation_.begin(), current_generation_.end(), [&](const auto& individual) {
-                    fitness_values.template emplace_back(fitness_getter(individual));
-                });
-                selection(select_n, current_generation_, fitness_values, parents);
+                parents.clear();
+                selection(select_n, current_generation_, parents);
 
                 // mate
                 children.clear();
                 for (const auto& mates: match(parents))
-                    for (auto&& child: crossover(mates))
-                        children.template emplace_back(mutation(std::move(child)));
+                    for (auto&& genes: crossover(mates)) {
+                        genes = mutation(std::move(genes));
+                        auto child = individual{genes, compute_fitness(genes)};
+                        children.template emplace_back(std::move(child));
+                    }
 
                 // replace
                 current_generation_.clear();
                 replacement(parents, children, current_generation_);
                 it_++;
-            }
-            while (termination(*this));
+            };
 
             return current_generation_;
         }
 
-        std::size_t it()
+        std::size_t it() const
         {
             return it_;
         }
 
-        const std::vector<State>& current_generation() const
+        const std::vector<individual>& current_generation() const
         {
             return current_generation_;
         }

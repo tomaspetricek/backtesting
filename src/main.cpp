@@ -524,13 +524,6 @@ std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
     return os << frac.numerator() << '/' << frac.denominator() << ")";
 }
 
-struct config_crossover {
-    using config_type = bazooka::configuration<3>;
-    constexpr static std::size_t n_children{1}, n_parents{2};
-
-    std::array<config_type, n_children> operator()(const std::array<config_type, n_parents>& parents);
-};
-
 template<std::size_t n_levels>
 class crossover {
     sizes_crossover<n_levels> sizes_crossover_;
@@ -542,19 +535,20 @@ public:
     constexpr static std::size_t n_children{2}, n_parents{2};
     using config_type = bazooka::configuration<n_levels>;
 
-    std::array<config_type, n_children> operator()(const std::array<config_type, n_parents>& parents)
+    template<class Individual>
+    std::array<config_type, n_children> operator()(const std::array<Individual, n_parents>& parents)
     {
         std::array<config_type, n_children> children;
-        const auto& mother = parents[0];
-        const auto& father = parents[1];
+        config_type mother = parents[0].genes;
+        config_type father = parents[1].genes;
 
         for (std::size_t i{0}; i<n_children; i++) {
-            children[i] = (coin_flip_(gen_)) ? mother.ma : father.ma;
+            children[i].ma = (coin_flip_(gen_)) ? mother.ma : father.ma;
             std::size_t period = (coin_flip_(gen_)) ? bazooka::moving_average_period(mother.ma)
                                                     : bazooka::moving_average_period(father.ma);
-            bazooka::moving_average_set_period(children[i], period);
-            children[i] = sizes_crossover_(mother.open_sizes, father.open_sizes);
-            children[i] = levels_crossover_(mother.levels, father.levels);
+            bazooka::moving_average_set_period(children[i].ma, period);
+            children[i].open_sizes = sizes_crossover_(mother.open_sizes, father.open_sizes);
+            children[i].levels = levels_crossover_(mother.levels, father.levels);
         }
 
         return children;
@@ -566,21 +560,26 @@ int main()
     {
         random_matchmaker<2> matchmaker{};
         std::vector<int> vec{1, 2, 3, 4, 5, 6, 7};
-        for (const auto& match : matchmaker(vec))
+        for (const auto& match: matchmaker(vec))
             fmt::print("{}\n", fmt::join(match, ", "));
     }
     {
         constexpr std::size_t n_levels{4};
         using config_type = bazooka::configuration<n_levels>;
-        optimizer::Crossover<config_type> auto crossover_ = crossover<n_levels>{};
         random::sizes_generator<n_levels> open_sizes_gen{30};
         random::levels_generator<n_levels> levels_gen{30};
         random::int_range period_gen{1, 60, 1};
-        optimizer::Mutation<config_type> auto mutation = bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen};
-        optimizer::Selection<config_type> auto selection = roulette_selection{};
-        optimizer::TerminationCriteria<optimizer::genetic_algorithm<config_type>> auto termination = iteration_based_termination{255};
-        optimizer::Replacement<config_type> auto replacement = en_block_replacement{};
-        optimizer::Matchmaker<config_type> auto match = random_matchmaker<2>{};
+        std::vector<config_type> init_genes;
+        optimizer::genetic_algorithm<config_type> optimizer;
+
+        optimizer(init_genes,
+                [](const config_type&) -> double { return 1; },
+                roulette_selection{},
+                random_matchmaker<crossover<n_levels>::n_parents>{},
+                crossover<n_levels>{},
+                bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen},
+                en_block_replacement{},
+                iteration_based_termination{255});
     }
 
     std::size_t max_it{100'000};
