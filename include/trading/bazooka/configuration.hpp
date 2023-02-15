@@ -12,7 +12,7 @@
 namespace trading::bazooka {
     template<std::size_t n_levels>
     struct configuration {
-        bazooka::indicator_type ma;
+        bazooka::moving_average_type ma;
         std::array<fraction_t, n_levels> levels;
         std::array<fraction_t, n_levels> open_sizes;
     };

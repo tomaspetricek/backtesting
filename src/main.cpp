@@ -9,6 +9,7 @@
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <utility>
 #include <etl/numeric.h>
 #include <etl/list.h>
 
@@ -524,7 +525,7 @@ std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
     return os << frac.numerator() << '/' << frac.denominator() << ")";
 }
 
-template<std::size_t n_levels>
+template<std::size_t n_levels, std::size_t n_children_>
 class crossover {
     sizes_crossover<n_levels> sizes_crossover_;
     levels_crossover<n_levels> levels_crossover_;
@@ -532,7 +533,7 @@ class crossover {
     std::uniform_int_distribution<std::size_t> coin_flip_{0, 1};
 
 public:
-    constexpr static std::size_t n_children{2}, n_parents{2};
+    constexpr static std::size_t n_parents{2}, n_children{n_children_};
     using config_type = bazooka::configuration<n_levels>;
 
     template<class Individual>
@@ -572,14 +573,27 @@ int main()
         std::vector<config_type> init_genes;
         optimizer::genetic_algorithm<config_type> optimizer;
 
-        optimizer(init_genes,
+        std::size_t n_init_genes{1'000};
+        init_genes.reserve(n_init_genes);
+        auto rand_genes = random::configuration_generator<n_levels>{open_sizes_gen, levels_gen, period_gen};
+
+        constexpr std::size_t n_children{2};
+        using crossover_type = crossover<n_levels, n_children>;
+
+        for (std::size_t i{0}; i<n_init_genes; i++)
+            init_genes.emplace_back(rand_genes());
+
+        auto last_generation = optimizer(init_genes,
                 [](const config_type&) -> double { return 1; },
                 roulette_selection{},
-                random_matchmaker<crossover<n_levels>::n_parents>{},
-                crossover<n_levels>{},
+                random_matchmaker<crossover_type::n_parents>{},
+                crossover_type{},
                 bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen},
                 en_block_replacement{},
                 iteration_based_termination{255});
+
+        std::cout << "last generation size: " << last_generation.size() << std::endl
+                  << "n iterations: " << optimizer.it() << std::endl;
     }
 
     std::size_t max_it{100'000};

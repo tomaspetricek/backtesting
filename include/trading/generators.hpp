@@ -314,6 +314,28 @@ namespace trading {
                 return val;
             }
         };
+
+        template<std::size_t n_levels>
+        class configuration_generator {
+            random::sizes_generator<n_levels> rand_sizes_;
+            random::levels_generator<n_levels> rand_levels_;
+            random::int_range rand_period_;
+            std::mt19937 gen_{std::random_device{}()};
+            std::uniform_int_distribution<std::size_t> coin_flip_{0, 1};
+
+        public:
+            explicit configuration_generator(const random::sizes_generator<n_levels>& rand_sizes,
+                    random::levels_generator<n_levels>  rand_levels, const random::int_range& rand_period)
+                    :rand_sizes_(rand_sizes), rand_levels_(std::move(rand_levels)), rand_period_(rand_period) { }
+
+            bazooka::configuration<n_levels> operator()()
+            {
+                auto period = static_cast<std::size_t>(rand_period_());
+                bazooka::moving_average_type ma = (coin_flip_(gen_)) ? bazooka::moving_average_type{indicator::sma{period}}
+                                                                     : bazooka::moving_average_type{indicator::ema{period}};
+                return bazooka::configuration<n_levels>{ma, rand_levels_(), rand_sizes_()};
+            }
+        };
     }
 
     namespace systematic {

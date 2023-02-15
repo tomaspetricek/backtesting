@@ -71,7 +71,7 @@ namespace trading::optimizer {
 
     public:
         std::vector<individual> operator()(const std::vector<Genes>& init_genes,
-                FitnessFunction<Genes> auto&& compute_fitness,
+                FitnessFunction<Genes> auto&& fitness,
                 Selection<individual> auto&& selection,
                 Matchmaker<individual> auto&& match,
                 Crossover<Genes> auto&& crossover,
@@ -82,13 +82,13 @@ namespace trading::optimizer {
             current_generation_.clear();
             current_generation_.reserve(init_genes.size());
             for (const auto& genes: init_genes)
-                current_generation_.template emplace_back(std::move(individual{genes, compute_fitness(genes)}));
+                current_generation_.template emplace_back(std::move(individual{genes, fitness(genes)}));
 
             std::vector<individual> parents, children;
             std::size_t select_n;
 
-            while (current_generation_.size() && termination(*this)) {
-                select_n = current_generation_.size()/2;
+            while (current_generation_.size() && !termination(*this)) {
+                select_n = current_generation_.size();
                 parents.clear();
                 selection(select_n, current_generation_, parents);
 
@@ -97,7 +97,7 @@ namespace trading::optimizer {
                 for (const auto& mates: match(parents))
                     for (auto&& genes: crossover(mates)) {
                         genes = mutation(std::move(genes));
-                        auto child = individual{genes, compute_fitness(genes)};
+                        auto child = individual{genes, fitness(genes)};
                         children.template emplace_back(std::move(child));
                     }
 

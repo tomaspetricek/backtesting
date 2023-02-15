@@ -65,11 +65,11 @@ namespace nlohmann {
     };
 
     template<>
-    struct adl_serializer<trading::bazooka::indicator_type> {
-        static void to_json(json& j, const trading::bazooka::indicator_type& indic)
+    struct adl_serializer<trading::bazooka::moving_average_type> {
+        static void to_json(json& j, const trading::bazooka::moving_average_type& indic)
         {
             j = {{"period", trading::bazooka::moving_average_period(indic)},
-                 {"type",   trading::bazooka::moving_average_type(indic)}};
+                 {"type", trading::bazooka::moving_average_name(indic)}};
         }
     };
 

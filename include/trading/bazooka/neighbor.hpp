@@ -39,8 +39,8 @@ namespace trading::bazooka {
                 break;
             case 1: {
                 std::size_t period = moving_average_period(next.ma);
-                next.ma = (next.ma.index()) ? indicator_type{trading::indicator::sma{period}} :
-                          indicator_type{trading::indicator::ema{period}};
+                next.ma = (next.ma.index()) ? moving_average_type{trading::indicator::sma{period}} :
+                          moving_average_type{trading::indicator::ema{period}};
                 break;
             }
             case 2:
