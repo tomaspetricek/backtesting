@@ -428,7 +428,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
     std::vector<config_type> init_genes;
     genetic_algorithm::optimizer<config_type> optimizer;
 
-    std::size_t n_init_genes{1'024};
+    std::size_t n_init_genes{256};
     init_genes.reserve(n_init_genes);
     auto rand_genes = random::configuration_generator<n_levels>{open_sizes_gen, levels_gen, period_gen};
 
@@ -453,13 +453,13 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
                 total_profit = (total_profit>=0.0) ? total_profit : 0.0;
                 return total_profit;
             },
-            genetic_algorithm::sizer{0.95},
+            genetic_algorithm::sizer{0.99},
             genetic_algorithm::roulette_selection{},
             genetic_algorithm::random_matchmaker<crossover_type::n_parents>{},
             crossover_type{},
             bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen},
             genetic_algorithm::en_block_replacement{},
-            genetic_algorithm::iteration_based_termination{90},
+            genetic_algorithm::iteration_based_termination{120},
             progress_observer);
     });
     std::cout << "duration: " << duration << std::endl;

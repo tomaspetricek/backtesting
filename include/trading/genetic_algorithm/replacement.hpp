@@ -13,6 +13,7 @@ namespace trading::genetic_algorithm {
         template<class Individual>
         void operator()(const std::vector<Individual>&, const std::vector<Individual>& children, std::vector<Individual>& next_generation)
         {
+            next_generation.reserve(children.size());
             next_generation = children;
         }
     };
