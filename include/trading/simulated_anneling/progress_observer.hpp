@@ -29,6 +29,7 @@ namespace trading::simulated_annealing {
 
         void begin(const optimizer_type&, const State&)
         {
+            progress_.clear();
             reset_counters();
         }
 
@@ -56,7 +57,7 @@ namespace trading::simulated_annealing {
                       ", net profit: " << curr.stats.net_profit() << std::endl;
         }
 
-        void end(const optimizer_type& optimizer)
+        void end(const optimizer_type&)
         {
             progress_.pop_back();
         }

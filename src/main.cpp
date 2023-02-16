@@ -289,9 +289,17 @@ std::filesystem::path try_create_experiment_directory(const std::filesystem::pat
             end(dir_it),
             [](const auto& entry) { return entry.is_directory(); }
     );
-    std::filesystem::path last_dir{optim_dir/name_experiment_directory(n_dirs)};
-    std::filesystem::path empty_dir = (std::filesystem::is_empty(last_dir)) ? last_dir :
-                                      optim_dir/name_experiment_directory(n_dirs+1);
+
+    std::filesystem::path empty_dir;
+    if (!n_dirs) {
+        empty_dir = optim_dir/name_experiment_directory(n_dirs+1);
+    }
+    else {
+        std::filesystem::path last_dir{optim_dir/name_experiment_directory(n_dirs)};
+        empty_dir = (std::filesystem::is_empty(last_dir)) ? last_dir :
+                    optim_dir/name_experiment_directory(n_dirs+1);
+    }
+
     std::filesystem::create_directory(empty_dir);
     return empty_dir;
 }
@@ -404,7 +412,11 @@ std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
 template<class Simulator>
 void use_genetic_algorithm(Simulator&& simulator, json&& settings)
 {
-    std::cout << std::setw(4) << settings << std::endl;
+    std::filesystem::path data_dir{"../../src/data"};
+    std::filesystem::path out_dir{data_dir/"out"};
+    std::filesystem::path optim_dir{out_dir/"genetic-algorithm"};
+    std::filesystem::create_directory(optim_dir);
+    std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
 
     constexpr std::size_t n_levels{4};
     using config_type = bazooka::configuration<n_levels>;
@@ -416,7 +428,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
     std::vector<config_type> init_genes;
     genetic_algorithm::optimizer<config_type> optimizer;
 
-    std::size_t n_init_genes{1'000};
+    std::size_t n_init_genes{100};
     init_genes.reserve(n_init_genes);
     auto rand_genes = random::configuration_generator<n_levels>{open_sizes_gen, levels_gen, period_gen};
 
@@ -427,24 +439,34 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
         init_genes.emplace_back(rand_genes());
 
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
-    genetic_algorithm::progress_observer progress_observer;
+    using progress_observer_type = genetic_algorithm::progress_observer;
+    progress_observer_type progress_observer;
 
     auto last_generation = optimizer(init_genes,
             [&](const config_type& genes) -> double {
                 auto trader = create_trader(genes);
                 simulator(trader, stats_collector);
-                return static_cast<double>(stats_collector.get().template total_profit<percent>());
+                auto total_profit = static_cast<double>(stats_collector.get().template total_profit<percent>());
+                total_profit = (total_profit>=0.0) ? total_profit : 0.0;
+                return total_profit;
             },
             genetic_algorithm::roulette_selection{},
             genetic_algorithm::random_matchmaker<crossover_type::n_parents>{},
             crossover_type{},
             bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen},
             genetic_algorithm::en_block_replacement{},
-            genetic_algorithm::iteration_based_termination{255},
+            genetic_algorithm::iteration_based_termination{64},
             progress_observer);
 
-    std::cout << "last generation size: " << last_generation.size() << std::endl
-              << "n iterations: " << optimizer.it() << std::endl;
+    std::ofstream settings_file{experiment_dir/"settings.json"};
+    settings_file << std::setw(4) << settings << std::endl;
+
+    io::csv::writer<3> writer(experiment_dir/"progress.csv");
+    writer.write_header({"mean fitness", "best fitness", "population size"});
+    for (const auto& progress: progress_observer.get())
+        writer.write_row(std::get<progress_observer_type::mean_fitness_idx>(progress),
+                std::get<progress_observer_type::best_fitness_idx>(progress),
+                std::get<progress_observer_type::population_size_idx>(progress));
 };
 
 int main()
@@ -492,6 +514,6 @@ int main()
             {"averaging method", decltype(averager)::name}
     }});
 
-    use_simulated_annealing(std::move(simulator), std::move(settings));
+    use_genetic_algorithm(std::move(simulator), std::move(settings));
     return EXIT_SUCCESS;
 }

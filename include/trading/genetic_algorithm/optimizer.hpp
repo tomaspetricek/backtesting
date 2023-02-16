@@ -89,6 +89,7 @@ namespace trading::genetic_algorithm {
             std::vector<individual> parents, children;
             std::size_t select_n;
 
+            (observers.begin(*this), ...);
             while (current_generation_.size() && !termination(*this)) {
                 select_n = current_generation_.size();
                 parents.clear();
@@ -109,6 +110,7 @@ namespace trading::genetic_algorithm {
                 (observers.population_updated(*this), ...);
                 it_++;
             };
+            (observers.end(*this), ...);
 
             return current_generation_;
         }

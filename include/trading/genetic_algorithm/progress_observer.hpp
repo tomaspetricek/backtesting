@@ -12,15 +12,15 @@
 
 namespace trading::genetic_algorithm {
     class progress_observer {
-        std::vector<std::tuple<double, double>> progress_;
+        std::vector<std::tuple<double, double, std::size_t>> progress_;
 
     public:
-        static constexpr std::size_t mean_fitness_idx = 0, best_fitness_idx = 1;
+        static constexpr std::size_t mean_fitness_idx = 0, best_fitness_idx = 1, population_size_idx = 2;
 
         template<class Optimizer>
         void begin(const Optimizer& optimizer)
         {
-
+            progress_.clear();
         }
 
         template<class Optimizer>
@@ -32,9 +32,11 @@ namespace trading::genetic_algorithm {
                         sum += individual.fitness_value;
                         best = std::max(best, individual.fitness_value);
                     });
+            double mean{sum/optimizer.current_generation().size()};
+            progress_.template emplace_back(std::make_tuple(mean, best, optimizer.current_generation().size()));
             std::cout << "it: " << optimizer.it()
                       << ", population size: " << optimizer.current_generation().size()
-                      << ", mean fitness: " << sum/optimizer.current_generation().size()
+                      << ", mean fitness: " << mean
                       << ", best fitness: " << best << std::endl;
         }
 
@@ -42,6 +44,11 @@ namespace trading::genetic_algorithm {
         void end(const Optimizer& optimizer)
         {
 
+        }
+
+        auto get()
+        {
+            return progress_;
         }
     };
 }
