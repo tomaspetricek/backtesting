@@ -70,6 +70,7 @@ namespace trading::genetic_algorithm {
         std::vector<individual> current_generation_;
 
     public:
+        template<class... Observer>
         std::vector<individual> operator()(const std::vector<Genes>& init_genes,
                 FitnessFunction<Genes> auto&& fitness,
                 Selection<individual> auto&& selection,
@@ -77,7 +78,8 @@ namespace trading::genetic_algorithm {
                 Crossover<Genes> auto&& crossover,
                 Mutation<Genes> auto&& mutation,
                 Replacement<individual> auto&& replacement,
-                TerminationCriteria<optimizer<Genes>> auto&& termination)
+                TerminationCriteria<optimizer<Genes>> auto&& termination,
+                Observer& ... observers)
         {
             current_generation_.clear();
             current_generation_.reserve(init_genes.size());
@@ -104,13 +106,7 @@ namespace trading::genetic_algorithm {
                 // replace
                 current_generation_.clear();
                 replacement(parents, children, current_generation_);
-
-                // TODO: use observer instead
-                double sum = 0;
-                std::for_each(current_generation_.begin(), current_generation_.end(), [&](const auto& individual){
-                    sum += individual.fitness_value;
-                });
-                std::cout << "it: " << it_  << ", mean fitness: " <<  sum/current_generation_.size() << std::endl;
+                (observers.population_updated(*this), ...);
                 it_++;
             };
 

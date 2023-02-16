@@ -297,7 +297,7 @@ std::filesystem::path try_create_experiment_directory(const std::filesystem::pat
 }
 
 template<class Simulator>
-void use_simulated_annealing(std::vector<candle>&& candles, Simulator&& simulator, json&& candles_doc, json&& resampling_doc)
+void use_simulated_annealing(Simulator&& simulator, json&& candles_doc, json&& resampling_doc)
 {
     constexpr std::size_t n_levels = 4;
     using state_type = bazooka::state<n_levels>;
@@ -405,9 +405,10 @@ std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
 }
 
 template<class Simulator>
-void
-use_genetic_algorithm(std::vector<candle>&& candles, Simulator&& simulator, json&& candles_doc, json&& resampling_doc)
+void use_genetic_algorithm(Simulator&& simulator, settings_document&& settings)
 {
+    std::cout << std::setw(4) << settings.get() << std::endl;
+
     constexpr std::size_t n_levels{4};
     using config_type = bazooka::configuration<n_levels>;
     using trader_type = decltype(create_trader<n_levels>(config_type()));
@@ -418,7 +419,7 @@ use_genetic_algorithm(std::vector<candle>&& candles, Simulator&& simulator, json
     std::vector<config_type> init_genes;
     genetic_algorithm::optimizer<config_type> optimizer;
 
-    std::size_t n_init_genes{500};
+    std::size_t n_init_genes{1'000};
     init_genes.reserve(n_init_genes);
     auto rand_genes = random::configuration_generator<n_levels>{open_sizes_gen, levels_gen, period_gen};
 
@@ -429,6 +430,7 @@ use_genetic_algorithm(std::vector<candle>&& candles, Simulator&& simulator, json
         init_genes.emplace_back(rand_genes());
 
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
+    genetic_algorithm::progress_observer progress_observer;
 
     auto last_generation = optimizer(init_genes,
             [&](const config_type& genes) -> double {
@@ -441,7 +443,8 @@ use_genetic_algorithm(std::vector<candle>&& candles, Simulator&& simulator, json
             crossover_type{},
             bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen},
             genetic_algorithm::en_block_replacement{},
-            genetic_algorithm::iteration_based_termination{255});
+            genetic_algorithm::iteration_based_termination{255},
+            progress_observer);
 
     std::cout << "last generation size: " << last_generation.size() << std::endl
               << "n iterations: " << optimizer.it() << std::endl;
@@ -516,7 +519,9 @@ int main()
               << "count: " << candles.size() << std::endl
               << "duration: " << duration << std::endl;
 
-    json candles_doc = json{"candles", {
+    settings_document settings;
+
+    settings.candles_section({"candles", {
             {"from", candles.front().opened()},
             {"to", candles.back().opened()},
             {"count", candles.size()},
@@ -524,18 +529,18 @@ int main()
                     {"base", base},
                     {"quote", quote}
             }},
-    }};
+    }});
 
     // create simulator
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
     auto averager = candle::ohlc4{};
     trading::simulator simulator{candles, resampling_period, averager};
 
-    json resampling_doc = json{{"resampling", {
+    settings.resampling_section({"resampling", {
             {"period[min]", resampling_period.count()},
-            {"averaging method name", decltype(averager)::name}
-    }}};
+            {"averaging method", decltype(averager)::name}
+    }});
 
-    use_genetic_algorithm(std::move(candles), std::move(simulator), std::move(candles_doc), std::move(resampling_doc));
+    use_genetic_algorithm(std::move(simulator), std::move(settings));
     return EXIT_SUCCESS;
 }
