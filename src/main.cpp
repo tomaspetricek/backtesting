@@ -171,31 +171,63 @@ void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen, st
     std::cout << "duration: " << duration << std::endl;
 }
 
+inline std::string name_experiment_directory(std::size_t num)
+{
+    return fmt::format("{:02d}", num);
+}
+
+std::filesystem::path try_create_experiment_directory(const std::filesystem::path& optim_dir)
+{
+    auto dir_it = std::filesystem::directory_iterator(optim_dir);
+    std::size_t n_dirs = std::count_if(
+            begin(dir_it),
+            end(dir_it),
+            [](const auto& entry) { return entry.is_directory(); }
+    );
+
+    std::filesystem::path empty_dir;
+    if (!n_dirs) {
+        empty_dir = optim_dir/name_experiment_directory(n_dirs+1);
+    }
+    else {
+        std::filesystem::path last_dir{optim_dir/name_experiment_directory(n_dirs)};
+        empty_dir = (std::filesystem::is_empty(last_dir)) ? last_dir :
+                    optim_dir/name_experiment_directory(n_dirs+1);
+    }
+
+    std::filesystem::create_directory(empty_dir);
+    return empty_dir;
+}
+
 template<class Simulator>
-int use_brute_force(std::vector<candle>&& candles, Simulator&& simulator, json&& candles_doc, json&& resampling_doc)
+int use_brute_force(Simulator&& simulator, json&& settings)
 {
     constexpr std::size_t n_levels{4};
     using state_type = bazooka::state<n_levels>;
     using stats_type = state_type::stats_type;
     using config_type = state_type::config_type;
     using trader_type = decltype(create_trader<n_levels>(config_type()));
-    std::filesystem::path out_dir{"../../src/data/out"};
+
+    std::filesystem::path data_dir{"../../src/data"};
+    std::filesystem::path out_dir{data_dir/"out"};
+    std::filesystem::path optim_dir{out_dir/"brute-force"};
+    std::filesystem::create_directory(optim_dir);
+    std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
 
     auto optim_criteria = [](const state_type& rhs, const state_type& lhs) {
         return rhs.stats.net_profit()>=lhs.stats.net_profit();
     };
     auto restrictions = [](const stats_type&) { return true; };
 
-    std::size_t levels_unique_fracs{n_levels+1};
-    fraction_t levels_max_frac{1, 2};
     std::size_t open_sizes_unique_fracs{n_levels+1};
-    systematic::levels_generator<n_levels> levels_gen{levels_unique_fracs};
-    systematic::sizes_generator<n_levels> sizes_gen{open_sizes_unique_fracs};
+    systematic::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
+    systematic::sizes_generator<n_levels> sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
+    const auto& period_doc = settings["search space"]["moving average"]["period"];
+    systematic::int_range periods_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
 
     // create search space
-    systematic::int_range mov_avg_periods{3, 36, 3};
     auto search_space = [&]() -> cppcoro::generator<config_type> {
-        for (std::size_t entry_period: mov_avg_periods())
+        for (std::size_t entry_period: periods_gen())
             for (const auto& entry_ma: {
                     bazooka::moving_average_type{indicator::sma{static_cast<std::size_t>(entry_period)}},
                     bazooka::moving_average_type{indicator::ema{static_cast<std::size_t>(entry_period)}}})
@@ -233,75 +265,28 @@ int use_brute_force(std::vector<candle>&& candles, Simulator&& simulator, json&&
               << "testing duration: " << duration << std::endl;
 
     // save results to json document
-    json res_doc;
+    json result_doc;
     for (const auto& top: result.get())
-        res_doc.emplace_back(top);
+        result_doc.emplace_back(top);
 
-    json setting_doc{{candles_doc,
-                      {"search space", {
-                              {"states count", n_states},
-                              {"levels", {
-                                      {"unique count", levels_unique_fracs},
-                                      {"max", levels_max_frac},
-                              }},
-                              {"open order sizes", {
-                                      {"unique count", open_sizes_unique_fracs}
-                              }},
-                              {"moving average", {
-                                      {"types", {"sma", "ema"}},
-                                      {"period", {
-                                              {"from", mov_avg_periods.from()},
-                                              {"to", mov_avg_periods.to()},
-                                              {"step", mov_avg_periods.step()}
-                                      }}
-                              }},
-                      }},
-                      resampling_doc,
-                     }};
+    settings.emplace(json{{"duration[ns]", duration.count()}});
 
-    json doc{{"setting",      setting_doc},
-             {"duration[ns]", duration.count()},
-             {"results",      res_doc}};
+    {
+        std::ofstream writer{experiment_dir/"results.json"};
+        writer << std::setw(4) << result_doc << std::endl;
+    }
+    {
+        std::ofstream writer{experiment_dir/"settings.json"};
+        writer << std::setw(4) << settings << std::endl;
+    }
 
-    std::string filename{fmt::format("{}-results.json", "")};
-    std::ofstream writer{out_dir/filename};
-    writer << std::setw(4) << doc;
-
-    auto config = result.get()[0].config;
-    chart_series<n_levels>::collector<typename Simulator::trader_type> series_collector;
-    stats_type::collector<typename Simulator::trader_type> stats_collector;
-    simulator(config, stats_collector);
-    std::filesystem::path best_dir{out_dir/"best-series"};
-    std::filesystem::create_directory(best_dir);
+//    auto config = result.get()[0].config;
+//    chart_series<n_levels>::collector<typename Simulator::trader_type> series_collector;
+//    stats_type::collector<typename Simulator::trader_type> stats_collector;
+//    simulator(config, stats_collector);
+//    std::filesystem::path best_dir{out_dir/"best-series"};
+//    std::filesystem::create_directory(best_dir);
 //    to_csv(series_collector.get(), best_dir);
-}
-
-inline std::string name_experiment_directory(std::size_t num)
-{
-    return fmt::format("{:02d}", num);
-}
-
-std::filesystem::path try_create_experiment_directory(const std::filesystem::path& optim_dir)
-{
-    auto dir_it = std::filesystem::directory_iterator(optim_dir);
-    std::size_t n_dirs = std::count_if(
-            begin(dir_it),
-            end(dir_it),
-            [](const auto& entry) { return entry.is_directory(); }
-    );
-
-    std::filesystem::path empty_dir;
-    if (!n_dirs) {
-        empty_dir = optim_dir/name_experiment_directory(n_dirs+1);
-    }
-    else {
-        std::filesystem::path last_dir{optim_dir/name_experiment_directory(n_dirs)};
-        empty_dir = (std::filesystem::is_empty(last_dir)) ? last_dir :
-                    optim_dir/name_experiment_directory(n_dirs+1);
-    }
-
-    std::filesystem::create_directory(empty_dir);
-    return empty_dir;
 }
 
 template<class Simulator>
@@ -324,9 +309,10 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings)
     };
     auto restrictions = [](const state_type&) { return true; };
 
-    random::sizes_generator<n_levels> open_sizes_gen{30};
-    random::levels_generator<n_levels> levels_gen{30};
-    random::int_range period_gen{1, 60, 1};
+    random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
+    random::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
+    const auto& period_doc = settings["search space"]["moving average"]["period"];
+    random::int_range period_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
     bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
     bazooka::configuration<n_levels> init_config{indicator::sma{static_cast<std::size_t>(period_gen())},
                                                  levels_gen(), open_sizes_gen()};
@@ -372,23 +358,6 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings)
             {"type", decltype(cooler)::name},
 //                     {"decay", cooler.decay()}
     }});
-    settings.emplace(json{"search space", {
-            {"levels", {
-                    {"count", n_levels},
-                    {"unique count", levels_gen.unique_count()},
-            }},
-            {"open order sizes", {
-                    {"unique count", open_sizes_gen.unique_count()}
-            }},
-            {"moving average", {
-                    {"types", {"sma", "ema"}},
-                    {"period", {
-                            {"from", period_gen.from()},
-                            {"to", period_gen.to()},
-                            {"step", period_gen.step()}
-                    }}
-            }},
-    }});
 
     std::ofstream settings_file{experiment_dir/"settings.json"};
     settings_file << std::setw(4) << settings << std::endl;
@@ -422,9 +391,10 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
     using config_type = bazooka::configuration<n_levels>;
     using trader_type = decltype(create_trader<n_levels>(config_type()));
 
-    random::sizes_generator<n_levels> open_sizes_gen{30};
-    random::levels_generator<n_levels> levels_gen{30};
-    random::int_range period_gen{1, 60, 1};
+    random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
+    random::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
+    const auto& period_doc = settings["search space"]["moving average"]["period"];
+    random::int_range period_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
     std::vector<config_type> init_genes;
     genetic_algorithm::optimizer<config_type> optimizer;
 
@@ -459,7 +429,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
             crossover_type{},
             bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen},
             genetic_algorithm::en_block_replacement{},
-            genetic_algorithm::iteration_based_termination{120},
+            genetic_algorithm::iteration_based_termination{100},
             progress_observer);
     });
     std::cout << "duration: " << duration << std::endl;
@@ -509,6 +479,24 @@ int main()
             {"currency pair", {
                     {"base", base},
                     {"quote", quote}
+            }},
+    }});
+
+    settings.emplace(json{"search space", {
+            {"levels", {
+                    {"count", n_levels},
+                    {"unique count", 30},
+            }},
+            {"open order sizes", {
+                    {"unique count", 30}
+            }},
+            {"moving average", {
+                    {"types", {"sma", "ema"}},
+                    {"period", {
+                            {"from", 1},
+                            {"to", 60},
+                            {"step", 1}
+                    }}
             }},
     }});
 
