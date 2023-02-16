@@ -50,7 +50,6 @@
 #include <trading/pack.hpp>
 #include <trading/resampler.hpp>
 #include <trading/result.hpp>
-#include <trading/settings_document.hpp>
 #include <trading/side.hpp>
 #include <trading/table.hpp>
 #include <trading/simulator.hpp>

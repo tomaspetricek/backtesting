@@ -8,13 +8,15 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <tuple>
 
 namespace trading::genetic_algorithm {
-    struct progress_observer {
-        std::vector<double> mean_fitness;
-        std::vector<double> best_fitness;
+    class progress_observer {
+        std::vector<std::tuple<double, double>> progress_;
 
     public:
+        static constexpr std::size_t mean_fitness_idx = 0, best_fitness_idx = 1;
+
         template<class Optimizer>
         void begin(const Optimizer& optimizer)
         {

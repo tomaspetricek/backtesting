@@ -297,7 +297,7 @@ std::filesystem::path try_create_experiment_directory(const std::filesystem::pat
 }
 
 template<class Simulator>
-void use_simulated_annealing(Simulator&& simulator, json&& candles_doc, json&& resampling_doc)
+void use_simulated_annealing(Simulator&& simulator, json&& settings)
 {
     constexpr std::size_t n_levels = 4;
     using state_type = bazooka::state<n_levels>;
@@ -324,7 +324,7 @@ void use_simulated_annealing(Simulator&& simulator, json&& candles_doc, json&& r
                                                  levels_gen(), open_sizes_gen()};
 
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
-    simulator(init_config, stats_collector);
+    simulator(create_trader(init_config), stats_collector);
     state_type init_state{init_config, stats_collector.get()};
 
     double start_temp{128}, min_temp{26};
@@ -333,7 +333,8 @@ void use_simulated_annealing(Simulator&& simulator, json&& candles_doc, json&& r
     auto cooler = simulated_annealing::basic_cooler{};
     simulated_annealing::optimizer optimizer{start_temp, min_temp};
     enumerative_result<state_type> result{n_best, optim_criteria};
-    simulated_annealing::progress_observer<state_type> progress_observer;
+    using progress_observer_type = simulated_annealing::progress_observer<state_type>;
+    progress_observer_type progress_observer;
 
     auto equilibrium = simulated_annealing::iteration_based_equilibrium{n_tries};
 
@@ -341,8 +342,7 @@ void use_simulated_annealing(Simulator&& simulator, json&& candles_doc, json&& r
         optimizer(init_state, result, restrictions, cooler,
                 [&](const state_type& origin) {
                     auto config = neighbor(origin.config);
-                    auto trader = create_trader(config);
-                    simulator(config, stats_collector);
+                    simulator(create_trader(config), stats_collector);
                     return state_type{config, stats_collector.get()};
                 },
                 [](const state_type& current, const state_type& candidate) -> double {
@@ -353,47 +353,44 @@ void use_simulated_annealing(Simulator&& simulator, json&& candles_doc, json&& r
     });
     std::cout << "duration: " << duration << std::endl;
 
-    json settings_doc{
-            {{"optimizer", {
-                    {"start temperature", optimizer.start_temperature()},
-                    {"minimum temperature", optimizer.minimum_temperature()},
-                    {"equilibrium", {
-                            {"tries count", equilibrium.tries_count()},
+    settings.emplace(json{"optimizer", {
+            {"start temperature", optimizer.start_temperature()},
+            {"minimum temperature", optimizer.minimum_temperature()},
+            {"equilibrium", {
+                    {"tries count", equilibrium.tries_count()},
+            }}
+    }});
+    settings.emplace(json{"cooler", {
+            {"type", decltype(cooler)::name},
+//                     {"decay", cooler.decay()}
+    }});
+    settings.emplace(json{"search space", {
+            {"levels", {
+                    {"count", n_levels},
+                    {"unique count", levels_gen.unique_count()},
+            }},
+            {"open order sizes", {
+                    {"unique count", open_sizes_gen.unique_count()}
+            }},
+            {"moving average", {
+                    {"types", {"sma", "ema"}},
+                    {"period", {
+                            {"from", period_gen.from()},
+                            {"to", period_gen.to()},
+                            {"step", period_gen.step()}
                     }}
             }},
-             {"cooler", {
-                     {"type", decltype(cooler)::name},
-//                     {"decay", cooler.decay()}
-             }},
-             candles_doc,
-             {"search space", {
-                     {"levels", {
-                             {"count", n_levels},
-                             {"unique count", levels_gen.unique_count()},
-                     }},
-                     {"open order sizes", {
-                             {"unique count", open_sizes_gen.unique_count()}
-                     }},
-                     {"moving average", {
-                             {"types", {"sma", "ema"}},
-                             {"period", {
-                                     {"from", period_gen.from()},
-                                     {"to", period_gen.to()},
-                                     {"step", period_gen.step()}
-                             }}
-                     }},
-             }},
-             resampling_doc,
-            }};
+    }});
 
     std::ofstream settings_file{experiment_dir/"settings.json"};
-    settings_file << std::setw(4) << settings_doc;
+    settings_file << std::setw(4) << settings << std::endl;
 
-    io::csv::writer<3> writer(experiment_dir/"iteration-progress.csv");
+    io::csv::writer<3> writer(experiment_dir/"progress.csv");
     writer.write_header({"curr state net profit", "temperature", "mean threshold worse acceptance"});
-    for (const auto& [net_profit, temperature, threshold]: zip(progress_observer.curr_state_net_profits,
-            progress_observer.temperature, progress_observer.worse_acceptance_mean_thresholds))
-        writer.write_row(net_profit, temperature, threshold);
+    for (const auto& progress: progress_observer.get())
+        writer.write_row(std::get<progress_observer_type::curr_state_net_profit_idx>(progress),
+                std::get<progress_observer_type::temperature_idx>(progress),
+                std::get<progress_observer_type::worse_acceptance_mean_threshold_idx>(progress));
 
     std::ofstream results_file{experiment_dir/"results.json"};
     results_file << std::setw(4) << json{result.get()};
@@ -405,9 +402,9 @@ std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
 }
 
 template<class Simulator>
-void use_genetic_algorithm(Simulator&& simulator, settings_document&& settings)
+void use_genetic_algorithm(Simulator&& simulator, json&& settings)
 {
-    std::cout << std::setw(4) << settings.get() << std::endl;
+    std::cout << std::setw(4) << settings << std::endl;
 
     constexpr std::size_t n_levels{4};
     using config_type = bazooka::configuration<n_levels>;
@@ -452,50 +449,6 @@ void use_genetic_algorithm(Simulator&& simulator, settings_document&& settings)
 
 int main()
 {
-    {
-        genetic_algorithm::random_matchmaker<2> matchmaker{};
-        std::vector<int> vec{1, 2, 3, 4, 5, 6, 7};
-        for (const auto& match: matchmaker(vec))
-            fmt::print("{}\n", fmt::join(match, ", "));
-    }
-
-    std::size_t max_it{100'000};
-    {
-        constexpr std::size_t n_levels{4};
-        random::sizes_generator<n_levels> sizes_gen{30};
-        auto mother = sizes_gen();
-        auto father = sizes_gen();
-        auto crossover = bazooka::sizes_crossover<n_levels>{};
-
-        fmt::print("mother: {}\n", fmt::join(mother, ", "));
-        fmt::print("father: {}\n", fmt::join(father, ", "));
-        auto duration = measure_duration([&]() {
-            std::size_t it{0};
-            while (it++!=max_it)
-                volatile auto child = crossover(mother, father);
-        });
-        std::cout << "duration: " << duration << std::endl;
-    }
-
-    {
-        constexpr std::size_t n_levels{4};
-        using gen_type = trading::random::levels_generator<n_levels>;
-        gen_type levels_gen{10};
-        auto mother = levels_gen();
-        auto father = levels_gen();
-        bazooka::levels_crossover<n_levels> crossover;
-
-        auto duration = measure_duration([&]() {
-            std::size_t it{0};
-            while (it++!=max_it)
-                volatile auto child = crossover(mother, father);
-        });
-
-        fmt::print("mother: {}\n", fmt::join(mother, ", "));
-        fmt::print("father: {}\n", fmt::join(father, ", "));
-        std::cout << "duration: " << duration << std::endl;
-    }
-
     constexpr std::size_t n_levels{4};
 
     // read candles
@@ -519,9 +472,8 @@ int main()
               << "count: " << candles.size() << std::endl
               << "duration: " << duration << std::endl;
 
-    settings_document settings;
-
-    settings.candles_section({"candles", {
+    json settings;
+    settings.emplace(json{"candles", {
             {"from", candles.front().opened()},
             {"to", candles.back().opened()},
             {"count", candles.size()},
@@ -534,13 +486,12 @@ int main()
     // create simulator
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
     auto averager = candle::ohlc4{};
-    trading::simulator simulator{candles, resampling_period, averager};
-
-    settings.resampling_section({"resampling", {
+    trading::simulator simulator{std::move(candles), resampling_period, averager};
+    settings.emplace(json{"resampling", {
             {"period[min]", resampling_period.count()},
             {"averaging method", decltype(averager)::name}
     }});
 
-    use_genetic_algorithm(std::move(simulator), std::move(settings));
+    use_simulated_annealing(std::move(simulator), std::move(settings));
     return EXIT_SUCCESS;
 }

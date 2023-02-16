@@ -30,7 +30,7 @@ namespace trading {
         std::size_t resampling_period_;
 
     public:
-        simulator(const std::vector<candle>& candles, const std::chrono::minutes& resampling_period, Averager auto&& averager)
+        simulator(std::vector<candle>&& candles, const std::chrono::minutes& resampling_period, Averager auto&& averager)
                 :resampling_period_(resampling_period.count())
         {
             trading::resampler resampler{resampling_period_};
