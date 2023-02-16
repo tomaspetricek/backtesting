@@ -25,8 +25,8 @@ namespace trading {
         market market_;
         sizer<n_open> open_sizer_;
         sizer<n_close> close_sizer_;
-        order last_open_order_;
-        order last_close_order_;
+        order last_open_order_{};
+        order last_close_order_{};
 
         void create_open_order(const price_point& point)
         {

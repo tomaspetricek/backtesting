@@ -59,6 +59,10 @@ namespace trading::genetic_algorithm {
     concept FitnessFunction = std::invocable<ConcreteFitnessFunction, const Genes&> &&
             std::same_as<double, std::invoke_result_t<ConcreteFitnessFunction, const Genes&>>;
 
+    template<class ConcreteSizer>
+    concept Sizer = std::invocable<ConcreteSizer, std::size_t> &&
+            std::same_as<std::size_t, std::invoke_result_t<ConcreteSizer, std::size_t>>;
+
     template<class Genes>
     class optimizer {
         struct individual {
@@ -73,6 +77,7 @@ namespace trading::genetic_algorithm {
         template<class... Observer>
         std::vector<individual> operator()(const std::vector<Genes>& init_genes,
                 FitnessFunction<Genes> auto&& fitness,
+                Sizer auto&& sizer,
                 Selection<individual> auto&& selection,
                 Matchmaker<individual> auto&& match,
                 Crossover<Genes> auto&& crossover,
@@ -87,13 +92,11 @@ namespace trading::genetic_algorithm {
                 current_generation_.template emplace_back(std::move(individual{genes, fitness(genes)}));
 
             std::vector<individual> parents, children;
-            std::size_t select_n;
 
             (observers.begin(*this), ...);
             while (current_generation_.size() && !termination(*this)) {
-                select_n = current_generation_.size();
                 parents.clear();
-                selection(select_n, current_generation_, parents);
+                selection(sizer(current_generation_.size()), current_generation_, parents);
 
                 // mate
                 children.clear();

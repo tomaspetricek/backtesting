@@ -18,6 +18,7 @@
 #include <trading/genetic_algorithm/progress_observer.hpp>
 #include <trading/genetic_algorithm/replacement.hpp>
 #include <trading/genetic_algorithm/selection.hpp>
+#include <trading/genetic_algorithm/sizer.hpp>
 #include <trading/genetic_algorithm/termination.hpp>
 #include <trading/direction.hpp>
 #include <trading/market.hpp>

@@ -428,7 +428,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
     std::vector<config_type> init_genes;
     genetic_algorithm::optimizer<config_type> optimizer;
 
-    std::size_t n_init_genes{100};
+    std::size_t n_init_genes{1'024};
     init_genes.reserve(n_init_genes);
     auto rand_genes = random::configuration_generator<n_levels>{open_sizes_gen, levels_gen, period_gen};
 
@@ -438,11 +438,14 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
     for (std::size_t i{0}; i<n_init_genes; i++)
         init_genes.emplace_back(rand_genes());
 
+    settings.emplace(json{"initial genes count", n_init_genes});
+
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
     using progress_observer_type = genetic_algorithm::progress_observer;
     progress_observer_type progress_observer;
 
-    auto last_generation = optimizer(init_genes,
+    auto duration = measure_duration([&](){
+        optimizer(init_genes,
             [&](const config_type& genes) -> double {
                 auto trader = create_trader(genes);
                 simulator(trader, stats_collector);
@@ -450,13 +453,17 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
                 total_profit = (total_profit>=0.0) ? total_profit : 0.0;
                 return total_profit;
             },
+            genetic_algorithm::sizer{0.95},
             genetic_algorithm::roulette_selection{},
             genetic_algorithm::random_matchmaker<crossover_type::n_parents>{},
             crossover_type{},
             bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen},
             genetic_algorithm::en_block_replacement{},
-            genetic_algorithm::iteration_based_termination{64},
+            genetic_algorithm::iteration_based_termination{90},
             progress_observer);
+    });
+    std::cout << "duration: " << duration << std::endl;
+    settings.emplace(json{"duration[ns]", duration.count()});
 
     std::ofstream settings_file{experiment_dir/"settings.json"};
     settings_file << std::setw(4) << settings << std::endl;
