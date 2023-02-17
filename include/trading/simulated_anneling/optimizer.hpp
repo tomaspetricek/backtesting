@@ -27,6 +27,11 @@ namespace trading::simulated_annealing {
     concept Equilibrium = std::invocable<ConcreteEquilibrium> &&
             std::same_as<bool, std::invoke_result_t<ConcreteEquilibrium>>;
 
+    template<class ConcreteFunction, class Config>
+    concept ObjectiveFunction = std::invocable<ConcreteFunction, const Config&> &&
+            std::same_as<double, std::invoke_result_t<ConcreteFunction, const Config&>>;
+
+    template<class Config>
     class optimizer {
         double start_temp_, min_temp_, curr_temp_;
         random::real_generator<double> rand_prob_gen_{0.0, 1.0};
@@ -47,29 +52,41 @@ namespace trading::simulated_annealing {
         }
 
     public:
+        struct state {
+            Config config;
+            double value;
+        };
+
+        using state_type = state;
+
         explicit optimizer(double start_temp, double min_temp)
                 :start_temp_(validate_start_temp(min_temp, start_temp)), min_temp_(validate_min_temp(min_temp)),
                  curr_temp_(start_temp) { }
 
-        template<class State, class Result, class Restriction, class... Observer>
-        void operator()(const State& init_state, Result& res, const Restriction& restrict,
-                Cooler<optimizer> auto&& cooler, Neighbor<State> auto&& neighbor,
-                Appraiser<State> auto&& appraiser, Equilibrium auto&& equilibrium,
+        template<class Result, class Restriction, class... Observer>
+        void operator()(const Config& init_config, Result& result, const Restriction& restrict,
+                Cooler<optimizer> auto&& cooler,
+                ObjectiveFunction<Config> auto&& objective,
+                Neighbor<Config> auto&& neighbor,
+                Appraiser<state> auto&& appraiser,
+                Equilibrium auto&& equilibrium,
                 Observer& ... observers)
         {
-            State curr_state{init_state};
+            state curr_state{init_config, objective(init_config)};
             (observers.begin(*this, curr_state), ...);
+
             // frozen
             for (; curr_temp_>min_temp_; it_++) {
                 while (equilibrium()) {
-                    State candidate = neighbor(curr_state);
+                    Config config = neighbor(curr_state.config);
+                    state candidate = state{config, objective(config)};
 
-                    if (res.compare(candidate, curr_state)) {
+                    if (result.compare(candidate, curr_state)) {
                         curr_state = candidate;
                         (observers.better_accepted(*this), ...);
 
                         if (restrict(curr_state))
-                            res.update(curr_state);
+                            result.update(curr_state);
                     }
                     else {
                         double diff = appraiser(curr_state, candidate);

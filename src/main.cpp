@@ -203,10 +203,11 @@ template<class Simulator>
 int use_brute_force(Simulator&& simulator, json&& settings)
 {
     constexpr std::size_t n_levels{4};
-    using state_type = bazooka::state<n_levels>;
-    using stats_type = state_type::stats_type;
-    using config_type = state_type::config_type;
+    using stats_type = bazooka::statistics<n_levels>;
+    using config_type = bazooka::configuration<n_levels>;
     using trader_type = decltype(create_trader<n_levels>(config_type()));
+    using optimizer_type = brute_force::parallel::optimizer<config_type>;
+    using state_type = optimizer_type::state_type;
 
     std::filesystem::path data_dir{"../../src/data"};
     std::filesystem::path out_dir{data_dir/"out"};
@@ -215,11 +216,10 @@ int use_brute_force(Simulator&& simulator, json&& settings)
     std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
 
     auto optim_criteria = [](const state_type& rhs, const state_type& lhs) {
-        return rhs.stats.net_profit()>=lhs.stats.net_profit();
+        return rhs.value>=lhs.value;
     };
-    auto restrictions = [](const stats_type&) { return true; };
+    auto restrictions = [](const state_type&) { return true; };
 
-    std::size_t open_sizes_unique_fracs{n_levels+1};
     systematic::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
     systematic::sizes_generator<n_levels> sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
     const auto& period_doc = settings["search space"]["moving average"]["period"];
@@ -248,33 +248,32 @@ int use_brute_force(Simulator&& simulator, json&& settings)
     if (answer!='y') return EXIT_SUCCESS;
 
     // use brute force optimizer
-    brute_force::parallel::optimizer<state_type> optimize{};
+    optimizer_type optimize{};
     enumerative_result<state_type> result{30, optim_criteria};
 
     std::cout << "began testing: " << boost::posix_time::second_clock::local_time() << std::endl;
     auto duration = measure_duration(to_function([&] {
         optimize(result, restrictions,
-                [&](const auto& config) {
+                [&](const auto& config) -> double {
                     stats_type::template collector<trader_type> collector{};
-                    auto trader = create_trader(config);
-                    simulator(simulator, collector);
-                    return collector.get();
+                    simulator(create_trader(config), collector);
+                    return static_cast<double>(collector.get().total_profit<percent>());
                 }, search_space);
     }));
     std::cout << "ended testing: " << boost::posix_time::second_clock::local_time() << std::endl
               << "testing duration: " << duration << std::endl;
 
-    // save results to json document
-    json result_doc;
-    for (const auto& top: result.get())
-        result_doc.emplace_back(top);
+//    // save results to json document
+//    json result_doc;
+//    for (const auto& top: result.get())
+//        result_doc.emplace_back(top);
 
     settings.emplace(json{{"duration[ns]", duration.count()}});
 
-    {
-        std::ofstream writer{experiment_dir/"results.json"};
-        writer << std::setw(4) << result_doc << std::endl;
-    }
+//    {
+//        std::ofstream writer{experiment_dir/"results.json"};
+//        writer << std::setw(4) << result_doc << std::endl;
+//    }
     {
         std::ofstream writer{experiment_dir/"settings.json"};
         writer << std::setw(4) << settings << std::endl;
@@ -293,8 +292,8 @@ template<class Simulator>
 void use_simulated_annealing(Simulator&& simulator, json&& settings)
 {
     constexpr std::size_t n_levels = 4;
-    using state_type = bazooka::state<n_levels>;
-    using config_type = state_type::config_type;
+    using config_type = bazooka::configuration<n_levels>;
+    using state_type = simulated_annealing::optimizer<config_type>::state_type;
     using trader_type = typename std::invoke_result<decltype(create_trader<n_levels>), config_type>::type;
 
     std::filesystem::path data_dir{"../../src/data"};
@@ -305,9 +304,9 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings)
 
     std::size_t n_best{30};
     auto optim_criteria = [](const state_type& rhs, const state_type& lhs) {
-        return rhs.stats.net_profit()>=lhs.stats.net_profit();
+        return rhs.value>=lhs.value;
     };
-    auto restrictions = [](const state_type&) { return true; };
+    auto restrictions = [](const auto&) { return true; };
 
     random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
     random::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
@@ -319,28 +318,27 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings)
 
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
     simulator(create_trader(init_config), stats_collector);
-    state_type init_state{init_config, stats_collector.get()};
 
     double start_temp{128}, min_temp{26};
     std::size_t n_tries{256};
 //    float decay{50};
     auto cooler = simulated_annealing::basic_cooler{};
-    simulated_annealing::optimizer optimizer{start_temp, min_temp};
+    simulated_annealing::optimizer<config_type> optimizer{start_temp, min_temp};
     enumerative_result<state_type> result{n_best, optim_criteria};
-    using progress_observer_type = simulated_annealing::progress_observer<state_type>;
+    using progress_observer_type = simulated_annealing::progress_observer<config_type>;
     progress_observer_type progress_observer;
 
     auto equilibrium = simulated_annealing::iteration_based_equilibrium{n_tries};
 
     auto duration = measure_duration([&]() {
-        optimizer(init_state, result, restrictions, cooler,
-                [&](const state_type& origin) {
-                    auto config = neighbor(origin.config);
+        optimizer(init_config, result, restrictions, cooler,
+                [&](const auto& config) -> double {
                     simulator(create_trader(config), stats_collector);
-                    return state_type{config, stats_collector.get()};
+                    return static_cast<double>(stats_collector.get().total_profit<percent>());
                 },
+                neighbor,
                 [](const state_type& current, const state_type& candidate) -> double {
-                    return current.stats.total_profit<percent>()-candidate.stats.total_profit<percent>();
+                    return current.value-candidate.value;
                 },
                 equilibrium,
                 progress_observer);
@@ -369,8 +367,8 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings)
                 std::get<progress_observer_type::temperature_idx>(progress),
                 std::get<progress_observer_type::worse_acceptance_mean_threshold_idx>(progress));
 
-    std::ofstream results_file{experiment_dir/"results.json"};
-    results_file << std::setw(4) << json{result.get()};
+//    std::ofstream results_file{experiment_dir/"results.json"};
+//    results_file << std::setw(4) << json{result.get()};
 }
 
 std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
@@ -508,6 +506,6 @@ int main()
             {"averaging method", decltype(averager)::name}
     }});
 
-    use_genetic_algorithm(std::move(simulator), std::move(settings));
+    use_simulated_annealing(std::move(simulator), std::move(settings));
     return EXIT_SUCCESS;
 }

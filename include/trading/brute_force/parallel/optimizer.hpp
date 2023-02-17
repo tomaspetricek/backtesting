@@ -11,33 +11,40 @@
 #include <trading/state.hpp>
 
 namespace trading::brute_force::parallel {
-    template<class ConcreteFunction, class State>
-    concept ObjectiveFunction = std::invocable<ConcreteFunction, const typename State::config_type&> &&
-            std::same_as<typename State::stats_type, std::invoke_result_t<ConcreteFunction, const typename State::config_type&>>;
+    template<class ConcreteFunction, class Config>
+    concept ObjectiveFunction = std::invocable<ConcreteFunction, const Config&> &&
+            std::same_as<double, std::invoke_result_t<ConcreteFunction, const Config&>>;
 
-    template<class ConcreteSearchSpace, class State>
+    template<class ConcreteSearchSpace, class Config>
     concept SearchSpace = std::invocable<ConcreteSearchSpace> &&
-            std::same_as<cppcoro::generator<typename State::config_type>, std::invoke_result_t<ConcreteSearchSpace>>;
+            std::same_as<cppcoro::generator<Config>, std::invoke_result_t<ConcreteSearchSpace>>;
 
-    template<class State>
+    template<class Config>
     struct optimizer {
+        struct state {
+            Config config;
+            double value;
+        };
+
+        using state_type = state;
+
         template<class Result, class Restriction>
-        void operator()(Result& res, const Restriction& restrict,
-                ObjectiveFunction<State> auto&& objective_func,
-                SearchSpace<State> auto&& search_space) const
+        void operator()(Result& result, const Restriction& restrict,
+                ObjectiveFunction<Config> auto&& objective_func,
+                SearchSpace<Config> auto&& search_space) const
         {
             #pragma omp parallel
             {
                 #pragma omp single
                 {
-                    for (const typename State::config_type& curr: search_space()) {
+                    for (const Config& curr_config: search_space()) {
                         #pragma omp task
                         {
                             try {
-                                auto stats = objective_func(curr);
-                                if (restrict(stats)) {
+                                auto curr_state = state{curr_config, objective_func(curr_config)};
+                                if (restrict(curr_state)) {
                                     #pragma omp critical
-                                    res.update(State{curr, stats});
+                                    result.update(curr_state);
                                 }
                             }
                             catch (...) {
