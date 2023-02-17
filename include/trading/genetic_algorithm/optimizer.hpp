@@ -48,8 +48,8 @@ namespace trading::genetic_algorithm {
 
     template<class ConcreteReplacement, class Individual>
     concept Replacement =
-    std::invocable<ConcreteReplacement, const std::vector<Individual>&, const std::vector<Individual>&, std::vector<Individual>&>
-            && std::same_as<void, std::invoke_result_t<ConcreteReplacement, const std::vector<Individual>&, const std::vector<Individual>&, std::vector<Individual>&>>;
+    std::invocable<ConcreteReplacement, std::vector<Individual>&, std::vector<Individual>&, std::vector<Individual>&>
+            && std::same_as<void, std::invoke_result_t<ConcreteReplacement, std::vector<Individual>&, std::vector<Individual>&, std::vector<Individual>&>>;
 
     template<class ConcreteMatchmaker, class Individual>
     concept Matchmaker = std::invocable<ConcreteMatchmaker, std::vector<Individual>&>
@@ -67,7 +67,7 @@ namespace trading::genetic_algorithm {
     class optimizer {
         struct individual {
             Genes genes;
-            double fitness_value;
+            double fitness;
         };
 
         std::size_t it_{0};
@@ -76,7 +76,7 @@ namespace trading::genetic_algorithm {
     public:
         template<class... Observer>
         std::vector<individual> operator()(const std::vector<Genes>& init_genes,
-                FitnessFunction<Genes> auto&& fitness,
+                FitnessFunction<Genes> auto&& compute_fitness,
                 PopulationSizer auto&& sizer,
                 Selection<individual> auto&& selection,
                 Matchmaker<individual> auto&& match,
@@ -89,7 +89,7 @@ namespace trading::genetic_algorithm {
             population_.clear();
             population_.reserve(init_genes.size());
             for (const auto& genes: init_genes)
-                population_.template emplace_back(std::move(individual{genes, fitness(genes)}));
+                population_.template emplace_back(std::move(individual{genes, compute_fitness(genes)}));
 
             std::vector<individual> parents, children;
 
@@ -103,7 +103,7 @@ namespace trading::genetic_algorithm {
                 for (const auto& mates: match(parents))
                     for (auto&& genes: crossover(mates)) {
                         genes = mutation(std::move(genes));
-                        auto child = individual{genes, fitness(genes)};
+                        auto child = individual{genes, compute_fitness(genes)};
                         children.template emplace_back(std::move(child));
                     }
 

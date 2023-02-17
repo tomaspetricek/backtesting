@@ -396,7 +396,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
     std::vector<config_type> init_genes;
     genetic_algorithm::optimizer<config_type> optimizer;
 
-    std::size_t n_init_genes{256};
+    std::size_t n_init_genes{1'000};
     init_genes.reserve(n_init_genes);
     auto rand_genes = random::configuration_generator<n_levels>{open_sizes_gen, levels_gen, period_gen};
     settings.emplace(json{"initial genes count", n_init_genes});
@@ -414,8 +414,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
     auto duration = measure_duration([&]() {
         optimizer(init_genes,
                 [&](const config_type& genes) -> double {
-                    auto trader = create_trader(genes);
-                    simulator(trader, stats_collector);
+                    simulator(create_trader(genes), stats_collector);
                     auto total_profit = static_cast<double>(stats_collector.get().template total_profit<percent>());
                     total_profit = (total_profit>=0.0) ? total_profit : 0.0;
                     return total_profit;
@@ -425,7 +424,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
                 genetic_algorithm::random_matchmaker<crossover_type::n_parents>{},
                 crossover_type{},
                 bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen},
-                genetic_algorithm::en_block_replacement{},
+                genetic_algorithm::elitism_replacement{{1, 10}},
                 genetic_algorithm::iteration_based_termination{100},
                 progress_observer);
     });
@@ -506,6 +505,6 @@ int main()
             {"averaging method", decltype(averager)::name}
     }});
 
-    use_simulated_annealing(std::move(simulator), std::move(settings));
+    use_genetic_algorithm(std::move(simulator), std::move(settings));
     return EXIT_SUCCESS;
 }

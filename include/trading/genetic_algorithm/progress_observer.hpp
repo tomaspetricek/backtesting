@@ -29,8 +29,8 @@ namespace trading::genetic_algorithm {
             double sum{0}, best{0};
             std::for_each(optimizer.population().begin(), optimizer.population().end(),
                     [&](const auto& individual) {
-                        sum += individual.fitness_value;
-                        best = std::max(best, individual.fitness_value);
+                        sum += individual.fitness;
+                        best = std::max(best, individual.fitness);
                     });
             double mean{sum/optimizer.population().size()};
             progress_.template emplace_back(std::make_tuple(mean, best, optimizer.population().size()));

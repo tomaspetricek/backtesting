@@ -22,7 +22,7 @@ namespace trading::genetic_algorithm {
             fitness_vals_.clear();
             fitness_vals_.reserve(population.size());
             std::for_each(population.begin(), population.end(), [&](const auto& individual) {
-                fitness_vals_.template emplace_back(individual.fitness_value);
+                fitness_vals_.template emplace_back(individual.fitness);
             });
 
             distrib_.param(

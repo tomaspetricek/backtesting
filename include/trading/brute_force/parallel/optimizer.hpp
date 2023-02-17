@@ -30,7 +30,7 @@ namespace trading::brute_force::parallel {
 
         template<class Result, class Restriction>
         void operator()(Result& result, const Restriction& restrict,
-                ObjectiveFunction<Config> auto&& objective_func,
+                ObjectiveFunction<Config> auto&& objective,
                 SearchSpace<Config> auto&& search_space) const
         {
             #pragma omp parallel
@@ -41,7 +41,7 @@ namespace trading::brute_force::parallel {
                         #pragma omp task
                         {
                             try {
-                                auto curr_state = state{curr_config, objective_func(curr_config)};
+                                auto curr_state = state{curr_config, objective(curr_config)};
                                 if (restrict(curr_state)) {
                                     #pragma omp critical
                                     result.update(curr_state);
