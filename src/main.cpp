@@ -381,15 +381,15 @@ std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
 template<class Simulator>
 void use_genetic_algorithm(Simulator&& simulator, json&& settings)
 {
+    constexpr std::size_t n_levels{4};
+    using config_type = bazooka::configuration<n_levels>;
+    using trader_type = decltype(create_trader<n_levels>(config_type()));
+
     std::filesystem::path data_dir{"../../src/data"};
     std::filesystem::path out_dir{data_dir/"out"};
     std::filesystem::path optim_dir{out_dir/"genetic-algorithm"};
     std::filesystem::create_directory(optim_dir);
     std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
-
-    constexpr std::size_t n_levels{4};
-    using config_type = bazooka::configuration<n_levels>;
-    using trader_type = decltype(create_trader<n_levels>(config_type()));
 
     random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
     random::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
@@ -401,6 +401,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
     std::size_t n_init_genes{256};
     init_genes.reserve(n_init_genes);
     auto rand_genes = random::configuration_generator<n_levels>{open_sizes_gen, levels_gen, period_gen};
+    settings.emplace(json{"initial genes count", n_init_genes});
 
     constexpr std::size_t n_children{2};
     using crossover_type = bazooka::configuration_crossover<n_levels, n_children>;
@@ -408,29 +409,27 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
     for (std::size_t i{0}; i<n_init_genes; i++)
         init_genes.emplace_back(rand_genes());
 
-    settings.emplace(json{"initial genes count", n_init_genes});
-
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
     using progress_observer_type = genetic_algorithm::progress_observer;
     progress_observer_type progress_observer;
 
-    auto duration = measure_duration([&](){
+    auto duration = measure_duration([&]() {
         optimizer(init_genes,
-            [&](const config_type& genes) -> double {
-                auto trader = create_trader(genes);
-                simulator(trader, stats_collector);
-                auto total_profit = static_cast<double>(stats_collector.get().template total_profit<percent>());
-                total_profit = (total_profit>=0.0) ? total_profit : 0.0;
-                return total_profit;
-            },
-            genetic_algorithm::sizer{0.99},
-            genetic_algorithm::roulette_selection{},
-            genetic_algorithm::random_matchmaker<crossover_type::n_parents>{},
-            crossover_type{},
-            bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen},
-            genetic_algorithm::en_block_replacement{},
-            genetic_algorithm::iteration_based_termination{100},
-            progress_observer);
+                [&](const config_type& genes) -> double {
+                    auto trader = create_trader(genes);
+                    simulator(trader, stats_collector);
+                    auto total_profit = static_cast<double>(stats_collector.get().template total_profit<percent>());
+                    total_profit = (total_profit>=0.0) ? total_profit : 0.0;
+                    return total_profit;
+                },
+                genetic_algorithm::sizer{0.99},
+                genetic_algorithm::roulette_selection{},
+                genetic_algorithm::random_matchmaker<crossover_type::n_parents>{},
+                crossover_type{},
+                bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen},
+                genetic_algorithm::en_block_replacement{},
+                genetic_algorithm::iteration_based_termination{100},
+                progress_observer);
     });
     std::cout << "duration: " << duration << std::endl;
     settings.emplace(json{"duration[ns]", duration.count()});

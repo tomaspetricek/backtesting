@@ -60,7 +60,7 @@ namespace trading::genetic_algorithm {
             std::same_as<double, std::invoke_result_t<ConcreteFitnessFunction, const Genes&>>;
 
     template<class ConcreteSizer>
-    concept Sizer = std::invocable<ConcreteSizer, std::size_t> &&
+    concept PopulationSizer = std::invocable<ConcreteSizer, std::size_t> &&
             std::same_as<std::size_t, std::invoke_result_t<ConcreteSizer, std::size_t>>;
 
     template<class Genes>
@@ -71,13 +71,13 @@ namespace trading::genetic_algorithm {
         };
 
         std::size_t it_{0};
-        std::vector<individual> current_generation_;
+        std::vector<individual> population_;
 
     public:
         template<class... Observer>
         std::vector<individual> operator()(const std::vector<Genes>& init_genes,
                 FitnessFunction<Genes> auto&& fitness,
-                Sizer auto&& sizer,
+                PopulationSizer auto&& sizer,
                 Selection<individual> auto&& selection,
                 Matchmaker<individual> auto&& match,
                 Crossover<Genes> auto&& crossover,
@@ -86,17 +86,17 @@ namespace trading::genetic_algorithm {
                 TerminationCriteria<optimizer<Genes>> auto&& termination,
                 Observer& ... observers)
         {
-            current_generation_.clear();
-            current_generation_.reserve(init_genes.size());
+            population_.clear();
+            population_.reserve(init_genes.size());
             for (const auto& genes: init_genes)
-                current_generation_.template emplace_back(std::move(individual{genes, fitness(genes)}));
+                population_.template emplace_back(std::move(individual{genes, fitness(genes)}));
 
             std::vector<individual> parents, children;
 
             (observers.begin(*this), ...);
-            while (current_generation_.size() && !termination(*this)) {
+            while (population_.size() && !termination(*this)) {
                 parents.clear();
-                selection(sizer(current_generation_.size()), current_generation_, parents);
+                selection(sizer(population_.size()), population_, parents);
 
                 // mate
                 children.clear();
@@ -108,14 +108,14 @@ namespace trading::genetic_algorithm {
                     }
 
                 // replace
-                current_generation_.clear();
-                replacement(parents, children, current_generation_);
+                population_.clear();
+                replacement(parents, children, population_);
                 (observers.population_updated(*this), ...);
                 it_++;
             };
             (observers.end(*this), ...);
 
-            return current_generation_;
+            return population_;
         }
 
         std::size_t it() const
@@ -123,9 +123,9 @@ namespace trading::genetic_algorithm {
             return it_;
         }
 
-        const std::vector<individual>& current_generation() const
+        const std::vector<individual>& population() const
         {
-            return current_generation_;
+            return population_;
         }
     };
 }

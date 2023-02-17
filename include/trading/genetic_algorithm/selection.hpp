@@ -20,11 +20,13 @@ namespace trading::genetic_algorithm {
         void operator()(std::size_t select_n, const std::vector<Individual>& population, std::vector<Individual>& parents)
         {
             fitness_vals_.clear();
+            fitness_vals_.reserve(population.size());
             std::for_each(population.begin(), population.end(), [&](const auto& individual) {
                 fitness_vals_.template emplace_back(individual.fitness_value);
             });
 
-            distrib_.param(std::discrete_distribution<std::size_t>::param_type(fitness_vals_.begin(), fitness_vals_.end()));
+            distrib_.param(
+                    std::discrete_distribution<std::size_t>::param_type(fitness_vals_.begin(), fitness_vals_.end()));
             parents.reserve(select_n);
 
             for (std::size_t i{0}; i<select_n; i++)

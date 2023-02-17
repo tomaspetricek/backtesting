@@ -27,15 +27,15 @@ namespace trading::genetic_algorithm {
         void population_updated(const Optimizer& optimizer)
         {
             double sum{0}, best{0};
-            std::for_each(optimizer.current_generation().begin(), optimizer.current_generation().end(),
+            std::for_each(optimizer.population().begin(), optimizer.population().end(),
                     [&](const auto& individual) {
                         sum += individual.fitness_value;
                         best = std::max(best, individual.fitness_value);
                     });
-            double mean{sum/optimizer.current_generation().size()};
-            progress_.template emplace_back(std::make_tuple(mean, best, optimizer.current_generation().size()));
+            double mean{sum/optimizer.population().size()};
+            progress_.template emplace_back(std::make_tuple(mean, best, optimizer.population().size()));
             std::cout << "it: " << optimizer.it()
-                      << ", population size: " << optimizer.current_generation().size()
+                      << ", population size: " << optimizer.population().size()
                       << ", mean fitness: " << mean
                       << ", best fitness: " << best << std::endl;
         }
