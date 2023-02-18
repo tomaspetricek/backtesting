@@ -9,7 +9,7 @@
 #include <vector>
 #include <cassert>
 #include <random>
-#include "cppcoro/generator.hpp"
+#include <cppcoro/generator.hpp>
 
 namespace trading::genetic_algorithm {
     template<std::size_t n_parents_>

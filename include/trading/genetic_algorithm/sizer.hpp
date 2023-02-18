@@ -8,11 +8,11 @@
 #include <array>
 
 namespace trading::genetic_algorithm {
-    class sizer {
+    class basic_sizer {
         float decay_{1.0};
 
     public:
-        explicit sizer(float decay)
+        explicit basic_sizer(float decay)
                 :decay_{decay} { }
 
         std::size_t operator()(std::size_t size) const

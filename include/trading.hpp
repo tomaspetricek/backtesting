@@ -15,7 +15,8 @@
 #include <trading/brute_force/parallel/optimizer.hpp>
 #include <trading/genetic_algorithm/matchmaker.hpp>
 #include <trading/genetic_algorithm/optimizer.hpp>
-#include <trading/genetic_algorithm/progress_observer.hpp>
+#include <trading/genetic_algorithm/progress_collector.hpp>
+#include <trading/genetic_algorithm/progress_reporter.hpp>
 #include <trading/genetic_algorithm/replacement.hpp>
 #include <trading/genetic_algorithm/selection.hpp>
 #include <trading/genetic_algorithm/sizer.hpp>

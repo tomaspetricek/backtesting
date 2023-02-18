@@ -5,11 +5,14 @@
 #include <type_traits>
 #include <set>
 #include <list>
+#include <utility>
+#include <memory>
 #include <trading.hpp>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <utility>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/tee.hpp>
 
 using json = nlohmann::json;
 using namespace trading;
@@ -376,18 +379,13 @@ std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
     return os << frac.numerator() << '/' << frac.denominator() << ")";
 }
 
-template<class Simulator>
-void use_genetic_algorithm(Simulator&& simulator, json&& settings)
+template<class Simulator, class Logger>
+void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::filesystem::path& experiment_dir,
+        std::shared_ptr<Logger> logger)
 {
     constexpr std::size_t n_levels{4};
     using config_type = bazooka::configuration<n_levels>;
     using trader_type = decltype(create_trader<n_levels>(config_type()));
-
-    std::filesystem::path data_dir{"../../src/data"};
-    std::filesystem::path out_dir{data_dir/"out"};
-    std::filesystem::path optim_dir{out_dir/"genetic-algorithm"};
-    std::filesystem::create_directory(optim_dir);
-    std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
 
     random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
     random::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
@@ -408,8 +406,26 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
         init_genes.emplace_back(rand_genes());
 
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
-    using progress_observer_type = genetic_algorithm::progress_observer;
-    progress_observer_type progress_observer;
+    using progress_collector_type = genetic_algorithm::progress_collector;
+    progress_collector_type collector;
+    genetic_algorithm::progress_reporter<Logger> reporter{logger};
+
+    auto sizer = genetic_algorithm::basic_sizer{0.99};
+    auto selection = genetic_algorithm::roulette_selection{};
+    auto matchmaker = genetic_algorithm::random_matchmaker<crossover_type::n_parents>{};
+    auto replacement = genetic_algorithm::elitism_replacement{{1, 10}};
+    auto termination = genetic_algorithm::iteration_based_termination{100};
+
+    settings.emplace(json{"optimizer", {
+            {"sizer", sizer},
+            {"selection", selection},
+            {"matchmaker", matchmaker},
+            {"replacement", replacement},
+            {"termination", termination},
+    }});
+
+    std::ofstream settings_file{experiment_dir/"settings.json"};
+    settings_file << std::setw(4) << settings << std::endl;
 
     auto duration = measure_duration([&]() {
         optimizer(init_genes,
@@ -419,27 +435,17 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings)
                     total_profit = (total_profit>=0.0) ? total_profit : 0.0;
                     return total_profit;
                 },
-                genetic_algorithm::sizer{0.99},
-                genetic_algorithm::roulette_selection{},
-                genetic_algorithm::random_matchmaker<crossover_type::n_parents>{},
-                crossover_type{},
+                sizer, selection, matchmaker, crossover_type{},
                 bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen},
-                genetic_algorithm::elitism_replacement{{1, 10}},
-                genetic_algorithm::iteration_based_termination{100},
-                progress_observer);
+                replacement, termination, collector, reporter);
     });
-    std::cout << "duration: " << duration << std::endl;
-    settings.emplace(json{"duration[ns]", duration.count()});
-
-    std::ofstream settings_file{experiment_dir/"settings.json"};
-    settings_file << std::setw(4) << settings << std::endl;
 
     io::csv::writer<3> writer(experiment_dir/"progress.csv");
     writer.write_header({"mean fitness", "best fitness", "population size"});
-    for (const auto& progress: progress_observer.get())
-        writer.write_row(std::get<progress_observer_type::mean_fitness_idx>(progress),
-                std::get<progress_observer_type::best_fitness_idx>(progress),
-                std::get<progress_observer_type::population_size_idx>(progress));
+    for (const auto& progress: collector.get())
+        writer.write_row(std::get<progress_collector_type::mean_fitness_idx>(progress),
+                std::get<progress_collector_type::best_fitness_idx>(progress),
+                std::get<progress_collector_type::population_size_idx>(progress));
 };
 
 int main()
@@ -449,6 +455,16 @@ int main()
     // read candles
     std::filesystem::path data_dir{"../../src/data"};
     std::filesystem::path in_dir{data_dir/"in"};
+    std::filesystem::path out_dir{data_dir/"out"};
+    std::filesystem::path optim_dir{out_dir/"genetic-algorithm"};
+    std::filesystem::create_directory(optim_dir);
+    std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
+
+    std::ofstream log_file{experiment_dir/"log.txt"};
+    typedef boost::iostreams::tee_device<std::ostream, std::ofstream> tee_type;
+    typedef boost::iostreams::stream<tee_type> tee_stream_type;
+    auto logger = std::make_shared<tee_stream_type>(tee_type{std::cout, log_file});
+
     std::string base{"eth"}, quote{"usdt"};
     std::filesystem::path candles_path{in_dir/fmt::format("ohlcv-{}-{}-1-min.csv", base, quote)};
 
@@ -460,12 +476,12 @@ int main()
 
     auto from = boost::posix_time::from_time_t(min_opened);
     auto to = boost::posix_time::from_time_t(max_opened);
-    std::cout << "candles read:" << std::endl
-              << "from: " << from << std::endl
-              << "to: " << to << std::endl
-              << "difference: " << std::chrono::nanoseconds((to-from).total_nanoseconds()) << std::endl
-              << "count: " << candles.size() << std::endl
-              << "duration: " << duration << std::endl;
+    *logger << "candles read:" << std::endl
+            << "from: " << from << std::endl
+            << "to: " << to << std::endl
+            << "difference: " << std::chrono::nanoseconds((to-from).total_nanoseconds()) << std::endl
+            << "count: " << candles.size() << std::endl
+            << "duration: " << duration << std::endl;
 
     json settings;
     settings.emplace(json{"candles", {
@@ -505,6 +521,6 @@ int main()
             {"averaging method", decltype(averager)::name}
     }});
 
-    use_genetic_algorithm(std::move(simulator), std::move(settings));
+    use_genetic_algorithm(std::move(simulator), std::move(settings), experiment_dir, logger);
     return EXIT_SUCCESS;
 }

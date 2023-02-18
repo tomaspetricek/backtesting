@@ -53,7 +53,7 @@ namespace trading::genetic_algorithm {
 
     template<class ConcreteMatchmaker, class Individual>
     concept Matchmaker = std::invocable<ConcreteMatchmaker, std::vector<Individual>&>
-            && std::same_as<cppcoro::generator<std::array<Individual, ConcreteMatchmaker::n_parents>>, std::invoke_result_t<ConcreteMatchmaker, std::vector<Individual>&>>;
+            && std::same_as<cppcoro::generator<std::array<Individual, std::remove_reference_t<ConcreteMatchmaker>::n_parents>>, std::invoke_result_t<ConcreteMatchmaker, std::vector<Individual>&>>;
 
     template<class ConcreteFitnessFunction, class Genes>
     concept FitnessFunction = std::invocable<ConcreteFitnessFunction, const Genes&> &&

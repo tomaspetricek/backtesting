@@ -11,14 +11,14 @@
 #include <tuple>
 
 namespace trading::genetic_algorithm {
-    class progress_observer {
+    class progress_collector {
         std::vector<std::tuple<double, double, std::size_t>> progress_;
 
     public:
         static constexpr std::size_t mean_fitness_idx = 0, best_fitness_idx = 1, population_size_idx = 2;
 
         template<class Optimizer>
-        void begin(const Optimizer& optimizer)
+        void begin(const Optimizer&)
         {
             progress_.clear();
         }
@@ -34,17 +34,10 @@ namespace trading::genetic_algorithm {
                     });
             double mean{sum/optimizer.population().size()};
             progress_.template emplace_back(std::make_tuple(mean, best, optimizer.population().size()));
-            std::cout << "it: " << optimizer.it()
-                      << ", population size: " << optimizer.population().size()
-                      << ", mean fitness: " << mean
-                      << ", best fitness: " << best << std::endl;
         }
 
         template<class Optimizer>
-        void end(const Optimizer& optimizer)
-        {
-
-        }
+        void end(const Optimizer&) { }
 
         auto get()
         {
