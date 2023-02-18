@@ -141,7 +141,7 @@ namespace nlohmann {
         static void to_json(nlohmann::json& j, const trading::genetic_algorithm::basic_sizer& sizer)
         {
             j = {{"name",  "basic sizer"},
-                 {"decay", sizer.decay()}};
+                 {"growth factor", sizer.growth_factor()}};
         }
     };
 }

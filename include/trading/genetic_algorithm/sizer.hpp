@@ -9,20 +9,20 @@
 
 namespace trading::genetic_algorithm {
     class basic_sizer {
-        float decay_{1.0};
+        float growth_factor_{1.0};
 
     public:
-        explicit basic_sizer(float decay)
-                :decay_{decay} { }
+        explicit basic_sizer(float growth_factor)
+                :growth_factor_{growth_factor} { }
 
         std::size_t operator()(std::size_t size) const
         {
-            return static_cast<std::size_t>(decay_*static_cast<float>(size));
+            return static_cast<std::size_t>(growth_factor_*static_cast<float>(size));
         }
 
-        float decay() const
+        float growth_factor() const
         {
-            return decay_;
+            return growth_factor_;
         }
     };
 }
