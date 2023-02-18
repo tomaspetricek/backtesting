@@ -1,0 +1,47 @@
+candles read:
+from: 2018-Jan-04 00:00:00
+to: 2022-Oct-29 18:00:00
+difference: 1759d 18:00:00.000000
+count: 2526055
+duration: 4.178285s
+it: 0, population size: 382, mean fitness: 141.866, best fitness: 625.331
+it: 1, population size: 380, mean fitness: 274.156, best fitness: 660.045
+it: 2, population size: 378, mean fitness: 351.133, best fitness: 664.204
+it: 3, population size: 376, mean fitness: 407.153, best fitness: 705.155
+it: 4, population size: 374, mean fitness: 408.964, best fitness: 705.155
+it: 5, population size: 372, mean fitness: 448.789, best fitness: 705.155
+it: 6, population size: 370, mean fitness: 454.423, best fitness: 722.468
+it: 7, population size: 368, mean fitness: 436.519, best fitness: 722.626
+it: 8, population size: 366, mean fitness: 477.24, best fitness: 730.503
+it: 9, population size: 364, mean fitness: 501.002, best fitness: 737.353
+it: 10, population size: 362, mean fitness: 536.326, best fitness: 730.503
+it: 11, population size: 360, mean fitness: 541.389, best fitness: 734.96
+it: 12, population size: 358, mean fitness: 525.224, best fitness: 742.835
+it: 13, population size: 356, mean fitness: 521.393, best fitness: 742.835
+it: 14, population size: 354, mean fitness: 534.91, best fitness: 742.835
+it: 15, population size: 352, mean fitness: 543.549, best fitness: 745.864
+it: 16, population size: 350, mean fitness: 538.379, best fitness: 745.864
+it: 17, population size: 348, mean fitness: 536.175, best fitness: 745.864
+it: 18, population size: 346, mean fitness: 553.125, best fitness: 745.864
+it: 19, population size: 344, mean fitness: 533.511, best fitness: 745.864
+it: 20, population size: 342, mean fitness: 544.077, best fitness: 749.297
+it: 21, population size: 340, mean fitness: 540.637, best fitness: 748.177
+it: 22, population size: 338, mean fitness: 554.037, best fitness: 748.177
+it: 23, population size: 336, mean fitness: 548.893, best fitness: 751.521
+it: 24, population size: 334, mean fitness: 563.281, best fitness: 749.297
+it: 25, population size: 332, mean fitness: 565.132, best fitness: 751.521
+it: 26, population size: 330, mean fitness: 558.531, best fitness: 751.521
+it: 27, population size: 328, mean fitness: 567.4, best fitness: 751.521
+it: 28, population size: 326, mean fitness: 579.534, best fitness: 751.521
+it: 29, population size: 324, mean fitness: 551.38, best fitness: 754.323
+it: 30, population size: 322, mean fitness: 567.518, best fitness: 759.468
+it: 31, population size: 320, mean fitness: 574.883, best fitness: 759.468
+it: 32, population size: 318, mean fitness: 555.632, best fitness: 759.468
+it: 33, population size: 316, mean fitness: 538.496, best fitness: 759.468
+it: 34, population size: 314, mean fitness: 533.721, best fitness: 759.468
+it: 35, population size: 312, mean fitness: 518.556, best fitness: 759.468
+it: 36, population size: 310, mean fitness: 495.341, best fitness: 759.468
+it: 37, population size: 308, mean fitness: 531.901, best fitness: 759.468
+it: 38, population size: 306, mean fitness: 534.055, best fitness: 759.468
+it: 39, population size: 304, mean fitness: 542.357, best fitness: 759.468
+duration: 4:51.764176

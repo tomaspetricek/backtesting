@@ -394,7 +394,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
     std::vector<config_type> init_genes;
     genetic_algorithm::optimizer<config_type> optimizer;
 
-    std::size_t n_init_genes{1'000};
+    std::size_t n_init_genes{384};
     init_genes.reserve(n_init_genes);
     auto rand_genes = random::configuration_generator<n_levels>{open_sizes_gen, levels_gen, period_gen};
     settings.emplace(json{"initial genes count", n_init_genes});
@@ -410,15 +410,18 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
     progress_collector_type collector;
     genetic_algorithm::progress_reporter<Logger> reporter{logger};
 
-    auto sizer = genetic_algorithm::basic_sizer{0.99};
+    auto sizer = genetic_algorithm::basic_sizer{1.005};
     auto selection = genetic_algorithm::roulette_selection{};
     auto matchmaker = genetic_algorithm::random_matchmaker<crossover_type::n_parents>{};
-    auto replacement = genetic_algorithm::elitism_replacement{{1, 10}};
-    auto termination = genetic_algorithm::iteration_based_termination{100};
+    auto replacement = genetic_algorithm::elitism_replacement{{16, 100}};
+    auto termination = genetic_algorithm::iteration_based_termination{40};
 
     settings.emplace(json{"optimizer", {
             {"sizer", sizer},
             {"selection", selection},
+            {"crossover", {
+                    {"children count", n_children},
+            }},
             {"matchmaker", matchmaker},
             {"replacement", replacement},
             {"termination", termination},
@@ -439,6 +442,8 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
                 bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen},
                 replacement, termination, collector, reporter);
     });
+
+    *logger << "duration: " << duration << std::endl;
 
     io::csv::writer<3> writer(experiment_dir/"progress.csv");
     writer.write_header({"mean fitness", "best fitness", "population size"});
@@ -465,7 +470,7 @@ int main()
     typedef boost::iostreams::stream<tee_type> tee_stream_type;
     auto logger = std::make_shared<tee_stream_type>(tee_type{std::cout, log_file});
 
-    std::string base{"eth"}, quote{"usdt"};
+    std::string base{"xrp"}, quote{"usdt"};
     std::filesystem::path candles_path{in_dir/fmt::format("ohlcv-{}-{}-1-min.csv", base, quote)};
 
     std::time_t min_opened{1515024000}, max_opened{1667066400};

@@ -15,8 +15,8 @@ namespace trading::genetic_algorithm {
         std::shared_ptr<Logger> logger_;
 
     public:
-        progress_reporter(const std::shared_ptr<Logger>& logger)
-                :logger_{logger} { }
+        explicit progress_reporter(std::shared_ptr<Logger> logger)
+                :logger_{std::move(logger)} { }
 
         template<class Optimizer>
         void begin(const Optimizer&) { }
