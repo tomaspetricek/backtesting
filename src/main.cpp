@@ -394,7 +394,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
     std::vector<config_type> init_genes;
     genetic_algorithm::optimizer<config_type> optimizer;
 
-    std::size_t n_init_genes{768};
+    std::size_t n_init_genes{896};
     init_genes.reserve(n_init_genes);
     auto rand_genes = random::configuration_generator<n_levels>{open_sizes_gen, levels_gen, period_gen};
     settings.emplace(json{"initial genes count", n_init_genes});
@@ -470,7 +470,7 @@ int main()
     typedef boost::iostreams::stream<tee_type> tee_stream_type;
     auto logger = std::make_shared<tee_stream_type>(tee_type{std::cout, log_file});
 
-    std::string base{"ltc"}, quote{"usdt"};
+    std::string base{"xrp"}, quote{"usdt"};
     std::filesystem::path candles_path{in_dir/fmt::format("ohlcv-{}-{}-1-min.csv", base, quote)};
 
     std::time_t min_opened{1515024000}, max_opened{1667066400};
