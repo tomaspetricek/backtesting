@@ -24,16 +24,9 @@ namespace trading::genetic_algorithm {
         }
 
         template<class Optimizer>
-        void population_updated(const Optimizer& optimizer)
+        void population_updated(const Optimizer& optimizer, double mean_fitness, double best_fitness)
         {
-            double sum{0}, best{0};
-            std::for_each(optimizer.population().begin(), optimizer.population().end(),
-                    [&](const auto& individual) {
-                        sum += individual.fitness;
-                        best = std::max(best, individual.fitness);
-                    });
-            double mean{sum/optimizer.population().size()};
-            progress_.template emplace_back(std::make_tuple(mean, best, optimizer.population().size()));
+            progress_.template emplace_back(std::make_tuple(mean_fitness, best_fitness, optimizer.population().size()));
         }
 
         template<class Optimizer>

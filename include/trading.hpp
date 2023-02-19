@@ -16,6 +16,7 @@
 #include <trading/genetic_algorithm/matchmaker.hpp>
 #include <trading/genetic_algorithm/optimizer.hpp>
 #include <trading/genetic_algorithm/progress_collector.hpp>
+#include <trading/genetic_algorithm/progress_observers.hpp>
 #include <trading/genetic_algorithm/progress_reporter.hpp>
 #include <trading/genetic_algorithm/replacement.hpp>
 #include <trading/genetic_algorithm/selection.hpp>

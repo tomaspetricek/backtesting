@@ -409,6 +409,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
     using progress_collector_type = genetic_algorithm::progress_collector;
     progress_collector_type collector;
     genetic_algorithm::progress_reporter<Logger> reporter{logger};
+    genetic_algorithm::progress_observers observers{collector, reporter};
 
     auto sizer = genetic_algorithm::basic_sizer{1.005};
     auto selection = genetic_algorithm::roulette_selection{};
@@ -440,7 +441,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
                 },
                 sizer, selection, matchmaker, crossover_type{},
                 bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen},
-                replacement, termination, collector, reporter);
+                replacement, termination, observers);
     });
 
     *logger << "duration: " << duration << std::endl;
