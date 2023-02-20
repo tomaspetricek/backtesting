@@ -5,6 +5,8 @@
 #ifndef BACKTESTING_FRACTION_HPP
 #define BACKTESTING_FRACTION_HPP
 
+#include <boost/functional/hash.hpp>
+
 // Inspired by Boost.Rational
 #include <ostream>
 namespace trading {
@@ -84,10 +86,18 @@ namespace trading {
             return *this;
         }
 
-        friend std::ostream& operator<<(std::ostream& os, const fraction& fraction)
+        friend std::ostream& operator<<(std::ostream& os, const fraction& f)
         {
-            os << fraction.num_ << "/" << fraction.den_;
+            os << f.num_ << "/" << f.den_;
             return os;
+        }
+
+        friend std::size_t hash_value(const fraction& f)
+        {
+            std::size_t seed{0};
+            boost::hash_combine(seed, f.num_);
+            boost::hash_combine(seed, f.den_);
+            return seed;
         }
     };
 

@@ -7,7 +7,7 @@
 
 #include <array>
 
-namespace trading::genetic_algorithm {
+namespace trading {
     class iteration_based_termination {
         std::size_t max_it_;
 

@@ -13,6 +13,7 @@
 #include <trading/bazooka/strategy.hpp>
 #include <trading/indicator/ema.hpp>
 #include <trading/indicator/sma.hpp>
+#include <trading/bazooka/configuration.hpp>
 
 namespace trading::bazooka {
     template<std::size_t n_levels>
@@ -34,13 +35,10 @@ namespace trading::bazooka {
             auto next = origin;
             switch (choose_(gen_)) {
             case 0:
-                moving_average_set_period(next.ma,
-                        static_cast<std::size_t>(period_gen_(moving_average_period(next.ma))));
+                next.period = period_gen_(next.period);
                 break;
             case 1: {
-                std::size_t period = moving_average_period(next.ma);
-                next.ma = (next.ma.index()) ? moving_average_type{trading::indicator::sma{period}} :
-                          moving_average_type{trading::indicator::ema{period}};
+                next.ma = (next.ma==bazooka::ma_type::ema) ? bazooka::ma_type::sma : bazooka::ma_type::ema;
                 break;
             }
             case 2:

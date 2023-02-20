@@ -57,11 +57,11 @@ namespace trading {
     // https://stackoverflow.com/questions/1198260/how-can-you-iterate-over-the-elements-of-an-stdtuple
     template<std::size_t I = 0, typename Func, typename... Tp>
     inline typename std::enable_if<I==sizeof...(Tp), void>::type
-    for_each(const std::tuple<Tp...>&, Func) { }
+    for_each(std::tuple<Tp...>&, Func) { }
 
     template<std::size_t I = 0, typename Func, typename... Tp>
     inline typename std::enable_if<I<sizeof...(Tp), void>::type
-    for_each(const std::tuple<Tp...>& t, Func f)
+    for_each(std::tuple<Tp...>& t, Func f)
     {
         f(std::get<I>(t), I);
         for_each<I+1, Func, Tp...>(t, f);

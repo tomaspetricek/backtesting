@@ -8,6 +8,7 @@
 #include <trading/bazooka/statistics.hpp>
 #include <trading/bazooka/strategy.hpp>
 #include <trading/bazooka/configuration.hpp>
+#include <trading/termination.hpp>
 #include <trading/state.hpp>
 #include <trading/types.hpp>
 #include <nlohmann/json.hpp>
@@ -127,9 +128,9 @@ namespace nlohmann {
     };
 
     template<>
-    struct adl_serializer<trading::genetic_algorithm::iteration_based_termination> {
+    struct adl_serializer<trading::iteration_based_termination> {
         static void
-        to_json(nlohmann::json& j, const trading::genetic_algorithm::iteration_based_termination& termination)
+        to_json(nlohmann::json& j, const trading::iteration_based_termination& termination)
         {
             j = {{"name",   "iteration based termination"},
                  {"max it", termination.max_it()}};

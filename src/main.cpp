@@ -7,12 +7,14 @@
 #include <list>
 #include <utility>
 #include <memory>
+#include <array>
 #include <trading.hpp>
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/tee.hpp>
+#include <boost/functional/hash.hpp>
 
 using json = nlohmann::json;
 using namespace trading;
@@ -20,8 +22,16 @@ using namespace trading;
 template<std::size_t n_levels>
 auto create_trader(const bazooka::configuration<n_levels>& config)
 {
+    bazooka::moving_average_type ma;
+    if (config.ma==bazooka::ma_type::ema) {
+        ma = indicator::ema{config.period};
+    }
+    else {
+        ma = indicator::sma{config.period};
+    }
+
     // create strategy
-    bazooka::long_strategy strategy{config.ma, config.ma, config.levels};
+    bazooka::long_strategy strategy{ma, ma, config.levels};
 
     // create market
     fraction_t fee{1, 1'000};   // 0.1 %
@@ -230,13 +240,11 @@ int use_brute_force(Simulator&& simulator, json&& settings)
 
     // create search space
     auto search_space = [&]() -> cppcoro::generator<config_type> {
-        for (std::size_t entry_period: periods_gen())
-            for (const auto& entry_ma: {
-                    bazooka::moving_average_type{indicator::sma{static_cast<std::size_t>(entry_period)}},
-                    bazooka::moving_average_type{indicator::ema{static_cast<std::size_t>(entry_period)}}})
+        for (std::size_t period: periods_gen())
+            for (const auto& ma: {bazooka::ma_type::ema, bazooka::ma_type::sma})
                 for (const auto& levels: levels_gen())
                     for (const auto open_sizes: sizes_gen())
-                        co_yield config_type{entry_ma, levels, open_sizes};
+                        co_yield config_type{ma, period, levels, open_sizes};
     };
 
     // count number of states
@@ -316,7 +324,7 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings)
     const auto& period_doc = settings["search space"]["moving average"]["period"];
     random::int_range period_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
     bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
-    bazooka::configuration<n_levels> init_config{indicator::sma{static_cast<std::size_t>(period_gen())},
+    bazooka::configuration<n_levels> init_config{bazooka::ma_type::sma, static_cast<std::size_t>(period_gen()),
                                                  levels_gen(), open_sizes_gen()};
 
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
@@ -415,7 +423,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
     auto selection = genetic_algorithm::roulette_selection{};
     auto matchmaker = genetic_algorithm::random_matchmaker<crossover_type::n_parents>{};
     auto replacement = genetic_algorithm::elitism_replacement{{16, 100}};
-    auto termination = genetic_algorithm::iteration_based_termination{40};
+    auto termination = iteration_based_termination{40};
 
     settings.emplace(json{"optimizer", {
             {"sizer", sizer},
@@ -454,8 +462,56 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
                 std::get<progress_collector_type::population_size_idx>(progress));
 };
 
+template<class Simulator, class Logger>
+void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesystem::path& experiment_dir,
+        std::shared_ptr<Logger> logger)
+{
+    constexpr std::size_t n_levels{4};
+    using config_type = bazooka::configuration<n_levels>;
+    using trader_type = decltype(create_trader<n_levels>(config_type()));
+
+    random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
+    random::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
+    const auto& period_doc = settings["search space"]["moving average"]["period"];
+    random::int_range period_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
+    bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
+    bazooka::configuration<n_levels> init_config{bazooka::ma_type::sma, static_cast<std::size_t>(period_gen()),
+                                                 levels_gen(), open_sizes_gen()};
+
+    tabu_search::optimizer<config_type> optimizer;
+
+    auto optim_criteria = [](const auto& rhs, const auto& lhs) {
+        return rhs>=lhs;
+    };
+    bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
+
+    optimizer(init_config,
+            [&](const config_type& config) -> double {
+                simulator(create_trader(config), stats_collector);
+                return static_cast<double>(stats_collector.get().total_profit<percent>());
+            },
+            optim_criteria, neighbor,
+            [](const auto&) -> std::size_t { return 50; },
+            []() -> std::size_t { return 10; },
+            iteration_based_termination{100});
+
+    std::cout << "best fitness: " << optimizer.best_state().fitness << std::endl;
+}
+
 int main()
 {
+    {
+        constexpr std::size_t n_levels{4};
+        using config_type = bazooka::configuration<n_levels>;
+        using map_type = std::unordered_map<config_type, std::size_t>;
+        map_type map;
+        config_type a{bazooka::ma_type::ema, 30, {{{1, 4}, {2, 4}}}, {{{1, 2}, {1, 2}}}};
+        config_type b{bazooka::ma_type::ema, 30, {{{4, 1}, {2, 4}}}, {{{1, 2}, {1, 2}}}};
+        map.insert(map_type::value_type{a, 1});
+        assert(map.contains(a));
+        assert(!map.contains(b));
+    }
+
     constexpr std::size_t n_levels{4};
 
     // read candles
@@ -471,7 +527,7 @@ int main()
     typedef boost::iostreams::stream<tee_type> tee_stream_type;
     auto logger = std::make_shared<tee_stream_type>(tee_type{std::cout, log_file});
 
-    std::string base{"xrp"}, quote{"usdt"};
+    std::string base{"eth"}, quote{"usdt"};
     std::filesystem::path candles_path{in_dir/fmt::format("ohlcv-{}-{}-1-min.csv", base, quote)};
 
     std::time_t min_opened{1515024000}, max_opened{1667066400};
@@ -503,10 +559,10 @@ int main()
     settings.emplace(json{"search space", {
             {"levels", {
                     {"count", n_levels},
-                    {"unique count", 60},
+                    {"unique count", 30},
             }},
             {"open order sizes", {
-                    {"unique count", 60}
+                    {"unique count", 30}
             }},
             {"moving average", {
                     {"types", {"sma", "ema"}},
@@ -527,6 +583,6 @@ int main()
             {"averaging method", decltype(averager)::name}
     }});
 
-    use_genetic_algorithm(std::move(simulator), std::move(settings), experiment_dir, logger);
+    use_tabu_search(std::move(simulator), std::move(settings), experiment_dir, logger);
     return EXIT_SUCCESS;
 }

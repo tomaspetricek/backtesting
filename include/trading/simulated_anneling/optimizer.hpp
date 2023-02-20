@@ -8,16 +8,13 @@
 #include <functional>
 #include <cmath>
 #include <trading/generators.hpp>
+#include <trading/concepts.hpp>
 
 namespace trading::simulated_annealing {
     // https://youtu.be/l6Y9PqyK1Mc
     template<class ConcreteCooler, class SimulatedAnnealing>
     concept Cooler = std::invocable<ConcreteCooler, SimulatedAnnealing&> &&
             std::same_as<void, std::invoke_result_t<ConcreteCooler, SimulatedAnnealing&>>;
-
-    template<class ConcreteNeighbor, class State>
-    concept Neighbor = std::invocable<ConcreteNeighbor, State> &&
-            std::same_as<State, std::invoke_result_t<ConcreteNeighbor, const State&>>;
 
     template<class ConcreteAppraiser, class State>
     concept Appraiser = std::invocable<ConcreteAppraiser, const State&, const State&> &&

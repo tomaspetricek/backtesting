@@ -21,7 +21,6 @@
 #include <trading/genetic_algorithm/replacement.hpp>
 #include <trading/genetic_algorithm/selection.hpp>
 #include <trading/genetic_algorithm/sizer.hpp>
-#include <trading/genetic_algorithm/termination.hpp>
 #include <trading/direction.hpp>
 #include <trading/market.hpp>
 #include <trading/order.hpp>
@@ -37,6 +36,7 @@
 #include <trading/simulated_anneling/equilibrium.hpp>
 #include <trading/simulated_anneling/optimizer.hpp>
 #include <trading/simulated_anneling/progress_observer.hpp>
+#include <trading/tabu_search/optimizer.hpp>
 #include <trading/validator/interval.hpp>
 #include <trading/view/candle_deserializer.hpp>
 #include <trading/types.hpp>
@@ -55,6 +55,7 @@
 #include <trading/result.hpp>
 #include <trading/side.hpp>
 #include <trading/table.hpp>
+#include <trading/termination.hpp>
 #include <trading/simulator.hpp>
 #include <trading/manager.hpp>
 #include <trading/bazooka/trader.hpp>

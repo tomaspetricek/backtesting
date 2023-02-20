@@ -43,6 +43,8 @@ namespace trading::indicator {
             assert(is_ready());
             return sum_/static_cast<double>(samples_.size());
         }
+
+
     };
 }
 

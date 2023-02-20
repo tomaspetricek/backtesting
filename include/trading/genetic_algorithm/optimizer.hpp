@@ -12,22 +12,13 @@
 #include <algorithm>
 #include <cppcoro/generator.hpp>
 #include <trading/tuple.hpp>
+#include <trading/concepts.hpp>
 
 // https://stackoverflow.com/questions/31533469/check-a-parameter-pack-for-all-of-type-t
 template<typename T, typename ...Ts>
 inline constexpr bool all_same = std::conjunction_v<std::is_same<T, Ts>...>;
 
 namespace trading::genetic_algorithm {
-    template<class T>
-    concept Object = std::is_class<T>::value;
-
-    template<typename T>
-    concept Iterable = (Object<T> && requires(T it)
-    {
-        it.begin();
-        it.end();
-    });
-
     template<class ConcreteMutation, class Genes>
     concept Mutation = std::invocable<ConcreteMutation, Genes&&> &&
             std::same_as<Genes, std::invoke_result_t<ConcreteMutation, Genes&&>>;
@@ -42,10 +33,6 @@ namespace trading::genetic_algorithm {
     std::invocable<ConcreteSelection, std::size_t, const std::vector<Individual>&, std::vector<Individual>&>
             && std::same_as<void, std::invoke_result_t<ConcreteSelection, std::size_t, const std::vector<Individual>&, std::vector<Individual>&>>;
 
-    template<class ConcreteTerminationCriteria, class Optimizer>
-    concept TerminationCriteria = std::invocable<ConcreteTerminationCriteria, const Optimizer&> &&
-            std::same_as<bool, std::invoke_result_t<ConcreteTerminationCriteria, const Optimizer&>>;
-
     template<class ConcreteReplacement, class Individual>
     concept Replacement =
     std::invocable<ConcreteReplacement, std::vector<Individual>&, std::vector<Individual>&, std::vector<Individual>&>
@@ -54,10 +41,6 @@ namespace trading::genetic_algorithm {
     template<class ConcreteMatchmaker, class Individual>
     concept Matchmaker = std::invocable<ConcreteMatchmaker, std::vector<Individual>&>
             && std::same_as<cppcoro::generator<std::array<Individual, std::remove_reference_t<ConcreteMatchmaker>::n_parents>>, std::invoke_result_t<ConcreteMatchmaker, std::vector<Individual>&>>;
-
-    template<class ConcreteFitnessFunction, class Genes>
-    concept FitnessFunction = std::invocable<ConcreteFitnessFunction, const Genes&> &&
-            std::same_as<double, std::invoke_result_t<ConcreteFitnessFunction, const Genes&>>;
 
     template<class ConcreteSizer>
     concept PopulationSizer = std::invocable<ConcreteSizer, std::size_t> &&
