@@ -503,10 +503,20 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
 int main()
 {
     {
-        systematic::int_range periods{4, 16, 2};
+        systematic::int_range periods{4, 116, 2};
+        bazooka::period_moves_memory mem{static_cast<std::size_t>(periods.from()), static_cast<std::size_t>(periods.to()),
+                                         static_cast<std::size_t>(periods.step()), tabu_search::fixed_tenure{1}};
 
         for (const auto& period: periods())
-            std::cout << period << std::endl;
+            mem.remember(static_cast<std::size_t>(period));
+
+        for (const auto& period: periods())
+            assert(mem.contains(static_cast<std::size_t>(period)));
+
+        mem.forget();
+
+        for (const auto& period: periods())
+            assert(!mem.contains(static_cast<std::size_t>(period)));
 
         return EXIT_SUCCESS;
     }

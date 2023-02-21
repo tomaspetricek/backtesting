@@ -8,6 +8,7 @@
 #include <trading/bazooka/configuration.hpp>
 #include <trading/bazooka/crossover.hpp>
 #include <trading/bazooka/long_strategy.hpp>
+#include <trading/bazooka/moves_memory.hpp>
 #include <trading/bazooka/neighbor.hpp>
 #include <trading/bazooka/short_strategy.hpp>
 #include <trading/bazooka/state.hpp>
@@ -37,6 +38,7 @@
 #include <trading/simulated_anneling/optimizer.hpp>
 #include <trading/simulated_anneling/progress_observer.hpp>
 #include <trading/tabu_search/optimizer.hpp>
+#include <trading/tabu_search/tenure.hpp>
 #include <trading/validator/interval.hpp>
 #include <trading/view/candle_deserializer.hpp>
 #include <trading/types.hpp>
