@@ -478,28 +478,38 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
     bazooka::configuration<n_levels> init_config{bazooka::ma_type::sma, static_cast<std::size_t>(period_gen()),
                                                  levels_gen(), open_sizes_gen()};
 
-    tabu_search::optimizer<config_type> optimizer;
+    tabu_search::optimizer<config_type, std::map> optimizer;
 
     auto optim_criteria = [](const auto& rhs, const auto& lhs) {
-        return rhs>=lhs;
+        return rhs>lhs;
     };
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
 
-    optimizer(init_config,
-            [&](const config_type& config) -> double {
-                simulator(create_trader(config), stats_collector);
-                return static_cast<double>(stats_collector.get().total_profit<percent>());
-            },
-            optim_criteria, neighbor,
-            [](const auto&) -> std::size_t { return 50; },
-            []() -> std::size_t { return 10; },
-            iteration_based_termination{100});
-
-    std::cout << "best fitness: " << optimizer.best_state().fitness << std::endl;
+    auto duration = measure_duration([&]() {
+        optimizer(init_config,
+                [&](const config_type& config) -> double {
+                    simulator(create_trader(config), stats_collector);
+                    return static_cast<double>(stats_collector.get().total_profit<percent>());
+                },
+                optim_criteria, neighbor,
+                [](const auto&) -> std::size_t { return 80; },
+                []() -> std::size_t { return 10; },
+                iteration_based_termination{100});
+    });
+    std::cout << "best fitness: " << optimizer.best_state().fitness << std::endl
+              << "duration: " << duration << std::endl;
 }
 
 int main()
 {
+    {
+        systematic::int_range periods{4, 16, 2};
+
+        for (const auto& period: periods())
+            std::cout << period << std::endl;
+
+        return EXIT_SUCCESS;
+    }
     {
         constexpr std::size_t n_levels{4};
         using config_type = bazooka::configuration<n_levels>;
@@ -518,7 +528,7 @@ int main()
     std::filesystem::path data_dir{"../../src/data"};
     std::filesystem::path in_dir{data_dir/"in"};
     std::filesystem::path out_dir{data_dir/"out"};
-    std::filesystem::path optim_dir{out_dir/"genetic-algorithm"};
+    std::filesystem::path optim_dir{out_dir/"tabu-search"};
     std::filesystem::create_directory(optim_dir);
     std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
 
@@ -559,16 +569,16 @@ int main()
     settings.emplace(json{"search space", {
             {"levels", {
                     {"count", n_levels},
-                    {"unique count", 30},
+                    {"unique count", 60},
             }},
             {"open order sizes", {
-                    {"unique count", 30}
+                    {"unique count", 60}
             }},
             {"moving average", {
                     {"types", {"sma", "ema"}},
                     {"period", {
                             {"from", 1},
-                            {"to", 120},
+                            {"to", 60},
                             {"step", 1}
                     }}
             }},

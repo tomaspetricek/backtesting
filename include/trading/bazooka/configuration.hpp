@@ -29,6 +29,35 @@ namespace trading::bazooka {
                     levels==rhs.levels &&
                     open_sizes==rhs.open_sizes;
         }
+
+        bool operator<(const configuration& rhs) const
+        {
+            if (ma<rhs.ma)
+                return true;
+            if (rhs.ma<ma)
+                return false;
+            if (period<rhs.period)
+                return true;
+            if (rhs.period<period)
+                return false;
+            if (levels<rhs.levels)
+                return true;
+            if (rhs.levels<levels)
+                return false;
+            return open_sizes<rhs.open_sizes;
+        }
+        bool operator>(const configuration& rhs) const
+        {
+            return rhs<*this;
+        }
+        bool operator<=(const configuration& rhs) const
+        {
+            return !(rhs<*this);
+        }
+        bool operator>=(const configuration& rhs) const
+        {
+            return !(*this<rhs);
+        }
     };
 }
 

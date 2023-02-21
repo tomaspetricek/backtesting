@@ -21,15 +21,15 @@ namespace trading::tabu_search {
     concept NeighborhoodSizer = std::invocable<ConcreteNeighborhoodSizer, const Optimizer&> &&
             std::same_as<std::size_t, std::invoke_result_t<ConcreteNeighborhoodSizer, const Optimizer&>>;
 
-    template<class Config>
+    template<class Config, template<class, class, class...> class Map = std::unordered_map>
     class optimizer {
         struct state {
             Config config;
             double fitness;
         };
 
-        std::unordered_map<Config, std::size_t> tabu_list_;
-        state best_;
+        Map<Config, std::size_t> tabu_list_;
+        state best_, curr_;
         std::size_t it_{0};
 
     public:
@@ -37,35 +37,36 @@ namespace trading::tabu_search {
         void operator()(const Config& init,
                 FitnessFunction<Config> auto&& compute_fitness,
                 OptimizationCriteria<state> auto&& optim_criteria,
-                Neighbor<Config> auto&& get_neighbor,
+                Neighbor<Config> auto&& neighbor,
                 NeighborhoodSizer<optimizer> auto&& neighborhood_size,
                 TabuTenure auto&& tenure,
                 TerminationCriteria<optimizer> auto&& terminate)
         {
-            best_ = state{init, compute_fitness(init)};
+            best_ = curr_ = state{init, compute_fitness(init)};
             tabu_list_.insert({best_.config, tenure()});
-            Config neighbor;
-            state candidate;
+            Config candidate, origin;
 
             do {
                 // explore neighborhood
-                candidate = best_;
-                for (std::size_t i{0}; i<neighborhood_size(*this); i++) {
-                    neighbor = get_neighbor(best_.config);
+                std::size_t n_neighbors = neighborhood_size(*this);
+                origin = curr_.config;
+                curr_.config = neighbor(origin);
+                curr_.fitness = compute_fitness(curr_.config);
 
-                    if (!tabu_list_.contains(neighbor)) {
-                        auto fitness = compute_fitness(neighbor);
+                for (std::size_t i{0}; i<n_neighbors-1; i++) {
+                    candidate = neighbor(origin);
 
-                        if (optim_criteria(fitness, candidate.fitness))
-                            candidate = state{neighbor, fitness};
+                    if (!tabu_list_.contains(candidate)) {
+                        auto fitness = compute_fitness(candidate);
+
+                        if (optim_criteria(fitness, curr_.fitness))
+                            curr_ = state{candidate, fitness};
                     }
                 }
 
                 // try update current state
-                if (optim_criteria(candidate.fitness, best_.fitness)) {
-                    best_ = candidate;
-                    tabu_list_.insert({best_.config, tenure()});
-                }
+                if (optim_criteria(curr_.fitness, best_.fitness))
+                    best_ = curr_;
 
                 // decrease iteration count, remove if expired
                 for (auto it = tabu_list_.begin(); it!=tabu_list_.end();) {
@@ -73,9 +74,11 @@ namespace trading::tabu_search {
                     if (!(--count)) it = tabu_list_.erase(it);
                     else ++it;
                 }
+                tabu_list_.insert({curr_.config, tenure()});
 
-                std::cout << "it: " << it_ << ", best fitness: " << best_.fitness << ", tabu list size: "
-                          << tabu_list_.size() << std::endl;
+                std::cout << "it: " << it_ << ", best fitness: " << best_.fitness
+                          << ", curr fitness: " << curr_.fitness << ", tabu list size: " << tabu_list_.size()
+                          << std::endl;
                 it_++;
             }
             while (!terminate(*this));
@@ -89,6 +92,11 @@ namespace trading::tabu_search {
         const state& best_state() const
         {
             return best_;
+        }
+
+        const state& current_state() const
+        {
+            return curr_;
         }
 
         std::size_t it() const
