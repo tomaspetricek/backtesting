@@ -371,9 +371,9 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings)
     settings_file << std::setw(4) << settings << std::endl;
 
     io::csv::writer<3> writer(experiment_dir/"progress.csv");
-    writer.write_header({"curr state net profit", "temperature", "mean threshold worse acceptance"});
+    writer.write_header({"curr state value", "temperature", "mean threshold worse acceptance"});
     for (const auto& progress: progress_observer.get())
-        writer.write_row(std::get<progress_observer_type::curr_state_net_profit_idx>(progress),
+        writer.write_row(std::get<progress_observer_type::curr_state_value_idx>(progress),
                 std::get<progress_observer_type::temperature_idx>(progress),
                 std::get<progress_observer_type::worse_acceptance_mean_threshold_idx>(progress));
 
@@ -492,6 +492,11 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
             bazooka::array_moves_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{30}}
     };
 
+    std::ofstream settings_file{experiment_dir/"settings.json"};
+    settings_file << std::setw(4) << settings << std::endl;
+
+    tabu_search::progress_collector collector;
+    tabu_search::progress_reporter reporter{logger};
     auto duration = measure_duration([&]() {
         optimizer(init_config, moves_memory,
                 [&](const config_type& config) -> double {
@@ -503,11 +508,18 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
                 iteration_based_termination{100},
                 [&](const auto& candidate, const auto& optim) -> bool {
                     return optim_criteria(candidate.fitness, optim.best_state().fitness);
-                }
+                },
+                collector, reporter
         );
     });
-    std::cout << "best fitness: " << optimizer.best_state().fitness << std::endl
-              << "duration: " << duration << std::endl;
+    *logger << "duration: " << duration << std::endl;
+
+    io::csv::writer<3> writer(experiment_dir/"progress.csv");
+    writer.write_header({"best fitness", "curr fitness", "tabu list size"});
+    for (const auto& progress: collector.get())
+        writer.write_row(std::get<tabu_search::progress_collector::best_fitness_idx>(progress),
+                std::get<tabu_search::progress_collector::curr_fitness_idx>(progress),
+                std::get<tabu_search::progress_collector::tabu_list_size_idx>(progress));
 }
 
 int main()
@@ -527,7 +539,7 @@ int main()
     typedef boost::iostreams::stream<tee_type> tee_stream_type;
     auto logger = std::make_shared<tee_stream_type>(tee_type{std::cout, log_file});
 
-    std::string base{"xrp"}, quote{"usdt"};
+    std::string base{"ltc"}, quote{"usdt"};
     std::filesystem::path candles_path{in_dir/fmt::format("ohlcv-{}-{}-1-min.csv", base, quote)};
 
     std::time_t min_opened{1515024000}, max_opened{1667066400};
@@ -562,7 +574,7 @@ int main()
                     {"unique count", 30},
             }},
             {"open order sizes", {
-                    {"unique count", 30}
+                    {"unique count", 55}
             }},
             {"moving average", {
                     {"types", {"sma", "ema"}},

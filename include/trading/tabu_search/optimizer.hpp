@@ -41,20 +41,22 @@ namespace trading::tabu_search {
 
     public:
         // neighbourhood size
-        template<class MovesMemory>
-        void operator()(const Config& init, MovesMemory memory,
+        template<class TabuList, class... Observer>
+        void operator()(const Config& init, TabuList tabu_list,
                 FitnessFunction<Config> auto&& compute_fitness,
                 OptimizationCriteria<state> auto&& optim_criteria,
-                Neighbor<Config, typename MovesMemory::move_type> auto&& neighbor,
+                Neighbor<Config, typename TabuList::move_type> auto&& neighbor,
                 NeighborhoodSizer<optimizer> auto&& neighborhood_size,
                 TerminationCriteria<optimizer> auto&& terminate,
-                AspirationCriteria<state, optimizer> auto&& aspire)
+                AspirationCriteria<state, optimizer> auto&& aspire,
+                Observer& ... observers)
         {
             best_ = curr_ = state{init, compute_fitness(init)};
             state candidate, origin;
-            typename MovesMemory::move_type curr_move, candidate_move;
+            typename TabuList::move_type curr_move, candidate_move;
 
-            do {
+            (observers.begin(*this), ...);
+            for (; !terminate(*this); it_++) {
                 // explore neighborhood
                 std::size_t n_neighbors = neighborhood_size(*this);
                 origin = curr_;
@@ -64,7 +66,7 @@ namespace trading::tabu_search {
                 for (std::size_t i{0}; i<n_neighbors-1; i++) {
                     std::tie(candidate.config, candidate_move) = neighbor(origin.config);
 
-                    if (!memory.contains(candidate_move)) {
+                    if (!tabu_list.contains(candidate_move)) {
                         candidate.fitness = compute_fitness(candidate.config);
 
                         if (optim_criteria(candidate.fitness, curr_.fitness) || aspire(candidate, *this)) {
@@ -78,14 +80,11 @@ namespace trading::tabu_search {
                 if (optim_criteria(curr_.fitness, best_.fitness))
                     best_ = curr_;
 
-                memory.forget(curr_move);
-                memory.remember(curr_move);
-
-                std::cout << "it: " << it_ << ", best fitness: " << best_.fitness
-                          << ", curr fitness: " << curr_.fitness << ", memory size: " << memory.size() << std::endl;
-                it_++;
+                tabu_list.forget(curr_move);
+                tabu_list.remember(curr_move);
+                (observers.iteration_passed(*this, tabu_list), ...);
             }
-            while (!terminate(*this));
+            (observers.end(*this), ...);
         }
 
         const state& best_state() const

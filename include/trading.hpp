@@ -38,6 +38,8 @@
 #include <trading/simulated_anneling/optimizer.hpp>
 #include <trading/simulated_anneling/progress_observer.hpp>
 #include <trading/tabu_search/optimizer.hpp>
+#include <trading/tabu_search/progress_collector.hpp>
+#include <trading/tabu_search/progress_reporter.hpp>
 #include <trading/tabu_search/tenure.hpp>
 #include <trading/validator/interval.hpp>
 #include <trading/view/candle_deserializer.hpp>

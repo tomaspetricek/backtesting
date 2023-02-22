@@ -18,7 +18,7 @@ namespace trading::simulated_annealing {
         double threshold_sum{0};
         std::size_t threshold_count{0};
 
-        static constexpr std::size_t curr_state_net_profit_idx = 0, temperature_idx = 1,
+        static constexpr std::size_t curr_state_value_idx = 0, temperature_idx = 1,
                 worse_acceptance_mean_threshold_idx = 2, better_accepted_count_idx = 3,
                 worse_accepted_count_idx = 4;
 
@@ -51,7 +51,7 @@ namespace trading::simulated_annealing {
         template<class State>
         void cooled(const optimizer_type& optimizer, const State& curr)
         {
-            std::get<curr_state_net_profit_idx>(progress_.back()) = curr.value;
+            std::get<curr_state_value_idx>(progress_.back()) = curr.value;
             std::get<temperature_idx>(progress_.back()) = optimizer.current_temperature();
             auto mean_threshold = (threshold_sum==0.0) ? 0.0 : threshold_sum/threshold_count;
             std::get<worse_acceptance_mean_threshold_idx>(progress_.back()) = mean_threshold;

@@ -184,7 +184,7 @@ namespace trading::bazooka {
             }
         }
 
-        std::size_t size()
+        std::size_t size() const
         {
             return ma_mem_.size()+period_mem_.size()+levels_mem_.size()+sizes_mem_.size();
         }
