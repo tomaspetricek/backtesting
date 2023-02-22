@@ -325,10 +325,8 @@ namespace trading {
 
             bazooka::configuration<n_levels> operator()()
             {
-                auto period = static_cast<std::size_t>(rand_period_());
-                bazooka::moving_average_type ma = (coin_flip_(gen_)) ? bazooka::moving_average_type{indicator::sma{period}}
-                                                                     : bazooka::moving_average_type{indicator::ema{period}};
-                return bazooka::configuration<n_levels>{ma, rand_levels_(), rand_sizes_()};
+                auto ma = (coin_flip_(gen_)) ? bazooka::indicator_type::sma : bazooka::indicator_type::ema;
+                return bazooka::configuration<n_levels>{ma, static_cast<std::size_t>(rand_period_()), rand_levels_(), rand_sizes_()};
             }
         };
     }

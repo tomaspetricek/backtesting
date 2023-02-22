@@ -13,6 +13,10 @@
 #include <trading/types.hpp>
 #include <nlohmann/json.hpp>
 #include <fmt/format.h>
+#include <trading/genetic_algorithm/replacement.hpp>
+#include <trading/genetic_algorithm/matchmaker.hpp>
+#include <trading/genetic_algorithm/selection.hpp>
+#include <trading/genetic_algorithm/sizer.hpp>
 
 namespace nlohmann {
     template<typename T>
@@ -64,11 +68,11 @@ namespace nlohmann {
     };
 
     template<>
-    struct adl_serializer<trading::bazooka::moving_average_type> {
-        static void to_json(nlohmann::json& j, const trading::bazooka::moving_average_type& indic)
+    struct adl_serializer<trading::bazooka::indicator> {
+        static void to_json(nlohmann::json& j, const trading::bazooka::indicator& indic)
         {
-            j = {{"period", trading::bazooka::moving_average_period(indic)},
-                 {"type",   trading::bazooka::moving_average_name(indic)}};
+            j = {{"period", indic.period()},
+                 {"name",   indic.name()}};
         }
     };
 

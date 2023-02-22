@@ -26,9 +26,9 @@
 #include <trading/market.hpp>
 #include <trading/order.hpp>
 #include <trading/position.hpp>
-#include <trading/indicator/ema.hpp>
-#include <trading/indicator/ma.hpp>
-#include <trading/indicator/sma.hpp>
+#include "trading/ema.hpp"
+#include "trading/ma.hpp"
+#include "trading/sma.hpp"
 #include <trading/io/csv/writer.hpp>
 #include <trading/io/csv/reader.hpp>
 #include <trading/io/parser.hpp>

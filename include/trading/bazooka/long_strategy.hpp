@@ -14,8 +14,7 @@ namespace trading::bazooka {
     template<std::size_t n_levels>
     class long_strategy : public strategy<std::less_equal<>, std::greater_equal<>, n_levels> {
     public:
-        long_strategy(const std::variant<indicator::sma, indicator::ema>& entry_ma,
-                const std::variant<indicator::sma, indicator::ema>& exit_ma,
+        long_strategy(const indicator& entry_ma, const indicator& exit_ma,
                 const std::array<fraction_t, n_levels>& entry_levels)
                 :strategy<std::less_equal<>, std::greater_equal<>, n_levels>
                          (entry_ma, exit_ma, entry_levels) { }

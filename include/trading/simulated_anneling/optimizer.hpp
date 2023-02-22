@@ -28,6 +28,10 @@ namespace trading::simulated_annealing {
     concept ObjectiveFunction = std::invocable<ConcreteFunction, const Config&> &&
             std::same_as<double, std::invoke_result_t<ConcreteFunction, const Config&>>;
 
+    template<class ConcreteNeighbor, class Config>
+    concept Neighbor = std::invocable<ConcreteNeighbor, const Config&> &&
+            std::same_as<Config, std::invoke_result_t<ConcreteNeighbor, const Config&>>;
+
     template<class Config>
     class optimizer {
         double start_temp_, min_temp_, curr_temp_;

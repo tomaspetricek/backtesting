@@ -10,14 +10,14 @@
 #include <trading/types.hpp>
 
 namespace trading::bazooka {
-    enum class ma_type {
+    enum class indicator_type {
         sma,
         ema,
     };
 
     template<std::size_t n_levels>
     struct configuration {
-        ma_type ma;
+        indicator_type ma;
         std::size_t period;
         std::array<fraction_t, n_levels> levels;
         std::array<fraction_t, n_levels> open_sizes;

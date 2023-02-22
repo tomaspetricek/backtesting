@@ -5,7 +5,7 @@
 #ifndef BACKTESTING_MOVING_AVERAGE_HPP
 #define BACKTESTING_MOVING_AVERAGE_HPP
 
-namespace trading::indicator {
+namespace trading {
     class ma {
         static std::size_t validate_period(size_t period)
         {
@@ -28,7 +28,7 @@ namespace trading::indicator {
             return period_;
         }
 
-        void set_period(size_t period)
+        void period(size_t period)
         {
             period_ = validate_period(period);
         }

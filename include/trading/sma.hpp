@@ -6,10 +6,10 @@
 #define EMASTRATEGY_SMA_HPP
 
 #include <queue>
-#include <trading/indicator/ma.hpp>
+#include <trading/ma.hpp>
 #include <boost/circular_buffer.hpp>
 
-namespace trading::indicator {
+namespace trading {
 
     // https://stackoverflow.com/questions/10990618/calculate-rolling-moving-average-in-c
     // simple moving average
@@ -43,8 +43,6 @@ namespace trading::indicator {
             assert(is_ready());
             return sum_/static_cast<double>(samples_.size());
         }
-
-
     };
 }
 

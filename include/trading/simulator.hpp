@@ -8,7 +8,7 @@
 #include <utility>
 #include <chrono>
 #include <trading/exception.hpp>
-#include <trading/indicator/ema.hpp>
+#include "ema.hpp"
 #include <trading/currency.hpp>
 #include <trading/data_point.hpp>
 #include <trading/currency.hpp>

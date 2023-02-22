@@ -21,46 +21,56 @@ namespace trading::tabu_search {
     concept NeighborhoodSizer = std::invocable<ConcreteNeighborhoodSizer, const Optimizer&> &&
             std::same_as<std::size_t, std::invoke_result_t<ConcreteNeighborhoodSizer, const Optimizer&>>;
 
-    template<class Config, template<class, class, class...> class Map = std::unordered_map>
+    template<class ConcreteNeighbor, class Config, class Movement>
+    concept Neighbor = std::invocable<ConcreteNeighbor, const Config&> &&
+            std::same_as<std::tuple<Config, Movement>, std::invoke_result_t<ConcreteNeighbor, const Config&>>;
+
+    template<class ConcreteAspirationCriteria, class State, class Optimizer>
+    concept AspirationCriteria = std::invocable<ConcreteAspirationCriteria, const State&, const Optimizer&> &&
+            std::same_as<bool, std::invoke_result_t<ConcreteAspirationCriteria, const State&, const Optimizer&>>;
+
+    template<class Config>
     class optimizer {
         struct state {
             Config config;
             double fitness;
         };
 
-        Map<Config, std::size_t> tabu_list_;
         state best_, curr_;
         std::size_t it_{0};
 
     public:
         // neighbourhood size
-        void operator()(const Config& init,
+        template<class MovesMemory>
+        void operator()(const Config& init, MovesMemory memory,
                 FitnessFunction<Config> auto&& compute_fitness,
                 OptimizationCriteria<state> auto&& optim_criteria,
-                Neighbor<Config> auto&& neighbor,
+                Neighbor<Config, typename MovesMemory::move_type> auto&& neighbor,
                 NeighborhoodSizer<optimizer> auto&& neighborhood_size,
-                TabuTenure auto&& tenure,
-                TerminationCriteria<optimizer> auto&& terminate)
+                TerminationCriteria<optimizer> auto&& terminate,
+                AspirationCriteria<state, optimizer> auto&& aspire)
         {
             best_ = curr_ = state{init, compute_fitness(init)};
-            tabu_list_.insert({best_.config, tenure()});
-            Config candidate, origin;
+            state candidate, origin;
+            typename MovesMemory::move_type curr_move, candidate_move;
 
             do {
                 // explore neighborhood
                 std::size_t n_neighbors = neighborhood_size(*this);
-                origin = curr_.config;
-                curr_.config = neighbor(origin);
+                origin = curr_;
+                std::tie(curr_.config, curr_move) = neighbor(origin.config);
                 curr_.fitness = compute_fitness(curr_.config);
 
                 for (std::size_t i{0}; i<n_neighbors-1; i++) {
-                    candidate = neighbor(origin);
+                    std::tie(candidate.config, candidate_move) = neighbor(origin.config);
 
-                    if (!tabu_list_.contains(candidate)) {
-                        auto fitness = compute_fitness(candidate);
+                    if (!memory.contains(candidate_move)) {
+                        candidate.fitness = compute_fitness(candidate.config);
 
-                        if (optim_criteria(fitness, curr_.fitness))
-                            curr_ = state{candidate, fitness};
+                        if (optim_criteria(candidate.fitness, curr_.fitness) || aspire(candidate, *this)) {
+                            curr_ = candidate;
+                            curr_move = candidate_move;
+                        }
                     }
                 }
 
@@ -68,25 +78,14 @@ namespace trading::tabu_search {
                 if (optim_criteria(curr_.fitness, best_.fitness))
                     best_ = curr_;
 
-                // decrease iteration count, remove if expired
-                for (auto it = tabu_list_.begin(); it!=tabu_list_.end();) {
-                    auto& count = it->second;
-                    if (!(--count)) it = tabu_list_.erase(it);
-                    else ++it;
-                }
-                tabu_list_.insert({curr_.config, tenure()});
+                memory.forget(curr_move);
+                memory.remember(curr_move);
 
                 std::cout << "it: " << it_ << ", best fitness: " << best_.fitness
-                          << ", curr fitness: " << curr_.fitness << ", tabu list size: " << tabu_list_.size()
-                          << std::endl;
+                          << ", curr fitness: " << curr_.fitness << ", memory size: " << memory.size() << std::endl;
                 it_++;
             }
             while (!terminate(*this));
-        }
-
-        const std::unordered_map<Config, std::size_t>& tabu_list() const
-        {
-            return tabu_list_;
         }
 
         const state& best_state() const

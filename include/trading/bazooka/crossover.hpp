@@ -116,9 +116,7 @@ namespace trading::bazooka {
 
             for (std::size_t i{0}; i<n_children; i++) {
                 children[i].ma = (coin_flip_(gen_)) ? mother.ma : father.ma;
-                std::size_t period = (coin_flip_(gen_)) ? bazooka::moving_average_period(mother.ma)
-                                                        : bazooka::moving_average_period(father.ma);
-                bazooka::moving_average_set_period(children[i].ma, period);
+                children[i].period = (coin_flip_(gen_)) ? mother.period : father.period;
                 children[i].open_sizes = sizes_crossover_(mother.open_sizes, father.open_sizes);
                 children[i].levels = levels_crossover_(mother.levels, father.levels);
             }

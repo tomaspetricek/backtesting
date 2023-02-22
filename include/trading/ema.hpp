@@ -6,19 +6,19 @@
 #define BACKTESTING_EMA_HPP
 
 #include <numeric>
-#include <trading/exception.hpp>
-#include <trading/types.hpp>
-#include <trading/indicator/ma.hpp>
-#include <trading/indicator/sma.hpp>
+#include "exception.hpp"
+#include "types.hpp"
+#include "ma.hpp"
+#include "sma.hpp"
 
-namespace trading::indicator {
+namespace trading {
 
     // https://plainenglish.io/blog/how-to-calculate-the-ema-of-a-stock-with-python
     // src: https://www.tradingview.com/support/solutions/43000592270-exponential-moving-average/
     // exponential moving average
     class ema : public ma {
         constexpr static int min_smoothing = 2;
-        indicator::sma sma_;
+        sma sma_;
         double val_ = 0;
         double weighting_factor_;
 

@@ -16,10 +16,6 @@ namespace trading {
     template<class ConcreteFitnessFunction, class Config>
     concept FitnessFunction = std::invocable<ConcreteFitnessFunction, const Config&> &&
             std::same_as<double, std::invoke_result_t<ConcreteFitnessFunction, const Config&>>;
-
-    template<class ConcreteNeighbor, class Config>
-    concept Neighbor = std::invocable<ConcreteNeighbor, const Config&> &&
-            std::same_as<Config, std::invoke_result_t<ConcreteNeighbor, const Config&>>;
 }
 
 #endif //BACKTESTING_CONCEPTS_HPP
