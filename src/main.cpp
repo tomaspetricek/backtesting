@@ -488,16 +488,17 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
 
     auto termination = iteration_based_termination{512};
+    std::size_t n_it{32};
     bazooka::configuration_moves_memory moves_memory{
-            bazooka::indicator_type_memory{tabu_search::fixed_tenure{16}},
+            bazooka::indicator_type_memory{tabu_search::fixed_tenure{n_it}},
             bazooka::period_memory{static_cast<std::size_t>(period_gen.from()),
                                    static_cast<std::size_t>(period_gen.to()),
                                    static_cast<std::size_t>(period_gen.step()),
-                                   tabu_search::fixed_tenure{16}},
-            bazooka::array_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{16}},
-            bazooka::array_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{16}}
+                                   tabu_search::fixed_tenure{n_it}},
+            bazooka::array_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{n_it}},
+            bazooka::array_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{n_it}}
     };
-    auto neighborhood_sizer = tabu_search::fixed_neighborhood_sizer{24};
+    auto neighborhood_sizer = tabu_search::fixed_neighborhood_sizer{42};
 
     settings.emplace(json{"optimizer", {
             {"neighborhood size", neighborhood_sizer.size()},
@@ -602,16 +603,16 @@ int main()
     settings.emplace(json{"search space", {
             {"levels", {
                     {"count", n_levels},
-                    {"unique count", 15},
+                    {"unique count", 30},
             }},
             {"open order sizes", {
-                    {"unique count", 30}
+                    {"unique count", 55}
             }},
             {"moving average", {
                     {"types", {"sma", "ema"}},
                     {"period", {
                             {"from", 1},
-                            {"to", 60},
+                            {"to", 120},
                             {"step", 1}
                     }}
             }},
