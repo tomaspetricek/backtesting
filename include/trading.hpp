@@ -37,6 +37,7 @@
 #include <trading/simulated_anneling/equilibrium.hpp>
 #include <trading/simulated_anneling/optimizer.hpp>
 #include <trading/simulated_anneling/progress_observer.hpp>
+#include <trading/tabu_search/neighborhood_sizer.hpp>
 #include <trading/tabu_search/optimizer.hpp>
 #include <trading/tabu_search/progress_collector.hpp>
 #include <trading/tabu_search/progress_reporter.hpp>

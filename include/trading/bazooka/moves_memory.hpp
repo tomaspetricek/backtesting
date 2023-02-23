@@ -13,7 +13,7 @@
 
 namespace trading::bazooka {
     template<class Tenure>
-    class period_moves_memory {
+    class period_memory {
         std::size_t from_, to_, step_;
         Tenure tenure_;
         std::vector<std::size_t> mem_;
@@ -25,7 +25,7 @@ namespace trading::bazooka {
         }
 
     public:
-        explicit period_moves_memory(std::size_t from, std::size_t to, std::size_t step, Tenure tenure)
+        explicit period_memory(std::size_t from, std::size_t to, std::size_t step, Tenure tenure)
                 :from_(from), to_(to), step_(step), tenure_(tenure), mem_(((to-from)/step)+1, 0) { }
 
         bool contains(std::size_t period) const
@@ -51,15 +51,20 @@ namespace trading::bazooka {
         {
             return size_;
         }
+
+        Tenure tenure() const
+        {
+            return tenure_;
+        }
     };
 
     template<class Tenure>
-    class ma_moves_memory {
+    class indicator_type_memory {
         Tenure tenure_;
         std::size_t mem_{0};
 
     public:
-        explicit ma_moves_memory(const Tenure& tenure)
+        explicit indicator_type_memory(const Tenure& tenure)
                 :tenure_(tenure) { }
 
         bool contains(const bazooka::indicator_type&) const
@@ -81,15 +86,20 @@ namespace trading::bazooka {
         {
             return bool(mem_);
         }
+
+        const Tenure& tenure() const
+        {
+            return tenure_;
+        }
     };
 
     template<std::size_t n_levels, class Tenure>
-    class array_moves_memory {
+    class array_memory {
         Tenure tenure_;
         std::map<std::array<fraction_t, n_levels>, std::size_t> mem_;
 
     public:
-        explicit array_moves_memory(const Tenure& tenure)
+        explicit array_memory(const Tenure& tenure)
                 :tenure_(tenure) { }
 
         bool contains(const std::array<fraction_t, n_levels>& arr) const
@@ -115,29 +125,34 @@ namespace trading::bazooka {
         {
             return mem_.size();
         }
+
+        const Tenure& tenure() const
+        {
+            return tenure_;
+        }
     };
 
     template<std::size_t n_levels, class MaTenure, class PeriodTenure, class LevelsTenure, class SizesTenure>
     class configuration_moves_memory {
-        ma_moves_memory<MaTenure> ma_mem_;
-        period_moves_memory<PeriodTenure> period_mem_;
-        array_moves_memory<n_levels, LevelsTenure> levels_mem_;
-        array_moves_memory<n_levels, SizesTenure> sizes_mem_;
+        indicator_type_memory<MaTenure> indic_mem_;
+        period_memory<PeriodTenure> period_mem_;
+        array_memory<n_levels, LevelsTenure> levels_mem_;
+        array_memory<n_levels, SizesTenure> sizes_mem_;
 
     public:
         using move_type = movement<n_levels>;
 
-        configuration_moves_memory(const ma_moves_memory<MaTenure>& ma_mem,
-                const period_moves_memory<PeriodTenure>& period_mem,
-                const array_moves_memory<n_levels, LevelsTenure>& levels_mem,
-                const array_moves_memory<n_levels, SizesTenure>& sizes_mem)
-                :ma_mem_(ma_mem), period_mem_(period_mem), levels_mem_(levels_mem), sizes_mem_(sizes_mem) { }
+        configuration_moves_memory(const indicator_type_memory<MaTenure>& ma_mem,
+                const period_memory<PeriodTenure>& period_mem,
+                const array_memory<n_levels, LevelsTenure>& levels_mem,
+                const array_memory<n_levels, SizesTenure>& sizes_mem)
+                :indic_mem_(ma_mem), period_mem_(period_mem), levels_mem_(levels_mem), sizes_mem_(sizes_mem) { }
 
         bool contains(const move_type& move) const
         {
             switch (move.index()) {
             case ma_idx:
-                return ma_mem_.contains(std::get<ma_idx>(move));
+                return indic_mem_.contains(std::get<ma_idx>(move));
                 break;
             case period_idx:
                 return period_mem_.contains(std::get<period_idx>(move));
@@ -154,7 +169,7 @@ namespace trading::bazooka {
         {
             switch (move.index()) {
             case ma_idx:
-                ma_mem_.remember(std::get<ma_idx>(move));
+                indic_mem_.remember(std::get<ma_idx>(move));
                 break;
             case period_idx:
                 period_mem_.remember(std::get<period_idx>(move));
@@ -171,7 +186,7 @@ namespace trading::bazooka {
         {
             switch (move.index()) {
             case ma_idx:
-                ma_mem_.forget();
+                indic_mem_.forget();
                 break;
             case period_idx:
                 period_mem_.forget();
@@ -186,7 +201,24 @@ namespace trading::bazooka {
 
         std::size_t size() const
         {
-            return ma_mem_.size()+period_mem_.size()+levels_mem_.size()+sizes_mem_.size();
+            return indic_mem_.size()+period_mem_.size()+levels_mem_.size()+sizes_mem_.size();
+        }
+
+        const indicator_type_memory<MaTenure>& indicator_memory() const
+        {
+            return indic_mem_;
+        }
+        const period_memory<PeriodTenure>& period_memory() const
+        {
+            return period_mem_;
+        }
+        const array_memory<n_levels, LevelsTenure>& levels_memory() const
+        {
+            return levels_mem_;
+        }
+        const array_memory<n_levels, SizesTenure>& sizes_memory() const
+        {
+            return sizes_mem_;
         }
     };
 }

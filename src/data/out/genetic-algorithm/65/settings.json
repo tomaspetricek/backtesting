@@ -8,32 +8,28 @@
         "from": 1515024000,
         "to": 1667066400
     },
+    "initial genes count": 256,
     "optimizer": {
-        "moves memory": {
-            "indicator type memory": {
-                "tenure": {
-                    "iteration count": 16
-                }
-            },
-            "levels memory": {
-                "tenure": {
-                    "iteration count": 16
-                }
-            },
-            "period memory": {
-                "tenure": {
-                    "iteration count": 16
-                }
-            },
-            "sizes memory": {
-                "tenure": {
-                    "iteration count": 16
-                }
-            }
+        "crossover": {
+            "children count": 2
         },
-        "neighborhood size": 24,
+        "matchmaker": {
+            "name": "random matchmaker",
+            "parents count": 2
+        },
+        "replacement": {
+            "elite ratio": "16/100",
+            "name": "elitism replacement"
+        },
+        "selection": {
+            "name": "roulette selection"
+        },
+        "sizer": {
+            "growth factor": 1.0049999952316284,
+            "name": "basic sizer"
+        },
         "termination": {
-            "max it": 512,
+            "max it": 40,
             "name": "iteration based termination"
         }
     },

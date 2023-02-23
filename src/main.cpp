@@ -298,19 +298,14 @@ int use_brute_force(Simulator&& simulator, json&& settings)
 //    to_csv(series_collector.get(), best_dir);
 }
 
-template<class Simulator>
-void use_simulated_annealing(Simulator&& simulator, json&& settings)
+template<class Simulator, class Logger>
+void use_simulated_annealing(Simulator&& simulator, json&& settings, const std::filesystem::path& experiment_dir,
+        std::shared_ptr<Logger> logger)
 {
     constexpr std::size_t n_levels = 4;
     using config_type = bazooka::configuration<n_levels>;
     using state_type = simulated_annealing::optimizer<config_type>::state_type;
     using trader_type = typename std::invoke_result<decltype(create_trader<n_levels>), config_type>::type;
-
-    std::filesystem::path data_dir{"../../src/data"};
-    std::filesystem::path out_dir{data_dir/"out"};
-    std::filesystem::path optim_dir{out_dir/"simulated-annealing"};
-    std::filesystem::create_directory(optim_dir);
-    std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
 
     std::size_t n_best{30};
     auto optim_criteria = [](const state_type& rhs, const state_type& lhs) {
@@ -339,6 +334,7 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings)
     progress_observer_type progress_observer;
 
     auto equilibrium = simulated_annealing::iteration_based_equilibrium{n_tries};
+    config_type next;
 
     auto duration = measure_duration([&]() {
         optimizer(init_config, result, restrictions, cooler,
@@ -346,7 +342,10 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings)
                     simulator(create_trader(config), stats_collector);
                     return static_cast<double>(stats_collector.get().total_profit<percent>());
                 },
-                neighbor,
+                [&](const config_type& genes) {
+                    std::tie(next, std::ignore) = neighbor(genes);
+                    return next;
+                },
                 [](const state_type& current, const state_type& candidate) -> double {
                     return current.value-candidate.value;
                 },
@@ -401,7 +400,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
     std::vector<config_type> init_genes;
     genetic_algorithm::optimizer<config_type> optimizer;
 
-    std::size_t n_init_genes{896};
+    std::size_t n_init_genes{256};
     init_genes.reserve(n_init_genes);
     auto rand_genes = random::configuration_generator<n_levels>{open_sizes_gen, levels_gen, period_gen};
     settings.emplace(json{"initial genes count", n_init_genes});
@@ -438,6 +437,9 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
     std::ofstream settings_file{experiment_dir/"settings.json"};
     settings_file << std::setw(4) << settings << std::endl;
 
+    auto neighbor = bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen};
+    config_type next;
+
     auto duration = measure_duration([&]() {
         optimizer(init_genes,
                 [&](const config_type& genes) -> double {
@@ -447,7 +449,10 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
                     return total_profit;
                 },
                 sizer, selection, matchmaker, crossover_type{},
-                bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen},
+                [&](const config_type& genes) {
+                    std::tie(next, std::ignore) = neighbor(genes);
+                    return next;
+                },
                 replacement, termination, observers);
     });
 
@@ -472,7 +477,7 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
     random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
     random::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
     const auto& period_doc = settings["search space"]["moving average"]["period"];
-    random::int_range period_gen{period_doc["from"], period_doc["to"], period_doc["step"], 15};
+    random::int_range period_gen{period_doc["from"], period_doc["to"], period_doc["step"], 10};
     bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
     bazooka::configuration<n_levels> init_config{bazooka::indicator_type::sma, static_cast<std::size_t>(period_gen()),
                                                  levels_gen(), open_sizes_gen()};
@@ -482,16 +487,44 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
     auto optim_criteria = [](const auto& rhs, const auto& lhs) { return rhs>lhs; };
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
 
+    auto termination = iteration_based_termination{512};
     bazooka::configuration_moves_memory moves_memory{
-            bazooka::ma_moves_memory{tabu_search::fixed_tenure{10}},
-            bazooka::period_moves_memory{static_cast<std::size_t>(period_gen.from()),
-                                         static_cast<std::size_t>(period_gen.to()),
-                                         static_cast<std::size_t>(period_gen.step()),
-                                         tabu_search::fixed_tenure{3}},
-            bazooka::array_moves_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{30}},
-            bazooka::array_moves_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{30}}
+            bazooka::indicator_type_memory{tabu_search::fixed_tenure{16}},
+            bazooka::period_memory{static_cast<std::size_t>(period_gen.from()),
+                                   static_cast<std::size_t>(period_gen.to()),
+                                   static_cast<std::size_t>(period_gen.step()),
+                                   tabu_search::fixed_tenure{16}},
+            bazooka::array_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{16}},
+            bazooka::array_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{16}}
     };
+    auto neighborhood_sizer = tabu_search::fixed_neighborhood_sizer{24};
 
+    settings.emplace(json{"optimizer", {
+            {"neighborhood size", neighborhood_sizer.size()},
+            {"moves memory", {
+                    {"indicator type memory", {
+                            {"tenure", {
+                                    {"iteration count", moves_memory.indicator_memory().tenure().it_count()}
+                            }},
+                    }},
+                    {"period memory", {
+                            {"tenure", {
+                                    {"iteration count", moves_memory.period_memory().tenure().it_count()}
+                            }},
+                    }},
+                    {"levels memory", {
+                            {"tenure", {
+                                    {"iteration count", moves_memory.levels_memory().tenure().it_count()}
+                            }},
+                    }},
+                    {"sizes memory", {
+                            {"tenure", {
+                                    {"iteration count", moves_memory.sizes_memory().tenure().it_count()}
+                            }},
+                    }},
+            }},
+            {"termination", termination},
+    }});
     std::ofstream settings_file{experiment_dir/"settings.json"};
     settings_file << std::setw(4) << settings << std::endl;
 
@@ -503,9 +536,7 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
                     simulator(create_trader(config), stats_collector);
                     return static_cast<double>(stats_collector.get().total_profit<percent>());
                 },
-                optim_criteria, neighbor,
-                [](const auto&) -> std::size_t { return 256; },
-                iteration_based_termination{100},
+                optim_criteria, neighbor, neighborhood_sizer, termination,
                 [&](const auto& candidate, const auto& optim) -> bool {
                     return optim_criteria(candidate.fitness, optim.best_state().fitness);
                 },
@@ -571,10 +602,10 @@ int main()
     settings.emplace(json{"search space", {
             {"levels", {
                     {"count", n_levels},
-                    {"unique count", 30},
+                    {"unique count", 15},
             }},
             {"open order sizes", {
-                    {"unique count", 55}
+                    {"unique count", 30}
             }},
             {"moving average", {
                     {"types", {"sma", "ema"}},

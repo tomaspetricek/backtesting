@@ -8,34 +8,15 @@
         "from": 1515024000,
         "to": 1667066400
     },
+    "cooler": {
+        "type": "basic cooler"
+    },
     "optimizer": {
-        "moves memory": {
-            "indicator type memory": {
-                "tenure": {
-                    "iteration count": 16
-                }
-            },
-            "levels memory": {
-                "tenure": {
-                    "iteration count": 16
-                }
-            },
-            "period memory": {
-                "tenure": {
-                    "iteration count": 16
-                }
-            },
-            "sizes memory": {
-                "tenure": {
-                    "iteration count": 16
-                }
-            }
+        "equilibrium": {
+            "tries count": 256
         },
-        "neighborhood size": 24,
-        "termination": {
-            "max it": 512,
-            "name": "iteration based termination"
-        }
+        "minimum temperature": 26.0,
+        "start temperature": 128.0
     },
     "resampling": {
         "averaging method": "ohlc4",
