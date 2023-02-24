@@ -10,7 +10,7 @@
 #include <optional>
 #include <trading/data_point.hpp>
 #include <trading/order.hpp>
-#include <trading/sizer.hpp>
+#include <trading/order_sizer.hpp>
 #include <trading/order.hpp>
 #include <trading/market.hpp>
 #include <trading/position.hpp>
@@ -23,8 +23,8 @@ namespace trading {
     class manager {
     protected:
         market market_;
-        sizer<n_open> open_sizer_;
-        sizer<n_close> close_sizer_;
+        order_sizer<n_open> open_sizer_;
+        order_sizer<n_close> close_sizer_;
         order last_open_order_{};
         order last_close_order_{};
 
@@ -54,8 +54,8 @@ namespace trading {
     public:
         manager() = default;
 
-        manager(trading::market market, const sizer<n_open>& open_sizer,
-                const sizer<n_close>& close_sizer)
+        manager(trading::market market, const order_sizer<n_open>& open_sizer,
+                const order_sizer<n_close>& close_sizer)
                 :market_(market), open_sizer_(open_sizer), close_sizer_(close_sizer) { }
 
         // it closes active trade, if there is one

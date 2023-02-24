@@ -1,0 +1,64 @@
+{
+    "candles": {
+        "count": 2526055,
+        "currency pair": {
+            "base": "ltc",
+            "quote": "usdt"
+        },
+        "from": 1515024000,
+        "to": 1667066400
+    },
+    "optimizer": {
+        "moves memory": {
+            "indicator type memory": {
+                "tenure": {
+                    "iteration count": 64
+                }
+            },
+            "levels memory": {
+                "tenure": {
+                    "iteration count": 64
+                }
+            },
+            "period memory": {
+                "tenure": {
+                    "iteration count": 64
+                }
+            },
+            "sizes memory": {
+                "tenure": {
+                    "iteration count": 64
+                }
+            }
+        },
+        "neighborhood size": 24,
+        "termination": {
+            "max it": 512,
+            "name": "iteration based termination"
+        }
+    },
+    "resampling": {
+        "averaging method": "ohlc4",
+        "period[min]": 30
+    },
+    "search space": {
+        "levels": {
+            "count": 4,
+            "unique count": 30
+        },
+        "moving average": {
+            "period": {
+                "from": 1,
+                "step": 1,
+                "to": 120
+            },
+            "types": [
+                "sma",
+                "ema"
+            ]
+        },
+        "open order sizes": {
+            "unique count": 55
+        }
+    }
+}

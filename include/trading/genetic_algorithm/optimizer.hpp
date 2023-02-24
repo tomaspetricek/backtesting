@@ -77,7 +77,7 @@ namespace trading::genetic_algorithm {
             std::vector<individual> parents, children;
 
             (observers.begin(*this), ...);
-            while (population_.size() && !termination(*this)) {
+            for (; population_.size() && !termination(*this); it_++) {
                 parents.clear();
                 selection(sizer(population_.size()), population_, parents);
 
@@ -94,7 +94,6 @@ namespace trading::genetic_algorithm {
                 population_.clear();
                 replacement(parents, children, population_);
                 (observers.population_updated(*this), ...);
-                it_++;
             };
             (observers.end(*this), ...);
 

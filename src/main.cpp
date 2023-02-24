@@ -38,11 +38,11 @@ auto create_trader(const bazooka::configuration<n_levels>& config)
     trading::market market{wallet{init_balance}, fee, fee};
 
     // create open sizer
-    sizer open_sizer{config.open_sizes};
+    order_sizer open_sizer{config.open_sizes};
 
     // create close sizer
     std::array close_fracs{fraction_t{1}};
-    sizer close_sizer{close_fracs};
+    order_sizer close_sizer{close_fracs};
 
     // create trade manager
     trading::manager manager{market, open_sizer, close_sizer};
@@ -330,8 +330,9 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings, const std::
     auto cooler = simulated_annealing::basic_cooler{};
     simulated_annealing::optimizer<config_type> optimizer{start_temp, min_temp};
     enumerative_result<state_type> result{n_best, optim_criteria};
-    using progress_observer_type = simulated_annealing::progress_observer<config_type>;
+    using progress_observer_type = simulated_annealing::progress_observer;
     progress_observer_type progress_observer;
+    simulated_annealing::progress_reporter reporter{logger};
 
     auto equilibrium = simulated_annealing::iteration_based_equilibrium{n_tries};
     config_type next;
@@ -349,8 +350,7 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings, const std::
                 [](const state_type& current, const state_type& candidate) -> double {
                     return current.value-candidate.value;
                 },
-                equilibrium,
-                progress_observer);
+                equilibrium, progress_observer, reporter);
     });
     std::cout << "duration: " << duration << std::endl;
 
@@ -400,7 +400,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
     std::vector<config_type> init_genes;
     genetic_algorithm::optimizer<config_type> optimizer;
 
-    std::size_t n_init_genes{256};
+    std::size_t n_init_genes{1'024};
     init_genes.reserve(n_init_genes);
     auto rand_genes = random::configuration_generator<n_levels>{open_sizes_gen, levels_gen, period_gen};
     settings.emplace(json{"initial genes count", n_init_genes});
@@ -417,7 +417,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
     genetic_algorithm::progress_reporter<Logger> reporter{logger};
     genetic_algorithm::progress_observers observers{collector, reporter};
 
-    auto sizer = genetic_algorithm::basic_sizer{1.005};
+    auto sizer = basic_sizer{1.005};
     auto selection = genetic_algorithm::roulette_selection{};
     auto matchmaker = genetic_algorithm::random_matchmaker<crossover_type::n_parents>{};
     auto replacement = genetic_algorithm::elitism_replacement{{16, 100}};
@@ -488,7 +488,7 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
 
     auto termination = iteration_based_termination{512};
-    std::size_t n_it{32};
+    std::size_t n_it{42};
     bazooka::configuration_moves_memory moves_memory{
             bazooka::indicator_type_memory{tabu_search::fixed_tenure{n_it}},
             bazooka::period_memory{static_cast<std::size_t>(period_gen.from()),
@@ -498,12 +498,12 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
             bazooka::array_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{n_it}},
             bazooka::array_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{n_it}}
     };
-    auto neighborhood_sizer = tabu_search::fixed_neighborhood_sizer{42};
+    auto neighborhood_sizer = fixed_sizer{128};
 
     settings.emplace(json{"optimizer", {
             {"neighborhood size", neighborhood_sizer.size()},
             {"moves memory", {
-                    {"indicator type memory", {
+                    {"indicator memory", {
                             {"tenure", {
                                     {"iteration count", moves_memory.indicator_memory().tenure().it_count()}
                             }},
@@ -562,7 +562,7 @@ int main()
     std::filesystem::path data_dir{"../../src/data"};
     std::filesystem::path in_dir{data_dir/"in"};
     std::filesystem::path out_dir{data_dir/"out"};
-    std::filesystem::path optim_dir{out_dir/"tabu-search"};
+    std::filesystem::path optim_dir{out_dir/"genetic-algorithm"};
     std::filesystem::create_directory(optim_dir);
     std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
 
@@ -571,7 +571,7 @@ int main()
     typedef boost::iostreams::stream<tee_type> tee_stream_type;
     auto logger = std::make_shared<tee_stream_type>(tee_type{std::cout, log_file});
 
-    std::string base{"ltc"}, quote{"usdt"};
+    std::string base{"xrp"}, quote{"usdt"};
     std::filesystem::path candles_path{in_dir/fmt::format("ohlcv-{}-{}-1-min.csv", base, quote)};
 
     std::time_t min_opened{1515024000}, max_opened{1667066400};
@@ -627,6 +627,6 @@ int main()
             {"averaging method", decltype(averager)::name}
     }});
 
-    use_tabu_search(std::move(simulator), std::move(settings), experiment_dir, logger);
+    use_genetic_algorithm(std::move(simulator), std::move(settings), experiment_dir, logger);
     return EXIT_SUCCESS;
 }

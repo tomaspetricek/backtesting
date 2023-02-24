@@ -16,7 +16,7 @@
 #include <trading/genetic_algorithm/replacement.hpp>
 #include <trading/genetic_algorithm/matchmaker.hpp>
 #include <trading/genetic_algorithm/selection.hpp>
-#include <trading/genetic_algorithm/sizer.hpp>
+#include <trading/sizer.hpp>
 
 namespace nlohmann {
     template<typename T>
@@ -142,8 +142,8 @@ namespace nlohmann {
     };
 
     template<>
-    struct adl_serializer<trading::genetic_algorithm::basic_sizer> {
-        static void to_json(nlohmann::json& j, const trading::genetic_algorithm::basic_sizer& sizer)
+    struct adl_serializer<trading::basic_sizer> {
+        static void to_json(nlohmann::json& j, const trading::basic_sizer& sizer)
         {
             j = {{"name",  "basic sizer"},
                  {"growth factor", sizer.growth_factor()}};

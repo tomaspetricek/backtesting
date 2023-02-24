@@ -58,12 +58,11 @@ namespace trading::tabu_search {
             (observers.begin(*this), ...);
             for (; !terminate(*this); it_++) {
                 // explore neighborhood
-                std::size_t n_neighbors = neighborhood_size(*this);
                 origin = curr_;
                 std::tie(curr_.config, curr_move) = neighbor(origin.config);
                 curr_.fitness = compute_fitness(curr_.config);
 
-                for (std::size_t i{0}; i<n_neighbors-1; i++) {
+                for (std::size_t i{0}; i<neighborhood_size(*this)-1; i++) {
                     std::tie(candidate.config, candidate_move) = neighbor(origin.config);
 
                     if (!tabu_list.contains(candidate_move)) {

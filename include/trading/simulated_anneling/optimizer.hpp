@@ -34,9 +34,15 @@ namespace trading::simulated_annealing {
 
     template<class Config>
     class optimizer {
+        struct state {
+            Config config;
+            double value;
+        };
+
         double start_temp_, min_temp_, curr_temp_;
         random::real_generator<double> rand_prob_gen_{0.0, 1.0};
         std::size_t it_{0};
+        state curr_state_;
 
         static double validate_min_temp(const double min_temp)
         {
@@ -53,11 +59,6 @@ namespace trading::simulated_annealing {
         }
 
     public:
-        struct state {
-            Config config;
-            double value;
-        };
-
         using state_type = state;
 
         explicit optimizer(double start_temp, double min_temp)
@@ -73,35 +74,35 @@ namespace trading::simulated_annealing {
                 Equilibrium auto&& equilibrium,
                 Observer& ... observers)
         {
-            state curr_state{init_config, objective(init_config)};
-            (observers.begin(*this, curr_state), ...);
+            curr_state_ = state{init_config, objective(init_config)};
+            (observers.begin(*this), ...);
 
             // frozen
             for (; curr_temp_>min_temp_; it_++) {
                 while (equilibrium()) {
-                    Config config = neighbor(curr_state.config);
+                    Config config = neighbor(curr_state_.config);
                     state candidate = state{config, objective(config)};
 
-                    if (result.compare(candidate, curr_state)) {
-                        curr_state = candidate;
+                    if (result.compare(candidate, curr_state_)) {
+                        curr_state_ = candidate;
                         (observers.better_accepted(*this), ...);
 
-                        if (restrict(curr_state))
-                            result.update(curr_state);
+                        if (restrict(curr_state_))
+                            result.update(curr_state_);
                     }
                     else {
-                        double diff = appraiser(curr_state, candidate);
+                        double diff = appraiser(curr_state_, candidate);
                         double threshold = std::exp(-diff/curr_temp_);
                         assert(threshold>0.0 && threshold<1.0);
 
                         if (rand_prob_gen_()<threshold) {
-                            curr_state = candidate;
+                            curr_state_ = candidate;
                             (observers.worse_accepted(*this, threshold), ...);
                         }
                     }
                 }
                 cooler(*this);
-                (observers.cooled(*this, curr_state), ...);
+                (observers.cooled(*this), ...);
             }
             (observers.end(*this), ...);
         }
@@ -129,6 +130,10 @@ namespace trading::simulated_annealing {
         double minimum_temperature() const
         {
             return min_temp_;
+        }
+
+        const state& current_state() {
+            return curr_state_;
         }
     };
 }
