@@ -10,40 +10,37 @@
 #include <iostream>
 
 namespace trading {
-    template<class ...T_s>
+    template<class Indices, class ...Types>
     class table final {
     public:
-        typedef std::tuple<T_s...> row;
+        typedef std::tuple<Types...> row_type;
+        using indices = Indices;
+        static constexpr std::size_t column_count = sizeof...(Types);
 
     private:
-        std::vector<row> rows_;
-        static constexpr int n_cols_ = sizeof...(T_s);
-        const std::array<std::string, n_cols_> col_names_;
+        std::vector<row_type> rows_;
 
     public:
         table() = default;
 
-        explicit table(const std::array<std::string, n_cols_>& col_names)
-                :col_names_{col_names}{ }
+        void clear()
+        {
+            rows_.clear();
+        }
 
-        void add_row(const table::row& row)
+        void emplace_back(const table::row_type& row)
         {
             rows_.emplace_back(row);
         }
 
-        constexpr int n_cols() const
+        auto begin() const
         {
-            return n_cols_;
+            return rows_.begin();
         }
 
-        const std::vector<row>& rows() const
+        auto end() const
         {
-            return rows_;
-        }
-
-        const std::array<std::string, n_cols_>& col_names() const
-        {
-            return col_names_;
+            return rows_.end();
         }
     };
 }

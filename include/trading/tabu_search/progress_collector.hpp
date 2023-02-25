@@ -7,13 +7,20 @@
 
 #include <tuple>
 #include <vector>
+#include <trading/table.hpp>
 
 namespace trading::tabu_search {
     class progress_collector {
-        std::vector<std::tuple<double, double, std::size_t>> progress_;
+        enum indices {
+            best_fitness = 0,
+            curr_fitness = 1,
+            tabu_list_size = 2
+        };
+
+        table<indices, double, double, std::size_t> progress_;
 
     public:
-        static constexpr std::size_t best_fitness_idx = 0, curr_fitness_idx = 1, tabu_list_size_idx = 2;
+        using value_type = table<indices, double, double, std::size_t>;
 
         template<class Optimizer>
         void begin(const Optimizer&)
@@ -24,7 +31,7 @@ namespace trading::tabu_search {
         template<class Optimizer, class TabuList>
         void iteration_passed(const Optimizer& optimizer, const TabuList& tabu_list)
         {
-            progress_.template emplace_back(optimizer.best_state().fitness, optimizer.current_state().fitness,
+            progress_.emplace_back(optimizer.best_state().fitness, optimizer.current_state().fitness,
                     tabu_list.size());
         }
 

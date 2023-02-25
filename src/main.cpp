@@ -405,8 +405,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
         init_genes.emplace_back(rand_genes());
 
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
-    using progress_collector_type = genetic_algorithm::progress_collector;
-    progress_collector_type collector;
+    genetic_algorithm::progress_collector collector;
     genetic_algorithm::progress_reporter<Logger> reporter{logger};
     genetic_algorithm::progress_observers observers{collector, reporter};
 
@@ -450,13 +449,14 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
     });
 
     *logger << "duration: " << duration << std::endl;
+    using idx = genetic_algorithm::progress_collector::value_type::indices;
 
     io::csv::writer<3> writer(experiment_dir/"progress.csv");
     writer.write_header({"mean fitness", "best fitness", "population size"});
     for (const auto& progress: collector.get())
-        writer.write_row(std::get<progress_collector_type::mean_fitness_idx>(progress),
-                std::get<progress_collector_type::best_fitness_idx>(progress),
-                std::get<progress_collector_type::population_size_idx>(progress));
+        writer.write_row(std::get<idx::mean_fitness>(progress),
+                std::get<idx::best_fitness>(progress),
+                std::get<idx::population_size>(progress));
 };
 
 template<class Simulator, class Logger>
@@ -538,13 +538,14 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
         );
     });
     *logger << "duration: " << duration << std::endl;
+    using idx = tabu_search::progress_collector::value_type::indices;
 
     io::csv::writer<3> writer(experiment_dir/"progress.csv");
     writer.write_header({"best fitness", "curr fitness", "tabu list size"});
     for (const auto& progress: collector.get())
-        writer.write_row(std::get<tabu_search::progress_collector::best_fitness_idx>(progress),
-                std::get<tabu_search::progress_collector::curr_fitness_idx>(progress),
-                std::get<tabu_search::progress_collector::tabu_list_size_idx>(progress));
+        writer.write_row(std::get<idx::best_fitness>(progress),
+                std::get<idx::curr_fitness>(progress),
+                std::get<idx::tabu_list_size>(progress));
 }
 
 int main()

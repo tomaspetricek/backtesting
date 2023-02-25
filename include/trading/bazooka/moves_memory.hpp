@@ -150,12 +150,12 @@ namespace trading::bazooka {
 
         bool contains(const move_type& move) const
         {
-            switch (move.index()) {
-            case move_type::index::tag:
+            switch (move.indices()) {
+            case move_type::indices::tag:
                 return indic_mem_.contains(move.tag);
-            case move_type::index::period:
+            case move_type::indices::period:
                 return period_mem_.contains(move.period());
-            case move_type::index::levels:
+            case move_type::indices::levels:
                 return levels_mem_.contains(move.levels());
             default:
                 return sizes_mem_.contains(move.open_sizes());
@@ -164,14 +164,14 @@ namespace trading::bazooka {
 
         void remember(const move_type& move)
         {
-            switch (move.index()) {
-            case move_type::index::tag:
+            switch (move.indices()) {
+            case move_type::indices::tag:
                 indic_mem_.remember(move.tag());
                 break;
-            case move_type::index::period:
+            case move_type::indices::period:
                 period_mem_.remember(move.period());
                 break;
-            case move_type::index::levels:
+            case move_type::indices::levels:
                 levels_mem_.remember(move.levels());
                 break;
             default:
@@ -181,14 +181,14 @@ namespace trading::bazooka {
 
         void forget(const move_type& move)
         {
-            switch (move.index()) {
-            case move_type::index::tag:
+            switch (move.indices()) {
+            case move_type::indices::tag:
                 indic_mem_.forget();
                 break;
-            case move_type::index::period:
+            case move_type::indices::period:
                 period_mem_.forget();
                 break;
-            case move_type::index::levels:
+            case move_type::indices::levels:
                 levels_mem_.forget();
                 break;
             default:

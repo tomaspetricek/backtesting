@@ -9,13 +9,19 @@
 #include <iostream>
 #include <algorithm>
 #include <tuple>
+#include <trading/table.hpp>
 
 namespace trading::genetic_algorithm {
     class progress_collector {
-        std::vector<std::tuple<double, double, std::size_t>> progress_;
+        enum indices {
+            mean_fitness = 0,
+            best_fitness = 1,
+            population_size = 2
+        };
+        table<indices, double, double, std::size_t> progress_;
 
     public:
-        static constexpr std::size_t mean_fitness_idx = 0, best_fitness_idx = 1, population_size_idx = 2;
+        using value_type = table<indices, double, double, std::size_t>;
 
         template<class Optimizer>
         void begin(const Optimizer&)
@@ -26,7 +32,7 @@ namespace trading::genetic_algorithm {
         template<class Optimizer>
         void population_updated(const Optimizer& optimizer, double mean_fitness, double best_fitness)
         {
-            progress_.template emplace_back(std::make_tuple(mean_fitness, best_fitness, optimizer.population().size()));
+            progress_.emplace_back(std::make_tuple(mean_fitness, best_fitness, optimizer.population().size()));
         }
 
         template<class Optimizer>
