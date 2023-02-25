@@ -21,11 +21,11 @@ auto sum(Type... vals)
     return (vals + ...);
 }
 
-template <class R, class... Ts>
-R mean(Ts... vals)
+template <class Real, class... Ts>
+Real mean(Ts... vals)
 {
-    static_assert(std::is_floating_point<R>::value);
-    return static_cast<R>(sum(vals...))/sizeof...(vals);
+    static_assert(std::is_floating_point<Real>::value);
+    return static_cast<Real>(sum(vals...))/sizeof...(vals);
 }
 
 #endif //EMASTRATEGY_PACK_HPP

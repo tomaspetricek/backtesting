@@ -14,16 +14,13 @@ namespace trading {
     class resampler {
         size_t period_{1};
         std::time_t opened_{};
-        price_t open_{};
-        price_t high_{};
-        price_t low_{};
-        price_t close_{};
+        price_t open_, high_, low_, close_;
         std::size_t count_{0};
 
-        static size_t validate_period(size_t period) {
+        static size_t validate_period(size_t period)
+        {
             if (!period)
                 throw std::invalid_argument("Resampling period has to be greater than zero");
-
             return period;
         }
 

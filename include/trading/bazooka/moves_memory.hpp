@@ -67,12 +67,12 @@ namespace trading::bazooka {
         explicit indicator_type_memory(const Tenure& tenure)
                 :tenure_(tenure) { }
 
-        bool contains(const bazooka::indicator_type&) const
+        bool contains(const bazooka::indicator_tag&) const
         {
             return mem_;
         }
 
-        void remember(const bazooka::indicator_type&)
+        void remember(const bazooka::indicator_tag&)
         {
             mem_ = tenure_();
         }
@@ -151,47 +151,44 @@ namespace trading::bazooka {
         bool contains(const move_type& move) const
         {
             switch (move.index()) {
-            case ma_idx:
-                return indic_mem_.contains(std::get<ma_idx>(move));
-                break;
-            case period_idx:
-                return period_mem_.contains(std::get<period_idx>(move));
-                break;
-            case levels_idx:
-                return levels_mem_.contains(std::get<levels_idx>(move));
-                break;
+            case move_type::index::tag:
+                return indic_mem_.contains(move.tag);
+            case move_type::index::period:
+                return period_mem_.contains(move.period());
+            case move_type::index::levels:
+                return levels_mem_.contains(move.levels());
             default:
-                return sizes_mem_.contains(std::get<sizes_idx>(move));
+                return sizes_mem_.contains(move.open_sizes());
             }
         }
 
         void remember(const move_type& move)
         {
             switch (move.index()) {
-            case ma_idx:
-                indic_mem_.remember(std::get<ma_idx>(move));
+            case move_type::index::tag:
+                indic_mem_.remember(move.tag());
                 break;
-            case period_idx:
-                period_mem_.remember(std::get<period_idx>(move));
+            case move_type::index::period:
+                period_mem_.remember(move.period());
                 break;
-            case levels_idx:
-                levels_mem_.remember(std::get<levels_idx>(move));
+            case move_type::index::levels:
+                levels_mem_.remember(move.levels());
                 break;
             default:
-                sizes_mem_.remember(std::get<sizes_idx>(move));
+                sizes_mem_.remember(move.open_sizes());
             }
         }
 
         void forget(const move_type& move)
         {
             switch (move.index()) {
-            case ma_idx:
+            case move_type::index::tag:
                 indic_mem_.forget();
                 break;
-            case period_idx:
+            case move_type::index::period:
                 period_mem_.forget();
                 break;
-            case levels_idx:
+            case move_type::index::levels:
                 levels_mem_.forget();
                 break;
             default:
@@ -208,14 +205,17 @@ namespace trading::bazooka {
         {
             return indic_mem_;
         }
+
         const period_memory<PeriodTenure>& period_memory() const
         {
             return period_mem_;
         }
+
         const array_memory<n_levels, LevelsTenure>& levels_memory() const
         {
             return levels_mem_;
         }
+
         const array_memory<n_levels, SizesTenure>& sizes_memory() const
         {
             return sizes_mem_;

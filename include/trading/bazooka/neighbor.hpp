@@ -52,21 +52,22 @@ namespace trading::bazooka {
             switch (choose_(gen_)) {
             case 0:
                 next.period = period_gen_(next.period);
-                move.template emplace<period_idx>(next.period);
+                move.period(next.period);
                 break;
             case 1: {
-                next.ma = (next.ma==bazooka::indicator_type::ema) ? bazooka::indicator_type::sma : bazooka::indicator_type::ema;
-                move.template emplace<ma_idx>(next.ma);
+                next.tag = (next.tag==bazooka::indicator_tag::ema) ? bazooka::indicator_tag::sma
+                                                                   : bazooka::indicator_tag::ema;
+                move.tag(next.tag);
                 break;
             }
             case 2: {
                 next.levels = levels_gen_(next.levels);
-                move.template emplace<levels_idx>(create_diff(origin.levels, next.levels));
+                move.levels(create_diff(origin.levels, next.levels));
                 break;
             }
             default:
                 next.open_sizes = open_sizes_gen_(next.open_sizes);
-                move.template emplace<sizes_idx>(create_diff(origin.open_sizes, next.open_sizes));
+                move.open_sizes(create_diff(origin.open_sizes, next.open_sizes));
             }
 
             return std::make_tuple(next, move);

@@ -9,9 +9,9 @@
 
 namespace trading {
     // https://stackoverflow.com/questions/8357240/how-to-automatically-convert-strongly-typed-enum-into-int
-    template <typename E>
-    constexpr typename std::underlying_type<E>::type to_underlying(E e) noexcept {
-        return static_cast<typename std::underlying_type<E>::type>(e);
+    template <typename Enum>
+    constexpr typename std::underlying_type<Enum>::type to_underlying(Enum e) noexcept {
+        return static_cast<typename std::underlying_type<Enum>::type>(e);
     }
 }
 

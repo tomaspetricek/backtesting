@@ -325,7 +325,7 @@ namespace trading {
 
             bazooka::configuration<n_levels> operator()()
             {
-                auto ma = (coin_flip_(gen_)) ? bazooka::indicator_type::sma : bazooka::indicator_type::ema;
+                auto ma = (coin_flip_(gen_)) ? bazooka::indicator_tag::sma : bazooka::indicator_tag::ema;
                 return bazooka::configuration<n_levels>{ma, static_cast<std::size_t>(rand_period_()), rand_levels_(), rand_sizes_()};
             }
         };

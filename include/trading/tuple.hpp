@@ -28,7 +28,7 @@ namespace trading {
         print(_tup, std::make_index_sequence<sizeof...(Types)>());
     }
 
-// https://stackoverflow.com/questions/7858817/unpacking-a-tuple-to-call-a-matching-function-pointer
+    // https://stackoverflow.com/questions/7858817/unpacking-a-tuple-to-call-a-matching-function-pointer
     template<typename Function, typename Tuple, size_t ... I>
     auto call(Function f, Tuple t, std::index_sequence<I ...>)
     {
@@ -42,7 +42,7 @@ namespace trading {
         return call(func, tup, std::make_index_sequence<size>{});
     }
 
-// https://stackoverflow.com/questions/38885406/produce-stdtuple-of-same-type-in-compile-time-given-its-length-by-a-template-a
+    // https://stackoverflow.com/questions/38885406/produce-stdtuple-of-same-type-in-compile-time-given-its-length-by-a-template-a
     template<typename Type, std::size_t size>
     struct tuple_n {
         template<typename...Args> using type = typename tuple_n<Type, size-1>::template type<Type, Args...>;

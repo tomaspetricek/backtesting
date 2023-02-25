@@ -9,7 +9,6 @@
 #include <trading/bazooka/strategy.hpp>
 #include <trading/bazooka/configuration.hpp>
 #include <trading/termination.hpp>
-#include <trading/state.hpp>
 #include <trading/types.hpp>
 #include <nlohmann/json.hpp>
 #include <fmt/format.h>
@@ -82,16 +81,7 @@ namespace nlohmann {
         {
             j = {{"levels",          config.levels},
                  {"open sizes",      config.open_sizes},
-                 {"moving average:", config.ma}};
-        }
-    };
-
-    template<class Config, class Stats>
-    struct adl_serializer<trading::state<Config, Stats>> {
-        static void to_json(nlohmann::json& j, const trading::state<Config, Stats>& state)
-        {
-            j = {{"configuration", state.config},
-                 {"statistics",    state.stats}};
+                 {"moving average:", config.tag}};
         }
     };
 

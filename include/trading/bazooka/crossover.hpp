@@ -115,7 +115,7 @@ namespace trading::bazooka {
             config_type father = parents[1].genes;
 
             for (std::size_t i{0}; i<n_children; i++) {
-                children[i].ma = (coin_flip_(gen_)) ? mother.ma : father.ma;
+                children[i].tag = (coin_flip_(gen_)) ? mother.tag : father.tag;
                 children[i].period = (coin_flip_(gen_)) ? mother.period : father.period;
                 children[i].open_sizes = sizes_crossover_(mother.open_sizes, father.open_sizes);
                 children[i].levels = levels_crossover_(mother.levels, father.levels);

@@ -8,7 +8,7 @@
 #include <functional>
 #include <cppcoro/generator.hpp>
 #include <trading/statistics.hpp>
-#include <trading/state.hpp>
+
 
 namespace trading::brute_force::parallel {
     template<class ConcreteFunction, class Config>

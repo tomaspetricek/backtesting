@@ -10,21 +10,21 @@
 #include <trading/types.hpp>
 
 namespace trading::bazooka {
-    enum class indicator_type {
+    enum class indicator_tag {
         sma,
         ema,
     };
 
     template<std::size_t n_levels>
     struct configuration {
-        indicator_type ma;
+        indicator_tag tag;
         std::size_t period;
         std::array<fraction_t, n_levels> levels;
         std::array<fraction_t, n_levels> open_sizes;
 
         bool operator==(const configuration& rhs) const
         {
-            return ma==rhs.ma &&
+            return tag==rhs.tag &&
                     period==rhs.period &&
                     levels==rhs.levels &&
                     open_sizes==rhs.open_sizes;
@@ -32,9 +32,9 @@ namespace trading::bazooka {
 
         bool operator<(const configuration& rhs) const
         {
-            if (ma<rhs.ma)
+            if (tag<rhs.tag)
                 return true;
-            if (rhs.ma<ma)
+            if (rhs.tag<tag)
                 return false;
             if (period<rhs.period)
                 return true;
@@ -67,7 +67,7 @@ namespace std {
         std::size_t operator()(const trading::bazooka::configuration<n_levels>& config) const
         {
             std::size_t seed{0};
-            boost::hash_combine(seed, boost::hash_value(config.ma));
+            boost::hash_combine(seed, boost::hash_value(config.tag));
             boost::hash_combine(seed, boost::hash_value(config.period));
             boost::hash_combine(seed, boost::hash_value(config.levels));
             boost::hash_combine(seed, boost::hash_value(config.open_sizes));

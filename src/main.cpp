@@ -22,7 +22,7 @@ template<std::size_t n_levels>
 auto create_trader(const bazooka::configuration<n_levels>& config)
 {
     bazooka::indicator ma;
-    if (config.ma==bazooka::indicator_type::ema) {
+    if (config.tag==bazooka::indicator_tag::ema) {
         ma = ema{config.period};
     }
     else {
@@ -90,13 +90,6 @@ void use_generator(Generator&& gen)
     }
     std::cout << std::endl << "n iterations: " << it << std::endl;
 }
-
-template<class Config, class Stats>
-struct setting {
-    std::function<bool(state<Config, Stats>)> restrictions;
-    std::function<bool(state<Config, Stats>, state<Config, Stats>)> optim_criteria;
-    std::string label;
-};
 
 template<class Writer, class Data, std::size_t N, std::size_t... Is>
 void write_series_impl(Writer&& writer, const std::vector<data_point<std::array<Data, N>>>& series,
@@ -240,7 +233,7 @@ int use_brute_force(Simulator&& simulator, json&& settings)
     // create search space
     auto search_space = [&]() -> cppcoro::generator<config_type> {
         for (std::size_t period: periods_gen())
-            for (const auto& ma: {bazooka::indicator_type::ema, bazooka::indicator_type::sma})
+            for (const auto& ma: {bazooka::indicator_tag::ema, bazooka::indicator_tag::sma})
                 for (const auto& levels: levels_gen())
                     for (const auto open_sizes: sizes_gen())
                         co_yield config_type{ma, period, levels, open_sizes};
@@ -318,7 +311,7 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings, const std::
     const auto& period_doc = settings["search space"]["moving average"]["period"];
     random::int_range period_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
     bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
-    bazooka::configuration<n_levels> init_config{bazooka::indicator_type::sma, static_cast<std::size_t>(period_gen()),
+    bazooka::configuration<n_levels> init_config{bazooka::indicator_tag::sma, static_cast<std::size_t>(period_gen()),
                                                  levels_gen(), open_sizes_gen()};
 
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
@@ -479,7 +472,7 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
     const auto& period_doc = settings["search space"]["moving average"]["period"];
     random::int_range period_gen{period_doc["from"], period_doc["to"], period_doc["step"], 10};
     bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
-    bazooka::configuration<n_levels> init_config{bazooka::indicator_type::sma, static_cast<std::size_t>(period_gen()),
+    bazooka::configuration<n_levels> init_config{bazooka::indicator_tag::sma, static_cast<std::size_t>(period_gen()),
                                                  levels_gen(), open_sizes_gen()};
 
     tabu_search::optimizer<config_type> optimizer;

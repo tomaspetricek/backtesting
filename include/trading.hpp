@@ -11,7 +11,6 @@
 #include <trading/bazooka/moves_memory.hpp>
 #include <trading/bazooka/neighbor.hpp>
 #include <trading/bazooka/short_strategy.hpp>
-#include <trading/bazooka/state.hpp>
 #include <trading/bazooka/statistics.hpp>
 #include <trading/brute_force/parallel/optimizer.hpp>
 #include <trading/genetic_algorithm/matchmaker.hpp>
@@ -42,7 +41,6 @@
 #include <trading/tabu_search/progress_reporter.hpp>
 #include <trading/tabu_search/tenure.hpp>
 #include <trading/validator/interval.hpp>
-#include <trading/view/candle_deserializer.hpp>
 #include <trading/types.hpp>
 #include <trading/candle.hpp>
 #include <trading/chart_series.hpp>
@@ -57,7 +55,6 @@
 #include <trading/pack.hpp>
 #include <trading/resampler.hpp>
 #include <trading/result.hpp>
-#include <trading/side.hpp>
 #include <trading/table.hpp>
 #include <trading/termination.hpp>
 #include <trading/simulator.hpp>
@@ -67,7 +64,6 @@
 #include <trading/tuple.hpp>
 #include <trading/utils.hpp>
 #include <trading/order_sizer.hpp>
-#include <trading/state.hpp>
 #include <cppcoro/generator.hpp>
 #include <cppcoro/recursive_generator.hpp>
 
