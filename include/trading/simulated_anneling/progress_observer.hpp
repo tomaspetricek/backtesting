@@ -11,19 +11,24 @@
 
 namespace trading::simulated_annealing {
     class progress_observer {
-        std::vector<std::tuple<amount_t, double, double, std::size_t, std::size_t>> progress_;
+        struct progress {
+            amount_t curr_state_value;
+            double temperature;
+            double worse_acceptance_mean_threshold;
+            std::size_t better_accepted_count;
+            std::size_t worse_accepted_count;
+        };
+
+        std::vector<progress> progress_;
         double threshold_sum{0};
         std::size_t threshold_count{0};
 
     public:
-        static constexpr std::size_t curr_state_value_idx = 0, temperature_idx = 1,
-                worse_acceptance_mean_threshold_idx = 2, better_accepted_count_idx = 3,
-                worse_accepted_count_idx = 4;
-
         void reset_counters()
         {
-            progress_.template emplace_back(std::make_tuple(0.0, 0.0, 0.0, 0, 0));
-            threshold_count = threshold_sum = 0;
+            progress_.emplace_back(progress{0.0, 0.0, 0.0, 0, 0});
+            threshold_count = 0;
+            threshold_sum = 0.0;
         }
 
         template<class Optimizer>
@@ -36,13 +41,13 @@ namespace trading::simulated_annealing {
         template<class Optimizer>
         void better_accepted(const Optimizer&)
         {
-            std::get<better_accepted_count_idx>(progress_.back())++;
+            progress_.back().better_accepted_count++;
         }
 
         template<class Optimizer>
         void worse_accepted(const Optimizer&, double threshold)
         {
-            std::get<worse_accepted_count_idx>(progress_.back())++;
+            progress_.back().worse_accepted_count++;
             threshold_sum += threshold;
             threshold_count++;
             std::cout << "threshold: " << threshold << std::endl;
@@ -51,10 +56,10 @@ namespace trading::simulated_annealing {
         template<class Optimizer>
         void cooled(const Optimizer& optimizer)
         {
-            std::get<curr_state_value_idx>(progress_.back()) = optimizer.current_state().value;
-            std::get<temperature_idx>(progress_.back()) = optimizer.current_temperature();
+            progress_.back().curr_state_value = optimizer.current_state().value;
+            progress_.back().temperature = optimizer.current_temperature();
             auto mean_threshold = (threshold_sum==0.0) ? 0.0 : threshold_sum/threshold_count;
-            std::get<worse_acceptance_mean_threshold_idx>(progress_.back()) = mean_threshold;
+            progress_.back().worse_acceptance_mean_threshold = mean_threshold;
             reset_counters();
             std::cout << "curr: temp: " << optimizer.current_temperature() <<
                       ", net profit: " << optimizer.current_state().value << std::endl;

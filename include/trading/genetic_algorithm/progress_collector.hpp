@@ -13,16 +13,15 @@
 
 namespace trading::genetic_algorithm {
     class progress_collector {
-        enum indices {
-            mean_fitness = 0,
-            best_fitness = 1,
-            population_size = 2
+        struct progress {
+            double mean_fitness;
+            double best_fitness;
+            std::size_t population_size;
         };
-        table<indices, double, double, std::size_t> progress_;
+
+        std::vector<progress> progress_;
 
     public:
-        using value_type = table<indices, double, double, std::size_t>;
-
         template<class Optimizer>
         void begin(const Optimizer&)
         {
@@ -32,7 +31,7 @@ namespace trading::genetic_algorithm {
         template<class Optimizer>
         void population_updated(const Optimizer& optimizer, double mean_fitness, double best_fitness)
         {
-            progress_.emplace_back(std::make_tuple(mean_fitness, best_fitness, optimizer.population().size()));
+            progress_.emplace_back(progress{mean_fitness, best_fitness, optimizer.population().size()});
         }
 
         template<class Optimizer>

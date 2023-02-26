@@ -365,9 +365,7 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings, const std::
     io::csv::writer<3> writer(experiment_dir/"progress.csv");
     writer.write_header({"curr state value", "temperature", "mean threshold worse acceptance"});
     for (const auto& progress: progress_observer.get())
-        writer.write_row(std::get<progress_observer_type::curr_state_value_idx>(progress),
-                std::get<progress_observer_type::temperature_idx>(progress),
-                std::get<progress_observer_type::worse_acceptance_mean_threshold_idx>(progress));
+        writer.write_row(progress.curr_state_value, progress.temperature, progress.worse_acceptance_mean_threshold);
 
 //    std::ofstream results_file{experiment_dir/"results.json"};
 //    results_file << std::setw(4) << json{result.get()};
@@ -449,14 +447,11 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
     });
 
     *logger << "duration: " << duration << std::endl;
-    using idx = genetic_algorithm::progress_collector::value_type::indices;
 
     io::csv::writer<3> writer(experiment_dir/"progress.csv");
     writer.write_header({"mean fitness", "best fitness", "population size"});
     for (const auto& progress: collector.get())
-        writer.write_row(std::get<idx::mean_fitness>(progress),
-                std::get<idx::best_fitness>(progress),
-                std::get<idx::population_size>(progress));
+        writer.write_row(progress.mean_fitness, progress.best_fitness, progress.population_size);
 };
 
 template<class Simulator, class Logger>
@@ -538,14 +533,11 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
         );
     });
     *logger << "duration: " << duration << std::endl;
-    using idx = tabu_search::progress_collector::value_type::indices;
 
     io::csv::writer<3> writer(experiment_dir/"progress.csv");
     writer.write_header({"best fitness", "curr fitness", "tabu list size"});
     for (const auto& progress: collector.get())
-        writer.write_row(std::get<idx::best_fitness>(progress),
-                std::get<idx::curr_fitness>(progress),
-                std::get<idx::tabu_list_size>(progress));
+        writer.write_row(progress.best_state_fitness, progress.curr_state_fitness,progress.tabu_list_size);
 }
 
 int main()

@@ -11,17 +11,15 @@
 
 namespace trading::tabu_search {
     class progress_collector {
-        enum indices {
-            best_fitness = 0,
-            curr_fitness = 1,
-            tabu_list_size = 2
+        struct progress {
+            double best_state_fitness;
+            double curr_state_fitness;
+            std::size_t tabu_list_size;
         };
 
-        table<indices, double, double, std::size_t> progress_;
+        std::vector<progress> progress_;
 
     public:
-        using value_type = table<indices, double, double, std::size_t>;
-
         template<class Optimizer>
         void begin(const Optimizer&)
         {
@@ -31,8 +29,8 @@ namespace trading::tabu_search {
         template<class Optimizer, class TabuList>
         void iteration_passed(const Optimizer& optimizer, const TabuList& tabu_list)
         {
-            progress_.emplace_back(optimizer.best_state().fitness, optimizer.current_state().fitness,
-                    tabu_list.size());
+            progress_.emplace_back(progress{optimizer.best_state().fitness, optimizer.current_state().fitness,
+                    tabu_list.size()});
         }
 
         template<class Optimizer>
