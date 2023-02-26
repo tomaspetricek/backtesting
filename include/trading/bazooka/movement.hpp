@@ -46,7 +46,7 @@ namespace trading::bazooka {
 
         void period(std::size_t period)
         {
-            data_. template emplace<to_underlying(indices::period)>(period);
+            data_.template emplace<to_underlying(indices::period)>(period);
         }
 
         const std::array<fraction_t, n_levels>& levels() const
