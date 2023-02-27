@@ -445,7 +445,6 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
                 },
                 replacement, termination, observers);
     });
-
     *logger << "duration: " << duration << std::endl;
 
     io::csv::writer<3> writer(experiment_dir/"progress.csv");
