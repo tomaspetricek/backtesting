@@ -6,3 +6,145 @@
 %---------------------------------------------------------------
 \setcounter{page}{1}
 
+Backtesting je nezbytnou součástí při vývoji obchodní strategie.
+Ukazuje, jak by si strategie vedla, kdyby byla nasazena v minulosti.
+Cílem je lépe pochopit fungování dané strategie, zjistit, kde jsou její úskalí a ideálně je opravit před nasazením do produkce.
+Strategie jsou často parametrizované a při obchodování s různými aktivy mohou fungovat různé kombinace hodnot.
+Pro maximalizaci ziskovosti strategie a snížení rizik je zapotřebí rychlý a spolehlivý způsob optimalizace těchto parametrů \cite{efficient-backtesting}.
+
+Nejjednodušší a časově nejnáročnější způsob, jak najít optimální nastavení, by bylo prohledat všechny možné kombinace.
+Největší výhodou tohoto přístupu je, že zaručuje nalezení nejlepšího možného řešení, nicméně je v praxi nepoužitelný pro velké množství možností, protože nedokončí v přiměřeně krátké době \cite{efficient-backtesting}.
+
+\chapter{Optimalizace}
+
+\iffalse
+Jednotlivé hodnoty jsou uloženy v instancích třídy \texttt{trading::fraction}, která je inspirována třídou \texttt{boost::rational}.
+Je však mnohem jednodušší a méně obecná.
+Předpokládá, na rozdíl od \texttt{boost::rational}, že zlomky, mezi kterými se provádějí aritmetické operace, mají stejného jmenovatele.
+Porušení tohoto předpokladu vede k nedefinovanému chování.
+Celá sekvence je uložena v instanci třídy \texttt{std::array}, což také znamená, že velikost sekvence musí být známa v době kompilace.
+Pokud by to v budoucnu bylo nalezeno za nevhodné, může být nahrazena třídou \texttt{std::vector} nebo \texttt{boost::container::small\_vector} ke snížení počtu malých dynamických alokací.
+\fi
+
+\section{Návrh a generování stavového prostoru}
+Pro optimalizaci byly vybrány 4 konfigurační proměnné: typ indikátoru, perioda indikátoru, úrovně a velikosti nákupů.
+Hodnoty proměnných lze generovat buď systematicky, nebo náhodně.
+Důležitým aspektem, který bylo nutné dodržet, bylo, že obě verze generátorů musí generovat hodnoty ze stejného vyhledávacího prostoru, jinak by byly výsledky jednotlivých optimalizačních metod nesrovnatelné.
+
+Generátory sdílejí společné rozhraní, jakmile jsou vytvořeny, lze je použít voláním volacího operátoru třídy.
+Náhodné generátory mají operátor přetížen.
+Specializace přebírá jeden argument představující původní hodnotu používanou při generování následující hodnoty.
+Systematické generátory vracejí korutiny a náhodné generátory vracejí přímo datové typy představující konfigurační proměnné.
+Systematické generátory vracejí stejné hodnoty pouze jednou a náhodné generátory je mohou vrátit vícekrát.
+V ideálním případě by měly náhodné generátory vracet stejné hodnoty se stejnou pravděpodobností.
+
+\subsection{Typ indikátoru}
+Typ indikátoru je reprezentován enumerační třídou \texttt{indicator\_tag} se dvěma možnými hodnotami: \texttt{indicator\_tag::ema} a \texttt{indicator\_tag::sma}.
+Jediný způsob, jak parametrizovat tuto proměnnou, je použít buď jednu z hodnot, nebo obě.
+Hodnoty jsou stejného typu, takže je lze uložit do pole.
+Jelikož je jeho velikost malá a maximální velikost je známa v době kompilace, tak lze použít \texttt{etl::vector} k uložení hodnot pro generování.
+Hodnoty lze náhodně rovnoměrně generovat pomocí instance třídy \tttext{std::uniform\_int\_distribution}.
+
+\subsection{Perioda indikátoru}
+SMA i EMA mají parametr perioda $p>1$.
+Oba generátory generují hodnoty v intervalu $[f, t]$ s krokem $s$, kde $((f>t\implies((f-t) \mod s)=0 \land s<0) \land (t<f\implies((t-f) \mod s)=0 \land s>0)) \land s\neq0 \land t\neq f$.
+Počet možných výstupních hodnot je roven $n=\frac{|t-f|}{s}+1$.
+
+\subsubsection{Náhodné generování}
+Při generování bez počáteční periody je nejprve pomocí \tttext{std::uniform\_int\_distribution} vygenerována hodnota $ v \in [\frac{p_{min}}{s}, = \frac{p_{max}}{s}$], kde $p_{min}=min(f, t) \land p_{max}=max(f, t)$, která je následně přeškálována $p_o=v\cdot s \land p_o \in [p_{min}, p_{max}]$.
+
+Při generování hodnoty z počátku $o$ používá generátor navíc parametr $k\in[1,n/2]$.
+Například, když $f=1 \land t=5 \land s=1 \land o=3 \land k=1$, pak jsou všechny možné výstupní hodnoty periody $ p_o \in [o-(k\cdot s), o+(k\cdot s)]=[2, 4]$.
+Jediné úskalí nastává na okrajích intervalu, kdy mohou být hodnoty generovány z 2 podintervalů. Například, když $f=1 \land t=5 \land s=1 \land o=1 \land k=1$, pak jsou všechny možné výstupní periody $p_o \in [1, 2] \cup [5, 5]$.
+Jelikož jsou periody generovány pomocí datového typu integer, který může nabývat i záporných hodnot, lze nejprve vygenerovat hodnotu $ w \in [o-(k\cdot s), o+(k\cdot s)]$, výslednou periodu získat $(w<p_{min}\implies(p_o=w+(n*|s|))) \land (w>p_{max}\implies(p_o=w-(n*|s|))) \land (w \in [p_{min}, p_{max}]\implies p_o=w)$.
+
+\subsection{Úrovně nákupu}
+Pro úrovně nákupu platí, že $\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap [0, 1] \land n>0 \land [\forall i \in \{0,\dots,n-1\} : l_i > l_{i+1}]$.
+Příkladem takové sekvence racionálních čísel může být $\{\frac{1}{2}, \frac{1}{3}, \frac{1}{4}\}$.
+Generátory jsou parametrizovány pomocí parametru $u\geq n$, který označuje počet jedinečných zlomků, které se mohou objevit v sekvenci.
+Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}\} \in [0, 1] \land d=u+1$.
+Pro $n=3 \land u=4$ jsou všechny možné platné sekvence: $\{\frac{4}{5}, \frac{3}{5}, \frac{2}{5}\}, \{\frac{4}{5}, \frac{3}{5}, \frac{1}{5}\}, \{\frac{4}{5}, \frac{2}{5}, \frac{1}{5}\}, \{\frac{3}{5}, \frac{2}{5}, \frac{1}{5}\}$.
+
+\subsubsection{Systematické generování}
+Sekvence jsou generovány rekurzivně (viz \ref{lst:systematic:levels_generator}), protože se počet smyček \texttt{for} liší v závislosti na velikosti sekvence $n$.
+Smyčky jsou na sobě závislé, následující (hlubší) smyčka musí znát předchozí hodnotu čitatele.
+Nejvnitřnější smyčka vrací výslednou sekvenci.
+
+\begin{lstlisting}[caption={~Metody pro systematické generování úrovní nákupu},label={lst:systematic:levels_generator},captionpos=t,float,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+    value_type operator()()
+    {
+        co_yield generate<0>(this->denom_);
+    }
+
+private:
+    template<std::size_t depth = n_levels>
+    requires (depth==n_levels)
+    value_type generate(std::size_t) { co_yield this->levels_; }
+    
+    template<std::size_t depth = 0>
+    requires (depth<n_levels)
+    value_type generate(std::size_t prev_num)
+    {
+        for (std::size_t num{--prev_num}; num>n_levels-depth-1; num--) {
+            this->levels_[depth] = fraction_t{num, this->denom_};
+            co_yield generate<depth+1>(num);
+        }
+    }
+\end{lstlisting}
+
+\subsubsection{Náhodné generování}
+Instance třídy \texttt{trading::random::levels\_generator} má mezi svými atributy pole se všemi možnými hodnotami výstupní sekvence.
+Při generování náhodné sekvence bez počátku nejprve tyto hodnoty zamíchá, seřadí prvních $n$ prvků v sestupném pořadí a nakonec je zkopíruje do výstupního pole.
+
+Náhodné generování na základě počáteční sekvence je složitější.
+Používá parametr $k \in [1, n] $, který je předán instanci při její konstrukci.
+Udává počet prvků počáteční sekvence, které by měly být změněny.
+Při generování je nejprve náhodně vybráno $n-k$ prvků, které budou zachovány z původní sekvence, a jsou uloženy do instance \texttt{etl::flat\_set}, což je kontejner pevné velikosti, který ukládá jedinečné prvky v určeném pořadí.
+Dále je zamícháno pole se všemi možnými hodnotami.
+Ve smyčce \texttt{while} se pak hodnoty pokouší vložit do sady s jedinečnými hodnotami, dokud není sada plná.
+Nakonec jsou hodnoty překopírovány ze sady do výstupního pole.
+
+\subsection{Velikosti nákupu}
+Pro velikosti nákupu platí, že $ (\-s_0, s_1,\dots,s_n)\ \in \mathbb{Q} \cap [0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $.
+Příkladem takové sekvence může být $ (\frac{1}{4}, \frac{2}{4}, \frac{1}{4})\ $.
+Generátory jsou parametrizovány pomocí parametru $u\geq 1$, který označuje počet jedinečných zlomků, které se mohou v sekvenci objevit.
+Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}\} \in [0, 1] \land d=n+u-1$.
+Pro $n=3 \land u=3$ jsou všechny možné platné sekvence: $\{\frac{1}{5}, \frac{1}{5}, \frac{3}{5}\}, \{\frac{1}{5}, \frac{2}{5}, \frac{2}{5}\}, \{\frac{1}{5}, \frac{3}{5}, \frac{1}{5}\}, \{\frac{2}{5}, \frac{1}{5}, \frac{2}{5}\}, \{\frac{2}{5}, \frac{2}{5}, \frac{1}{5}\}, \{\frac{3}{5}, \frac{1}{5}, \frac{1}{5}\}$.
+
+\subsubsection{Systematické generování}
+Velikosti nákupů \ref{lst:systematic:sizes_generator} jsou systematicky generovány podobně jako úrovně nákupů.
+Používá se také rekurze, každá smyčka \texttt{for} předává součet zbývajících čitatelů následující smyčce.
+Maximální lokální čitatel má buď hodnotu globálního maximálního čitatele, nebo součet zbývajících čitatelů snížený o jedna.
+
+\begin{lstlisting}[caption={~Metody pro systematické generování velikostí nákupu},label={lst:systematic:sizes_generator},captionpos=t,float,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+    value_type operator()()
+    {
+        co_yield generate<0>(this->denom_);
+    }
+
+private:
+    template<std::size_t depth = n_sizes>
+    requires (depth+1==n_sizes)
+    value_type generate(std::size_t remaining)
+    {
+        this->sizes_[depth] = fraction_t{remaining, this->denom_};
+        co_yield this->sizes_;
+    }
+
+    template<std::size_t depth = 0>
+    requires (depth+1<n_sizes)
+    value_type generate(std::size_t remaining)
+    {
+        std::size_t max = (remaining>this->max_num_)
+            ? this->max_num_ : remaining-1;
+        for (std::size_t num{1}; num<=max; num++) {
+            this->sizes_[depth] = fraction_t{num, this->denom_};
+            co_yield generate<depth+1>(remaining-num);
+        }
+    }
+\end{lstlisting}
+
+\subsubsection{Náhodné generování}
+
+
+

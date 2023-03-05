@@ -91,14 +91,14 @@ namespace trading {
                     throw std::invalid_argument("Difference between from and to must be multiple of step");
 
                 if (step>0)
-                    throw std::invalid_argument("Step has to be lower than 0 if begin is greater than end");
+                    throw std::invalid_argument("Step has to be lower than 0 if from is greater than to");
             }
             else if (from<to) {
                 if ((to-from)%step!=0)
                     throw std::invalid_argument("Difference between from and to must be multiple of step");
 
                 if (step<0)
-                    throw std::invalid_argument("Step has to be greater than 0 if begin is lower than end");
+                    throw std::invalid_argument("Step has to be greater than 0 if from is lower than to");
             }
         }
 
@@ -278,7 +278,7 @@ namespace trading {
             explicit int_range(int from, int to, int step, std::size_t change_span = 1)
                     :trading::int_range(from, to, step), change_span_{change_span}
             {
-                n_vals_ = (to-from+this->step_)/this->step_;
+                n_vals_ = (std::abs(to-from)+this->step_)/this->step_;
                 int max_span = static_cast<int>(n_vals_)/2;
                 if (!change_span_ || change_span>max_span)
                     throw std::invalid_argument(fmt::format("Change span has to be in interval [1,{}]", max_span));
@@ -289,17 +289,17 @@ namespace trading {
             int operator()()
             {
                 distrib_.param(
-                        std::uniform_int_distribution<int>::param_type{this->from_/this->step_, this->to_/this->step_});
-                int num = distrib_(gen_);
-                return num*this->step_;
+                        std::uniform_int_distribution<int>::param_type{this->min_val_/this->step_,
+                                                                       this->max_val_/this->step_});
+                return distrib_(gen_)*this->step_;
             }
 
             int operator()(int origin)
             {
-                int curr_from = origin-static_cast<int>(change_span_*this->step_);
-                int curr_to = origin+static_cast<int>(change_span_*this->step_);
+                int curr_min = origin-static_cast<int>(change_span_*this->step_);
+                int curr_max = origin+static_cast<int>(change_span_*this->step_);
                 distrib_.param(
-                        std::uniform_int_distribution<int>::param_type{curr_from/this->step_, curr_to/this->step_});
+                        std::uniform_int_distribution<int>::param_type{curr_min/this->step_, curr_max/this->step_});
                 int val = distrib_(gen_)*this->step_;
 
                 if (val<min_val_)
@@ -320,13 +320,14 @@ namespace trading {
 
         public:
             explicit configuration_generator(const random::sizes_generator<n_levels>& rand_sizes,
-                    random::levels_generator<n_levels>  rand_levels, const random::int_range& rand_period)
+                    random::levels_generator<n_levels> rand_levels, const random::int_range& rand_period)
                     :rand_sizes_(rand_sizes), rand_levels_(std::move(rand_levels)), rand_period_(rand_period) { }
 
             bazooka::configuration<n_levels> operator()()
             {
                 auto ma = (coin_flip_(gen_)) ? bazooka::indicator_tag::sma : bazooka::indicator_tag::ema;
-                return bazooka::configuration<n_levels>{ma, static_cast<std::size_t>(rand_period_()), rand_levels_(), rand_sizes_()};
+                return bazooka::configuration<n_levels>{ma, static_cast<std::size_t>(rand_period_()), rand_levels_(),
+                                                        rand_sizes_()};
             }
         };
     }
@@ -356,7 +357,7 @@ namespace trading {
             value_type generate(std::size_t prev_num)
             {
                 for (std::size_t num{--prev_num}; num>n_levels-depth-1; num--) {
-                    std::get<depth>(this->levels_) = fraction_t{num, this->denom_};
+                    this->levels_[depth] = fraction_t{num, this->denom_};
                     co_yield generate<depth+1>(num);
                 }
             }
@@ -381,7 +382,7 @@ namespace trading {
             requires (depth+1==n_sizes)
             value_type generate(std::size_t remaining)
             {
-                std::get<depth>(this->sizes_) = fraction_t{remaining, this->denom_};
+                this->sizes_[depth] = fraction_t{remaining, this->denom_};
                 co_yield this->sizes_;
             }
 
@@ -390,9 +391,9 @@ namespace trading {
             value_type generate(std::size_t remaining)
             {
                 std::size_t max = (remaining>this->max_num_) ? this->max_num_ : remaining-1;
-                for (std::size_t size{1}; size<=max; size++) {
-                    std::get<depth>(this->sizes_) = fraction_t{size, this->denom_};
-                    co_yield generate<depth+1>(remaining-size);
+                for (std::size_t num{1}; num<=max; num++) {
+                    this->sizes_[depth] = fraction_t{num, this->denom_};
+                    co_yield generate<depth+1>(remaining-num);
                 }
             }
         };

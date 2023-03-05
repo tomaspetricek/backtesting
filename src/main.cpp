@@ -541,6 +541,13 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
 
 int main()
 {
+    {
+        constexpr std::size_t n{3};
+        std::size_t u{3};
+        systematic::sizes_generator<n> gen{u};
+        use_generator(gen);
+        return EXIT_SUCCESS;
+    }
     constexpr std::size_t n_levels{4};
 
     // read candles
