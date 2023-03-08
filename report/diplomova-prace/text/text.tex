@@ -54,8 +54,8 @@ Počet možných výstupních hodnot je roven $n=\frac{|t-f|}{s}+1$.
 Při generování bez počáteční periody je nejprve pomocí \tttext{std::uniform\_int\_distribution} vygenerována hodnota $ v \in [\frac{p_{min}}{s}, = \frac{p_{max}}{s}$], kde $p_{min}=min(f, t) \land p_{max}=max(f, t)$, která je následně přeškálována $p_o=v\cdot s \land p_o \in [p_{min}, p_{max}]$.
 
 Při generování hodnoty z počátku $o$ používá generátor navíc parametr $k\in[1,n/2]$.
-Například, když $f=1 \land t=5 \land s=1 \land o=3 \land k=1$, pak jsou všechny možné výstupní hodnoty periody $ p_o \in [o-(k\cdot s), o+(k\cdot s)]=[2, 4]$.
-Jediné úskalí nastává na okrajích intervalu, kdy mohou být hodnoty generovány z 2 podintervalů. Například, když $f=1 \land t=5 \land s=1 \land o=1 \land k=1$, pak jsou všechny možné výstupní periody $p_o \in [1, 2] \cup [5, 5]$.
+Například, když $f=1$, $t=5$, $s=1$, $o=3$ a $k=1$, pak jsou všechny možné výstupní hodnoty periody $ p_o \in [o-(k\cdot s), o+(k\cdot s)]=[2, 4]$.
+Jediné úskalí nastává na okrajích intervalu, kdy mohou být hodnoty generovány z 2 podintervalů. Například, když $f=1$, $t=5$, $s=1$ a $k=1$, pak jsou všechny možné výstupní periody $p_o \in [1, 2] \cup [5, 5]$.
 Jelikož jsou periody generovány pomocí datového typu integer, který může nabývat i záporných hodnot, lze nejprve vygenerovat hodnotu $ w \in [o-(k\cdot s), o+(k\cdot s)]$, výslednou periodu získat $(w<p_{min}\implies(p_o=w+(n*|s|))) \land (w>p_{max}\implies(p_o=w-(n*|s|))) \land (w \in [p_{min}, p_{max}]\implies p_o=w)$.
 
 \subsection{Úrovně nákupu}
@@ -63,14 +63,14 @@ Pro úrovně nákupu platí, že $\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap [0,
 Příkladem takové sekvence racionálních čísel může být $\{\frac{1}{2}, \frac{1}{3}, \frac{1}{4}\}$.
 Generátory jsou parametrizovány pomocí parametru $u\geq n$, který označuje počet jedinečných zlomků, které se mohou objevit v sekvenci.
 Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}\} \in [0, 1] \land d=u+1$.
-Pro $n=3 \land u=4$ jsou všechny možné platné sekvence: $\{\frac{4}{5}, \frac{3}{5}, \frac{2}{5}\}, \{\frac{4}{5}, \frac{3}{5}, \frac{1}{5}\}, \{\frac{4}{5}, \frac{2}{5}, \frac{1}{5}\}, \{\frac{3}{5}, \frac{2}{5}, \frac{1}{5}\}$.
+Pro $n=3$, $u=4$ jsou všechny možné platné sekvence: $\{\frac{4}{5}, \frac{3}{5}, \frac{2}{5}\}, \{\frac{4}{5}, \frac{3}{5}, \frac{1}{5}\}, \{\frac{4}{5}, \frac{2}{5}, \frac{1}{5}\}, \{\frac{3}{5}, \frac{2}{5}, \frac{1}{5}\}$.
 
 \subsubsection{Systematické generování}
 Sekvence jsou generovány rekurzivně (viz \ref{lst:systematic:levels_generator}), protože se počet smyček \texttt{for} liší v závislosti na velikosti sekvence $n$.
 Smyčky jsou na sobě závislé, následující (hlubší) smyčka musí znát předchozí hodnotu čitatele.
 Nejvnitřnější smyčka vrací výslednou sekvenci.
 
-\begin{lstlisting}[caption={~Metody pro systematické generování úrovní nákupu},label={lst:systematic:levels_generator},captionpos=t,float,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+\begin{lstlisting}[caption={~Metody pro systematické generování úrovní nákupu},label={lst:systematic:levels_generator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
     value_type operator()()
     {
         co_yield generate<0>(this->denom_);
@@ -109,14 +109,14 @@ Pro velikosti nákupu platí, že $ (\-s_0, s_1,\dots,s_n)\ \in \mathbb{Q} \cap 
 Příkladem takové sekvence může být $ (\frac{1}{4}, \frac{2}{4}, \frac{1}{4})\ $.
 Generátory jsou parametrizovány pomocí parametru $u\geq 1$, který označuje počet jedinečných zlomků, které se mohou v sekvenci objevit.
 Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}\} \in [0, 1] \land d=n+u-1$.
-Pro $n=3 \land u=3$ jsou všechny možné platné sekvence: $\{\frac{1}{5}, \frac{1}{5}, \frac{3}{5}\}, \{\frac{1}{5}, \frac{2}{5}, \frac{2}{5}\}, \{\frac{1}{5}, \frac{3}{5}, \frac{1}{5}\}, \{\frac{2}{5}, \frac{1}{5}, \frac{2}{5}\}, \{\frac{2}{5}, \frac{2}{5}, \frac{1}{5}\}, \{\frac{3}{5}, \frac{1}{5}, \frac{1}{5}\}$.
+Pro $n=3$, $u=3$ jsou všechny možné platné sekvence: $\{\frac{1}{5}, \frac{1}{5}, \frac{3}{5}\}, \{\frac{1}{5}, \frac{2}{5}, \frac{2}{5}\}, \{\frac{1}{5}, \frac{3}{5}, \frac{1}{5}\}, \{\frac{2}{5}, \frac{1}{5}, \frac{2}{5}\}, \{\frac{2}{5}, \frac{2}{5}, \frac{1}{5}\}, \{\frac{3}{5}, \frac{1}{5}, \frac{1}{5}\}$.
 
 \subsubsection{Systematické generování}
 Velikosti nákupů \ref{lst:systematic:sizes_generator} jsou systematicky generovány podobně jako úrovně nákupů.
 Používá se také rekurze, každá smyčka \texttt{for} předává součet zbývajících čitatelů následující smyčce.
 Maximální lokální čitatel má buď hodnotu globálního maximálního čitatele, nebo součet zbývajících čitatelů snížený o jedna.
 
-\begin{lstlisting}[caption={~Metody pro systematické generování velikostí nákupu},label={lst:systematic:sizes_generator},captionpos=t,float,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+\begin{lstlisting}[caption={~Metody pro systematické generování velikostí nákupu},label={lst:systematic:sizes_generator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
     value_type operator()()
     {
         co_yield generate<0>(this->denom_);
@@ -145,6 +145,137 @@ private:
 \end{lstlisting}
 
 \subsubsection{Náhodné generování}
+
+\section{Optimalizátory}
+
+Když jsou volány heuristické optimalizátory, tak přijímají mezi objekty typu pozorovatel jako své argumenty.
+Pozorovatelé jsou upozorňovány na události, ke kterým dochází během optimalizace.
+Průběh optimalizace mohou hlásit nebo ukládat.
+Příkladem události, která může nastat během optimalizace simulovaného ochlazování, je snížení teploty nebo přijetí lepšího stavu.
+Pozorovatelé jsou vždy posledním parametrem uloženým jako sada parametrů šablony.
+Tímto způsobem lze přijmout více pozorovatelů nebo žádný.
+
+\subsection{Hrubá síla}
+Algoritmus hrubé síly prochází celým vyhledávacím prostorem a zajišťuje nalezení optimálního řešení.
+Je vhodný pro relativně malé vyhledávací prostory a může pomoci lépe porozumět vlastnostem cenové funkce.
+
+Vyhledávací prostor je generován pomocí systematických generátorů, které jsou volány ve vnořených smyčkách \texttt{for} (viz \ref{lst:systematic:states_generator}).
+Nejvnitřnější cyklus vrací konfiguraci jako korutinu typu \texttt{cppcoro::generator}.
+Vytvoření vyhledávacího prostoru tímto způsobem je jednodušší než navrhování vlastního iterátoru, protože smyčky mohou být na sobě závislé.
+
+\begin{lstlisting}[caption={~Ukázka generování systematického stavového prostoru},label={lst:systematic:states_generator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+auto search_space = [&]() -> cppcoro::generator<config_type> {
+    for (std::size_t period: periods_gen())
+        for (const auto& tag: tags)
+            for (const auto& levels: levels_gen())
+                for (const auto& open_sizes: sizes_gen())
+                    co_yield config_type{tag, period, levels, open_sizes};
+};
+\end{lstlisting}
+
+Vzhledem k tomu, že jsou jednotlivé stavy na sobě nezávislé, může být vyhledávání paralyzováno.
+Paralelizaci lze provést pomocí direktiv z knihovny \textit{OpenMP}.
+Jelikož je vyhledávací prostor předáván jako korutina, lze jej paralelizovat pouze pomocí taskového paralelismu použitím direktivy \texttt{task}.
+
+Implementaci paralelizace lze vidět ve výpise \ref{lst:brute-force}.
+Nejprve je použita direktiva \texttt{parallel} k vytvoření paralelního regionu, který vytváří, provádí a ukončuje jednotlivá vlákna.
+Následně je pomocí direktivy \texttt{single} proveden cyklus \texttt{for} právě jedním vláknem.
+Uvnitř cyklu jsou vytvářeny jednotlivé úlohy pomocí direktivy \texttt{task} a prováděny paralelně jednotlivými vlákny.
+Každé vlákno nejprve zavolá cenovou funkci k získání ceny.
+Vytvoří stav, který se skládá z konfigurace a ceny.
+Pokud stav splňuje omezující podmínky, je v kritické sekci výsledek aktualizován.
+Je nutné použít synchronizaci, protože je výsledek modifikován více vlákny.
+Algoritmus je zapouzdřen ve třídě \texttt{brute\_force::parallel::optimizer}.
+
+\begin{lstlisting}[caption={~Optimalizace pomocí algoritmu hrubé síly},label={lst:brute-force},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+#pragma omp parallel
+{
+    #pragma omp single
+    {
+        for (const auto& config: search_space()) {
+            #pragma omp task
+            {
+                auto curr_state = state{config, cost(config)};
+                if (constrains(curr_state)) {
+                    #pragma omp critical
+                    result.update(curr_state);
+                }}}}}
+\end{lstlisting}
+
+\subsection{Simulované ochlazování}
+Algoritmus simulovaného ochlazování je implementován třídou \texttt{simulated\_annealing::optimizer}.
+Třída má pouze několik členských atributů: současnou, počáteční a minimální teplotu, počet iterací a současný stav.
+Jiné části algoritmu jako chlazení, ohodnocení horšího stavu a nalezení sousedního stavu jsou specifické pro řešený problém, proto jsou předány jako argumenty při volání instance objektu.
+
+Bylo implementováno několik chladicích algoritmů vycházejících ze srovnávajícího článku \cite{cooling-comparison}.
+Všechny jsou umístěny v souboru \texttt{simulated\_annealing/cooler.hpp}.
+Většina je parametrizována parametrem decay, který se používá k řízení rychlosti snižování teploty.
+Správnost jeho hodnoty závisí na algoritmu chlazení a ověřuje se při inicializaci konkrétního objektu.
+Chladiče používají návrhový vzor strategie, který funguje následovně, namísto předávání seznamu argumentů při volání chladiče je jako argument předán samotný optimalizátor.
+Algoritmus chlazení si tak může sám zvolit, které atributy heuristiky použije k výpočtu následující teploty a změnit její hodnotu může pomocí setteru třídy.
+Příklad implementace chladiče lze vidět na \ref{lst:cooling}.
+
+\begin{lstlisting}[caption={~Ukázka implementace chlazení třídy \texttt{simulated\_annealing::exp\_mul\_cooler }},label={lst:cooling},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+void operator()(SimulatedAnnealing& optimizer)
+{
+    optimizer.current_temperature(optimizer.start_temperature()*
+        std::pow(this->decay_, optimizer.it()));
+}
+\end{lstlisting}
+
+Volající operátor optimalizátoru přebírá většinu parametrů jako koncepty.
+Výhodou použití konceptů namísto klasických šablonových argumentů je to, že lze definovat omezení, která musí předaný objekt dodržovat.
+U volatelných argumentů lze například pomocí konceptů definovat typy vstupních a výstupních argumentů.
+Koncept definující omezení pro chladící algoritmu lze vidět na \ref{lst:cooling:concept}.
+Chyby generované kompilátorem při použití objektu se špatným rozhraním jsou často čitelnější a přímější při použití konceptů než samotných šablon.
+
+\begin{lstlisting}[caption={~Koncept pro kontrolu chladícího algoritmu},label={lst:cooling:concept},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+template<class ConcreteCooler, class SimulatedAnnealing>
+concept Cooler = std::invocable<ConcreteCooler, SimulatedAnnealing&> &&
+std::same_as<void,std::invoke_result_t<ConcreteCooler,SimulatedAnnealing&>>;
+\end{lstlisting}
+
+Algoritmus pro nalezení náhodného souseda je implementován pomocí třídy \texttt{bazooka::neighbor}.
+Ke generování sousední konfigurace využívá náhodné generátory, které na základě aktuální hodnoty generují následující hodnotu.
+Náhodně je vždy změněn pouze jeden konfigurační parametr.
+Pro realizaci equilibria byl implementován algoritmus založený na pevném počtu prohledávaných sousedních stavů \texttt{simulated\_annealing::fixed\_iteration\_equilibrium}.
+
+Implementaci algoritmu lze vidět ve výpisu \ref{lst:simulated:annealing}.
+Během optimalizace dochází k několika událostem, které jsou hlášeny pozorovatelům.
+Pro sběr dat o průběhu optimalizace byla implementována třída \texttt{simulated\_annealing::progress\_collector}.
+Za účelem logování byla vytvořena třída \texttt{simulated\_annealing::progress\_reporter}.
+
+\begin{lstlisting}[caption={~Implementace simulovaného ochlazování},label={lst:simulated:annealing},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+curr_state_ = state{init_config, objective(init_config)};
+(observers.begin(*this), ...);
+
+for (; curr_temp_>min_temp_; it_++) {
+    while (equilibrium()) {
+        Config config = neighbor(curr_state_.config);
+        auto candidate = state{config, objective(config)};
+
+        if (result.compare(candidate, curr_state_)) {
+            curr_state_ = candidate;
+            (observers.better_accepted(*this), ...);
+
+            if (constraints(curr_state_))
+                result.update(curr_state_);
+        }
+        else {
+            double diff = appraiser(curr_state_, candidate);
+            double threshold = std::exp(-diff/curr_temp_);
+
+            if (rand_prob_gen_()<threshold) {
+                curr_state_ = candidate;
+                (observers.worse_accepted(*this, threshold), ...);
+            }
+        }
+    }
+    cooler(*this);
+    (observers.cooled(*this), ...);
+}
+(observers.end(*this), ...);
+\end{lstlisting}
 
 
 

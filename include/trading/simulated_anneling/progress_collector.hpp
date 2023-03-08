@@ -10,7 +10,7 @@
 #include <trading/simulated_anneling/optimizer.hpp>
 
 namespace trading::simulated_annealing {
-    class progress_observer {
+    class progress_collector {
         struct progress {
             amount_t curr_state_value;
             double temperature;

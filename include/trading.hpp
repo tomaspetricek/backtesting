@@ -34,7 +34,7 @@
 #include <trading/simulated_anneling/cooler.hpp>
 #include <trading/simulated_anneling/equilibrium.hpp>
 #include <trading/simulated_anneling/optimizer.hpp>
-#include <trading/simulated_anneling/progress_observer.hpp>
+#include <trading/simulated_anneling/progress_collector.hpp>
 #include <trading/simulated_anneling/progress_reporter.hpp>
 #include <trading/tabu_search/optimizer.hpp>
 #include <trading/tabu_search/progress_collector.hpp>

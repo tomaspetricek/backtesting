@@ -65,8 +65,8 @@ namespace trading::simulated_annealing {
                 :start_temp_(validate_start_temp(min_temp, start_temp)), min_temp_(validate_min_temp(min_temp)),
                  curr_temp_(start_temp) { }
 
-        template<class Result, class Restriction, class... Observer>
-        void operator()(const Config& init_config, Result& result, const Restriction& restrict,
+        template<class Result, class Constraints, class... Observer>
+        void operator()(const Config& init_config, Result& result, const Constraints& constraints,
                 Cooler<optimizer> auto&& cooler,
                 ObjectiveFunction<Config> auto&& objective,
                 Neighbor<Config> auto&& neighbor,
@@ -81,13 +81,13 @@ namespace trading::simulated_annealing {
             for (; curr_temp_>min_temp_; it_++) {
                 while (equilibrium()) {
                     Config config = neighbor(curr_state_.config);
-                    state candidate = state{config, objective(config)};
+                    auto candidate = state{config, objective(config)};
 
                     if (result.compare(candidate, curr_state_)) {
                         curr_state_ = candidate;
                         (observers.better_accepted(*this), ...);
 
-                        if (restrict(curr_state_))
+                        if (constraints(curr_state_))
                             result.update(curr_state_);
                     }
                     else {

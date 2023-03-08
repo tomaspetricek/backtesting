@@ -229,14 +229,15 @@ int use_brute_force(Simulator&& simulator, json&& settings)
     systematic::sizes_generator<n_levels> sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
     const auto& period_doc = settings["search space"]["moving average"]["period"];
     systematic::int_range periods_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
+    auto tags = {bazooka::indicator_tag::ema, bazooka::indicator_tag::sma};
 
     // create search space
     auto search_space = [&]() -> cppcoro::generator<config_type> {
         for (std::size_t period: periods_gen())
-            for (const auto& ma: {bazooka::indicator_tag::ema, bazooka::indicator_tag::sma})
+            for (const auto& tag: tags)
                 for (const auto& levels: levels_gen())
-                    for (const auto open_sizes: sizes_gen())
-                        co_yield config_type{ma, period, levels, open_sizes};
+                    for (const auto& open_sizes: sizes_gen())
+                        co_yield config_type{tag, period, levels, open_sizes};
     };
 
     // count number of states
@@ -323,11 +324,11 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings, const std::
     auto cooler = simulated_annealing::basic_cooler{};
     simulated_annealing::optimizer<config_type> optimizer{start_temp, min_temp};
     enumerative_result<state_type> result{n_best, optim_criteria};
-    using progress_observer_type = simulated_annealing::progress_observer;
+    using progress_observer_type = simulated_annealing::progress_collector;
     progress_observer_type progress_observer;
     simulated_annealing::progress_reporter reporter{logger};
 
-    auto equilibrium = simulated_annealing::iteration_based_equilibrium{n_tries};
+    auto equilibrium = simulated_annealing::fixed_iteration_equilibrium{n_tries};
     config_type next;
 
     auto duration = measure_duration([&]() {
