@@ -15,6 +15,67 @@ Pro maximalizaci ziskovosti strategie a snížení rizik je zapotřebí rychlý 
 Nejjednodušší a časově nejnáročnější způsob, jak najít optimální nastavení, by bylo prohledat všechny možné kombinace.
 Největší výhodou tohoto přístupu je, že zaručuje nalezení nejlepšího možného řešení, nicméně je v praxi nepoužitelný pro velké množství možností, protože nedokončí v přiměřeně krátké době \cite{efficient-backtesting}.
 
+\chapter{Design}
+
+\subsection{Jmenné konvence}
+Konvence pojmenování jsou převzaty z \textit{STL} a \textit{Boost} knihoven.
+Názvy tříd a funkcí používají \texttt{snake\_case}.
+Metody nastavení a čtení atributů třídy nepoužívají \texttt{set} a \texttt{get} ve svém názvu, jsou jednoduše odlišeni tak, že gettery neberou žádný parametr a settery berou více než jeden.
+Názvy šablon a konceptů používají \texttt{CamelCase}.
+Soukromé atributy třídy končí podtržítkem.
+
+\subsection{Uspořádání projektu}
+Projekt je rozdělen do 3 hlavních adresářů: \textit{include}, \textit{src} a \textit{test}.
+Adresář \textit{include} obsahuje obchodovací framework a vybrané hlavičky z knihovny CppCoro.
+Organizace frameworku je inspirovaná knihovnou \textit{Boost.Asio}.
+Definice a deklarace tříd jsou uloženy společně v jednom souboru s příponou \textit{.hpp}.
+Hierarchie složek se řídí jmennými prostory, například třídu \texttt{trading::bazooka::long\_strategy} lze nalézt v souboru \textit{/include/trading/bazooka/long\_strategy}.
+Framework lze zahrnout jako celek pomocí \textit{trading.hpp} nebo jednotlivě po souborech.
+
+Adresář \textit{src} se skládá ze souboru \textit{main.cpp}, Jypiter Notebooků používaných pro vizualizaci, vstupních a výstupních dat.
+Testy jsou organizovány stejně jako třídy obchodovacího frameworku.
+Projekt je kompilován pomocí souborů \textit{CMakeLists.txt}, které obsahují seznam souborů ke kompilaci, nastavení kompilátoru a informace pro hledání externích knihoven.
+Vytváří 2 spustitelné soubory \textit{backesting} pro použití optimalizátorů a \textit{test\_} pro provádění testů.
+
+
+\chapter{Simulace obchodování}
+
+\section{Strategie}
+
+\subsection{Indikátor}
+Indikátor může být typu \texttt{trading::sma} nebo \texttt{trading::ema}.
+Běžným způsobem, jak umožnit oba typy, by bylo použití runtime polymorfismu prostřednictvím virtuálních funkcí.
+Oba indikátory by musely dědit ze společné třídy a implementovat její virtuální funkce.
+Instance třídy by musela být inicializována na haldě namísto zásobníku a dalo by se k ní přistupovat pomocí ukazatele na společnou třídu.
+Jak dynamická alokace, tak použití virtuálních funkcí způsobují režii navíc.
+Existuje několik nedávných přednášek z \textit{C++ konference} (CppCon) \cite{gobel-virtual, bogosavljevic-virtual}, které jsou zaměřeny na způsoby, jak se vyhnout používání virtuálních funkcí.
+V obou přednáškách jsou zapojeny prvky moderního C++.
+
+Jako nejpřirozenější se v tomto případě nabízí použití třídy \texttt{std::variant} zavedené standardem C++17.
+Třída funguje jako úložiště pro různé typy.
+Pro uložení instance daného typu používá pole bajtů, který musí mít velikost největšího uložitelného typu.
+Jako třídní šablonové parametry přebírá seznam typů, které mohou být v objektu uloženy.
+Jakmile je objekt inicializován, lze použít funkci \texttt{std::get} pro přístup k hodnotě v něm uložené.
+Funkce přijímá šablonový argument, který je buď indexem typu, nebo samotným typem, který by měl být aktuálně v instanci uložen.
+Pokud je uložen jiný typ, tak volání funkce způsobí vyhození \texttt{std::bad\_variant\_access} výjimky.
+
+Dalším způsobem přístupu k uložené hodnotě je použití funkce \texttt{std::visit}.
+Vyžaduje 2 argumenty, první je volatelný objekt a druhý instance \texttt{std::variant}.
+Při volání nejprve získá hodnotu uloženou v instanci a poté ji předá volatelnému objektu.
+V případě indikátorů může být použita při aktualizaci (viz \ref{lst:update:indicator}).
+
+\begin{lstlisting}[caption={~Aktualizace indikátoru pomocí std::visit},label={lst:update:indicator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+std::variant<sma, ema> ma{sma{30}};
+bool ready = std::visit([&value](auto& indic) {
+    return indic.update(value);
+}, ma);
+\end{lstlisting}
+
+Byla vytvořena třída \texttt{bazooka::indicator}, aby bylo možné objekt správně zapouzdřit a spravovat.
+Třída má pouze jeden členský atribut \texttt{data\_} typu \texttt{std::variant<sma, ema>}, který je používán pro uložení indikátoru.
+Metody používají \texttt{std::visit} pro přístup a změnu hodnoty indikátoru.
+Sdílí stejné rozhraní s třídami \texttt{sma} a \texttt{ema}.
+
 \chapter{Optimalizace}
 
 \iffalse
