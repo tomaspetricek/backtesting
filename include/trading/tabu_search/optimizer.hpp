@@ -75,12 +75,12 @@ namespace trading::tabu_search {
                     }
                 }
 
-                // try update current state
+                // try update best state
                 if (optim_criteria(curr_.fitness, best_.fitness))
                     best_ = curr_;
 
                 tabu_list.forget(curr_move);
-                tabu_list.remember(curr_move);
+                tabu_list.remember(curr_move.index());
                 (observers.iteration_passed(*this, tabu_list), ...);
             }
             (observers.end(*this), ...);

@@ -412,3 +412,76 @@ for (; population_.size() && !termination(*this); it_++) {
 (observers.end(*this), ...);
 return population_;
 \end{lstlisting}
+
+\subsection{Tabu prohledávání}
+Tabu prohledávání je implementováno třídou \texttt{tabu\_search::optimizer}.
+Má 3 třídní atributy: počet iterací, aktuální a nejlepší stav.
+Pro ukládání zakázaných tahů byla implementována třída \texttt{bazooka::moves\_memory}.
+Ukládá pouze konfigurační atributy, které byly změněny, nikoli celé konfigurace.
+Perioda a typ indikátoru jsou zapamatovány tak, jak jsou.
+Hodnoty úrovně a velikosti nákupu, které nebyly změněny, se vynulují.
+K ukládání úrovní a velikostí nákupu se používá \texttt{std::map}.
+
+Jelikož existují 4 konfigurační proměnné, z nichž se vždy mění pouze jedna, tak se tah ukládá do instance třídy \texttt{std::variant}, která je zapouzdřena do instance třídy \texttt{bazooka::movement}.
+Vzhledem k tomu, že úrovně a velikosti nákupu jsou reprezentovány stejným datovým typem, polem zlomků, je nutné implementovat způsob, jak je rozlišit.
+Třída proto obsahuje výčtovou třídu zvanou \texttt{indices}, ke které lze přistupovat zvenčí.
+Lze ji použít ve výrazech \texttt{switch} \ref{lst:movement:usage}.
+Tah lze uložit a zpřístupnit pomocí setterů a getterů.
+
+\begin{lstlisting}[caption={~Použití třídy \texttt{bazooka::movement}},label={lst:movement:usage},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+bool contains(const move_type& move) const
+{
+    switch (move.indices()) {
+    case move_type::indices::tag:
+        return indic_mem_.contains(move.tag);
+    case move_type::indices::period:
+        return period_mem_.contains(move.period());
+    case move_type::indices::levels:
+        return levels_mem_.contains(move.levels());
+    default:
+        return sizes_mem_.contains(move.open_sizes());
+    }
+}
+\end{lstlisting}
+
+Hodnoty vložené do paměti v ní zůstávají po určitý počet iterací.
+Při každé iteraci se počet iterací sníží pouze pro konfigurační parametr, který byl změněn.
+Pevný počet operací lze nastavit pomocí instance třídy \texttt{tabu\_search::fixed\_tenure} pro paměť každého konfiguračního parametru.
+
+Sousední konfigurace lze vygenerovat pomocí \texttt{bazooka::neighbor}, která vrací konfiguraci včetně tahu.
+Velikost sousedství říká, kolik sousedních konfigurací by mělo být prohledáno v jedné iteraci.
+Při volání instance optimalizátoru lze také použít pozorovatele \ref{lst:tabu:search}.
+
+\begin{lstlisting}[caption={~Implementace genetického algoritmu},label={lst:tabu:search},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+best_ = curr_ = state{init, compute_fitness(init)};
+state candidate, origin;
+typename TabuList::move_type curr_move, candidate_move;
+
+(observers.begin(*this), ...);
+for (; !terminate(*this); it_++) {
+    // explore neighborhood
+    origin = curr_;
+    std::tie(curr_.config, curr_move) = neighbor(origin.config);
+    curr_.fitness = compute_fitness(curr_.config);
+
+    for (std::size_t i{0}; i<neighborhood_size(*this)-1; i++) {
+        std::tie(candidate.config,candidate_move)=neighbor(origin.config);
+
+        if (!tabu_list.contains(candidate_move)) {
+            candidate.fitness = compute_fitness(candidate.config);
+
+            if (optim_criteria(candidate.fitness, curr_.fitness)
+                || aspire(candidate, *this)) {
+                curr_ = candidate;
+                curr_move = candidate_move;
+            }}}
+
+    if (optim_criteria(curr_.fitness, best_.fitness))
+        best_ = curr_;
+
+    tabu_list.forget(curr_move);
+    tabu_list.remember(curr_move.index());
+    (observers.iteration_passed(*this, tabu_list), ...);
+}
+(observers.end(*this), ...);
+\end{lstlisting}

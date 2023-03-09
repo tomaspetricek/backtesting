@@ -179,9 +179,9 @@ namespace trading::bazooka {
             }
         }
 
-        void forget(const move_type& move)
+        void forget(typename move_type::indices index)
         {
-            switch (move.indices()) {
+            switch (index) {
             case move_type::indices::tag:
                 indic_mem_.forget();
                 break;
