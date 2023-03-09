@@ -338,5 +338,77 @@ for (; curr_temp_>min_temp_; it_++) {
 (observers.end(*this), ...);
 \end{lstlisting}
 
+\subsection{Genetický algoritmus}
+Genetický algoritmus je implementován třídou \texttt{genetic\_algorithm::optimizer}.
+Má pouze 2 atributy třídy, počet iterací a populaci, další části algoritmu jsou poskytovány při jeho volání.
+Populace je uložena pomocí třídy \texttt{std::vector}, která se spravuje dynamicky alokovaného pole prvků.
+Bylo dbáno na to, aby došlo k co nejmenšímu počtu realokací v průběhu optimalizace, a to opětovným použitím již alokovaného pole pomocí metody \texttt{clear} a použití metody \texttt{reserve}, kdykoli je dopředu známa velikost pole.
+Jinak by docházelo ke zbytečnému zpomalování optimalizace.
 
+Pro mutaci lze použít instanci třídy \texttt{bazooka::neighbor}.
+Algoritmus pro křížení je implentován třídou \texttt{bazooka::crossover}.
+Při křížení se používají všechny konfigurační proměnné, a proto pro každou z nich je implementován operátor křížení.
+O tom, zda potomek obdrží periodu indikátoru nebo typ indikátoru od své matky nebo otce, se rozhoduje hodem mincí.
+Pro křížení úrovní a velikostí nákupů byly vytvořeny vlastní třídy.
 
+Křížení úrovní nákupu je implementováno třídou \texttt{bazooka::levels\_crossover}.
+Funguje tak, že genetickou informaci od otce a matky vloží do společného pole typu \texttt{etl::vector}, které na rozdíl od \texttt{std::vector} používá statickou alokaci místo dynamické.
+Geny jsou poté náhodně zamíchány a poté vkládány ve \texttt{while} cyklu do instance \texttt{elt::flat\_set} do jejího naplnění.
+Hodnoty jsou nakonec překopírovány do výstupního pole.
+Algoritmus má několik vlastností, jednou z nich je, že pokud jsou rodiče stejní, bude i potomek stejný.
+Pokud mají společný gen, je větší šance, že bude vybrán.
+
+Křížení velikostí nákupů je implementováno třídou \texttt{bazooka::sizes\_crossover}.
+Nejmenší hodnoty rodičů jsou použity jako základ pro potomka.
+Dále jsou nákupní velikosti dítěte náhodně zvyšovány v cyklu \texttt{while} tak, aby velikost nákupu nikdy nebyla větší než nejvyšší hodnota rodiče.
+Smyčka končí, jakmile je součet všech velikostí roven 1.
+Výsledné hodnoty potomků se tedy budou vždy pohybovat v rozmezí hodnot rodičů.
+Pokud rodiče nejsou stejní, potomek je jiný, ale stále je podobný svým rodičům.
+
+Pro výběr rodičů byl realizován ruletový výběr \texttt{genetic\_algorithm::roulette\_selection}.
+Interně používá instanci třídy \texttt{std::discrete\_distribution} pro výběr rodičů.
+Zdatnost každého jednotlivce představuje váhu, čím vyšší je váha, tím pravděpodobněji bude daný jedinec vybrán jako rodič.
+
+Byl implementován \texttt{genetic\_algorithm::random\_matchmaker} algoritmus náhodného párování rodičů.
+Rodiče jsou nejprve náhodně zamícháni a následně párováni.
+Celkový počet rodičů nemusí být dělitelný počtem vybíraných n-tic, takže někteří rodiče se mohou spárovat vícekrát.
+
+Poslední část algoritmu se zabývá nahrazením původní generace za novou.
+Byly implementovány dva přístupy.
+En block nahrazování reprezentované třídou \texttt{genetic\_algorithm::en\_block\_replacement} zachovává pouze děti k vytvoření nové generace.
+Druhý přístup používá elitismus a je implementován třídou \texttt{genetic\_algorithm::elitism\_replacement}.
+Třída má parametr $l\in[0, 1]$ představující zlomek vybraných elitních rodičů.
+Nejprve seřadí rodiče podle zdatnosti a poté jimi nahradí prvních n dětí.
+
+Jak je vidět ve výpisu \ref{lst:genetic:algorithm}, opět lze předat při volání instance třídy objekty typu pozorovatel, které jsou upozorňováni na události nastávající v průběhu optimalizace.
+Data o průběhu optimalizace lze shromažďovat pomocí \texttt{genetic\_algorithm::progress\_collector} a zaznamenávat pomocí \texttt{genetic\_algorithm::progress\_reporter}.
+
+\begin{lstlisting}[caption={~Implementace genetického algoritmu},label={lst:genetic:algorithm},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+population_.clear(), population_.reserve(init_genes.size());
+for (const auto& genes: init_genes)
+    population_.emplace_back(std::move(individual{genes,
+        compute_fitness(genes)}));
+
+std::vector<individual> parents, children;
+(observers.begin(*this), ...);
+for (; population_.size() && !termination(*this); it_++) {
+    parents.clear();
+    selection(sizer(population_.size()), population_, parents);
+
+    // mate
+    children.clear();
+    for (const auto& mates: match(parents))
+        for (auto&& genes: crossover(mates)) {
+            genes = mutation(std::move(genes));
+            auto child = individual{genes, compute_fitness(genes)};
+            children.template emplace_back(std::move(child));
+        }
+
+    // replace
+    population_.clear();
+    replacement(parents, children, population_);
+    (observers.population_updated(*this), ...);
+};
+(observers.end(*this), ...);
+return population_;
+\end{lstlisting}

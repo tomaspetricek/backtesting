@@ -69,13 +69,11 @@ namespace trading::genetic_algorithm {
                 TerminationCriteria<optimizer<Genes>> auto&& termination,
                 Observer& ... observers)
         {
-            population_.clear();
-            population_.reserve(init_genes.size());
+            population_.clear(), population_.reserve(init_genes.size());
             for (const auto& genes: init_genes)
                 population_.template emplace_back(std::move(individual{genes, compute_fitness(genes)}));
 
             std::vector<individual> parents, children;
-
             (observers.begin(*this), ...);
             for (; population_.size() && !termination(*this); it_++) {
                 parents.clear();
@@ -96,7 +94,6 @@ namespace trading::genetic_algorithm {
                 (observers.population_updated(*this), ...);
             };
             (observers.end(*this), ...);
-
             return population_;
         }
 
