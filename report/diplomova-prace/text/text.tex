@@ -76,6 +76,54 @@ Třída má pouze jeden členský atribut \texttt{data\_} typu \texttt{std::vari
 Metody používají \texttt{std::visit} pro přístup a změnu hodnoty indikátoru.
 Sdílí stejné rozhraní s třídami \texttt{sma} a \texttt{ema}.
 
+\subsection{Obchodník}
+Manažer a strategie jsou dány dohromady pomocí třídy \texttt{bazooka::trader}.
+Používá vícenásobnou veřejnou dědičnost, takže veřejní členové těchto 2 tříd jsou přístupní přímo.
+Poskytuje metodu \texttt{trade} \ref{lst:trade}, která používá metody obou tříd.
+Strategie dělá rozhodnutí, na která pak manažer reaguje.
+Metoda vrací výčet \texttt{action} udávající, která akce byla provedena.
+
+\begin{lstlisting}[caption={~Implementace metody trade třídy \texttt{bazooka::trader}},label={lst:trade},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+action trade(const price_point& curr)
+{
+    action done{action::none};
+    if (!Strategy::is_ready()) return done;
+
+    if (Strategy::should_open(curr.data)) {
+        Manager::create_open_order(curr);
+        done = action::opened;
+    }
+    else if (Strategy::should_close_all(curr.data)) {
+        Manager::create_close_all_order(curr);
+        done = action::closed_all;
+    }
+    return done;
+}
+\end{lstlisting}
+
+\subsection{Burza}
+Burza je implementována pomocí třídy \texttt{market}.
+Ve srovnání se skutečnou burzou je to velmi zjednodušená.
+Mezi třídní atributy patří: aktivní pozice, poslední uzavřená pozice, peněženka a výši poplatků spojených s splněním objednávek.
+
+Peněženka je implementována třídou \texttt{wallet} a slouží ke správě zůstatku zákaznického účtu.
+Zůstatek lze snížit výběrem nebo navýšit vkladem.
+Pokud je částka k výběru větší než aktuální zůstatek, tak je vyhozena výjimka \texttt{insufficient\_funds}.
+Aktivní pozice je uložena v instanci \texttt{std::optional}, jelikož pozice nemusí být otevřena.
+
+Pomocí metody \texttt{fill\_open\_order} může být aktivní pozice otevřena nebo navýšena v závislosti na tom, zda již existuje.
+Po otevření lze pozici uzavřít vcelku voláním metody \texttt{fill\_close\_all\_order}, nikoli po částech.
+Třída také poskytuje getry pro získání přístupu k aktuální čísté hodnotě, kontrolu, zda je otevřená pozice, nebo zjištění aktuálního zisku aktivní pozice.
+
+\subsection{Pozice}
+Pozice je implementována třídou \texttt{position}.
+Lze ji otevřít vytvořením instance třídy, zvýšit voláním metody \texttt{increase} nebo ji uzavřít pomocí metody \texttt{close}.
+Celkové množství nakoupeného aktiva lze zjistit voláním metody \texttt{size}.
+Dále lze získat aktuální hodnotu a aktuální zisk.
+Vzhledem k tomu, že je v průběhu ukládán celkový realizovaný zisk a celková investovaná částka, tak je lze zjistit i po uzavření pozice.
+Při změně velikosti pozice jsou uplatňovány poplatky.
+Výše otevíracích a uzavíracích poplatků jsou poskytnuty při inicializaci.
+
 \subsection{Simulátor}
 Obchodování lze simulovat pomocí třídy \texttt{simulator}, která uchovává a připravuje historická data pro simulaci a umožňuje její provedení.
 Hlavním účelem třídy je použít ji jako objektivní funkci během optimalizace.
