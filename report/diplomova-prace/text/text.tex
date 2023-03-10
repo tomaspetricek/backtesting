@@ -76,6 +76,83 @@ Třída má pouze jeden členský atribut \texttt{data\_} typu \texttt{std::vari
 Metody používají \texttt{std::visit} pro přístup a změnu hodnoty indikátoru.
 Sdílí stejné rozhraní s třídami \texttt{sma} a \texttt{ema}.
 
+\subsection{Simulátor}
+Obchodování lze simulovat pomocí třídy \texttt{simulator}, která uchovává a připravuje historická data pro simulaci a umožňuje její provedení.
+Hlavním účelem třídy je použít ji jako objektivní funkci během optimalizace.
+Obchodování lze pozorovat pomocí pozorovatelů.
+Tímto způsobem lze například použít instanci třídy \texttt{bazooka::statistics::collector} ke sběru statistik nebo časových řad pro vykreslování grafu pomocí třídy \texttt{chart\_series::collector}.
+
+Při konstrukci jsou předány simulátoru historické ceny v podobě minutových svíček.
+Pro rozhodování se používají minutové uzavírací ceny.
+Ceny používané pro aktualizaci indikátorů jsou získány tak, že jsou minutové svíčky nejprve převzorkovány pomocí \texttt{resampler} na požadované časové období a zprůměrovány pomocí zvolené průměrovací metody.
+Pokud je například doba převzorkování 30 minut a metoda průměrování \textit{OHLC4}, tak jsou svíčky nejprve převzorkovány na 30minutové svíčky a poté zprůměrovány pomocí \texttt{candle::ohlc4}.
+
+Proces převzorkování probíhá tak, že za dané období se otevírací cena první svíčky stane otevírací cenou převzorkované svíčky a uzavírací cena poslední svíčky se stane její uzavírací cenou.
+Vysoká a nízká cena jsou nejvyšší a nejnižší ceny v daném období.
+Jelikož je převzorkování poměrně časově náročné, tak se provádí pouze jednou v konstruktoru, takže se neopakuje při každém volání simulátoru.
+
+\begin{lstlisting}[caption={~Implementace simulace obchodování},label={lst:simulator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+template<class Trader, class... Observer>
+void operator()(Trader&& trader, Observer&... observers)
+{
+    amount_t min_allowed_equity{100};
+    auto indic_prices_it = indic_prices_.begin();
+    price_point curr;
+
+    (observers.begin(trader, prices_.front()), ...);
+    for (std::size_t i{0}; i<prices_.size(); i++) {
+        curr = prices_[i];
+        if (trader.equity(curr.data)>min_allowed_equity) {
+            (observers.traded(trader, trader.trade(curr), curr), ...);
+
+            if (trader.has_active_position())
+                (observers.position_active(trader, curr), ...);
+
+            // update indicators
+            if (i && (i+1)%resampling_period_==0)
+                if (trader.update_indicators((*indic_prices_it++)))
+                    (observers.indicator_updated(trader, curr), ...);
+        }
+    }
+    (observers.end(trader, prices_.back()), ...);
+}
+\end{lstlisting}
+
+\subsection{Statistiky}
+Nezbytnou součástí optimalizace jsou statistiky.
+Mohou být použity k formulaci optimalizačního kritéria a omezujících podmínek.
+Statistiky, které jsou společné pro všechny obchodní strategie, jsou reprezentovány třídou \texttt{statistics} a jsou rozšířeny pro \textit{Bazooka} obchodovací strategii \texttt{bazooka::statistics}.
+
+Inicializuje se pomocí počátečního zůstatku.
+Statistiky aktualizovány pomocí metod pro aktualizaci \texttt{update\_equity()} nebo setrů \texttt{set\_final\_balance}.
+Hodnoty lze získat pomocí getrů.
+Některé hodnoty, jako je celkový zisk, lze získat buď jako částku nebo v procentech.
+Pro upřesnění jednotky a se používá značka \texttt{percent} nebo \texttt{amount} \ref{lst:use:unit:tag} při volání metody.
+
+\begin{lstlisting}[caption={~Metody pro získání celkového ziskz v různých jednotkách},label={lst:use:unit:tag},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+template<class T>
+requires std::same_as<T, amount>
+amount_t total_profit() const
+{
+    return final_balance_-init_balance_;
+}
+template<class T>
+requires std::same_as<T, percent>
+amount_t total_profit() const
+{
+    return ((final_balance_-init_balance_)/init_balance_)*100;
+}
+\end{lstlisting}
+
+Všechny statistiky související se ziskem jsou sledovány pomocí \texttt{profit\_statistics}, které lze použít k získání hrubého zisku, hrubé ztráty nebo faktoru zisku.
+Dále jsou sledovány statistiky související s pohybem pomocí \texttt{motion\_statistics}, které poskytují minimální a maximální hodnotu, maximální vzestupný pohyb a sestupný pohyb.
+Vzestupný pohyb je sledován pomocí \texttt{run\_up\_tracker} a sestupný pomocí \texttt{drawdown\_tracker}.
+Jsou sledovány čistá hodnota a uzavírací zůstatek.
+Hodnoty lze opět vyjádřit v procentech nebo částkách.
+
+Do třídy \texttt{bazooka::statistics} byl přidán čítač otevíracích objednávek pro jednotlivé nákupní úrovně.
+Nese informace o tom, kolikrát bylo dosaženo jednotlivých úrovní nákupu, a může tak pomoci lépe porozumět tomu, jak strategie chová.
+
 \chapter{Optimalizace}
 
 \iffalse

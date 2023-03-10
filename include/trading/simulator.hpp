@@ -25,7 +25,7 @@ namespace trading {
             std::same_as<price_t, std::invoke_result_t<ConcreteAverager, const candle&>>;
 
     class simulator {
-        std::vector<price_point> close_prices_;
+        std::vector<price_point> prices_;
         std::vector<price_t> indic_prices_;
         std::size_t resampling_period_;
 
@@ -35,11 +35,11 @@ namespace trading {
         {
             trading::resampler resampler{resampling_period_};
             candle indic_candle;
-            close_prices_.reserve(candles.size());
+            prices_.reserve(candles.size());
             indic_prices_.reserve(candles.size()/resampling_period_);
 
             for (const auto& candle: candles) {
-                close_prices_.emplace_back(candle.opened(), candle.close());
+                prices_.emplace_back(candle.opened(), candle.close());
 
                 if (resampler(candle, indic_candle))
                     indic_prices_.emplace_back(averager(indic_candle));
@@ -49,15 +49,14 @@ namespace trading {
         template<class Trader, class... Observer>
         void operator()(Trader&& trader, Observer&... observers)
         {
-            // trade
             amount_t min_allowed_equity{100};
             auto indic_prices_it = indic_prices_.begin();
-            (observers.begin(trader, close_prices_.front()), ...);
+            (observers.begin(trader, prices_.front()), ...);
             price_point curr;
 
-            for (std::size_t i{0}; i<close_prices_.size(); i++) {
-                curr = close_prices_[i];
-                if (trader.equity(close_prices_[i].data)>min_allowed_equity) {
+            for (std::size_t i{0}; i<prices_.size(); i++) {
+                curr = prices_[i];
+                if (trader.equity(curr.data)>min_allowed_equity) {
                     (observers.traded(trader, trader.trade(curr), curr), ...);
 
                     if (trader.has_active_position())
@@ -68,7 +67,7 @@ namespace trading {
                             (observers.indicator_updated(trader, curr), ...);
                 }
             }
-            (observers.end(trader, close_prices_.back()), ...);
+            (observers.end(trader, prices_.back()), ...);
         }
     };
 }

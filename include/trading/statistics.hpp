@@ -53,7 +53,7 @@ namespace trading {
         }
     };
 
-    class profit_stats {
+    class profit_statistics {
         amount_t gross_profit_{0.0};
         amount_t gross_loss_{0.0};
 
@@ -93,7 +93,7 @@ namespace trading {
         amount_t final_balance_;
         motion_statistics close_balance_;
         motion_statistics equity_;
-        profit_stats profit_;
+        profit_statistics profit_;
         std::size_t total_open_orders_{0};
         std::size_t total_close_orders_{0};
 
