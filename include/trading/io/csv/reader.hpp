@@ -22,32 +22,49 @@
 #include <utility>
 
 namespace trading::io::csv {
+    template<std::size_t n_cols>
     class reader final {
         std::ifstream file_;
-        std::filesystem::path path_;
         char delim_;
         std::string line_;
-//        static constexpr std::size_t n_cols_ = sizeof...(Types);
+
+        template<class Value>
+        void read_value(std::stringstream& line, Value& val)
+        {
+            std::string data;
+            std::getline(line, data, delim_);
+            val = parser::parse<Value>(data);
+        }
 
     public:
-//        using row_type = std::tuple<Types...>;
-
-        explicit reader(std::filesystem::path  path, char delim)
-                :path_(std::move(path)), delim_(delim)
+        explicit reader(const std::filesystem::path& path, char delim)
+                :delim_(delim)
         {
-            if (!std::filesystem::exists(path_))
+            if (!std::filesystem::exists(path))
                 throw std::invalid_argument("File does not exist");
 
-            file_ = std::ifstream{path_.string()};
+            file_ = std::ifstream{path.string()};
 
             if (!file_.is_open())
-                throw std::runtime_error("Cannot open "+path_.string());
+                throw std::runtime_error("Cannot open "+path.string());
+        }
+
+        void read_header(std::array<std::string, n_cols>& header)
+        {
+            // parse line
+            std::stringstream ss(line_);
+            ss.exceptions(std::ios::failbit);
+
+            for (std::size_t i{0}; i<header.size(); i++)
+                read_value(ss, header[i]);
         }
 
         template<class ...Types>
         bool read_row(Types& ...inputs)
         {
-            // read lines
+            static_assert(sizeof...(Types)==n_cols);
+
+            // read line
             if(!std::getline(file_, line_))
                 return false;
 
@@ -57,11 +74,9 @@ namespace trading::io::csv {
             // parse line
             std::stringstream ss(line_);
             ss.exceptions(std::ios::failbit);
-            std::string data;
 
             auto parse_line = [&](auto& in){
-                std::getline(ss, data, delim_);
-                in = parser::parse<typename std::remove_reference<decltype(in)>::type>(data);
+                read_value(ss, in);
             };
 
             (parse_line(inputs),...);

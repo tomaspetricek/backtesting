@@ -53,7 +53,7 @@ auto read_candles(const std::filesystem::path& path, char sep,
         std::time_t min_opened = std::numeric_limits<std::time_t>::min(),
         std::time_t max_opened = std::numeric_limits<std::time_t>::max())
 {
-    io::csv::reader reader{path, sep};
+    io::csv::reader<5> reader{path, sep};
     std::time_t opened;
     price_t open, high, low, close;
     std::vector<candle> candles;
@@ -542,13 +542,6 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
 
 int main()
 {
-    {
-        constexpr std::size_t n{3};
-        std::size_t u{3};
-        systematic::sizes_generator<n> gen{u};
-        use_generator(gen);
-        return EXIT_SUCCESS;
-    }
     constexpr std::size_t n_levels{4};
 
     // read candles
@@ -582,6 +575,8 @@ int main()
             << "count: " << candles.size() << std::endl
             << "duration: " << duration << std::endl;
 
+    return EXIT_SUCCESS;
+
     json settings;
     settings.emplace(json{"candles", {
             {"from", candles.front().opened()},
@@ -614,7 +609,7 @@ int main()
     // create simulator
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
     auto averager = candle::ohlc4{};
-    trading::simulator simulator{std::move(candles), resampling_period, averager};
+    trading::simulator simulator{std::move(candles), resampling_period, averager, 100};
     settings.emplace(json{"resampling", {
             {"period[min]", resampling_period.count()},
             {"averaging method", decltype(averager)::name}

@@ -60,7 +60,7 @@ namespace trading::bazooka {
                 stats_.update_equity(trader.equity(curr.data));
             }
 
-            void indicator_updated(const Trader&, const price_point&) { }
+            void indicators_updated(const Trader&, const price_point&) { }
 
             void end(const Trader& trader, const price_point&)
             {

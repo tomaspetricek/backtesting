@@ -28,10 +28,12 @@ namespace trading {
         std::vector<price_point> prices_;
         std::vector<price_t> indic_prices_;
         std::size_t resampling_period_;
+        amount_t min_equity_{100};
 
     public:
-        simulator(std::vector<candle>&& candles, const std::chrono::minutes& resampling_period, Averager auto&& averager)
-                :resampling_period_(resampling_period.count())
+        simulator(std::vector<candle>&& candles, const std::chrono::minutes& resampling_period,
+                Averager auto&& averager, amount_t min_equity)
+                :resampling_period_(resampling_period.count()), min_equity_{min_equity}
         {
             trading::resampler resampler{resampling_period_};
             candle indic_candle;
@@ -47,25 +49,20 @@ namespace trading {
         }
 
         template<class Trader, class... Observer>
-        void operator()(Trader&& trader, Observer&... observers)
+        void operator()(Trader&& trader, Observer& ... observers)
         {
-            amount_t min_allowed_equity{100};
             auto indic_prices_it = indic_prices_.begin();
+
             (observers.begin(trader, prices_.front()), ...);
-            price_point curr;
+            for (std::size_t i{0}; i<prices_.size() && trader.equity(prices_[i].data)>min_equity_; i++) {
+                (observers.traded(trader, trader.trade(prices_[i]), prices_[i]), ...);
 
-            for (std::size_t i{0}; i<prices_.size(); i++) {
-                curr = prices_[i];
-                if (trader.equity(curr.data)>min_allowed_equity) {
-                    (observers.traded(trader, trader.trade(curr), curr), ...);
+                if (trader.has_active_position())
+                    (observers.position_active(trader, prices_[i]), ...);
 
-                    if (trader.has_active_position())
-                        (observers.position_active(trader, curr), ...);
-
-                    if (i && (i+1)%resampling_period_==0)
-                        if (trader.update_indicators((*indic_prices_it++)))
-                            (observers.indicator_updated(trader, curr), ...);
-                }
+                if (i && (i+1)%resampling_period_==0)
+                    if (trader.update_indicators((*indic_prices_it++)))
+                        (observers.indicators_updated(trader, prices_[i]), ...);
             }
             (observers.end(trader, prices_.back()), ...);
         }

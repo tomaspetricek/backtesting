@@ -148,7 +148,7 @@ namespace trading {
 
         template<class T>
         requires std::same_as<T, percent>
-        amount_t total_profit() const
+        percent_t total_profit() const
         {
             return ((final_balance_-init_balance_)/init_balance_)*100;
         }
