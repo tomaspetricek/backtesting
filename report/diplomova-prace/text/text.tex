@@ -18,7 +18,7 @@ Největší výhodou tohoto přístupu je, že zaručuje nalezení nejlepšího 
 \chapter{Design}
 
 \subsection{Jmenné konvence}
-Konvence pojmenování jsou převzaty z \textit{STL} a \textit{Boost} knihoven.
+Konvence pojmenování jsou převzaty převážně z \textit{STL} a \textit{Boost} knihoven.
 Názvy tříd a funkcí používají \texttt{snake\_case}.
 Metody nastavení a čtení atributů třídy nepoužívají \texttt{set} a \texttt{get} ve svém názvu, jsou jednoduše odlišeni tak, že gettery neberou žádný parametr a settery berou více než jeden.
 Názvy šablon a konceptů používají \texttt{CamelCase}.
@@ -26,7 +26,7 @@ Soukromé atributy třídy končí podtržítkem.
 
 \subsection{Uspořádání projektu}
 Projekt je rozdělen do 3 hlavních adresářů: \textit{include}, \textit{src} a \textit{test}.
-Adresář \textit{include} obsahuje obchodovací framework a vybrané hlavičky z knihovny CppCoro.
+Adresář \textit{include} obsahuje obchodovací framework a vybrané hlavičkové soubory z knihovny CppCoro.
 Organizace frameworku je inspirovaná knihovnou \textit{Boost.Asio}.
 Definice a deklarace tříd jsou uloženy společně v jednom souboru s příponou \textit{.hpp}.
 Hierarchie složek se řídí jmennými prostory, například třídu \texttt{trading::bazooka::long\_strategy} lze nalézt v souboru \textit{/include/trading/bazooka/long\_strategy}.
@@ -43,7 +43,7 @@ Vytváří 2 spustitelné soubory \textit{backesting} pro použití optimalizát
 \section{Strategie}
 
 \subsection{Indikátor}
-Indikátor může být typu \texttt{trading::sma} nebo \texttt{trading::ema}.
+Indikátor může být typu \texttt{sma} nebo \texttt{ema}.
 Běžným způsobem, jak umožnit oba typy, by bylo použití runtime polymorfismu prostřednictvím virtuálních funkcí.
 Oba indikátory by musely dědit ze společné třídy a implementovat její virtuální funkce.
 Instance třídy by musela být inicializována na haldě namísto zásobníku a dalo by se k ní přistupovat pomocí ukazatele na společnou třídu.
@@ -51,18 +51,18 @@ Jak dynamická alokace, tak použití virtuálních funkcí způsobují režii n
 Existuje několik nedávných přednášek z \textit{C++ konference} (CppCon) \cite{gobel-virtual, bogosavljevic-virtual}, které jsou zaměřeny na způsoby, jak se vyhnout používání virtuálních funkcí.
 V obou přednáškách jsou zapojeny prvky moderního C++.
 
-Jako nejpřirozenější se v tomto případě nabízí použití třídy \texttt{std::variant} zavedené standardem C++17.
-Třída funguje jako úložiště pro různé typy.
-Pro uložení instance daného typu používá pole bajtů, který musí mít velikost největšího uložitelného typu.
+Jako nejvhodnější se v tomto případě nabízí použití třídy \texttt{std::variant} zavedené standardem C++17.
+Třída funguje jako uložiště pro různé typy.
+Pro uložení instance daného typu používá staticky alokované pole bajtů, který má velikost největšího uložitelného typu.
 Jako třídní šablonové parametry přebírá seznam typů, které mohou být v objektu uloženy.
-Jakmile je objekt inicializován, lze použít funkci \texttt{std::get} pro přístup k hodnotě v něm uložené.
+K hodnotě uložené v instanci objektu lze přistupovat pomocí funkce \texttt{std::get}.
 Funkce přijímá šablonový argument, který je buď indexem typu, nebo samotným typem, který by měl být aktuálně v instanci uložen.
 Pokud je uložen jiný typ, tak volání funkce způsobí vyhození \texttt{std::bad\_variant\_access} výjimky.
 
 Dalším způsobem přístupu k uložené hodnotě je použití funkce \texttt{std::visit}.
-Vyžaduje 2 argumenty, první je volatelný objekt a druhý instance \texttt{std::variant}.
-Při volání nejprve získá hodnotu uloženou v instanci a poté ji předá volatelnému objektu.
-V případě indikátorů může být použita při aktualizaci (viz \ref{lst:update:indicator}).
+Vyžaduje 2 argumenty, první je volatelný objekt a druhý instance třídy \texttt{std::variant}.
+Funkce při volání nejprve získá hodnotu uloženou v instanci a poté ji předá volatelnému objektu.
+V případě indikátorů může být použita například při jeho aktualizaci (viz \ref{lst:update:indicator}).
 
 \begin{lstlisting}[caption={~Aktualizace indikátoru pomocí std::visit},label={lst:update:indicator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 std::variant<sma, ema> ma{sma{30}};
@@ -71,16 +71,16 @@ bool ready = std::visit([&value](auto& indic) {
 }, ma);
 \end{lstlisting}
 
-Byla vytvořena třída \texttt{bazooka::indicator}, aby bylo možné objekt správně zapouzdřit a spravovat.
+Aby bylo možné objekt zapouzdřit a snadněji spravovat, byla vytvořena třída \texttt{bazooka::indicator}.
 Třída má pouze jeden členský atribut \texttt{data\_} typu \texttt{std::variant<sma, ema>}, který je používán pro uložení indikátoru.
 Metody používají \texttt{std::visit} pro přístup a změnu hodnoty indikátoru.
 Sdílí stejné rozhraní s třídami \texttt{sma} a \texttt{ema}.
 
 \subsection{Obchodník}
-Manažer a strategie jsou dány dohromady pomocí třídy \texttt{bazooka::trader}.
-Používá vícenásobnou veřejnou dědičnost, takže veřejní členové těchto 2 tříd jsou přístupní přímo.
-Poskytuje metodu \texttt{trade} \ref{lst:trade}, která používá metody obou tříd.
-Strategie dělá rozhodnutí, na která pak manažer reaguje.
+Funkcionality tříd \texttt{bazooka::manager} a \texttt{bazooka::strategy} jsou propojeny pomocí \texttt{bazooka::trader}.
+Pro zpřístupnění veřejných metod obou tříd je použita vícenásobní veřejná dědičnost.
+Třída poskytuje metodu \texttt{trade} \ref{lst:trade}, která používá metody obou tříd.
+Strategie činí rozhodnutí, která manažer uskutečňuje.
 Metoda vrací výčet \texttt{action} udávající, která akce byla provedena.
 
 \begin{lstlisting}[caption={~Implementace metody trade třídy \texttt{bazooka::trader}},label={lst:trade},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
@@ -104,20 +104,21 @@ action trade(const price_point& curr)
 \subsection{Burza}
 Burza je implementována pomocí třídy \texttt{market}.
 Ve srovnání se skutečnou burzou je to velmi zjednodušená.
-Mezi třídní atributy patří: aktivní pozice, poslední uzavřená pozice, peněženka a výši poplatků spojených s splněním objednávek.
+Podporuje pouze objednávky typu long a jeden uživatelský účet.
+Mezi třídní atributy patří: aktivní pozice, poslední uzavřená pozice, peněženka a výše poplatků spojených s realizací objednávek.
 
 Peněženka je implementována třídou \texttt{wallet} a slouží ke správě zůstatku zákaznického účtu.
-Zůstatek lze snížit výběrem nebo navýšit vkladem.
+Zůstatek lze snížit voláním metody \texttt{withdraw} nebo navýšit použitím \texttt{deposit}.
 Pokud je částka k výběru větší než aktuální zůstatek, tak je vyhozena výjimka \texttt{insufficient\_funds}.
 Aktivní pozice je uložena v instanci \texttt{std::optional}, jelikož pozice nemusí být otevřena.
 
 Pomocí metody \texttt{fill\_open\_order} může být aktivní pozice otevřena nebo navýšena v závislosti na tom, zda již existuje.
-Po otevření lze pozici uzavřít vcelku voláním metody \texttt{fill\_close\_all\_order}, nikoli po částech.
+Po otevření lze pozici uzavřít jako celek pomocí \texttt{fill\_close\_all\_order} metody, nikoli po částech.
 Třída také poskytuje getry pro získání přístupu k aktuální čísté hodnotě, kontrolu, zda je otevřená pozice, nebo zjištění aktuálního zisku aktivní pozice.
 
 \subsection{Pozice}
 Pozice je implementována třídou \texttt{position}.
-Lze ji otevřít vytvořením instance třídy, zvýšit voláním metody \texttt{increase} nebo ji uzavřít pomocí metody \texttt{close}.
+Lze ji otevřít vytvořením instance třídy, zvýšit voláním metody \texttt{increase} nebo uzavřít pomocí metody \texttt{close}.
 Celkové množství nakoupeného aktiva lze zjistit voláním metody \texttt{size}.
 Dále lze získat aktuální hodnotu a aktuální zisk.
 Vzhledem k tomu, že je v průběhu ukládán celkový realizovaný zisk a celková investovaná částka, tak je lze zjistit i po uzavření pozice.
@@ -128,9 +129,9 @@ Výše otevíracích a uzavíracích poplatků jsou poskytnuty při inicializaci
 Obchodování lze simulovat pomocí třídy \texttt{simulator}, která uchovává a připravuje historická data pro simulaci a umožňuje její provedení.
 Hlavním účelem třídy je použít ji jako objektivní funkci během optimalizace.
 Obchodování lze pozorovat pomocí pozorovatelů.
-Tímto způsobem lze například použít instanci třídy \texttt{bazooka::statistics::collector} ke sběru statistik nebo časových řad pro vykreslování grafu pomocí třídy \texttt{chart\_series::collector}.
+Tímto způsobem lze například použít třídu \texttt{bazooka::statistics::collector} ke sběru statistik nebo ke sběru časových řad třídu \texttt{chart\_series::collector}, které mouhou být použity pro vykreslování grafů.
 
-Při konstrukci jsou předány simulátoru historické ceny v podobě minutových svíček.
+Při inicializaci jsou předány simulátoru historické ceny v podobě minutových svíček.
 Pro rozhodování se používají minutové uzavírací ceny.
 Ceny používané pro aktualizaci indikátorů jsou získány tak, že jsou minutové svíčky nejprve převzorkovány pomocí \texttt{resampler} na požadované časové období a zprůměrovány pomocí zvolené průměrovací metody.
 Pokud je například doba převzorkování 30 minut a metoda průměrování \textit{OHLC4}, tak jsou svíčky nejprve převzorkovány na 30minutové svíčky a poté zprůměrovány pomocí \texttt{candle::ohlc4}.
@@ -139,67 +140,153 @@ Proces převzorkování probíhá tak, že za dané období se otevírací cena 
 Vysoká a nízká cena jsou nejvyšší a nejnižší ceny v daném období.
 Jelikož je převzorkování poměrně časově náročné, tak se provádí pouze jednou v konstruktoru, takže se neopakuje při každém volání simulátoru.
 
+Simulátor při volání přebírá instanci obchodníka a seznam pozorovatelů \ref{lst:simulator}.
+Iteruje přes rozhodovací ceny až do konce nebo dosažení minimální čisté hodnoty.
+Pozorovatelé jsou během optimalizace informováni o událostech, jako je otevření pozice nebo aktualizace indikátoru.
+Ceny použité pro aktualizaci indikátoru jsou procházeny pomocí iterátoru.
+
+
 \begin{lstlisting}[caption={~Implementace simulace obchodování},label={lst:simulator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 template<class Trader, class... Observer>
-void operator()(Trader&& trader, Observer&... observers)
+void operator()(Trader&& trader, Observer& ... observers)
 {
-    amount_t min_allowed_equity{100};
     auto indic_prices_it = indic_prices_.begin();
-    price_point curr;
 
     (observers.begin(trader, prices_.front()), ...);
-    for (std::size_t i{0}; i<prices_.size(); i++) {
-        curr = prices_[i];
-        if (trader.equity(curr.data)>min_allowed_equity) {
-            (observers.traded(trader, trader.trade(curr), curr), ...);
+    for (std::size_t i{0}; i<prices_.size() &&
+        trader.equity(prices_[i].data)>min_equity_; i++) {
+        (observers.traded(trader,trader.trade(prices_[i]),prices_[i]),...);
 
-            if (trader.has_active_position())
-                (observers.position_active(trader, curr), ...);
+        if (trader.has_active_position())
+            (observers.position_active(trader, prices_[i]), ...);
 
-            // update indicators
-            if (i && (i+1)%resampling_period_==0)
-                if (trader.update_indicators((*indic_prices_it++)))
-                    (observers.indicator_updated(trader, curr), ...);
-        }
+        // update indicators
+        if (i && (i+1)%resampling_period_==0)
+            if (trader.update_indicators((*indic_prices_it++)))
+                (observers.indicators_updated(trader, prices_[i]), ...);
     }
     (observers.end(trader, prices_.back()), ...);
 }
 \end{lstlisting}
 
 \subsection{Statistiky}
-Nezbytnou součástí optimalizace jsou statistiky.
-Mohou být použity k formulaci optimalizačního kritéria a omezujících podmínek.
+Nezbytnou součástí optimalizace jsou statistiky, jelikož jsou použity k formulaci optimalizačního kritéria a omezujících podmínek.
 Statistiky, které jsou společné pro všechny obchodní strategie, jsou reprezentovány třídou \texttt{statistics} a jsou rozšířeny pro \textit{Bazooka} obchodovací strategii \texttt{bazooka::statistics}.
 
-Inicializuje se pomocí počátečního zůstatku.
-Statistiky aktualizovány pomocí metod pro aktualizaci \texttt{update\_equity()} nebo setrů \texttt{set\_final\_balance}.
-Hodnoty lze získat pomocí getrů.
+Instance třídy je inicializována předáním počátečního zůstatku.
+Statistiky jsou aktualizovány pomocí metod pro aktualizaci \texttt{update\_equity()} nebo setrů \texttt{set\_final\_balance}.
+K uloženým statistikám lze přistovat pomocí getrů.
 Některé hodnoty, jako je celkový zisk, lze získat buď jako částku nebo v procentech.
 Pro upřesnění jednotky a se používá značka \texttt{percent} nebo \texttt{amount} \ref{lst:use:unit:tag} při volání metody.
 
-\begin{lstlisting}[caption={~Metody pro získání celkového ziskz v různých jednotkách},label={lst:use:unit:tag},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+\begin{lstlisting}[caption={~Metody pro získání celkového zisku v různých jednotkách},label={lst:use:unit:tag},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 template<class T>
 requires std::same_as<T, amount>
 amount_t total_profit() const
 {
     return final_balance_-init_balance_;
 }
+
 template<class T>
 requires std::same_as<T, percent>
-amount_t total_profit() const
+percent_t total_profit() const
 {
     return ((final_balance_-init_balance_)/init_balance_)*100;
 }
 \end{lstlisting}
 
-Všechny statistiky související se ziskem jsou sledovány pomocí \texttt{profit\_statistics}, které lze použít k získání hrubého zisku, hrubé ztráty nebo faktoru zisku.
-Dále jsou sledovány statistiky související s pohybem pomocí \texttt{motion\_statistics}, které poskytují minimální a maximální hodnotu, maximální vzestupný pohyb a sestupný pohyb.
+Všechny statistiky související se ziskem jsou sledovány pomocí instance \texttt{profit\_statistics}, které lze použít k získání hrubého zisku, hrubé ztráty nebo faktoru zisku.
+Dále jsou sledovány statistiky související s pohybem pomocí \texttt{motion\_statistics}, které poskytují minimální a maximální hodnotu, maximální vzestupný a sestupný pohyb.
 Vzestupný pohyb je sledován pomocí \texttt{run\_up\_tracker} a sestupný pomocí \texttt{drawdown\_tracker}.
-Jsou sledovány čistá hodnota a uzavírací zůstatek.
+Tím to způsobem jsou sledovány čistá hodnota a uzavírací zůstatek.
 Hodnoty lze opět vyjádřit v procentech nebo částkách.
 
 Do třídy \texttt{bazooka::statistics} byl přidán čítač otevíracích objednávek pro jednotlivé nákupní úrovně.
-Nese informace o tom, kolikrát bylo dosaženo jednotlivých úrovní nákupu, a může tak pomoci lépe porozumět tomu, jak strategie chová.
+Nese informace o tom, kolikrát bylo dosaženo jednotlivých úrovní nákupu, a může tak pomoci lépe porozumět tomu, jak se strategie chová.
+
+\chapter{Další}
+\section{Čtení a zápis do souborů}
+Byly vytvořeny vlastní třídy pro čtení a zápis do souborů \textit{CSV}.
+Jsou užitečné při čtení historických svíčkových dat a při ukládání časových řad pro vykreslování grafů.
+Pro uložení nastavení a výsledků experimentu byl zvolen formát \textit{JSON} (\textit{JavaScript Object Notation}), který je standardizovaný a čitelný.
+V tomto případě nebylo nutné vytvářet vlastní implementaci, protože existuje dobře známá, používaná a udržovaná knihovna \texttt{nlohmann/json} \cite{lohmann}.
+
+% popsat JSON a vlatsní třídy
+
+\subsection{Formát CSV}
+Pro čtení a zápis do souborů \textit{CSV} (\textit{Comma-Separated Values}) byly vytvořeny třídy \texttt{csv::reader} a \texttt{csv::writer}.
+Hodnoty jsou uloženy v tabulce, kde sloupce jsou hodnoty stejného typu odděleny oddělovačem, obvykle čárkou.
+První řádek může obsahovat názvy sloupců, ale nemusí.
+
+Obě třídy mají jeden třídní šablonový udávající počet sloupců.
+Při inicializaci přebírají jako parametr cestu k souboru uloženému v instanci \texttt{std::filesystem::path} a oddělovač.
+Soubor je otevřen při konstrukci třídy, pokud jej nelze otevřít, je vyhozena výjimka \texttt{std::runtime\_error}.
+Soubor je uzavřen při destrukci objektu.
+
+Třída \texttt{csv::reader} nabízí dvě metody pro čtení řádků: \texttt{read\_header} a \texttt{read\_row}.
+Je přirozenější číst názvy sloupců do instance \texttt{std::array} než přímo do proměnných.
+Čtení přímo do proměnných je dosaženo použitím sady šablonových parametrů \ref{lst:csv:read:row}.
+Třída vrací booleovský příznak s informací o tom, zda byl řádek přečten nebo ne.
+Hodnoty pak lze snadno číst v cyklu \texttt{while} (viz \ref{lst:read:candles}).
+Třída \texttt{io::parser} je používána k parsování jednotlivých hodnot.
+
+\begin{lstlisting}[caption={~Implementace čtení řádky třídy \texttt{io::csv::reader}},label={lst:csv:read:row},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+template<class ...Types>
+bool read_row(Types& ...inputs)
+{
+    static_assert(sizeof...(Types)==n_cols);
+    if (!std::getline(file_, line_))
+        return false;
+
+    line_.erase(std::remove(line_.begin(),line_.end(),'\r'),line_.end());
+    std::stringstream ss(line_);
+    ss.exceptions(std::ios::failbit);
+
+    auto parse_line = [&](auto& in) {
+        read_value(ss, in);
+    };
+
+    (parse_line(inputs), ...);
+    return true;
+}
+\end{lstlisting}
+
+Třída \texttt{csv::reader} je používána velice podobně.
+Má metodu pro zápis sloupců \texttt{write\_header} a pro zápis hodnot \texttt{write\_row}.
+K převodu hodnot na textové řetězce používá třídu \texttt{io::stringifier}.
+
+\begin{lstlisting}[caption={~Ukázka čtení svíček pomocí \texttt{io::csv::reader}},label={lst:read:candles},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+io::csv::reader<5> reader{path, sep};
+std::time_t opened;
+price_t open, high, low, close;
+std::vector<candle> candles;
+
+while (reader.read_row(opened, open, high, low, close))
+    candles.emplace_back(candle{opened, open, high, low, close});
+\end{lstlisting}
+
+\subsection{Formát JSON}
+Samotný formát se skládá ze dvou struktur: kolekce párů klíč-hodnota a pole.
+Je založen na programovacím jazyce \textit{JavaScript}, ale protože je postaven ze základních datových struktur, je implementován v mnoha programovacích jazycích \cite{json}.
+
+Pro \texttt{C++} je k dispozici několik \textit{JSON} knihoven, ale zdá se, že \texttt{nlohmann/json} mezi nimi vyniká nejvíc.
+Na příslušné \textit{GitHub} stránce je uvedeno, že jde o knihovnu \textit{JSON} pro moderní \textit{C++}, má 34 tisíc hvězdiček, je důkladně testována a pečlivě zdokumentována \cite{lohmann}.
+
+Podporuje vytvoření specifikace pro serializaci a deserializaci vlastních typů.
+Pro daný typ je vytvořena specializace struktury \texttt{adl\_serializer}, která může mít dvě metody \texttt{from\_json} pro deserializaci a \texttt{to\_json} pro serializaci.
+Implementaci pro třídu \texttt{bazooka::indicator} lze vidět ve výpise \ref{lst:json:serialize}.
+
+
+\begin{lstlisting}[caption={~Implementace deserializace pro vlastní datový typ},label={lst:json:serialize},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+template<>
+struct adl_serializer<trading::bazooka::indicator> {
+    static void to_json(json& j, const bazooka::indicator& indic)
+    {
+        j = {{"period", indic.period()},
+             {"name",   indic.name()}};
+    }
+};
+\end{lstlisting}
 
 \chapter{Optimalizace}
 
@@ -219,7 +306,7 @@ Důležitým aspektem, který bylo nutné dodržet, bylo, že obě verze generá
 
 Generátory sdílejí společné rozhraní, jakmile jsou vytvořeny, lze je použít voláním volacího operátoru třídy.
 Náhodné generátory mají operátor přetížen.
-Specializace přebírá jeden argument představující původní hodnotu používanou při generování následující hodnoty.
+Specializace přebírá jeden argument představující původní hodnotu používanou při generování následující.
 Systematické generátory vracejí korutiny a náhodné generátory vracejí přímo datové typy představující konfigurační proměnné.
 Systematické generátory vracejí stejné hodnoty pouze jednou a náhodné generátory je mohou vrátit vícekrát.
 V ideálním případě by měly náhodné generátory vracet stejné hodnoty se stejnou pravděpodobností.
@@ -241,13 +328,14 @@ Při generování bez počáteční periody je nejprve pomocí \tttext{std::unif
 
 Při generování hodnoty z počátku $o$ používá generátor navíc parametr $k\in[1,n/2]$.
 Například, když $f=1$, $t=5$, $s=1$, $o=3$ a $k=1$, pak jsou všechny možné výstupní hodnoty periody $ p_o \in [o-(k\cdot s), o+(k\cdot s)]=[2, 4]$.
-Jediné úskalí nastává na okrajích intervalu, kdy mohou být hodnoty generovány z 2 podintervalů. Například, když $f=1$, $t=5$, $s=1$ a $k=1$, pak jsou všechny možné výstupní periody $p_o \in [1, 2] \cup [5, 5]$.
+
+Na okrajích intervalu, kdy mohou být hodnoty generovány z 2 podintervalů. Například, když $f=1$, $t=5$, $s=1$ a $k=1$, pak jsou všechny možné výstupní periody $p_o \in [1, 2] \cup [5, 5]$.
 Jelikož jsou periody generovány pomocí datového typu integer, který může nabývat i záporných hodnot, lze nejprve vygenerovat hodnotu $ w \in [o-(k\cdot s), o+(k\cdot s)]$, výslednou periodu získat $(w<p_{min}\implies(p_o=w+(n*|s|))) \land (w>p_{max}\implies(p_o=w-(n*|s|))) \land (w \in [p_{min}, p_{max}]\implies p_o=w)$.
 
 \subsection{Úrovně nákupu}
 Pro úrovně nákupu platí, že $\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap [0, 1] \land n>0 \land [\forall i \in \{0,\dots,n-1\} : l_i > l_{i+1}]$.
 Příkladem takové sekvence racionálních čísel může být $\{\frac{1}{2}, \frac{1}{3}, \frac{1}{4}\}$.
-Generátory jsou parametrizovány pomocí parametru $u\geq n$, který označuje počet jedinečných zlomků, které se mohou objevit v sekvenci.
+Generátory jsou parametrizovány pomocí parametru $u\geq n$, který označuje počet jedinečných zlomků, které se mohou v sekvenci objevit.
 Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}\} \in [0, 1] \land d=u+1$.
 Pro $n=3$, $u=4$ jsou všechny možné platné sekvence: $\{\frac{4}{5}, \frac{3}{5}, \frac{2}{5}\}, \{\frac{4}{5}, \frac{3}{5}, \frac{1}{5}\}, \{\frac{4}{5}, \frac{2}{5}, \frac{1}{5}\}, \{\frac{3}{5}, \frac{2}{5}, \frac{1}{5}\}$.
 
@@ -287,8 +375,8 @@ Používá parametr $k \in [1, n] $, který je předán instanci při její kons
 Udává počet prvků počáteční sekvence, které by měly být změněny.
 Při generování je nejprve náhodně vybráno $n-k$ prvků, které budou zachovány z původní sekvence, a jsou uloženy do instance \texttt{etl::flat\_set}, což je kontejner pevné velikosti, který ukládá jedinečné prvky v určeném pořadí.
 Dále je zamícháno pole se všemi možnými hodnotami.
-Ve smyčce \texttt{while} se pak hodnoty pokouší vložit do sady s jedinečnými hodnotami, dokud není sada plná.
-Nakonec jsou hodnoty překopírovány ze sady do výstupního pole.
+Ve smyčce \texttt{while} jsou hodnoty vkládány do setu až do jeho naplnění.
+Nakonec jsou hodnoty překopírovány ze setu do výstupního pole.
 
 \subsection{Velikosti nákupu}
 Pro velikosti nákupu platí, že $ (\-s_0, s_1,\dots,s_n)\ \in \mathbb{Q} \cap [0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $.
@@ -333,21 +421,21 @@ private:
 \subsubsection{Náhodné generování}
 
 \section{Optimalizátory}
-
-Když jsou volány heuristické optimalizátory, tak přijímají mezi objekty typu pozorovatel jako své argumenty.
+K monitorování průběhu heuristických optimalizací jsou požívány objekty typu pozorovatel.
 Pozorovatelé jsou upozorňovány na události, ke kterým dochází během optimalizace.
 Průběh optimalizace mohou hlásit nebo ukládat.
 Příkladem události, která může nastat během optimalizace simulovaného ochlazování, je snížení teploty nebo přijetí lepšího stavu.
-Pozorovatelé jsou vždy posledním parametrem uloženým jako sada parametrů šablony.
-Tímto způsobem lze přijmout více pozorovatelů nebo žádný.
+Pozorovatelé jsou předány jako poslední parametr při volání optimalizátoru a jsou uloženy jako sada parametrů šablony.
+Tímto způsobem lze přijmout víc než jeden pozorovatel nebo žádný.
 
 \subsection{Hrubá síla}
-Algoritmus hrubé síly prochází celým vyhledávacím prostorem a zajišťuje nalezení optimálního řešení.
+Algoritmus je implementován třídou \texttt{brute\_force::parallel::optimizer}.
+Prochází všechny stavy prohledávacího prostoru a zajišťuje nalezení optimálního řešení.
 Je vhodný pro relativně malé vyhledávací prostory a může pomoci lépe porozumět vlastnostem cenové funkce.
 
 Vyhledávací prostor je generován pomocí systematických generátorů, které jsou volány ve vnořených smyčkách \texttt{for} (viz \ref{lst:systematic:states_generator}).
 Nejvnitřnější cyklus vrací konfiguraci jako korutinu typu \texttt{cppcoro::generator}.
-Vytvoření vyhledávacího prostoru tímto způsobem je jednodušší než navrhování vlastního iterátoru, protože smyčky mohou být na sobě závislé.
+Vytvoření vyhledávacího prostoru tímto způsobem je jednodušší než navrhování vlastního iterátoru, jelikož na sobě mohou být jednotlivého hodnoty závislé.
 
 \begin{lstlisting}[caption={~Ukázka generování systematického stavového prostoru},label={lst:systematic:states_generator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 auto search_space = [&]() -> cppcoro::generator<config_type> {
@@ -360,7 +448,7 @@ auto search_space = [&]() -> cppcoro::generator<config_type> {
 \end{lstlisting}
 
 Vzhledem k tomu, že jsou jednotlivé stavy na sobě nezávislé, může být vyhledávání paralyzováno.
-Paralelizaci lze provést pomocí direktiv z knihovny \textit{OpenMP}.
+Paralelizace byla implementována pomocí direktiv z knihovny \textit{OpenMP}.
 Jelikož je vyhledávací prostor předáván jako korutina, lze jej paralelizovat pouze pomocí taskového paralelismu použitím direktivy \texttt{task}.
 
 Implementaci paralelizace lze vidět ve výpise \ref{lst:brute-force}.
@@ -368,10 +456,9 @@ Nejprve je použita direktiva \texttt{parallel} k vytvoření paralelního regio
 Následně je pomocí direktivy \texttt{single} proveden cyklus \texttt{for} právě jedním vláknem.
 Uvnitř cyklu jsou vytvářeny jednotlivé úlohy pomocí direktivy \texttt{task} a prováděny paralelně jednotlivými vlákny.
 Každé vlákno nejprve zavolá cenovou funkci k získání ceny.
-Vytvoří stav, který se skládá z konfigurace a ceny.
-Pokud stav splňuje omezující podmínky, je v kritické sekci výsledek aktualizován.
-Je nutné použít synchronizaci, protože je výsledek modifikován více vlákny.
-Algoritmus je zapouzdřen ve třídě \texttt{brute\_force::parallel::optimizer}.
+Vytvoří stav skládající se z konfigurace a ceny.
+Pokud stav splňuje omezující podmínky, je v kritické sekci aktualizován výsledek.
+Je nutné použít synchronizaci, protože může být výsledek modifikován více vlákny najednou.
 
 \begin{lstlisting}[caption={~Optimalizace pomocí algoritmu hrubé síly},label={lst:brute-force},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 #pragma omp parallel
@@ -397,7 +484,8 @@ Bylo implementováno několik chladicích algoritmů vycházejících ze srovná
 Všechny jsou umístěny v souboru \texttt{simulated\_annealing/cooler.hpp}.
 Většina je parametrizována parametrem decay, který se používá k řízení rychlosti snižování teploty.
 Správnost jeho hodnoty závisí na algoritmu chlazení a ověřuje se při inicializaci konkrétního objektu.
-Chladiče používají návrhový vzor strategie, který funguje následovně, namísto předávání seznamu argumentů při volání chladiče je jako argument předán samotný optimalizátor.
+
+Chladiče používají návrhový vzor \textit{Strategy}, který funguje následovně, namísto předávání seznamu argumentů při volání chladiče je jako argument předán samotný optimalizátor.
 Algoritmus chlazení si tak může sám zvolit, které atributy heuristiky použije k výpočtu následující teploty a změnit její hodnotu může pomocí setteru třídy.
 Příklad implementace chladiče lze vidět na \ref{lst:cooling}.
 
@@ -409,6 +497,7 @@ void operator()(SimulatedAnnealing& optimizer)
 }
 \end{lstlisting}
 
+% dát do společné sekce optimalizátory
 Volající operátor optimalizátoru přebírá většinu parametrů jako koncepty.
 Výhodou použití konceptů namísto klasických šablonových argumentů je to, že lze definovat omezení, která musí předaný objekt dodržovat.
 U volatelných argumentů lze například pomocí konceptů definovat typy vstupních a výstupních argumentů.
@@ -424,7 +513,7 @@ std::same_as<void,std::invoke_result_t<ConcreteCooler,SimulatedAnnealing&>>;
 Algoritmus pro nalezení náhodného souseda je implementován pomocí třídy \texttt{bazooka::neighbor}.
 Ke generování sousední konfigurace využívá náhodné generátory, které na základě aktuální hodnoty generují následující hodnotu.
 Náhodně je vždy změněn pouze jeden konfigurační parametr.
-Pro realizaci equilibria byl implementován algoritmus založený na pevném počtu prohledávaných sousedních stavů \texttt{simulated\_annealing::fixed\_iteration\_equilibrium}.
+Pro realizaci \textit{equilibria} byl implementován algoritmus založený na pevném počtu prohledávaných sousedních stavů \texttt{simulated\_annealing::fixed\_iteration\_equilibrium}.
 
 Implementaci algoritmu lze vidět ve výpisu \ref{lst:simulated:annealing}.
 Během optimalizace dochází k několika událostem, které jsou hlášeny pozorovatelům.
@@ -465,23 +554,24 @@ for (; curr_temp_>min_temp_; it_++) {
 
 \subsection{Genetický algoritmus}
 Genetický algoritmus je implementován třídou \texttt{genetic\_algorithm::optimizer}.
-Má pouze 2 atributy třídy, počet iterací a populaci, další části algoritmu jsou poskytovány při jeho volání.
-Populace je uložena pomocí třídy \texttt{std::vector}, která se spravuje dynamicky alokovaného pole prvků.
+Má pouze 2 třídní atributy, počet iterací a populaci.
+Další části algoritmu jsou poskytovány při jeho volání.
+Populace je uložena pomocí třídy \texttt{std::vector}, která spravuje dynamicky alokované pole prvků.
 Bylo dbáno na to, aby došlo k co nejmenšímu počtu realokací v průběhu optimalizace, a to opětovným použitím již alokovaného pole pomocí metody \texttt{clear} a použití metody \texttt{reserve}, kdykoli je dopředu známa velikost pole.
 Jinak by docházelo ke zbytečnému zpomalování optimalizace.
 
 Pro mutaci lze použít instanci třídy \texttt{bazooka::neighbor}.
-Algoritmus pro křížení je implentován třídou \texttt{bazooka::crossover}.
-Při křížení se používají všechny konfigurační proměnné, a proto pro každou z nich je implementován operátor křížení.
+Algoritmus pro křížení je implementován třídou \texttt{bazooka::crossover}.
+Při křížení se používají všechny konfigurační proměnné, a proto je pro každou z nich implementován operátor křížení.
 O tom, zda potomek obdrží periodu indikátoru nebo typ indikátoru od své matky nebo otce, se rozhoduje hodem mincí.
 Pro křížení úrovní a velikostí nákupů byly vytvořeny vlastní třídy.
 
 Křížení úrovní nákupu je implementováno třídou \texttt{bazooka::levels\_crossover}.
 Funguje tak, že genetickou informaci od otce a matky vloží do společného pole typu \texttt{etl::vector}, které na rozdíl od \texttt{std::vector} používá statickou alokaci místo dynamické.
-Geny jsou poté náhodně zamíchány a poté vkládány ve \texttt{while} cyklu do instance \texttt{elt::flat\_set} do jejího naplnění.
+Geny jsou náhodně zamíchány a následně vkládány ve \texttt{while} cyklu do instance \texttt{elt::flat\_set} do jejího naplnění.
 Hodnoty jsou nakonec překopírovány do výstupního pole.
 Algoritmus má několik vlastností, jednou z nich je, že pokud jsou rodiče stejní, bude i potomek stejný.
-Pokud mají společný gen, je větší šance, že bude vybrán.
+Pokud mají rodiče společný gen, je větší šance, že bude vybrán.
 
 Křížení velikostí nákupů je implementováno třídou \texttt{bazooka::sizes\_crossover}.
 Nejmenší hodnoty rodičů jsou použity jako základ pro potomka.
@@ -490,22 +580,22 @@ Smyčka končí, jakmile je součet všech velikostí roven 1.
 Výsledné hodnoty potomků se tedy budou vždy pohybovat v rozmezí hodnot rodičů.
 Pokud rodiče nejsou stejní, potomek je jiný, ale stále je podobný svým rodičům.
 
-Pro výběr rodičů byl realizován ruletový výběr \texttt{genetic\_algorithm::roulette\_selection}.
+Pro výběr rodičů byl implementován ruletový výběr \texttt{genetic\_algorithm::roulette\_selection}.
 Interně používá instanci třídy \texttt{std::discrete\_distribution} pro výběr rodičů.
 Zdatnost každého jednotlivce představuje váhu, čím vyšší je váha, tím pravděpodobněji bude daný jedinec vybrán jako rodič.
 
 Byl implementován \texttt{genetic\_algorithm::random\_matchmaker} algoritmus náhodného párování rodičů.
 Rodiče jsou nejprve náhodně zamícháni a následně párováni.
-Celkový počet rodičů nemusí být dělitelný počtem vybíraných n-tic, takže někteří rodiče se mohou spárovat vícekrát.
+Celkový počet rodičů nemusí být dělitelný počtem vybíraných n-tic, takže někteří rodiče mohou být použiti vícekrát.
 
 Poslední část algoritmu se zabývá nahrazením původní generace za novou.
-Byly implementovány dva přístupy.
-En block nahrazování reprezentované třídou \texttt{genetic\_algorithm::en\_block\_replacement} zachovává pouze děti k vytvoření nové generace.
-Druhý přístup používá elitismus a je implementován třídou \texttt{genetic\_algorithm::elitism\_replacement}.
+Byly implementovány 2 přístupy.
+\textit{En block} nahrazování reprezentované třídou \texttt{genetic\_algorithm::en\_block\_replacement} zachovává pouze děti k vytvoření nové generace.
+Druhý přístup používá \textit{elitismus} a je implementován třídou \texttt{genetic\_algorithm::elitism\_replacement}.
 Třída má parametr $l\in[0, 1]$ představující zlomek vybraných elitních rodičů.
 Nejprve seřadí rodiče podle zdatnosti a poté jimi nahradí prvních n dětí.
 
-Jak je vidět ve výpisu \ref{lst:genetic:algorithm}, opět lze předat při volání instance třídy objekty typu pozorovatel, které jsou upozorňováni na události nastávající v průběhu optimalizace.
+Implementace algoritmu je vidět ve výpise \ref{lst:genetic:algorithm}.
 Data o průběhu optimalizace lze shromažďovat pomocí \texttt{genetic\_algorithm::progress\_collector} a zaznamenávat pomocí \texttt{genetic\_algorithm::progress\_reporter}.
 
 \begin{lstlisting}[caption={~Implementace genetického algoritmu},label={lst:genetic:algorithm},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
@@ -547,11 +637,11 @@ Perioda a typ indikátoru jsou zapamatovány tak, jak jsou.
 Hodnoty úrovně a velikosti nákupu, které nebyly změněny, se vynulují.
 K ukládání úrovní a velikostí nákupu se používá \texttt{std::map}.
 
-Jelikož existují 4 konfigurační proměnné, z nichž se vždy mění pouze jedna, tak se tah ukládá do instance třídy \texttt{std::variant}, která je zapouzdřena do instance třídy \texttt{bazooka::movement}.
+Jelikož existují 4 konfigurační proměnné, z nichž se vždy mění pouze jedna, tak se tah ukládá do instance třídy \texttt{std::variant}, která je zapouzdřena pomocí třídy \texttt{bazooka::movement}.
 Vzhledem k tomu, že úrovně a velikosti nákupu jsou reprezentovány stejným datovým typem, polem zlomků, je nutné implementovat způsob, jak je rozlišit.
 Třída proto obsahuje výčtovou třídu zvanou \texttt{indices}, ke které lze přistupovat zvenčí.
 Lze ji použít ve výrazech \texttt{switch} \ref{lst:movement:usage}.
-Tah lze uložit a zpřístupnit pomocí setterů a getterů.
+Tah lze uložit a zpřístupnit pomocí setrů a getrů.
 
 \begin{lstlisting}[caption={~Použití třídy \texttt{bazooka::movement}},label={lst:movement:usage},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 bool contains(const move_type& move) const
@@ -573,8 +663,8 @@ Hodnoty vložené do paměti v ní zůstávají po určitý počet iterací.
 Při každé iteraci se počet iterací sníží pouze pro konfigurační parametr, který byl změněn.
 Pevný počet operací lze nastavit pomocí instance třídy \texttt{tabu\_search::fixed\_tenure} pro paměť každého konfiguračního parametru.
 
-Sousední konfigurace lze vygenerovat pomocí \texttt{bazooka::neighbor}, která vrací konfiguraci včetně tahu.
-Velikost sousedství říká, kolik sousedních konfigurací by mělo být prohledáno v jedné iteraci.
+Sousední konfigurace lze vygenerovat pomocí \texttt{bazooka::neighbor}, která vrací sousední konfiguraci včetně tahu.
+Velikost sousedství říká, kolik sousedních konfigurací je prohledáno během jedné iterace.
 Při volání instance optimalizátoru lze také použít pozorovatele \ref{lst:tabu:search}.
 
 \begin{lstlisting}[caption={~Implementace genetického algoritmu},label={lst:tabu:search},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]

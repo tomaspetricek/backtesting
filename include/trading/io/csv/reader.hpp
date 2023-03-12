@@ -37,7 +37,7 @@ namespace trading::io::csv {
         }
 
     public:
-        explicit reader(const std::filesystem::path& path, char delim)
+        explicit reader(const std::filesystem::path& path, char delim = ',')
                 :delim_(delim)
         {
             if (!std::filesystem::exists(path))
@@ -63,23 +63,23 @@ namespace trading::io::csv {
         bool read_row(Types& ...inputs)
         {
             static_assert(sizeof...(Types)==n_cols);
-
+            
             // read line
-            if(!std::getline(file_, line_))
+            if (!std::getline(file_, line_))
                 return false;
 
             // clean
             line_.erase(std::remove(line_.begin(), line_.end(), '\r'), line_.end());
 
-            // parse line
+            // convert to string stream
             std::stringstream ss(line_);
             ss.exceptions(std::ios::failbit);
 
-            auto parse_line = [&](auto& in){
+            auto parse_line = [&](auto& in) {
                 read_value(ss, in);
             };
 
-            (parse_line(inputs),...);
+            (parse_line(inputs), ...);
             return true;
         }
     };

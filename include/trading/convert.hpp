@@ -79,9 +79,13 @@ namespace nlohmann {
     struct adl_serializer<trading::bazooka::configuration<n_levels>> {
         static void to_json(nlohmann::json& j, const trading::bazooka::configuration<n_levels>& config)
         {
-            j = {{"levels",          config.levels},
-                 {"open sizes",      config.open_sizes},
-                 {"moving average:", config.tag}};
+            j = {{"levels",     config.levels},
+                 {"open sizes", config.open_sizes},
+                 {"indicator",  {
+                                        {"type", config.tag},
+                                        {"period", config.period}
+                                }}
+            };
         }
     };
 
@@ -135,7 +139,7 @@ namespace nlohmann {
     struct adl_serializer<trading::basic_sizer> {
         static void to_json(nlohmann::json& j, const trading::basic_sizer& sizer)
         {
-            j = {{"name",  "basic sizer"},
+            j = {{"name",          "basic sizer"},
                  {"growth factor", sizer.growth_factor()}};
         }
     };
