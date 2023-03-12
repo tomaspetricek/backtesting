@@ -421,7 +421,24 @@ private:
 \subsubsection{Náhodné generování}
 
 \section{Optimalizátory}
-K monitorování průběhu heuristických optimalizací jsou požívány objekty typu pozorovatel.
+Při vytváření optimalizátorů byly brány v úvahu 2 hlavní cíle: za prvé, aby byly co nejobecnější a za druhé, aby bylo možné snadno sledovat a později analyzovaly průběh optimalizace.
+Samotné optimalizátory mají pouze několik atributů, které by měly být společné pro všechny možné problémy, které lze optimalizovat.
+Další části algoritmu jsou dodány při samotném volání algoritmu.
+
+Komponenty, které jsou předány při volání optimalizátoru, jsou reprezentovány jako koncepty namísto běžných šablon.
+Do \textit{C++} byly koncepty přidány ve standardu \texttt{C++20} a slouží ke specifikovaným požadavkům na argumenty šablony \cite{concepts}.
+U volatelných argumentů lze například pomocí konceptů definovat typy vstupních a výstupních argumentů.
+Ukázku použití konceptů pro definování algoritmu chlazení pro třídu \texttt{optimizer::simulated\_annealing} lze vidět ve výpise \ref{lst:cooling:concept}.
+Chyby generované kompilátorem při použití objektu se špatným rozhraním jsou často čitelnější a přímější při použití konceptů než samotných šablon.
+
+\begin{lstlisting}[caption={~Koncept pro kontrolu chladícího algoritmu},label={lst:cooling:concept},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+template<class ConcreteCooler, class SimulatedAnnealing>
+concept Cooler = std::invocable<ConcreteCooler, SimulatedAnnealing&> &&
+std::same_as<void,std::invoke_result_t<ConcreteCooler,SimulatedAnnealing&>>;
+\end{lstlisting}
+
+
+Ke sledování průběhu heuristických optimalizací jsou požívány objekty typu pozorovatel.
 Pozorovatelé jsou upozorňovány na události, ke kterým dochází během optimalizace.
 Průběh optimalizace mohou hlásit nebo ukládat.
 Příkladem události, která může nastat během optimalizace simulovaného ochlazování, je snížení teploty nebo přijetí lepšího stavu.
@@ -495,19 +512,6 @@ void operator()(SimulatedAnnealing& optimizer)
     optimizer.current_temperature(optimizer.start_temperature()*
         std::pow(this->decay_, optimizer.it()));
 }
-\end{lstlisting}
-
-% dát do společné sekce optimalizátory
-Volající operátor optimalizátoru přebírá většinu parametrů jako koncepty.
-Výhodou použití konceptů namísto klasických šablonových argumentů je to, že lze definovat omezení, která musí předaný objekt dodržovat.
-U volatelných argumentů lze například pomocí konceptů definovat typy vstupních a výstupních argumentů.
-Koncept definující omezení pro chladící algoritmu lze vidět na \ref{lst:cooling:concept}.
-Chyby generované kompilátorem při použití objektu se špatným rozhraním jsou často čitelnější a přímější při použití konceptů než samotných šablon.
-
-\begin{lstlisting}[caption={~Koncept pro kontrolu chladícího algoritmu},label={lst:cooling:concept},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-template<class ConcreteCooler, class SimulatedAnnealing>
-concept Cooler = std::invocable<ConcreteCooler, SimulatedAnnealing&> &&
-std::same_as<void,std::invoke_result_t<ConcreteCooler,SimulatedAnnealing&>>;
 \end{lstlisting}
 
 Algoritmus pro nalezení náhodného souseda je implementován pomocí třídy \texttt{bazooka::neighbor}.
