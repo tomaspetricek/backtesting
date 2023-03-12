@@ -276,7 +276,6 @@ Podporuje vytvoření specifikace pro serializaci a deserializaci vlastních typ
 Pro daný typ je vytvořena specializace struktury \texttt{adl\_serializer}, která může mít dvě metody \texttt{from\_json} pro deserializaci a \texttt{to\_json} pro serializaci.
 Implementaci pro třídu \texttt{bazooka::indicator} lze vidět ve výpise \ref{lst:json:serialize}.
 
-
 \begin{lstlisting}[caption={~Implementace deserializace pro vlastní datový typ},label={lst:json:serialize},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 template<>
 struct adl_serializer<trading::bazooka::indicator> {
@@ -287,6 +286,17 @@ struct adl_serializer<trading::bazooka::indicator> {
     }
 };
 \end{lstlisting}
+
+\section{Shromažďování výsledků}
+
+\subsection{Enumerační výsledek}
+Třída \texttt{enumeration\_result} slouží ke shromažďování $n$ nejlepších výsledků.
+Má 2 třídní šablonové parametry: typ výsledku a funkci pro jejich porovnávání.
+Interně používá datovou strukturu \textit{halda}, jelikož má složitost $\mathcal{O}(log{}n)$ pro vložení nového prvku a odstranění prvního.
+K ukládání výsledků používá kontejner \texttt{std::vector}.
+Hodnoty jsou aktualizovány voláním metody \texttt{update}.
+K vytvoření haldy používá funkci \texttt{std::push\_heap} a jakmile je plná, použije po vložení nového prvku funkci \texttt{std::pop\_back} k odstranění nejhoršího prvku \cite{push-heap}.
+K získání výsledku lze zavolat metodu \texttt{get}, která používá funkci \texttt{std::sort\_heap} k seřazení prvků v požadovaném pořadí.
 
 \chapter{Optimalizace}
 

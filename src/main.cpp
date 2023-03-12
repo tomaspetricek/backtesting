@@ -204,6 +204,14 @@ std::filesystem::path try_create_experiment_directory(const std::filesystem::pat
     return empty_dir;
 }
 
+struct optim_criteria {
+    template<class State>
+    bool operator()(const State& rhs, const State& lhs) const
+    {
+        return rhs.value>=lhs.value;
+    }
+};
+
 template<class Simulator>
 int use_brute_force(Simulator&& simulator, json&& settings)
 {
@@ -219,10 +227,6 @@ int use_brute_force(Simulator&& simulator, json&& settings)
     std::filesystem::path optim_dir{out_dir/"brute-force"};
     std::filesystem::create_directory(optim_dir);
     std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
-
-    auto optim_criteria = [](const state_type& rhs, const state_type& lhs) {
-        return rhs.value>=lhs.value;
-    };
     auto restrictions = [](const state_type&) { return true; };
 
     systematic::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
@@ -253,7 +257,7 @@ int use_brute_force(Simulator&& simulator, json&& settings)
 
     // use brute force optimizer
     optimizer_type optimize{};
-    enumerative_result<state_type> result{30, optim_criteria};
+    enumerative_result<state_type, optim_criteria> result{30, optim_criteria()};
 
     std::cout << "began testing: " << boost::posix_time::second_clock::local_time() << std::endl;
     auto duration = measure_duration(to_function([&] {
@@ -302,10 +306,7 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings, const std::
     using trader_type = typename std::invoke_result<decltype(create_trader<n_levels>), config_type>::type;
 
     std::size_t n_best{30};
-    auto optim_criteria = [](const state_type& rhs, const state_type& lhs) {
-        return rhs.value>=lhs.value;
-    };
-    auto restrictions = [](const auto&) { return true; };
+    auto constrains = [](const auto&) { return true; };
 
     random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
     random::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
@@ -323,7 +324,7 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings, const std::
 //    float decay{50};
     auto cooler = simulated_annealing::basic_cooler{};
     simulated_annealing::optimizer<config_type> optimizer{start_temp, min_temp};
-    enumerative_result<state_type> result{n_best, optim_criteria};
+    enumerative_result<state_type, optim_criteria> result{n_best, optim_criteria()};
     using progress_observer_type = simulated_annealing::progress_collector;
     progress_observer_type progress_observer;
     simulated_annealing::progress_reporter reporter{logger};
@@ -332,7 +333,7 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings, const std::
     config_type next;
 
     auto duration = measure_duration([&]() {
-        optimizer(init_config, result, restrictions, cooler,
+        optimizer(init_config, result, constrains, cooler,
                 [&](const auto& config) -> double {
                     simulator(create_trader(config), stats_collector);
                     return static_cast<double>(stats_collector.get().total_profit<percent>());
@@ -537,7 +538,7 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
     io::csv::writer<3> writer(experiment_dir/"progress.csv");
     writer.write_header({"best fitness", "curr fitness", "tabu list size"});
     for (const auto& progress: collector.get())
-        writer.write_row(progress.best_state_fitness, progress.curr_state_fitness,progress.tabu_list_size);
+        writer.write_row(progress.best_state_fitness, progress.curr_state_fitness, progress.tabu_list_size);
 }
 
 int main()
