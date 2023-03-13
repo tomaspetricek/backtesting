@@ -13,7 +13,7 @@ Strategie jsou často parametrizované a při obchodování s různými aktivy m
 Pro maximalizaci ziskovosti strategie a snížení rizik je zapotřebí rychlý a spolehlivý způsob optimalizace těchto parametrů \cite{efficient-backtesting}.
 
 Nejjednodušší a časově nejnáročnější způsob, jak najít optimální nastavení, by bylo prohledat všechny možné kombinace.
-Největší výhodou tohoto přístupu je, že zaručuje nalezení nejlepšího možného řešení, nicméně je v praxi nepoužitelný pro velké množství možností, protože nedokončí v přiměřeně krátké době \cite{efficient-backtesting}.
+Největší výhodou tohoto přístupu je, že zaručuje nalezení nejlepšího možného řešení, nicméně je v praxi nepoužitelný pro velké množství možností, protože neskončí v přiměřeně krátké době \cite{efficient-backtesting}.
 
 \chapter{Design}
 
@@ -37,10 +37,47 @@ Testy jsou organizovány stejně jako třídy obchodovacího frameworku.
 Projekt je kompilován pomocí souborů \textit{CMakeLists.txt}, které obsahují seznam souborů ke kompilaci, nastavení kompilátoru a informace pro hledání externích knihoven.
 Vytváří 2 spustitelné soubory \textit{backesting} pro použití optimalizátorů a \textit{test\_} pro provádění testů.
 
-
 \chapter{Simulace obchodování}
+Simulace obchodování byla inspirována kryptoměnovou burzou \textit{Binance}.
+Byly přijaty některé konvence pojmenování, jako je otevírání a zavírání pozic.
+Otevření longové pozice znamená nákup aktiva, nicméně otevření shortové pozice znamená jeho prodej.
+Prodej a nákup tedy jdou proti sobě, a proto je lepší používat termíny otevření a uzavření.
 
-\section{Strategie}
+Je také běžné zaměnitelně říkat, že obchod nebo pozice jsou otevřené.
+Na \textit{Binance} je možné si vyžádat historii uskutečněných obchodů.
+Vygenerované obchody jsou pouze transakce provedené mezi dvěma obchodníky.
+Proto je lepší používat termín pozice, který představuje seznam souvisejících otevřených a uzavřených obchodů.
+
+% Účet je na kryptoburzách reprezentován jako peněženka, která uchovává množství nakoupených aktiv.
+
+\section{Bazooka}
+Strategie s názvem \textit{Bazooka} byla rozdělena do 2 tříd: \texttt{bazooka::strategy} a \texttt{bazooka::manager}.
+Důvodem rozdělení bylo oddělení zájmů.
+Třída \texttt{bazooka::strategy} dělá rozhodnutí a třída \texttt{bazooka::manager} je realizuje.
+V současné době je implementována burza podporující pouze longové obchody, ale pokud by v budoucnu existovala např. \texttt{futures::market} burza podporující pákové obchody, bylo by nutné použít jiný typ manažera, nicméně strategie by zůstala stejná.
+Jsou dány dohromady pomocí třídy \texttt{trader}.
+
+Hodnoty nákupních velikostí a úrovní jsou uloženy jako pole zlomků pevné délky.
+Zlomky jsou reperezentovány pomocí třídy \texttt{fraction}, která je inspirována třídou \texttt{boost::rational}.
+Je však mnohem jednodušší a méně obecná.
+Předpokládá, na rozdíl od \texttt{boost::rational}, že zlomky, mezi kterými se provádějí aritmetické operace, mají stejného jmenovatele.
+Porušení tohoto předpokladu vede k nedefinovanému chování.
+Zlomky jsou uloženy v instanci třídy \texttt{std::array}, což také znamená, že velikost sekvence musí být známa v době kompilace.
+
+\subsection{Strategie}
+% dát pryč nebo přidat long/short strategy
+Strategie je implementována pomocí třídy \texttt{bazooka::strategy}.
+Má jeden parametr šablony třídy \texttt{n\_levels}, který uvádí počet úrovní nákupu.
+Při inicializaci přebírá parametry: vstupní a výstupní indikátor a úrovně nákupu.
+V průběhu inicializace jsou také validovány nákupní úrovně, pokud nesplňují požadavky, je vyhozena výjimka \texttt{std::invalid\_argument}.
+
+Účelem třídy je činit rozhodnutí a k tomu má dvě metody \texttt{should\_open} a \texttt{should\_close}.
+Obě metody používají indikátory, aby zjistily, zda byly splněny podmínky pro vyslání signálu.
+Vracejí booleovskou hodnotu, která určuje, jestli by měla být akce provedena.
+V jednu chvíli může nastat pouze jedna událost.
+Indikátory jsou aktualizovány pomocí metody \texttt{update\_indicators}.
+Vstupní a výstupní hodnoty lze získat voláním getrů třídy.
+Lze je použít pro vykreslování grafů.
 
 \subsection{Indikátor}
 Indikátor může být typu \texttt{sma} nebo \texttt{ema}.
@@ -76,7 +113,38 @@ Třída má pouze jeden členský atribut \texttt{data\_} typu \texttt{std::vari
 Metody používají \texttt{std::visit} pro přístup a změnu hodnoty indikátoru.
 Sdílí stejné rozhraní s třídami \texttt{sma} a \texttt{ema}.
 
-\subsection{Obchodník}
+\subsubsection{Indikátory založené na klouzavém průměru}
+Byly implementovány dva indikátory založené na klouzavém průměru \texttt{sma} a \texttt{ema}.
+Sdílejí stejné rozhraní.
+Jsou aktualizovány voláním metody \texttt{update} a jejich hodnotu lze získat voláním metody \texttt{value}.
+Metoda \texttt{update} vrací hodnotu boolean indikující, zda je indikátor připraven.
+Lze to také zkontrolovat voláním metody \texttt{is\_ready}.
+
+Počáteční hodnota indikátoru \texttt{ema} je získána pomocí indikátoru \texttt{sma} se stejnou periodou.
+Další hodnoty se vypočítají pomocí vzorce, který používá aktuální hodnotu.
+Třída \texttt{sma} používá \texttt{boost::circular\_buffer} k uložení předchozích hodnot pro výpočet průměru.
+Jakmile je buffer plný, tak je indikátor připraven.
+
+\subsection{Manažer}
+Účelem manažera je realizovat akce vytvořené strategií.
+Je implementován pomocí třídy \texttt{bazooka::manager}.
+Komunikuje s burzou a zabývá se tvorbou objednávek a řízením rizik.
+Dvě nejdůležitější metody pro vytváření objednávek jsou \texttt{create\_open\_order} a \texttt{create\_close\_all\_order}.
+Objednávky jsou reprezentovány strukturou \texttt{order}, která obsahuje 3 atributy: prodané množství, cenu, za kterou bylo aktivum nakoupeno/prodáno, a čas jejího vytvoření.
+
+Strategie používá $n$ nákupních úrovní.
+Vždy začíná obchodovat s počátečním zůstatkem, který je rozdělen na $n$ velikostí nákupu.
+Skutečné velikosti objednávek lze vypočítat buď na začátku, nebo průběžně.
+Výpočet velikostí objednávek za běhu se zdálo být přirozenější, takže byla implementována třída \texttt{order\_sizer}.
+Při konstrukci přijímá pole velikostí objednávek $s$ a převádí jej na pole akumulovaných velikostí $a$, kde platí, že $s_0 = a_0 \land a_n = 1 \land [\forall i \in \{0,\dots,n\} : a_i = \sum_{j=0}^{i} s_j]$.
+Po zavolání instance je vynásoben zůstatek aktuální akumulovanou velikostí pro získání velikosti objednávky.
+
+Vzhledem k tomu, že má manažer přístup k burze, tak poskytuje metody pro přístup k jejímu aktuálnímu stavu, jako je zůstatek peněženky, čistá hodnotu a aktuální zisk aktivní pozice.
+Jakmile je objednávka provedena, je uložena jako poslední otevřená/uzavřená objednávka a lze k ni přistupovat prostřednictvím getrů třídy.
+Je to cenná informace pro vykreslování grafů a výpočet statistik.
+Může nebo nemusí být použita, takže je lepší ji uložit samostatně a neustále ji přepisovat, než všechny ukládat například do instance \texttt{std::vector}, což by způsobilo zbytečnou režii navíc.
+
+\section{Obchodník}
 Funkcionality tříd \texttt{bazooka::manager} a \texttt{bazooka::strategy} jsou propojeny pomocí \texttt{bazooka::trader}.
 Pro zpřístupnění veřejných metod obou tříd je použita vícenásobní veřejná dědičnost.
 Třída poskytuje metodu \texttt{trade} \ref{lst:trade}, která používá metody obou tříd.
@@ -101,7 +169,7 @@ action trade(const price_point& curr)
 }
 \end{lstlisting}
 
-\subsection{Burza}
+\section{Burza}
 Burza je implementována pomocí třídy \texttt{market}.
 Ve srovnání se skutečnou burzou je to velmi zjednodušená.
 Podporuje pouze objednávky typu long a jeden uživatelský účet.
@@ -116,7 +184,7 @@ Pomocí metody \texttt{fill\_open\_order} může být aktivní pozice otevřena 
 Po otevření lze pozici uzavřít jako celek pomocí \texttt{fill\_close\_all\_order} metody, nikoli po částech.
 Třída také poskytuje getry pro získání přístupu k aktuální čísté hodnotě, kontrolu, zda je otevřená pozice, nebo zjištění aktuálního zisku aktivní pozice.
 
-\subsection{Pozice}
+\section{Pozice}
 Pozice je implementována třídou \texttt{position}.
 Lze ji otevřít vytvořením instance třídy, zvýšit voláním metody \texttt{increase} nebo uzavřít pomocí metody \texttt{close}.
 Celkové množství nakoupeného aktiva lze zjistit voláním metody \texttt{size}.
@@ -125,7 +193,7 @@ Vzhledem k tomu, že je v průběhu ukládán celkový realizovaný zisk a celko
 Při změně velikosti pozice jsou uplatňovány poplatky.
 Výše otevíracích a uzavíracích poplatků jsou poskytnuty při inicializaci.
 
-\subsection{Simulátor}
+\section{Simulátor}
 Obchodování lze simulovat pomocí třídy \texttt{simulator}, která uchovává a připravuje historická data pro simulaci a umožňuje její provedení.
 Hlavním účelem třídy je použít ji jako objektivní funkci během optimalizace.
 Obchodování lze pozorovat pomocí pozorovatelů.
@@ -144,7 +212,6 @@ Simulátor při volání přebírá instanci obchodníka a seznam pozorovatelů 
 Iteruje přes rozhodovací ceny až do konce nebo dosažení minimální čisté hodnoty.
 Pozorovatelé jsou během optimalizace informováni o událostech, jako je otevření pozice nebo aktualizace indikátoru.
 Ceny použité pro aktualizaci indikátoru jsou procházeny pomocí iterátoru.
-
 
 \begin{lstlisting}[caption={~Implementace simulace obchodování},label={lst:simulator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 template<class Trader, class... Observer>
@@ -169,7 +236,7 @@ void operator()(Trader&& trader, Observer& ... observers)
 }
 \end{lstlisting}
 
-\subsection{Statistiky}
+\section{Statistiky}
 Nezbytnou součástí optimalizace jsou statistiky, jelikož jsou použity k formulaci optimalizačního kritéria a omezujících podmínek.
 Statistiky, které jsou společné pro všechny obchodní strategie, jsou reprezentovány třídou \texttt{statistics} a jsou rozšířeny pro \textit{Bazooka} obchodovací strategii \texttt{bazooka::statistics}.
 
@@ -300,26 +367,23 @@ K získání výsledku lze zavolat metodu \texttt{get}, která používá funkci
 
 \chapter{Optimalizace}
 
-\iffalse
-Jednotlivé hodnoty jsou uloženy v instancích třídy \texttt{trading::fraction}, která je inspirována třídou \texttt{boost::rational}.
-Je však mnohem jednodušší a méně obecná.
-Předpokládá, na rozdíl od \texttt{boost::rational}, že zlomky, mezi kterými se provádějí aritmetické operace, mají stejného jmenovatele.
-Porušení tohoto předpokladu vede k nedefinovanému chování.
-Celá sekvence je uložena v instanci třídy \texttt{std::array}, což také znamená, že velikost sekvence musí být známa v době kompilace.
-Pokud by to v budoucnu bylo nalezeno za nevhodné, může být nahrazena třídou \texttt{std::vector} nebo \texttt{boost::container::small\_vector} ke snížení počtu malých dynamických alokací.
-\fi
-
 \section{Návrh a generování stavového prostoru}
 Pro optimalizaci byly vybrány 4 konfigurační proměnné: typ indikátoru, perioda indikátoru, úrovně a velikosti nákupů.
 Hodnoty proměnných lze generovat buď systematicky, nebo náhodně.
 Důležitým aspektem, který bylo nutné dodržet, bylo, že obě verze generátorů musí generovat hodnoty ze stejného vyhledávacího prostoru, jinak by byly výsledky jednotlivých optimalizačních metod nesrovnatelné.
 
 Generátory sdílejí společné rozhraní, jakmile jsou vytvořeny, lze je použít voláním volacího operátoru třídy.
-Náhodné generátory mají operátor přetížen.
-Specializace přebírá jeden argument představující původní hodnotu používanou při generování následující.
-Systematické generátory vracejí korutiny a náhodné generátory vracejí přímo datové typy představující konfigurační proměnné.
-Systematické generátory vracejí stejné hodnoty pouze jednou a náhodné generátory je mohou vrátit vícekrát.
-V ideálním případě by měly náhodné generátory vracet stejné hodnoty se stejnou pravděpodobností.
+Náhodné generátory mají volací operátor přetížen.
+Specializace přebírá argument představující původní hodnotu, která je používaná při generování následující.
+Generátory vracejí přímo datové typy představující konfigurační proměnné.
+V ideálním případě by měly generovat stejné hodnoty se stejnou pravděpodobností.
+
+Systematické generátory vracejí stejné hodnoty pouze jednou.
+Nevrací hodnotu přímo, ale místo toho vrací korutinu.
+Byly představeny ve standardu \texttt{C++20}.
+Při volání funkce umožňují její provádění pozastavit a později obnovit \cite{coroutines}.
+Existuje knihovna \textit{CppCoro}, která poskytuje implementace generátorů \texttt{cppcoro::generator} a \texttt{cppcoro::recursive\_generator} \cite{cppcoro}.
+
 
 \subsection{Typ indikátoru}
 Typ indikátoru je reprezentován enumerační třídou \texttt{indicator\_tag} se dvěma možnými hodnotami: \texttt{indicator\_tag::ema} a \texttt{indicator\_tag::sma}.
@@ -332,6 +396,7 @@ Hodnoty lze náhodně rovnoměrně generovat pomocí instance třídy \tttext{st
 SMA i EMA mají parametr perioda $p>1$.
 Oba generátory generují hodnoty v intervalu $[f, t]$ s krokem $s$, kde $((f>t\implies((f-t) \mod s)=0 \land s<0) \land (t<f\implies((t-f) \mod s)=0 \land s>0)) \land s\neq0 \land t\neq f$.
 Počet možných výstupních hodnot je roven $n=\frac{|t-f|}{s}+1$.
+Pro systematické generování period byl použit generátor \texttt{systematic::int\_range}.
 
 \subsubsection{Náhodné generování}
 Při generování bez počáteční periody je nejprve pomocí \tttext{std::uniform\_int\_distribution} vygenerována hodnota $ v \in [\frac{p_{min}}{s}, = \frac{p_{max}}{s}$], kde $p_{min}=min(f, t) \land p_{max}=max(f, t)$, která je následně přeškálována $p_o=v\cdot s \land p_o \in [p_{min}, p_{max}]$.
@@ -598,19 +663,18 @@ Pro výběr rodičů byl implementován ruletový výběr \texttt{genetic\_algor
 Interně používá instanci třídy \texttt{std::discrete\_distribution} pro výběr rodičů.
 Zdatnost každého jednotlivce představuje váhu, čím vyšší je váha, tím pravděpodobněji bude daný jedinec vybrán jako rodič.
 
-Byl implementován \texttt{genetic\_algorithm::random\_matchmaker} algoritmus náhodného párování rodičů.
+Byl implementován \texttt{random\_matchmaker} algoritmus náhodného párování rodičů.
 Rodiče jsou nejprve náhodně zamícháni a následně párováni.
 Celkový počet rodičů nemusí být dělitelný počtem vybíraných n-tic, takže někteří rodiče mohou být použiti vícekrát.
 
 Poslední část algoritmu se zabývá nahrazením původní generace za novou.
 Byly implementovány 2 přístupy.
-\textit{En block} nahrazování reprezentované třídou \texttt{genetic\_algorithm::en\_block\_replacement} zachovává pouze děti k vytvoření nové generace.
-Druhý přístup používá \textit{elitismus} a je implementován třídou \texttt{genetic\_algorithm::elitism\_replacement}.
+\textit{En block} nahrazování reprezentované třídou \texttt{en\_block\_replacement} zachovává pouze děti k vytvoření nové generace.
+Druhý přístup používá \textit{elitismus} a je implementován třídou \texttt{elitism\_replacement}.
 Třída má parametr $l\in[0, 1]$ představující zlomek vybraných elitních rodičů.
 Nejprve seřadí rodiče podle zdatnosti a poté jimi nahradí prvních n dětí.
-
-Implementace algoritmu je vidět ve výpise \ref{lst:genetic:algorithm}.
-Data o průběhu optimalizace lze shromažďovat pomocí \texttt{genetic\_algorithm::progress\_collector} a zaznamenávat pomocí \texttt{genetic\_algorithm::progress\_reporter}.
+Implementaci algoritmu lze vidět ve výpise \ref{lst:genetic:algorithm}.
+Data o průběhu optimalizace lze shromažďovat pomocí \texttt{progress\_collector} a zaznamenávat pomocí \texttt{progress\_reporter}.
 
 \begin{lstlisting}[caption={~Implementace genetického algoritmu},label={lst:genetic:algorithm},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 population_.clear(), population_.reserve(init_genes.size());
@@ -679,7 +743,7 @@ Pevný počet operací lze nastavit pomocí instance třídy \texttt{tabu\_searc
 
 Sousední konfigurace lze vygenerovat pomocí \texttt{bazooka::neighbor}, která vrací sousední konfiguraci včetně tahu.
 Velikost sousedství říká, kolik sousedních konfigurací je prohledáno během jedné iterace.
-Při volání instance optimalizátoru lze také použít pozorovatele \ref{lst:tabu:search}.
+Celý algoritmus lze vidět ve výpise \ref{lst:tabu:search}.
 
 \begin{lstlisting}[caption={~Implementace genetického algoritmu},label={lst:tabu:search},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 best_ = curr_ = state{init, compute_fitness(init)};
@@ -688,7 +752,6 @@ typename TabuList::move_type curr_move, candidate_move;
 
 (observers.begin(*this), ...);
 for (; !terminate(*this); it_++) {
-    // explore neighborhood
     origin = curr_;
     std::tie(curr_.config, curr_move) = neighbor(origin.config);
     curr_.fitness = compute_fitness(curr_.config);

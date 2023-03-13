@@ -45,7 +45,7 @@ namespace trading::bazooka {
             return entry_levels;
         }
 
-        price_t level_value(index_t level) const
+        price_t entry_value(index_t level) const
         {
             assert(level>=0 && level<n_levels);
             auto baseline = entry_ma_.value();
@@ -69,7 +69,7 @@ namespace trading::bazooka {
         std::array<price_t, n_levels> entry_values() const
         {
             std::array<price_t, n_levels> entry_values;
-            for (index_t i{0}; i<n_levels; i++) entry_values[i] = level_value(i);
+            for (index_t i{0}; i<n_levels; i++) entry_values[i] = entry_value(i);
             return entry_values;
         }
 
@@ -83,7 +83,7 @@ namespace trading::bazooka {
             // all levels passed
             if (curr_level_==n_levels) return false;
             assert(curr_level_<=n_levels);
-            auto entry = level_value(curr_level_);
+            auto entry = entry_value(curr_level_);
 
             // passed current level
             if (entry_comp_(curr, entry)) {
@@ -105,11 +105,6 @@ namespace trading::bazooka {
                 return true;
             }
             return false;
-        }
-
-        void reset()
-        {
-            curr_level_ = 0;
         }
 
         const indicator& entry_ma() const
