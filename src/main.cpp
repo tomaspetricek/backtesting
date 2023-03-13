@@ -30,7 +30,7 @@ auto create_trader(const bazooka::configuration<n_levels>& config)
     }
 
     // create strategy
-    bazooka::long_strategy strategy{ma, ma, config.levels};
+    bazooka::strategy strategy{ma, ma, config.levels};
 
     // create market
     fraction_t fee{1, 1'000};   // 0.1 %
@@ -45,7 +45,7 @@ auto create_trader(const bazooka::configuration<n_levels>& config)
     order_sizer close_sizer{close_fracs};
 
     // create trade manager
-    trading::manager manager{market, open_sizer, close_sizer};
+    bazooka::manager manager{market, open_sizer, close_sizer};
     return trading::bazooka::trader{strategy, manager};
 }
 

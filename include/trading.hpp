@@ -7,10 +7,9 @@
 
 #include <trading/bazooka/configuration.hpp>
 #include <trading/bazooka/crossover.hpp>
-#include <trading/bazooka/long_strategy.hpp>
+#include <trading/bazooka/strategy.hpp>
 #include <trading/bazooka/moves_memory.hpp>
 #include <trading/bazooka/neighbor.hpp>
-#include <trading/bazooka/short_strategy.hpp>
 #include <trading/bazooka/statistics.hpp>
 #include <trading/brute_force/parallel/optimizer.hpp>
 #include <trading/genetic_algorithm/matchmaker.hpp>
@@ -59,7 +58,7 @@
 #include <trading/termination.hpp>
 #include <trading/simulator.hpp>
 #include <trading/sizer.hpp>
-#include <trading/manager.hpp>
+#include "trading/bazooka/manager.hpp"
 #include <trading/bazooka/trader.hpp>
 #include <trading/tuple.hpp>
 #include <trading/utils.hpp>

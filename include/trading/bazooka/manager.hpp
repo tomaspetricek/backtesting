@@ -2,21 +2,21 @@
 // Created by Tomáš Petříček on 08.08.2022.
 //
 
-#ifndef BACKTESTING_MANAGER_HPP
-#define BACKTESTING_MANAGER_HPP
+#ifndef BACKTESTING_BAZOOKA_MANAGER_HPP
+#define BACKTESTING_BAZOOKA_MANAGER_HPP
 
 #include <utility>
 #include <vector>
 #include <optional>
-#include <trading/data_point.hpp>
-#include <trading/order.hpp>
-#include <trading/order_sizer.hpp>
-#include <trading/order.hpp>
-#include <trading/market.hpp>
-#include <trading/position.hpp>
-#include <trading/direction.hpp>
+#include "trading/data_point.hpp"
+#include "trading/order.hpp"
+#include "trading/order_sizer.hpp"
+#include "trading/order.hpp"
+#include "trading/market.hpp"
+#include "trading/position.hpp"
+#include "trading/direction.hpp"
 
-namespace trading {
+namespace trading::bazooka {
     // to avoid use of virtual functions CRTP is used
     // src: https://www.fluentcpp.com/2017/05/12/curiously-recurring-template-pattern/
     template<std::size_t n_open, std::size_t n_close>
@@ -107,4 +107,4 @@ namespace trading {
     };
 }
 
-#endif //BACKTESTING_MANAGER_HPP
+#endif //BACKTESTING_BAZOOKA_MANAGER_HPP

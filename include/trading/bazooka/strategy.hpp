@@ -18,7 +18,7 @@
 
 namespace trading::bazooka {
     // entry levels: 0 - first level, n_levels-1 - last level
-    template<class EntryComp, class ExitComp, std::size_t n_levels>
+    template<std::size_t n_levels>
     class strategy : public trading::strategy {
         // must be at least one level
         static_assert(n_levels>0);
@@ -26,8 +26,8 @@ namespace trading::bazooka {
         indicator exit_ma_;
         std::array<fraction_t, n_levels> entry_levels_;
         std::size_t curr_level_{0};
-        static constexpr EntryComp entry_comp_;
-        static constexpr ExitComp exit_comp_;
+        static constexpr std::less_equal<> entry_comp_;
+        static constexpr std::greater_equal<> exit_comp_;
 
         static auto validate_entry_levels(const std::array<fraction_t, n_levels>& entry_levels)
         {
@@ -45,7 +45,6 @@ namespace trading::bazooka {
             return entry_levels;
         }
 
-    protected:
         price_t level_value(index_t level) const
         {
             assert(level>=0 && level<n_levels);
@@ -53,6 +52,7 @@ namespace trading::bazooka {
             return baseline*fraction_cast<price_t>(entry_levels_[level]); // move baseline
         }
 
+    public:
         explicit strategy(indicator  entry_ma, indicator  exit_ma,
                 const std::array<fraction_t, n_levels>& entry_levels)
                 :entry_ma_(std::move(entry_ma)), exit_ma_(std::move(exit_ma)),
@@ -60,7 +60,6 @@ namespace trading::bazooka {
 
         strategy() = default;
 
-    public:
         bool update_indicators(price_t price)
         {
             ready_ = entry_ma_.update(price) && exit_ma_.update(price);
