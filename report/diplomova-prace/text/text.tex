@@ -13,7 +13,115 @@ Strategie jsou často parametrizované a při obchodování s různými aktivy m
 Pro maximalizaci ziskovosti strategie a snížení rizik je zapotřebí rychlý a spolehlivý způsob optimalizace těchto parametrů \cite{efficient-backtesting}.
 
 Nejjednodušší a časově nejnáročnější způsob, jak najít optimální nastavení, by bylo prohledat všechny možné kombinace.
-Největší výhodou tohoto přístupu je, že zaručuje nalezení nejlepšího možného řešení, nicméně je v praxi nepoužitelný pro velké množství možností, protože neskončí v přiměřeně krátké době \cite{efficient-backtesting}.
+
+% popsat optimalizační kritérium
+\chapter{Kombinatorická optimalizace}
+Cílem řešení \textit{optimalizačního problému} je nalézt nejlepší řešení.
+Formálně lze problém zapsat jako $P=(S, f, \Omega)$, kde $P$ je optimalizační problém, $S$ je vyhledávací prostor, $\Omega$ je sada optimalizačních omezení.
+Objektivní funkce je také označována jako cenová nebo fitness funkce.
+Funkce slouží k hodnocení konfigurace a její hodnota slouží k jejich porovnání.
+Problémy lze dělit na minimalizační a maximalizační podle toho, zda je cílem maximalizovat nebo minimalizovat hodnotu objektivní funkce.
+Vyhledávací prostor se skládá ze sady proměnných označovaných jako rozhodovací proměnné.
+Pro získání platných řešení mohou být použita omezení \cite{kirkpatrik, peres}.
+
+\textit{Kombinatorické optimalizační problémy} jsou definované pomocí diskrétních rozhodovacích proměnných.
+Jelikož je množina přeskupení těchto proměnných konečná, je konečná i množina řešení.
+Tyto problémy obvykle spadají do kategorie \textit{NP-těžkých} problémů, což znamená, že neexistuje žádná deterministická metoda pro jejich řešení v polynomiálním čase \cite{peres}.
+
+Obecně lze  kombinatorické problémy řešit pomocí \textit{hrubé síly}, která prohledá všechny možné řešení v prohledávacím prostoru \cite{peres}.
+Největší výhodou tohoto přístupu je, že zaručuje nalezení nejlepšího možného řešení, nicméně je v praxi většinou nepoužitelný, jelikož neskončí v dostatečně krátkém čase \cite{efficient-backtesting}.
+
+Konfigurace mohou být reprezentovány různými datovými strukturami, mezi nejběžnější patří: pole a stromy.
+Typ kódování závisí na problému \cite{peres}.
+
+Obtížnost problému může být měřena pomocí \textit{výpočetní složitosti}, která se vztahuje k době, kterou algoritmus potřebuje k získání výsledku v závislosti na velikosti vstupu.
+Je nezávislá na hardwaru a umožňuje srovnání algoritmů. 
+Problémy lze podle složitosti rozdělit do tříd.
+Rozhodovací problémy, které lze vyřešit v polynomiálním čase na deterministickém Turingově stroji, jsou řazeny do třídy $P$.
+Třída $NP$ (nedeterministicky polynomiální) se skládá z rozhodovacích problémů, které lze řešit na nedeterministickém Turingově stroji v polynomiálním čase.
+Kontrola certifikátu je ověřitelná v polynomiálním čase na deterministickém Turingově stroji \cite{peres}.
+
+\section{Heuristické metody}
+% Definovat kombinatorickou optimalizaci
+Účelem heuristik je najít přijatelné řešení v rozumném čase, nicméně nezaručují nalezení optimálního řešení \cite{rutenbar}.
+
+Lze je dělit na heuristiky typu rozděl a panuj a iterativní zlepšování.
+Strategie rozděl a panuj nejprve rozdělí problém na menší podproblémy, které jsou vyřešeny samostatně a následně dány dohromady.
+Techniky iterativního zlepšování začínají nějakou počáteční konfigurací a během každé iterace ji přeskupují s cílem najít lepší.
+Mohou se zastavit po daném počtu iterací nebo když se přestane zlepšovat \cite{kirkpatrik}.
+
+Metaheuristické algoritmy lze klasifikovat do 2 kategorií na algoritmy založené na jediném řešení nebo na populaci.
+Metaheuristiky založené na jednom řešení začínají s jedinou kandidátní konfigurací, kterou se snaží postupem času vylepšovat pomocí místního vyhledávání.
+Nevýhodou těchto technik je, že mohou snadno uvíznout v lokálním optimu.
+Patří mezi ně: tabu prohledávání, simulované ochlazování nebo řízené místní vyhledávání.
+Na druhé straně metaheuristiky založené na populaci používají během vyhledávání více konfigurací.
+Díky tomu je zachována diverzita, která ztěžuje uvíznutí v lokálním optimu.
+Zahrnuje algoritmy, jako jsou: genetický algoritmus, optimalizace roje částic a optimalizace mravenčích kolonií \cite{katoch}.
+
+
+\subsection{Simulované ochlazování}
+Simulované ochlazovaní bylo vytvořeno v roce 1982.
+Heuristika je založena na fyzickém žíháním pevné látky.
+Účelem žíhání materiálu je donutit jej se dostat do nízkoenergetického stavu, jako je krystal.
+Proces spočívá v tom, že je materiál nejprve zahřán, což umožňuje vytvoření mnoha atomových přeskupení, a poté pomalu chlazen.
+Na začátku existuje mnoho atomových uspořádání, ale postupem času při správném chlazení přetrvají jen ty dobré \cite{rutenbar}.
+
+Algoritmus začíná s nějakou počáteční konfigurací a snaží se ji postupně vylepšit.
+Aby nedošlo k uvíznutí v lokálním optimu, umožňuje přijmutí horší konfigurace.
+V každé iteraci prohledává okolí aktuální konfigurace.
+Každý krok je ohodnocen změnou energie $\Delta E$.
+Je-li zlepšující $\Delta E\leq0$ nahradí aktuální konfiguraci, pokud je horší $\Delta E>0$ může být stále přijat.
+Pravděpodobnost přijetí horší konfigurace je  vypočítána pomocí $p_a = e^{\frac{-\Delta E}{T}}$, kde $T>0$ je současná teplota.
+Konfigurace je přijata, pokud platí $r<p_a$, kde $r$ je náhodné číslo z $ Unif(0, 1)$.
+Pravděpodobnost přijetí horší konfigurace se s snižuje s $T$, nicméně je vždy nenulová \cite{rutenbar, kirkpatrik}.
+
+Na konci každé iterace se aktuální teplota sníží.
+Její průběh je řízen pomocí \textit{rozvrhu ochlazování}.
+Klesání teploty je obecně nejrychlejší na začátku a ke konci se zpomaluje.
+Zpočátku umožňuje diverzifikaci v podstatě náhodným prohledáváním konfiguračního prostoru.
+Na závěr vede k intenzifikaci připomínající metodu iterativního zlepšování.
+Na každé teplotě musí zůstat dostatečně dlouho, aby bylo dosaženo ustáleného stavu zvaném \textit{equilibrium} \cite{rutenbar, kirkpatrik}.
+
+Algoritmus lze ukončit několika způsoby: dosažením maximálního počtu iterací, přestane se zlepšovat nebo dosáhne minimální teploty.
+Pro použití heuristiky je třeba poskytnout celkem 4 komponenty: konfiguraci představující nastavení systému, náhodný generátor sousedních konfigurací, objektivní funkci a rozvrh ochlazování \cite{kirkpatrik}.
+
+\subsubsection{Vybrané rozvrhy ochlazování}
+
+\subsection{Genetický algoritmus}
+Genetický algoritmus je populační metaheuristika, která je inspirována přirozenou evolucí.
+Napodobuje přežití nejzdatnějších jedinců.
+Byla navržena v roce 1992.
+Konfigurace jsou označovány jako jedinci.
+Množina jednotlivců je nazývána populace.
+Objektivní funkce se označuje jako fitness funkce a slouží k přiřazení zdatnosti jednotlivým jedincům.
+Algoritmus používá 3 biologicky inspirované operátory: \textit{selekci}, \textit{křížení} a \textit{mutaci} \cite{katoch}.
+
+Začíná s náhodně inicializovanou populací.
+Nové generace jsou produkovány iterativně aplikací genetických operátorů.
+Na začátku každé iterace jsou vybráni pomocí selekčního operátoru jedinci, kteří přežijí.
+K výběru se používá hodnota fitness funkce.
+Vybraní jedinci jsou pak spárováni a kříženi.
+Na výsledné potomky může být aplikován operátor mutace.
+Jako poslední dojde k nahrazení současné populace \cite{katoch}.
+
+Kódování jednotlivců je závislé na problému, ale často se provádí pomocí binárního řetězce.
+Hlavní výhodou je, že operátory křížení a mutace lze snadno a rychle implementovat 
+Mezi další typy kódování patří permutační kódování, kódování hodnot a stromové kódování \cite{katoch}.
+
+Selekce se používá k určení jedinců, kteří se budou účastnit reprodukce.
+Je spojena s \textit{selekčním tlakem}, který umožňuje algoritmu konvergovat.
+Určuje pravděpodobnost výběru zdatnějšího jedince.
+Mezi známé algoritmy selekce patří: ruletový, turnajový nebo boltzmannův výběr \cite{katoch}.
+
+Při použití ruletového výběru jsou nejprve jedinci z dané populace namapování na kolo rulety.
+Velikost výřezu je úměrná zdatnosti jedince.
+Což znamená, že čím je daný jedinec zdatnější, tím větší je pravděpodobnost, že bude vybrán.
+Při každém náhodném roztočení rulety je vybrán jeden jedinec.
+Každý jedince může být vybrán vícekrát \cite{katoch}.
+
+% popsat co je to mutace a křížení
+
+\subsection{Tabu prohledávání}
 
 \chapter{Design}
 
@@ -368,6 +476,7 @@ K získání výsledku lze zavolat metodu \texttt{get}, která používá funkci
 \chapter{Optimalizace}
 
 \section{Návrh a generování stavového prostoru}
+% Stavový prostor je vázán na konkrétní strategii.
 Pro optimalizaci byly vybrány 4 konfigurační proměnné: typ indikátoru, perioda indikátoru, úrovně a velikosti nákupů.
 Hodnoty proměnných lze generovat buď systematicky, nebo náhodně.
 Důležitým aspektem, který bylo nutné dodržet, bylo, že obě verze generátorů musí generovat hodnoty ze stejného vyhledávacího prostoru, jinak by byly výsledky jednotlivých optimalizačních metod nesrovnatelné.
@@ -383,7 +492,6 @@ Nevrací hodnotu přímo, ale místo toho vrací korutinu.
 Byly představeny ve standardu \texttt{C++20}.
 Při volání funkce umožňují její provádění pozastavit a později obnovit \cite{coroutines}.
 Existuje knihovna \textit{CppCoro}, která poskytuje implementace generátorů \texttt{cppcoro::generator} a \texttt{cppcoro::recursive\_generator} \cite{cppcoro}.
-
 
 \subsection{Typ indikátoru}
 Typ indikátoru je reprezentován enumerační třídou \texttt{indicator\_tag} se dvěma možnými hodnotami: \texttt{indicator\_tag::ema} a \texttt{indicator\_tag::sma}.
@@ -520,6 +628,8 @@ Příkladem události, která může nastat během optimalizace simulovaného oc
 Pozorovatelé jsou předány jako poslední parametr při volání optimalizátoru a jsou uloženy jako sada parametrů šablony.
 Tímto způsobem lze přijmout víc než jeden pozorovatel nebo žádný.
 
+% Byly implementovány 2 lokální heauristika a jedna ... Také byla implemntována hrubá síla pro ujasnění si optimalizačního kritéria a porovnání.
+
 \subsection{Hrubá síla}
 Algoritmus je implementován třídou \texttt{brute\_force::parallel::optimizer}.
 Prochází všechny stavy prohledávacího prostoru a zajišťuje nalezení optimálního řešení.
@@ -619,7 +729,7 @@ for (; curr_temp_>min_temp_; it_++) {
             double diff = appraiser(curr_state_, candidate);
             double threshold = std::exp(-diff/curr_temp_);
 
-            if (rand_prob_gen_()<threshold) {
+            if (rand_prob_()<threshold) {
                 curr_state_ = candidate;
                 (observers.worse_accepted(*this, threshold), ...);
             }
