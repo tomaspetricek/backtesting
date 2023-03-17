@@ -41,6 +41,7 @@ Rozhodovací problémy, které lze vyřešit v polynomiálním čase na determin
 Třída $NP$ (nedeterministicky polynomiální) se skládá z rozhodovacích problémů, které lze řešit na nedeterministickém Turingově stroji v polynomiálním čase.
 Kontrola certifikátu je ověřitelná v polynomiálním čase na deterministickém Turingově stroji \cite{peres}.
 
+% uvést pojem metaheristika, heuristika
 \section{Heuristické metody}
 % Definovat kombinatorickou optimalizaci
 Účelem heuristik je najít přijatelné řešení v rozumném čase, nicméně nezaručují nalezení optimálního řešení \cite{rutenbar}.
@@ -61,12 +62,12 @@ Zahrnuje algoritmy, jako jsou: genetický algoritmus, optimalizace roje částic
 
 \subsection{Simulované ochlazování}
 Simulované ochlazovaní bylo vytvořeno v roce 1982.
-Heuristika je založena na fyzickém žíháním pevné látky.
-Účelem žíhání materiálu je donutit jej se dostat do nízkoenergetického stavu, jako je krystal.
+Heuristika je založena na procesu žíhání pevné látky.
+Účelem žíhání je donutit materiál se dostat do nízkoenergetického stavu, jako je krystal.
 Proces spočívá v tom, že je materiál nejprve zahřán, což umožňuje vytvoření mnoha atomových přeskupení, a poté pomalu chlazen.
 Na začátku existuje mnoho atomových uspořádání, ale postupem času při správném chlazení přetrvají jen ty dobré \cite{rutenbar}.
 
-Algoritmus začíná s nějakou počáteční konfigurací a snaží se ji postupně vylepšit.
+Algoritmus začíná s počáteční konfigurací a snaží se ji postupně vylepšit.
 Aby nedošlo k uvíznutí v lokálním optimu, umožňuje přijmutí horší konfigurace.
 V každé iteraci prohledává okolí aktuální konfigurace.
 Každý krok je ohodnocen změnou energie $\Delta E$.
@@ -99,10 +100,10 @@ Algoritmus používá 3 biologicky inspirované operátory: \textit{selekci}, \t
 Začíná s náhodně inicializovanou populací.
 Nové generace jsou produkovány iterativně aplikací genetických operátorů.
 Na začátku každé iterace jsou vybráni pomocí selekčního operátoru jedinci, kteří přežijí.
-K výběru se používá hodnota fitness funkce.
 Vybraní jedinci jsou pak spárováni a kříženi.
-Na výsledné potomky může být aplikován operátor mutace.
-Jako poslední dojde k nahrazení současné populace \cite{katoch}.
+Na výsledné potomky je s nějakou pravděpodobností aplikován operátor mutace.
+Jako poslední dojde k nahrazení současné populace.
+Proces se opakuje do splnění ukončovacího kritéria \cite{katoch}.
 
 Kódování jednotlivců je závislé na problému, ale často se provádí pomocí binárního řetězce.
 Hlavní výhodou je, že operátory křížení a mutace lze snadno a rychle implementovat 
@@ -117,11 +118,41 @@ Při použití ruletového výběru jsou nejprve jedinci z dané populace namapo
 Velikost výřezu je úměrná zdatnosti jedince.
 Což znamená, že čím je daný jedinec zdatnější, tím větší je pravděpodobnost, že bude vybrán.
 Při každém náhodném roztočení rulety je vybrán jeden jedinec.
-Každý jedince může být vybrán vícekrát \cite{katoch}.
+Každý jedinec může být vybrán vícekrát \cite{katoch}.
+
+Křížení se používá s cílem vytvořit nové potomky spojením genů dvou nebo více rodičů.
+Existují dobře známé techniky jako jsou: jednobodové, vícebodové, cyklové a rovnoměrné křížení.
+Dále může docházet k mutacím, které se vyskytují s určitou nízkou pravděpodobností.
+Slouží k zavedení náhodných změn.
+Simulují chyby, ke kterým dochází při kopírování chromozomů \cite{katoch}.
 
 % popsat co je to mutace a křížení
 
 \subsection{Tabu prohledávání}
+Tabu prohledávání patří mezi metaheuristiky založených na jednom řešení.
+K prohledávání stavového prostoru využívá adaptivní paměť, která umožňuje jeho efektivní prohledávání.
+Prohledávacím prostorem se pohybuje aplikováním změn na aktuální konfiguraci.
+Množina konfigurací dosažitelných z aktuální konfigurace se nazývá sousedství.
+Operaci přesunu je používána k dosažení sousední konfigurace \cite{laguna}.
+
+Algoritmus začíná hledat od počáteční konfigurace.
+Během každé iterace je prohledáno sousedství současné konfigurace.
+Nejprve je uplatněna strategie prvého zlepšení.
+Pokud je nalezena lepší konfigurace, prohledávání sousedství je ukončeno a současná konfigurace nahrazena.
+Pokud není nalezen žádný lepší tah, je současná konfigurace nahrazena nejlepším nezlepšujícím se sousedem \cite{laguna}.
+
+Dalším mechanismem, který pomáhá algoritmu překročit lokální optima, je \textit{krátkodobá paměť}.
+Algoritmus si ukládá nedávnou historii tahů, které byly provedeny, a označuje je jako zakázané (tabu).
+Tahy lze ukládat jako celé konfigurace.
+Tento typ paměti se nazývá explicitní paměť.
+Pokud jsou uloženy pouze vybrané atributy tahu, pak se paměť nazývá atributivní paměť.
+Explicitní paměť obecně spotřebovává méně místa než atributivní paměť.
+Pokud sousední konfigurace obsahuje nějaké tabu aktivní atributy, nelze ji přijmout jako současnou konfiguraci \cite{laguna}.
+
+\textit{Tabu lhůta} (tenure) se používá k určení počtu iteracích, po které je daný atribut zakázaný.
+Může být statická nebo dynamická.
+K překonání tabu klasifikace lze použít \textit{aspirační kritérium}, které umožňuje přijetí kandidáta klasifikovaného jako tabu, pokud je splněna určitá podmínka.
+Příkladem je nalezení lepší konfigurace, než je nejlepší dosud nalezená \cite{laguna}.
 
 \chapter{Design}
 
