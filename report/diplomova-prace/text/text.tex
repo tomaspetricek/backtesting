@@ -43,8 +43,14 @@ Kontrola certifikátu je ověřitelná v polynomiálním čase na deterministick
 
 % uvést pojem metaheristika, heuristika
 \section{Heuristické metody}
-% Definovat kombinatorickou optimalizaci
-Účelem heuristik je najít přijatelné řešení v rozumném čase, nicméně nezaručují nalezení optimálního řešení \cite{rutenbar}.
+Heuristická metoda je postup, který umožňuje nalézt rozumně dobré řešení v relativně krátkém čase.
+Metody jsou často iterativní, počínaje počátečním řešením, které se během každé iterace snaží vylepšit.
+Po uplynutí přiměřeně dlouhé doby je ukončen a nejlepší řešení vráceno \cite{kaveh}.
+
+Termín \textit{metaheuristika} byl vytvořen v roce 1986 a skládá se ze dvou slov meta znamenající vyšší úroveň abstrakce a heuristiky znamenající umění objevovat pravidla k řešení problému.
+Jsou to strategie, které využívají vyšší úroveň abstrakce spolu s heuristikou k prohledávání stavového prostoru s cílem nalezení nejlepšího řešení.
+Jednou z jejich hlavních výhod je, že jsou nezávislé na daném problému.
+Díky tomu nalezly uplatnění v různých oborech jako je lékařství, aplikovaná matematika, strojírenství nebo ekonomie \cite{kaveh, peres}.
 
 Lze je dělit na heuristiky typu rozděl a panuj a iterativní zlepšování.
 Strategie rozděl a panuj nejprve rozdělí problém na menší podproblémy, které jsou vyřešeny samostatně a následně dány dohromady.
@@ -153,6 +159,10 @@ Pokud sousední konfigurace obsahuje nějaké tabu aktivní atributy, nelze ji p
 Může být statická nebo dynamická.
 K překonání tabu klasifikace lze použít \textit{aspirační kritérium}, které umožňuje přijetí kandidáta klasifikovaného jako tabu, pokud je splněna určitá podmínka.
 Příkladem je nalezení lepší konfigurace, než je nejlepší dosud nalezená \cite{laguna}.
+
+Pro řešení náročnějších problémů lze přidat \textit{dlouhodobou paměť}, která pomáhá lépe vyvážit proces diverzifikace a intenzifikace.
+Paměť je obvykle založena na frekvenci změn jednotlivých atributů.
+Pomáhá s lepším výběrem dalšího tahu \cite{laguna}.
 
 \chapter{Design}
 
