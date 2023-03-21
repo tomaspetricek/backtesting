@@ -26,20 +26,42 @@ Pro získání platných řešení mohou být použita omezení \cite{kirkpatrik
 
 \textit{Kombinatorické optimalizační problémy} jsou definované pomocí diskrétních rozhodovacích proměnných.
 Jelikož je množina přeskupení těchto proměnných konečná, je konečná i množina řešení.
-Tyto problémy obvykle spadají do kategorie \textit{NP-těžkých} problémů, což znamená, že neexistuje žádná deterministická metoda pro jejich řešení v polynomiálním čase \cite{peres}.
-
+Tyto problémy obvykle spadají do kategorie \textit{NP-těžkých} problémů.
 Obecně lze  kombinatorické problémy řešit pomocí \textit{hrubé síly}, která prohledá všechny možné řešení v prohledávacím prostoru \cite{peres}.
 Největší výhodou tohoto přístupu je, že zaručuje nalezení nejlepšího možného řešení, nicméně je v praxi většinou nepoužitelný, jelikož neskončí v dostatečně krátkém čase \cite{efficient-backtesting}.
-
 Konfigurace mohou být reprezentovány různými datovými strukturami, mezi nejběžnější patří: pole a stromy.
 Typ kódování závisí na problému \cite{peres}.
 
-Obtížnost problému může být měřena pomocí \textit{výpočetní složitosti}, která se vztahuje k době, kterou algoritmus potřebuje k získání výsledku v závislosti na velikosti vstupu.
-Je nezávislá na hardwaru a umožňuje srovnání algoritmů. 
-Problémy lze podle složitosti rozdělit do tříd.
-Rozhodovací problémy, které lze vyřešit v polynomiálním čase na deterministickém Turingově stroji, jsou řazeny do třídy $P$.
-Třída $NP$ (nedeterministicky polynomiální) se skládá z rozhodovacích problémů, které lze řešit na nedeterministickém Turingově stroji v polynomiálním čase.
-Kontrola certifikátu je ověřitelná v polynomiálním čase na deterministickém Turingově stroji \cite{peres}.
+\subsection{Třídy složitosti}
+Obtížnost problému lze měřit pomocí \textit{výpočetní složitosti}, která se vztahuje k době, kterou algoritmus potřebuje k získání výsledku v závislosti na velikosti vstupu.
+Výhodou je, že je nezávislá na hardwaru a umožňuje srovnání algoritmů \cite{peres}.
+
+Problémy lze podle efektivity jejich řešení rozdělit do tříd.
+Pokud je doba jejich běhu vázána na polynomiální funkci: $O(n^c)$, kde $c$ je nějaká konstanta a $n$ je velikost vstupu, jsou považovány za efektivní.
+Ne všechny problémy však lze efektivně vyřešit.
+Pokud problém patří do třídy \textit{NP-těžký}, je domníváno, že neexistuje žádný efektivní algoritmus k jeho řešení \cite{erickson}.
+
+Rozhodovací problémy, jejichž výstupem je booleanovská hodnota, lze zařadit do 3 tříd.
+Do třídy \textit{P} patří problémy, které lze vyřešit v polynomiálním čase.
+Pokud lze odpověď \textit{ano} na problém ověřit v polynomiálním čase, patří do třídy \textit{NP}, což znamená nedeterministický polynomiální.
+Pokud lze odpověď \textit{ne} ověřit v polynomiálním čase, tak patří do třídy \textit{co-NP}, která je komplementární třídě NP.
+Každý rozhodovací problém ve třídě P je také v NP a co-NP, jelikož odpověď na problém lze vypočítat v polynomiálním čase, a proto ji také ověřit.
+Obecně se má za to, že $P\neq NP$.
+Nicméně to nebylo nikdy dokázáno, a protože jde o jeden z problémů tisíciletí, je za důkaz odměna 1 milion dolarů.
+Jestli NP a co-NP patří do stejné třídy také není známo \cite{erickson}.
+
+Problém je NP-těžký, pokud by nalezení algoritmu, který jej řeší v polynomiálním čase, znamenalo existenci polynomiálního časového algoritmu pro každý problém v NP.
+Aby problém patřil mezi NP-těžkým problémy, musí být alespoň tak těžký jako každý problém v NP.
+Pokud je problém NP-těžký a zároveň NP, pak je nazýván NP-úplný.
+Polynomiální algoritmus pro jeden NP-úplný problém by znamenal polynomiální algoritmus pro všechny NP-úplné problémy.
+\cite{erickson}.
+Schéma všech zmíněných tříd složitosti lze vidět na obrázku \ref{fig:complexity-classes}.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale=0.7]{img/complexity-classes.pdf}}
+\caption{Schéma tříd složitosti}
+\label{fig:complexity-classes}
+\end{figure}
 
 % uvést pojem metaheristika, heuristika
 \section{Heuristické metody}
@@ -47,17 +69,16 @@ Heuristická metoda je postup, který umožňuje nalézt rozumně dobré řešen
 Metody jsou často iterativní, počínaje počátečním řešením, které se během každé iterace snaží vylepšit.
 Po uplynutí přiměřeně dlouhé doby je ukončen a nejlepší řešení vráceno \cite{kaveh}.
 
-Termín \textit{metaheuristika} byl vytvořen v roce 1986 a skládá se ze dvou slov meta znamenající vyšší úroveň abstrakce a heuristiky znamenající umění objevovat pravidla k řešení problému.
+Termín \textit{metaheuristika} byl zaveden v roce 1986 a skládá se ze dvou slov meta znamenající vyšší úroveň abstrakce a heuristiky znamenající umění objevovat pravidla k řešení problému.
 Jsou to strategie, které využívají vyšší úroveň abstrakce spolu s heuristikou k prohledávání stavového prostoru s cílem nalezení nejlepšího řešení.
 Jednou z jejich hlavních výhod je, že jsou nezávislé na daném problému.
 Díky tomu nalezly uplatnění v různých oborech jako je lékařství, aplikovaná matematika, strojírenství nebo ekonomie \cite{kaveh, peres}.
 
-Lze je dělit na heuristiky typu rozděl a panuj a iterativní zlepšování.
-Strategie rozděl a panuj nejprve rozdělí problém na menší podproblémy, které jsou vyřešeny samostatně a následně dány dohromady.
-Techniky iterativního zlepšování začínají nějakou počáteční konfigurací a během každé iterace ji přeskupují s cílem najít lepší.
-Mohou se zastavit po daném počtu iterací nebo když se přestane zlepšovat \cite{kirkpatrik}.
+Při prohledávání stavového prostoru je klíčové vyvážit fáze průzkumu (exploration) a vytěžování (exploitation).
+Průzkum slouží jako prostředek pro \textit{diverzifikaci}, cílem je najít slibné oblasti s vysoce kvalitními řešeními.
+Jakmile je oblast identifikována, přistoupí se k vytěžování, kdy je hledání v dané oblasti zintenzivněno \cite{peres}.
 
-Metaheuristické algoritmy lze klasifikovat do 2 kategorií na algoritmy založené na jediném řešení nebo na populaci.
+Metaheuristiky lze dělit do 2 kategorií na algoritmy založené na jediném řešení nebo na populaci.
 Metaheuristiky založené na jednom řešení začínají s jedinou kandidátní konfigurací, kterou se snaží postupem času vylepšovat pomocí místního vyhledávání.
 Nevýhodou těchto technik je, že mohou snadno uvíznout v lokálním optimu.
 Patří mezi ně: tabu prohledávání, simulované ochlazování nebo řízené místní vyhledávání.
