@@ -45,6 +45,7 @@ Rozhodovací problémy, jejichž výstupem je booleanovská hodnota, lze zařadi
 Do třídy \textit{P} patří problémy, které lze vyřešit v polynomiálním čase.
 Pokud lze odpověď \textit{ano} na problém ověřit v polynomiálním čase, patří do třídy \textit{NP}, což znamená nedeterministický polynomiální.
 Pokud lze odpověď \textit{ne} ověřit v polynomiálním čase, tak patří do třídy \textit{co-NP}, která je komplementární třídě NP.
+
 Každý rozhodovací problém ve třídě P je také v NP a co-NP, jelikož odpověď na problém lze vypočítat v polynomiálním čase, a proto ji také ověřit.
 Obecně se má za to, že $P\neq NP$.
 Nicméně to nebylo nikdy dokázáno, a protože jde o jeden z problémů tisíciletí, je za důkaz odměna 1 milion dolarů.
@@ -82,10 +83,10 @@ Metaheuristiky lze dělit do 2 kategorií na algoritmy založené na jediném ř
 Metaheuristiky založené na jednom řešení začínají s jedinou kandidátní konfigurací, kterou se snaží postupem času vylepšovat pomocí místního vyhledávání.
 Nevýhodou těchto technik je, že mohou snadno uvíznout v lokálním optimu.
 Patří mezi ně: tabu prohledávání, simulované ochlazování nebo řízené místní vyhledávání.
+
 Na druhé straně metaheuristiky založené na populaci používají během vyhledávání více konfigurací.
 Díky tomu je zachována diverzita, která ztěžuje uvíznutí v lokálním optimu.
 Zahrnuje algoritmy, jako jsou: genetický algoritmus, optimalizace roje částic a optimalizace mravenčích kolonií \cite{katoch}.
-
 
 \subsection{Simulované ochlazování}
 Simulované ochlazovaní bylo vytvořeno v roce 1982.
@@ -185,6 +186,75 @@ Pro řešení náročnějších problémů lze přidat \textit{dlouhodobou pamě
 Paměť je obvykle založena na frekvenci změn jednotlivých atributů.
 Pomáhá s lepším výběrem dalšího tahu \cite{laguna}.
 
+\section{Algoritmické obchodování}
+Algoritmické obchodování se používá k automatizaci obchodování pomocí počítačových programů.
+Hlavním cílem je maximalizovat zisk a zároveň snížit rizika.
+Vývoj těchto systémů vedl ke zrodu vysokofrekvenčního algoritmického obchodování, které drží pozice po extrémně krátkou dobu v řadech sekund až milisekund \cite{nuti, treleaven}.
+
+Obchod se provádí plněním nákupních a prodejních objednávek, které se skládají z ceny a množství.
+Jsou spárovány pomocí párovacího enginu, který si vede centralizovanou knihu objednávek (order book).
+Lze ji snadno vizualizovat jako tabulku se 2 sloupci, první s nákupními objednávkami a druhý s prodejními objednávkami.
+Nákupní objednávky jsou řazeny sestupně, takže objednávka s nejvyšší cenou je první, jelikož cílem prodejce je prodat za co nejvyšší cenu.
+Prodejní objednávky jsou seřazeny v obráceném pořadí, protože kupující chce koupit za nejnižší možnou cenu.
+Po úspěšném spárování objednávek je provedena výměna \cite{nuti}.
+
+Existují různé varianty knihy objednávek a jsou závislé na dané burze.
+Mohou podporovat plnění různých typů objednávek, jako jsou limitní, tržní (market) nebo objednávky se stop-lossem.
+Tržní objednávky jsou provedeny okamžitě, zatímco limitní objednávky jsou splněny za stanovenou cenu nebo lepší.
+Obchodování se provádí buď přímo přístupem na burzu, nebo prostřednictvím brokera, jako jsou banky.
+Mezi aktiva, se kterými lze obchodovat, patří akcie, dluhopisy, opce, komodity, měnové páry, kryptoměny a deriváty.
+\cite{nuti}.
+
+Proces obchodování lze rozdělit do 4 fází: předobchodní analýza, generování obchodních signálů, provedení obchodu a poobchodní analýza.
+Všechny lze automatizovat.
+Během předobchodní analýzy je aktivum analyzováno na základě finančních dat a zpráv.
+Výsledky se používají ke generování nákupních a prodejních signálů, které jsou následně převedeny na objednávky.
+Proces lze formulovat jako optimalizační problém, který lze řešit pomocí kvadratického programování, genetického programování nebo optimalizace roje částic \cite{nuti}.
+
+\subsection{Předobchodní analýza}
+Předobchodní analýzu lze rozdělit do 3 kategorií: \textit{fundamentální}, \textit{technická} a \textit{kvantitativní} analýza.
+Cílem fundamentální analýzy je určit férovou cenu aktiva.
+Signály jsou obvykle generovány, když se aktuální cena aktiva liší od jeho férové ceny \cite{nuti}.
+
+Technická analýza má za cíl předpovídat budoucí pohyb ceny aktiva na základě její \textbf{historie} a souvisejících informací, jako je objem.
+Předpokládá, že všechny informace potřebné pro generovaní signálu se odrážejí v její historii.
+Pracuje s konceptem trendů, které určují dlouhodobější směr pohybu ceny.
+Trendy lze organizovat do vzorů, jako jsou trendové linie, oblasti podpory a odporu.
+Používají se také technické indikátory jako klouzavé průměry, index relativní síly (RSI), stochastické oscilátory nebo pohyblivá průměrná konvergence/divergence (MACD).
+Obchodní signály jsou generovány při změně trendu \cite{nuti}.
+
+Kvantitativní analýza považuje ceny za náhodné a jejím cílem je vytvořit modely, které danou náhodnost dobře popisují.
+Tím se liší od předchozích dvou typů analýz, které předpokládají deterministické chování ceny.
+Stejně jako fundamentální analýza generuje obchodní signál, pokud se aktuální cena aktiva liší od jeho férové ceny \cite{nuti}.
+
+\subsection{Generování obchodního signálu}
+Výsledkem předobchodní analýzy jsou pouze doporučení k nákupu a prodeji, která jsou obohacena ve fázi generování obchodních signálu, kde jsou přidány informace, jako je cena a množství.
+Skládá se ze vstupní a výstupní strategie.
+Vstupní strategie určuje podmínky, kdy má program pozici otevřít, a výstupní strategie, kdy ji zavřít.
+Rizika a velikosti objednávek musí být také řízeny \cite{nuti}.
+
+Vstupní strategie mohou být jednoduché, jako je překřížení hodnot 2 technických indikátorů nebo odchýlení se od férové ceny.
+I když je cílem pravidla co nejvíce zjednodušit, může být nutné přidat některá další pravidla.
+Například otevírání obchodů může být příliš časté a na krátkou dobu, takže částka zaplacená na poplatcích převýší zisk.
+Výstupní strategie definuje, kdy uzavřít zisk a kdy odejít se ztrátou.
+Značně závisí na typu použité analýzy.
+V případě technické analýzy může být pozice uzavřena, když je dosaženo určitého cíle nebo když se skutečný trend ukáže být odlišný od předpovídaného \cite{nuti}.
+
+Řízení rizik se zabývá otázkou, jaká částka by měla být investována do každé objednávky.
+Investovaná částka může být pevně stanovena pro každý obchod.
+Nevýhodou této metody je, že nezohledňuje volatilitu trhu.
+Může být méně riskantní investovat menší částky během období vysoké volatility a větší částky v obdobích nízké volatility.
+Další metodou, kterou lze použít, je pevný zlomkový systém (fixed fractional system), který riskuje pevnou část kapitálu na každý obchod \cite{nuti}.
+
+\subsection{Provedení obchodu}
+Dalším krokem je samotné provedení objednávky.
+Hlavní věc, které se systém snaží dosáhnout, je minimalizace nákladů.
+V této fázi musí být rozhodnuto o typu objednávky a burze, na kterou má být objednávka zadána.
+Mezi nejdůležitější aspekty, které je třeba vzít v úvahu při výběru správné burzy, patří: nabídka aktiv, mechanismus obchodování, cena provedení, likvidita a stupeň anonymity obchodníka.
+Burzy s vyšší likviditou mají tendenci provádět objednávky rychleji a účtovat si nižší poplatky \cite{nuti}.
+
+\section{Backtesting}
+
 \chapter{Design}
 
 \subsection{Jmenné konvence}
@@ -217,7 +287,7 @@ Je také běžné zaměnitelně říkat, že obchod nebo pozice jsou otevřené.
 Na \textit{Binance} je možné si vyžádat historii uskutečněných obchodů.
 Vygenerované obchody jsou pouze transakce provedené mezi dvěma obchodníky.
 Proto je lepší používat termín pozice, který představuje seznam souvisejících otevřených a uzavřených obchodů.
-
+% popsat jak funguje Binance
 % Účet je na kryptoburzách reprezentován jako peněženka, která uchovává množství nakoupených aktiv.
 
 \section{Bazooka}
