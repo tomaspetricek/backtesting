@@ -19,14 +19,16 @@ Nejjednodušší a časově nejnáročnější způsob, jak najít optimální n
 Cílem řešení \textit{optimalizačního problému} je nalézt nejlepší řešení.
 Formálně lze problém zapsat jako $P=(S, f, \Omega)$, kde $P$ je optimalizační problém, $S$ je vyhledávací prostor, $\Omega$ je sada optimalizačních omezení.
 Objektivní funkce je také označována jako cenová nebo fitness funkce.
-Funkce slouží k hodnocení konfigurace a její hodnota slouží k jejich porovnání.
+Funkce slouží k hodnocení konfigurace a její hodnota slouží k jejich porovnání \cite{peres}.
+
 Problémy lze dělit na minimalizační a maximalizační podle toho, zda je cílem maximalizovat nebo minimalizovat hodnotu objektivní funkce.
 Vyhledávací prostor se skládá ze sady proměnných označovaných jako rozhodovací proměnné.
 Pro získání platných řešení mohou být použita omezení \cite{kirkpatrik, peres}.
 
 \textit{Kombinatorické optimalizační problémy} jsou definované pomocí diskrétních rozhodovacích proměnných.
 Jelikož je množina přeskupení těchto proměnných konečná, je konečná i množina řešení.
-Tyto problémy obvykle spadají do kategorie \textit{NP-těžkých} problémů.
+Tyto problémy obvykle spadají do kategorie \textit{NP-těžkých} problémů \cite{peres}.
+
 Obecně lze  kombinatorické problémy řešit pomocí \textit{hrubé síly}, která prohledá všechny možné řešení v prohledávacím prostoru \cite{peres}.
 Největší výhodou tohoto přístupu je, že zaručuje nalezení nejlepšího možného řešení, nicméně je v praxi většinou nepoužitelný, jelikož neskončí v dostatečně krátkém čase \cite{efficient-backtesting}.
 Konfigurace mohou být reprezentovány různými datovými strukturami, mezi nejběžnější patří: pole a stromy.
@@ -54,8 +56,7 @@ Jestli NP a co-NP patří do stejné třídy také není známo \cite{erickson}.
 Problém je NP-těžký, pokud by nalezení algoritmu, který jej řeší v polynomiálním čase, znamenalo existenci polynomiálního časového algoritmu pro každý problém v NP.
 Aby problém patřil mezi NP-těžkým problémy, musí být alespoň tak těžký jako každý problém v NP.
 Pokud je problém NP-těžký a zároveň NP, pak je nazýván NP-úplný.
-Polynomiální algoritmus pro jeden NP-úplný problém by znamenal polynomiální algoritmus pro všechny NP-úplné problémy.
-\cite{erickson}.
+Polynomiální algoritmus pro jeden NP-úplný problém by znamenal polynomiální algoritmus pro všechny NP-úplné problémy \cite{erickson}.
 Schéma všech zmíněných tříd složitosti lze vidět na obrázku \ref{fig:complexity-classes}.
 
 \begin{figure}[htbp]
@@ -82,7 +83,7 @@ Jakmile je oblast identifikována, přistoupí se k vytěžování, kdy je hled�
 Metaheuristiky lze dělit do 2 kategorií na algoritmy založené na jediném řešení nebo na populaci.
 Metaheuristiky založené na jednom řešení začínají s jedinou kandidátní konfigurací, kterou se snaží postupem času vylepšovat pomocí místního vyhledávání.
 Nevýhodou těchto technik je, že mohou snadno uvíznout v lokálním optimu.
-Patří mezi ně: tabu prohledávání, simulované ochlazování nebo řízené místní vyhledávání.
+Patří mezi ně: tabu prohledávání, simulované ochlazování nebo řízené místní vyhledávání \cite{katoch}.
 
 Na druhé straně metaheuristiky založené na populaci používají během vyhledávání více konfigurací.
 Díky tomu je zachována diverzita, která ztěžuje uvíznutí v lokálním optimu.
@@ -142,7 +143,7 @@ Je spojena s \textit{selekčním tlakem}, který umožňuje algoritmu konvergova
 Určuje pravděpodobnost výběru zdatnějšího jedince.
 Mezi známé algoritmy selekce patří: ruletový, turnajový nebo boltzmannův výběr \cite{katoch}.
 
-Při použití ruletového výběru jsou nejprve jedinci z dané populace namapování na kolo rulety.
+Při použití ruletového výběru jsou nejprve jedinci z dané populace namapováni na kolo rulety.
 Velikost výřezu je úměrná zdatnosti jedince.
 Což znamená, že čím je daný jedinec zdatnější, tím větší je pravděpodobnost, že bude vybrán.
 Při každém náhodném roztočení rulety je vybrán jeden jedinec.
@@ -167,7 +168,8 @@ Algoritmus začíná hledat od počáteční konfigurace.
 Během každé iterace je prohledáno sousedství současné konfigurace.
 Nejprve je uplatněna strategie prvého zlepšení.
 Pokud je nalezena lepší konfigurace, prohledávání sousedství je ukončeno a současná konfigurace nahrazena.
-Pokud není nalezen žádný lepší tah, je současná konfigurace nahrazena nejlepším nezlepšujícím se sousedem \cite{laguna}.
+Pokud není nalezen žádný lepší tah, je současná konfigurace nahrazena nejlepším nezlepšujícím se sousedem.
+Algoritmus je ukončen, jakmile je splněno ukončovací kritérium \cite{laguna}.
 
 Dalším mechanismem, který pomáhá algoritmu překročit lokální optima, je \textit{krátkodobá paměť}.
 Algoritmus si ukládá nedávnou historii tahů, které byly provedeny, a označuje je jako zakázané (tabu).
@@ -179,7 +181,7 @@ Pokud sousední konfigurace obsahuje nějaké tabu aktivní atributy, nelze ji p
 
 \textit{Tabu lhůta} (tenure) se používá k určení počtu iteracích, po které je daný atribut zakázaný.
 Může být statická nebo dynamická.
-K překonání tabu klasifikace lze použít \textit{aspirační kritérium}, které umožňuje přijetí kandidáta klasifikovaného jako tabu, pokud je splněna určitá podmínka.
+K překonání tabu klasifikace lze použít \textit{aspirační kritérium}, které umožňuje při splnění určité podmínky přijmout zakázaného kandidáta.
 Příkladem je nalezení lepší konfigurace, než je nejlepší dosud nalezená \cite{laguna}.
 
 Pro řešení náročnějších problémů lze přidat \textit{dlouhodobou paměť}, která pomáhá lépe vyvážit proces diverzifikace a intenzifikace.
@@ -191,19 +193,18 @@ Algoritmické obchodování se používá k automatizaci obchodování pomocí p
 Hlavním cílem je maximalizovat zisk a zároveň snížit rizika.
 Vývoj těchto systémů vedl ke zrodu vysokofrekvenčního algoritmického obchodování, které drží pozice po extrémně krátkou dobu v řadech sekund až milisekund \cite{nuti, treleaven}.
 
-Obchod se provádí plněním nákupních a prodejních objednávek, které se skládají z ceny a množství.
-Jsou spárovány pomocí párovacího enginu, který si vede centralizovanou knihu objednávek (order book).
+Obchodování se uskutečňuje párováním nákupních a prodejních objednávek.
+Párovací engine si vede centralizovanou knihu objednávek (order book).
 Lze ji snadno vizualizovat jako tabulku se 2 sloupci, první s nákupními objednávkami a druhý s prodejními objednávkami.
 Nákupní objednávky jsou řazeny sestupně, takže objednávka s nejvyšší cenou je první, jelikož cílem prodejce je prodat za co nejvyšší cenu.
 Prodejní objednávky jsou seřazeny v obráceném pořadí, protože kupující chce koupit za nejnižší možnou cenu.
-Po úspěšném spárování objednávek je provedena výměna \cite{nuti}.
+Po úspěšném spárování objednávek je provedena výměna (trade) \cite{nuti}.
 
-Existují různé varianty knihy objednávek a jsou závislé na dané burze.
+Existují různé varianty knihy objednávek, které jsou závislé na dané burze.
 Mohou podporovat plnění různých typů objednávek, jako jsou limitní, tržní (market) nebo objednávky se stop-lossem.
 Tržní objednávky jsou provedeny okamžitě, zatímco limitní objednávky jsou splněny za stanovenou cenu nebo lepší.
 Obchodování se provádí buď přímo přístupem na burzu, nebo prostřednictvím brokera, jako jsou banky.
-Mezi aktiva, se kterými lze obchodovat, patří akcie, dluhopisy, opce, komodity, měnové páry, kryptoměny a deriváty.
-\cite{nuti}.
+Mezi aktiva, se kterými lze obchodovat, patří akcie, dluhopisy, opce, komodity, měnové páry, kryptoměny a deriváty \cite{nuti}.
 
 Proces obchodování lze rozdělit do 4 fází: předobchodní analýza, generování obchodních signálů, provedení obchodu a poobchodní analýza.
 Všechny lze automatizovat.
@@ -253,7 +254,18 @@ V této fázi musí být rozhodnuto o typu objednávky a burze, na kterou má b�
 Mezi nejdůležitější aspekty, které je třeba vzít v úvahu při výběru správné burzy, patří: nabídka aktiv, mechanismus obchodování, cena provedení, likvidita a stupeň anonymity obchodníka.
 Burzy s vyšší likviditou mají tendenci provádět objednávky rychleji a účtovat si nižší poplatky \cite{nuti}.
 
-\section{Backtesting}
+\section{Zpětné testování}
+Základní myšlenkou zpětného testování (backtesting) je zjistit, jak by fungovala obchodní strategie, kdyby byla nasazena v minulosti.
+Vychází z předpokladu, že pokud strategie fungovala dobře v minulosti, měla by fungovat dobře i v budoucnu.
+Zpětné testování je nezbytnou součástí rozvoje obchodní strategie, jelikož pomáhá lépe porozumět testované strategii a dává příležitost k jejímu zlepšení \cite{efficient-backtesting}.
+
+Strategie jsou často parametrizované a optimální hodnoty parametrů se mohou u jednotlivých aktiv lišit.
+Může být testována na různých aktivech a trzích.
+Procházení těchto možností je časově náročný proces, který závisí také na počtu poskytnutých historických dat \cite{efficient-backtesting}.
+
+\subsection{Platformy poskytující zpětné testování}
+
+\subsection{Historická tržní data}
 
 \chapter{Design}
 
