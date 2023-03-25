@@ -84,7 +84,7 @@ namespace trading {
         double profit_factor() const
         {
 //            assert(gross_loss_!=0.0);
-            return gross_profit_/(-gross_loss_);
+            return gross_profit_/std::abs(gross_loss_);
         }
     };
 

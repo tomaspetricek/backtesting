@@ -17,7 +17,7 @@ Nejjednodušší a časově nejnáročnější způsob, jak najít optimální n
 % popsat optimalizační kritérium
 \chapter{Kombinatorická optimalizace}
 Cílem řešení \textit{optimalizačního problému} je nalézt nejlepší řešení.
-Formálně lze problém zapsat jako $P=(S, f, \Omega)$, kde $P$ je optimalizační problém, $S$ je vyhledávací prostor, $\Omega$ je sada optimalizačních omezení.
+Formálně lze problém zapsat jako $P=(S, f, \Omega)$, kde $P$ je optimalizační problém, $S$ je vyhledávací prostor, $f$ je objektivní funkce a $\Omega$ je sada optimalizačních omezení.
 Objektivní funkce je také označována jako cenová nebo fitness funkce.
 Funkce slouží k hodnocení konfigurace a její hodnota slouží k jejich porovnání \cite{peres}.
 
@@ -263,9 +263,62 @@ Strategie jsou často parametrizované a optimální hodnoty parametrů se mohou
 Může být testována na různých aktivech a trzích.
 Procházení těchto možností je časově náročný proces, který závisí také na počtu poskytnutých historických dat \cite{efficient-backtesting}.
 
+\subsection{Historická simulace}
+Nezbytnou součástí zpětného testování je \textit{historická simulace}.
+Slouží k vyhodnocení obchodní strategie na historických datech.
+K provedení simulace musí být poskytnuta strategie a historická data.
+Na základě obchodů provedených během simulace jsou vypočítány statistiky \cite{pardo}.
+
+Výsledky jsou obvykle prezentovány jako zpráva, která obvykle zahrnuje souhrn výkonnosti (performance summary) a výpis obchodů.
+Souhrn výkonnosti se skládá ze statistik, které popisují celkovou výkonnost strategie.
+Výpis obchodů obsahuje seznam všech uskutečněných obchodů s informacemi, jako je vstupní a výstupní čas, vstupní a výstupní cena a dosažený zisk nebo ztráta \cite{pardo}.
+
+\subsubsection{Výkonnostní statistiky}
+Výkonnostní statistiky se používají k měření odměny a rizika.
+Díky tomu, že jsou nezávislé na konkrétní obchodní strategii, tak poskytují způsob, jak je porovnat.
+Statistiky lze nejen vypočítat na historických datech, ale lze je také použít pro měření výkonnosti běžící strategie v reálném čase.
+Umožňují tedy kontrolu průběhu obchodování.
+Zároveň jsou jediným způsobem, jak měřit a řídit riziko.
+Mohou zahrnovat statistiky jako: celkový počet obchodů, počet vítězných a ztrátových obchodů, největší vítězný obchod, největší ztrátový obchod, celkový čistý zisk (total net profit), hrubý zisk (gross profit) a hrubá ztráta (gross loss) \cite{pardo}.
+
+\begin{description}
+    \item [realizovaný zisk (realized profit)] $rp$ je částka ztracená nebo získaná po uzavření pozice.
+    Lze ji vypočítat pomocí vzorce $rp=tr-ti$, kde $tr$ je celkem získaná částka a $ti$ je celkem investovaná částka.
+    Může být také vyjádřena v procentech $rp_p=\frac{rp}{ti}\cdot 100$.
+    Pokud $rp\leq0$, tak se to označuje jako ztráta, jinak jako zisk.
+    \item[hrubý zisk (gross profit)] $gp\geq0$ je částka, která se spočítá jako součet realizovaných zisků všech ziskových uzavřených pozic $gp=\sum_{i=0}^{n} max(rp_i, 0)$, kde $n$ je počet uzavřených pozic.
+    \item[hrubá ztráta (gross loss)] $gl\leq0$ je částka, která se spočítá jako součet realizovaných ztrát všech ztrátových uzavřených pozic $gl=\sum_{i=0}^{n} min(rp_i, 0)$, kde $n$ je počet uzavřených pozic.
+    \item[celkový zisk (net profit)] $np$ lze vypočítat buď součtem realizovaných zisků všech uzavřených pozic $np=\sum_{i=0}^{n} rp_i$, kde $n$ je počet uzavřených pozic nebo $np=gp+gl$.
+    \item [ziskový faktor (profit factor)] $pf$ lze spočítat $pf=\frac{gp}{|gl|}$.
+    Pokud platí $pf>0$, tak byla strategie zisková, jelikož celkové zisky převyšují celkové ztráty.
+    \item[zůstatek (balance)] $bn\geq0$ částka uložená na účtu.
+    \item[současná hodnota] $cv$ je hodnota otevřené pozice, kdyby byla uzavřena za současnou cenu $mp$.
+    Lze ji vypočítat jako $cv=ps\cdot mp$, kde $ps$ je velikost pozice.
+    \item[současný zisk] $cp$ je částka, která byla získána nebo ztracena za dobu po otevření pozice.
+    Lze ji spočítat pomocí $cp=cv-ti$ nebo v procentech $cp_p = \frac{cp}{ti}\cdot 100$.
+    \item[čistá hodnota (equity)] $eq\geq0$ je částka, která by byla na účtu, kdyby byla uzavřena aktivní pozice za aktuální cenu.
+    Lze ji spočítat jako $eq=bn+cv$.
+    \item[maximální sestupný pohyb (max drawdown)] $mdd\leq0$ je největší pozorovaná ztráta z vrcholu $p$ ke dnu $t$, do dosažení nového nejvyššího vrcholu.
+    Lze ji vypočítat pomocí $mdd=t-p$ nebo v procentech $mdd_p=\frac{mdd}{p}\cdot 100$ \cite{max-drawdown}.
+    \item[maximální vzestupný pohyb (max run-up)] $mru\geq0$ je největší pozorovatelný zisk ze dna $t$ k vrcholu $p$, do dosažení nového nejnižšího dna.
+    Lze jej vypočítat pomocí $mru=p-t$ nebo v procentech $mru_p=\frac{mru}{t}\cdot 100$.
+\end{description}
+
+% equity
+% max drawdown
+% balance
+% 
+
+\subsection{Vizualizace}
+Data získaná ze simulace lze dále vizualizovat pomocí grafu, což také pomáhá při ohodnocování a testování obchodní strategie.
+Historická data jsou vykreslena pomocí svíčkového grafu, do kterého lze dále vykreslit hodnoty indikátorů, vstupní a výstupní body.
+Čistá hodnota v každém okamžiku je často vykreslena na samostatném grafu pod svíčkovým grafem \cite{pardo}.
+
 \subsection{Platformy poskytující zpětné testování}
 
 \subsection{Historická tržní data}
+
+\section{Bazooka obchodní strategie}
 
 \chapter{Design}
 
