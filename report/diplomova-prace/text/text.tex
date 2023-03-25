@@ -338,6 +338,48 @@ Prodejní signál je vyvolán, pokud platí $mv\geq exv$, kde $exv$ je hodnota v
 Na rozdíl od vstupní strategie, která zvětšuje velikost pozice po částech, výstupní strategie prodává celou pozici najednou.
 Strategie obchoduje, dokud není dosaženo minimálního vlastního kapitálu nebo je ručně vypnuta.
 
+\chapter{Volba technologie}
+\section{Programovací jazyky}
+
+\subsection{C++}
+C++ je programovací jazyk na vysoké úrovni vyvinutý v roce 1983 \textit{Bjarnem Stroustrupem} v Bell Labs jako rozšíření programovacího jazyka \textit{C}.
+Jedná se o multiparadigmatický programovací jazyk, který podporuje datovou abstrakci, objektově orientované programování, procedurální programování a generické programování \cite{cpp}.
+
+V programátorské komunitě je dobře známý a hojně používaný například pro vývoj herních enginů, prohlížečů, aplikací a provádění vysoce-výkonných výpočtů (HPC).
+Na základě indexu TIOBE za březen 2023 byl ohodnocen jako číslo 4 v popularitě, velmi těsně za programovacím jazykem Java.
+Byl také vyhodnocen jako programovací jazyk roku 2022 stejnou společností díky jeho rostoucí popularitě  \cite{tiobe}.
+
+Mezi verzemi C++03 a C++11 byla obrovská mezera, což mohl být důvod, proč mnoho lidí od jazyka raději ustoupilo.
+Od C++11 se však každé 3 roky objevují nové verze jazyka, které do jazyka zavedly nové funkce, zlepšily bezpečnost práce s pamětí a pomohly mu získat větší důvěru.
+Posledním vydaným standardem je C++20 a nejnovější standard se chystá být vydán letos.
+
+Je to bohatý jazyk s rozsáhlou standardní knihovnou.
+Ve srovnání s jinými modernějšími jazyky, jako je Python, je však obtížnější se naučit a správně používat.
+Jazyk je staticky typován, což znamená, že typ objektu musí být při deklaraci explicitně specifikován.
+Na rozdíl od Pythonu, který je interpretován za běhu, je C++ kód kompilován.
+Ve srovnání s Pythonem trvá psaní kódu obecně více času, protože programátor musí být konkrétnější, což může určitou skupinu programátorů odradit.
+Má ale jednu věc, kterou Python postrádá, a tou je rychlost.
+
+C++ nabízí generické programování, k čemuž jsou používány šablony.
+Existují pouze během kompilace.
+Umožňují použití statického polymorfismu, který za běhu stojí méně prostředků než známější dynamický polymorfismus využívající virtuální funkce.
+V nejnovějších standardech byly zavedeny některé funkce, které se vyhýbají použití dynamického polymorfismu, jako například: \texttt{std::optional} a \texttt{std::variant}.
+
+Další věcí, kterou nabízí ke zrychlení kódu, jsou optimalizace, které lze nastavit během kompilace.
+Pracují s konceptem pozorovatelného chování, které umožňuje produkci jiného byte kódu, který dělá stejnou věc rychleji.
+Využívá proto datovou a funkční nezávislost.
+
+Paralelní zpracování lze také použít ke zrychlení kódu.
+Program může být spuštěn na jiném procesu nebo různých vláknech nebo obojí.
+Standardní knihovna nabízí implementaci vláken a souvisejících nástrojů, lze však použít i OpenMP framework.
+Zpracování na více procesech najednou lze zajistit například použitím MPI frameworku.
+Ne všechny programy jsou vhodné pro paralizaci, ale je dobré, že je tu možnost ji použít.
+Například v Pythonu existuje koncept vláken, nicméně v jednom procesu může současně běžet pouze jedno vlákno díky Global Interpreter Lock (GIL).
+
+Kromě standardní knihovny je k dispozici mnoho open-source, dobře navržených a testovaných knihoven.
+Existují knihovny Boost, které nabízejí knihovny pro síťování (Asio), unit testování (Test), paralelní zpracování (MPI) a mnoho dalších, jako je POCO, JSON pro moderní C++, Google Test a OpenCV.
+\subsection{Python}
+
 \chapter{Design}
 
 \subsection{Jmenné konvence}
