@@ -292,7 +292,7 @@ Mohou zahrnovat statistiky jako: celkový počet obchodů, počet vítězných a
     \item [ziskový faktor (profit factor)] $pf$ lze spočítat $pf=\frac{gp}{|gl|}$.
     Pokud platí $pf>0$, tak byla strategie zisková, jelikož celkové zisky převyšují celkové ztráty.
     \item[zůstatek (balance)] $bn\geq0$ částka uložená na účtu.
-    \item[současná hodnota] $cv$ je hodnota otevřené pozice, kdyby byla uzavřena za současnou cenu $mp$.
+    \item[současná hodnota] $cv$ je hodnota otevřené pozice, kdyby byla uzavřena za současnou tržní cenu $mp$.
     Lze ji vypočítat jako $cv=ps\cdot mp$, kde $ps$ je velikost pozice.
     \item[současný zisk] $cp$ je částka, která byla získána nebo ztracena za dobu po otevření pozice.
     Lze ji spočítat pomocí $cp=cv-ti$ nebo v procentech $cp_p = \frac{cp}{ti}\cdot 100$.
@@ -304,11 +304,6 @@ Mohou zahrnovat statistiky jako: celkový počet obchodů, počet vítězných a
     Lze jej vypočítat pomocí $mru=p-t$ nebo v procentech $mru_p=\frac{mru}{t}\cdot 100$.
 \end{description}
 
-% equity
-% max drawdown
-% balance
-% 
-
 \subsection{Vizualizace}
 Data získaná ze simulace lze dále vizualizovat pomocí grafu, což také pomáhá při ohodnocování a testování obchodní strategie.
 Historická data jsou vykreslena pomocí svíčkového grafu, do kterého lze dále vykreslit hodnoty indikátorů, vstupní a výstupní body.
@@ -319,6 +314,29 @@ Historická data jsou vykreslena pomocí svíčkového grafu, do kterého lze d�
 \subsection{Historická tržní data}
 
 \section{Bazooka obchodní strategie}
+Pro testování v praktické části práce byla vybrána obchodní strategie s názvem \textit{Bazooka}, která byla vytvořena a poskytnuta externím subjektem.
+Jedná se o jednoduchou dobře definovanou a dříve otestovanou strategii, která pro rozhodování používá indikátory klouzavého průměru.
+Využívá také mechanismus řízení rizik.
+Strategie byla implementována na základě osobních setkání a ukázkové implementace v jazyku \textit{PineScript} pro platformu \textit{TradingView}.
+
+K vyvolání otevíracího nebo uzavíracího signálu se používají klouzavé průměry, které mohou být typu EMA nebo SMA.
+Obecně mohou být různé, například vstupní indikátor může být typu EMA s periodou 30 a výstupní indikátor může být typu SMA s periodou 20.
+Indikátory jsou aktualizovány pomocí historických svíček v daném intervalu.
+Pokud by byly například použity 30minutové svíčky, znamenalo by to, že by se indikátory aktualizovaly každých 30 minut s cenou získanou průměrem právě uzavřené 30minutové svíčky.
+
+Strategie využívá více úrovní nákupu, které se získávají posunutím hodnoty vstupního ukazatele směrem dolů.
+Hodnota každé úrovně $lv$ se získá pomocí $lv=env \cdot l$, kde $env$ je hodnota vstupního indikátoru a $l$ je zlomek určující posunutí.
+Pro úrovně nákupu platí, že $\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap [0, 1] \land n>0 \land [\forall i \in \{0,\dots,n-1\} : l_i > l_{i+1}]$, kde $n$ je počet nákupních úrovní.
+Nákupní signál je vyvolán, pokud nastane  $mp\leq lv_c$, kde $mp$ je současná nákupní cena a $lv_c$ je hodnota současné nákupní úrovně.
+Nákup na každé úrovni lze provést pouze jednou.
+
+Velikost nákupu $ps$ na každé úrovni je určena $ps=ibn \cdot s$, kde $ibn$ je počáteční zůstatek a $s$ je zlomek určující část, za kterou bude nákup proveden.
+Pro velikosti nákupu platí, že $ (s_0, s_1,\dots,s_n) \in \mathbb{Q} \cap [0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $, kde $n$ je počet nákupních úrovní.
+Pokud například $(ibn=100 \land s = (\frac{2}{10}, \frac{5}{10}, \frac{3}{10}))\implies ps=(20, 50, 30)$.
+
+Prodejní signál je vyvolán, pokud platí $mv\geq exv$, kde $exv$ je hodnota výstupního indikátoru a byla otevřena pozice.
+Na rozdíl od vstupní strategie, která zvětšuje velikost pozice po částech, výstupní strategie prodává celou pozici najednou.
+Strategie obchoduje, dokud není dosaženo minimálního vlastního kapitálu nebo je ručně vypnuta.
 
 \chapter{Design}
 
@@ -759,11 +777,11 @@ Ve smyčce \texttt{while} jsou hodnoty vkládány do setu až do jeho naplnění
 Nakonec jsou hodnoty překopírovány ze setu do výstupního pole.
 
 \subsection{Velikosti nákupu}
-Pro velikosti nákupu platí, že $ (\-s_0, s_1,\dots,s_n)\ \in \mathbb{Q} \cap [0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $.
+Pro velikosti nákupu platí, že $ (s_0, s_1,\dots,s_n) \in \mathbb{Q} \cap [0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $.
 Příkladem takové sekvence může být $ (\frac{1}{4}, \frac{2}{4}, \frac{1}{4})\ $.
 Generátory jsou parametrizovány pomocí parametru $u\geq 1$, který označuje počet jedinečných zlomků, které se mohou v sekvenci objevit.
 Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}\} \in [0, 1] \land d=n+u-1$.
-Pro $n=3$, $u=3$ jsou všechny možné platné sekvence: $\{\frac{1}{5}, \frac{1}{5}, \frac{3}{5}\}, \{\frac{1}{5}, \frac{2}{5}, \frac{2}{5}\}, \{\frac{1}{5}, \frac{3}{5}, \frac{1}{5}\}, \{\frac{2}{5}, \frac{1}{5}, \frac{2}{5}\}, \{\frac{2}{5}, \frac{2}{5}, \frac{1}{5}\}, \{\frac{3}{5}, \frac{1}{5}, \frac{1}{5}\}$.
+Pro $n=3$, $u=3$ jsou všechny možné platné sekvence: $(\frac{1}{5}, \frac{1}{5}, \frac{3}{5}), (\frac{1}{5}, \frac{2}{5}, \frac{2}{5}), (\frac{1}{5}, \frac{3}{5}, \frac{1}{5}), (\frac{2}{5}, \frac{1}{5}, \frac{2}{5}), (\frac{2}{5}, \frac{2}{5}, \frac{1}{5}), (\frac{3}{5}, \frac{1}{5}, \frac{1}{5})$.
 
 \subsubsection{Systematické generování}
 Velikosti nákupů \ref{lst:systematic:sizes_generator} jsou systematicky generovány podobně jako úrovně nákupů.
