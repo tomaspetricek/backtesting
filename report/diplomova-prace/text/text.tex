@@ -5,14 +5,28 @@
 \chapter*{Introduction}\addcontentsline{toc}{chapter}{Introduction}\markboth{Introduction}{Introduction}
 %---------------------------------------------------------------
 \setcounter{page}{1}
+S tím, jak se obchodování za poslední desetiletí stalo dostupnější, vyrostl i zájem o něj.
+Pokud jde o obchodování, existují různé přístupy, někteří lidé nakupují aktiva pouze dlouhodobě, jiní se snaží obchodovat častěji, aby zvýšili své zisky.
+S cílem činit chytrá rozhodnutí bez emocí a s konzistentními zisky, bylo vytvořeno algoritmické obchodování.
 
-Backtesting je nezbytnou součástí při vývoji obchodní strategie.
-Ukazuje, jak by si strategie vedla, kdyby byla nasazena v minulosti.
-Cílem je lépe pochopit fungování dané strategie, zjistit, kde jsou její úskalí a ideálně je opravit před nasazením do produkce.
-Strategie jsou často parametrizované a při obchodování s různými aktivy mohou fungovat různé kombinace hodnot.
-Pro maximalizaci ziskovosti strategie a snížení rizik je zapotřebí rychlý a spolehlivý způsob optimalizace těchto parametrů \cite{efficient-backtesting}.
+Algoritmické obchodní strategie jsou počítačové programy, které rozhodují o tom, kdy koupit nebo prodat na základě definovaných podmínek.
+Nejsou svázáni stejnými omezeními jako lidé, necítí únavu a nenechají se svést emocemi.
+Ve srovnání s lidskými obchodníky je lze předem vyhodnotit na historických datech.
+Proces vyhodnocení se nazývá zpětné testování.
 
-Nejjednodušší a časově nejnáročnější způsob, jak najít optimální nastavení, by bylo prohledat všechny možné kombinace.
+Strategie jsou většinou parametrizované a hledání optimálních parametrů je NP-těžký problém.
+Předpokládá se, že neexistuje žádný účinný deterministický algoritmus, který by problém vyřešil v polynomiálním čase.
+Algoritmus hrubé síly je užitečný pouze pro malou množinu hodnot možných parametrů, ale ve skutečnosti je většinou nepoužitelný, protože nenajde řešení v dostatečně krátkém čase.
+
+Použití heuristiky se zdá být přirozeným přístupem.
+I když se to ví už dlouho, stále to není standardní způsob optimalizace strategií.
+Algoritmus hrubé síly lze zkušeným obchodníkům vysvětlit poměrně jednoduše, avšak pro pochopení heuristiky je zapotřebí mnohem hlubší úrovně porozumění.
+Dalším důležitým aspektem je, že tvorba obecných generátorů vyhledávacího prostoru, které by generovaly platné konfigurace, je poměrně obtížné, jelikož existuje velké množství různých strategií.
+
+Cílem této práce je implementovat vybranou algoritmickou obchodní strategii a pomocí heuristických přístupů spolehlivě a rychle najít její optimální parametry.
+V rámci toho získat lepší porozumění algoritmickému obchodování a více zkušeností s implementací, používáním a laděním heuristik.
+Ideálně vytvořit dobrý základ pro budoucí práci.
+
 
 % popsat optimalizační kritérium
 \chapter{Kombinatorická optimalizace}
