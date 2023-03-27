@@ -444,6 +444,17 @@ Je to jen koncept s nějakou základní myšlenkou, kterou lze aplikovat různý
 V následujících částech jsou popsány pouze ty, které byly použity v samotném projektu \cite{design-pattern}.
 
 \subsection{Pozorovatel}
+Návrhový vzor pozorovatel (observer) umožňuje objektům nazývaným pozorovatelé být upozorňováni na události, které nastanou u pozorovaného objektu.
+Pozorovatelé se přihlásí k odběru oznámení o událostech, které nastávají u pozorovaného objektu, a jsou upozorněni, kdykoli k nim dojde \cite{observer}.
+
+Pozorovaný objekt musí být nejprve předán pozorovanému objektu, obvykle pomocí vyhrazené metody.
+Poté, kdykoli dojde k události, je zavolána specifická metoda pozorovatele s událostí spojená.
+Tím se pozorovatel a pozorovaný stávají na sobě nezávislými, pozorovatel musí pouze splňovat dohodnuté rozhraní \cite{observer}.
+
+Vzor pozorovatel se používá pro upozornění na události, které nastanou během optimalizačního procesu a simulace obchodování.
+Informace shromážděné během simulace lze použít k výpočtu výkonnostních statistik nebo ke sběru dat pro vizualizaci.
+Pozorovatelé jsou dodáváni při volání instance třídy a jsou předávány jako sada šablonových parametrů.
+Což umožňuje předání žádného, jednoho nebo více pozorovatelů, kteří mohou být různého typu, avšak musí být známy v době kompilace.
 
 \subsection{Strategie}
 Účelem strategického vzoru (strategy) je zapouzdřit rodinu podobných algoritmů se stejným účelem do samostatných tříd a učinit je vzájemně zaměnitelnými.
@@ -458,11 +469,10 @@ Voláním této metody s se spustí daný algoritmus \cite{strategy}.
 
 V práci je vzor strategie použit pro výběr různých druhů rozvrhů chlazení pro algoritmus simulovaného ochlazování.
 Strategie je předána instanci optimalizátoru jako parametr při jeho volání.
-Musí splňovat koncept \texttt{simulated\_annealing::Cooler}
+Musí splňovat koncept \texttt{simulated\_annealing::Cooler}.
 Jelikož různé algoritmy chlazení vyžadují různé sady argumentů, je při volání strategie předána přímo instance optimalizátoru.
 Volba požadovaného parametru jako je aktuální teplota nebo počet proběhlých iterací je na strategii samotné.
-
-Je navržen hlavně pro použití pro statický polymorfismus, ale lze jej přepínat za běhu pomocí \texttt{std::function}, který používá \textit{type erasure}.
+Je navržen hlavně pro použití pro statický polymorfismus, ale lze mezi strategiemi přepínat za běhu pomocí \texttt{std::function}, který používá \textit{type erasure}.
 
 \chapter{Simulace obchodování}
 Simulace obchodování byla inspirována kryptoměnovou burzou \textit{Binance}.
