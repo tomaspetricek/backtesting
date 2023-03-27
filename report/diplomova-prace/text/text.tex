@@ -416,14 +416,14 @@ Co však Python ztrácí na výkonu, to vynahradí vysokou flexibilitou, rozsáh
 
 \chapter{Design}
 
-\subsection{Jmenné konvence}
+\section{Jmenné konvence}
 Konvence pojmenování jsou převzaty převážně z \textit{STL} a \textit{Boost} knihoven.
 Názvy tříd a funkcí používají \texttt{snake\_case}.
 Metody nastavení a čtení atributů třídy nepoužívají \texttt{set} a \texttt{get} ve svém názvu, jsou jednoduše odlišeni tak, že gettery neberou žádný parametr a settery berou více než jeden.
 Názvy šablon a konceptů používají \texttt{CamelCase}.
 Soukromé atributy třídy končí podtržítkem.
 
-\subsection{Uspořádání projektu}
+\section{Uspořádání projektu}
 Projekt je rozdělen do 3 hlavních adresářů: \textit{include}, \textit{src} a \textit{test}.
 Adresář \textit{include} obsahuje obchodovací framework a vybrané hlavičkové soubory z knihovny CppCoro.
 Organizace frameworku je inspirovaná knihovnou \textit{Boost.Asio}.
@@ -435,6 +435,34 @@ Adresář \textit{src} se skládá ze souboru \textit{main.cpp}, Jypiter Noteboo
 Testy jsou organizovány stejně jako třídy obchodovacího frameworku.
 Projekt je kompilován pomocí souborů \textit{CMakeLists.txt}, které obsahují seznam souborů ke kompilaci, nastavení kompilátoru a informace pro hledání externích knihoven.
 Vytváří 2 spustitelné soubory \textit{backesting} pro použití optimalizátorů a \textit{test\_} pro provádění testů.
+
+\section{Návrhové vzory}
+Účelem návrhových vzorů je snížit složitost kódu a šanci udělat chybu.
+Existuje celá řada známých a dobře popsaných návrhových vzorů, je však nutné rozpoznat situace, kdy je vhodné je použít.
+Obecně slouží jako řešení běžně se vyskytujících problémů, nelze je však importovat z knihovny.
+Je to jen koncept s nějakou základní myšlenkou, kterou lze aplikovat různým způsobem v závislosti na konkrétním problému.
+V následujících částech jsou popsány pouze ty, které byly použity v samotném projektu \cite{design-pattern}.
+
+\subsection{Pozorovatel}
+
+\subsection{Strategie}
+Účelem strategického vzoru (strategy) je zapouzdřit rodinu podobných algoritmů se stejným účelem do samostatných tříd a učinit je vzájemně zaměnitelnými.
+Třídy těchto algoritmů se nazývají strategie \cite{strategy}.
+
+Obecně existuje třída nazývaná kontext, která strategii používá, nicméně o ní nic neví.
+Strategie je jí pouze předána a musí splňovat dané rozhraní.
+Díky tomu je kontext nezávislý na konkrétní strategii.
+Volba vhodné strategie je na uživateli aplikace.
+Algoritmy obvykle implementují jednu společnou metodu, která musí přebírat setjnou sadu argumentů.
+Voláním této metody s se spustí daný algoritmus \cite{strategy}.
+
+V práci je vzor strategie použit pro výběr různých druhů rozvrhů chlazení pro algoritmus simulovaného ochlazování.
+Strategie je předána instanci optimalizátoru jako parametr při jeho volání.
+Musí splňovat koncept \texttt{simulated\_annealing::Cooler}
+Jelikož různé algoritmy chlazení vyžadují různé sady argumentů, je při volání strategie předána přímo instance optimalizátoru.
+Volba požadovaného parametru jako je aktuální teplota nebo počet proběhlých iterací je na strategii samotné.
+
+Je navržen hlavně pro použití pro statický polymorfismus, ale lze jej přepínat za běhu pomocí \texttt{std::function}, který používá \textit{type erasure}.
 
 \chapter{Simulace obchodování}
 Simulace obchodování byla inspirována kryptoměnovou burzou \textit{Binance}.
