@@ -354,6 +354,10 @@ Strategie obchoduje, dokud není dosaženo minimálního vlastního kapitálu ne
 
 \chapter{Volba technologie}
 \section{Programovací jazyky}
+Pro hlavní část aplikace, kde byla požadována rychlost, bylo použito C++ a pro účely vizualizace výsledků Python.
+Oba jazyky nabízejí vysokou úroveň abstrakce, ale liší se v prioritách.
+Python je jednoduchý jazyk, který umožňuje soustředit se více na řešení problému než na správu počítačových prostředků.
+C++ se naproti tomu zaměřuje na efektivitu za cenu vyšší komplexnosti.
 
 \subsection{C++}
 C++ je programovací jazyk na vysoké úrovni vyvinutý v roce 1983 \textit{Bjarnem Stroustrupem} v Bell Labs jako rozšíření programovacího jazyka \textit{C}.
@@ -460,12 +464,13 @@ Což umožňuje předání žádného, jednoho nebo více pozorovatelů, kteří
 Účelem strategického vzoru (strategy) je zapouzdřit rodinu podobných algoritmů se stejným účelem do samostatných tříd a učinit je vzájemně zaměnitelnými.
 Třídy těchto algoritmů se nazývají strategie \cite{strategy}.
 
-Obecně existuje třída nazývaná kontext, která strategii používá, nicméně o ní nic neví.
-Strategie je jí pouze předána a musí splňovat dané rozhraní.
+Třída používající strategii se většinou nazývá kontext.
+Neví nic o strategii, která je ji předána.
+Jediné, co musí strategie splňovat, je dohodnuté rozhraní.
 Díky tomu je kontext nezávislý na konkrétní strategii.
 Volba vhodné strategie je na uživateli aplikace.
 Algoritmy obvykle implementují jednu společnou metodu, která musí přebírat setjnou sadu argumentů.
-Voláním této metody s se spustí daný algoritmus \cite{strategy}.
+Voláním této metody se spustí daný algoritmus \cite{strategy}.
 
 V práci je vzor strategie použit pro výběr různých druhů rozvrhů chlazení pro algoritmus simulovaného ochlazování.
 Strategie je předána instanci optimalizátoru jako parametr při jeho volání.
