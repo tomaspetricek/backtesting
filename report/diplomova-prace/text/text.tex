@@ -325,7 +325,21 @@ Data získaná ze simulace lze dále vizualizovat pomocí grafu, což také pom�
 Historická data jsou vykreslena pomocí svíčkového grafu, do kterého lze dále vykreslit hodnoty indikátorů, vstupní a výstupní body.
 Čistá hodnota v každém okamžiku je často vykreslena na samostatném grafu pod svíčkovým grafem \cite{pardo}.
 
-\subsection{Svíčky}
+\subsection{Svíčkový graf}
+Svíčkový graf umožňuje vizualizaci a analýzu historických dat.
+Koncept vyvinul v 18. století japonský obchodník s rýží Munehisa Homma.
+Na západě byly představeny mnohem později na konci 20. století Stevem Nisonem.
+Graf může být použit k identifikaci vzorů a trendů \cite{candlestick-corporate}.
+
+Skládá se ze svíček, které jsou grafickým znázorněním 4 klíčových cen: otevírací $o$, nejvyšší $h$, nejnižší $l$ a uzavírací $c$ ceny za daný časový interval.
+Platí, že $l\leq h$.
+Svíčka je tvořena 3 částmi: 2 knoty a tělem.
+Knoty jsou znázorněny jako úsečky a tělo jako obdélník.
+Horní knot začíná od středu horní strany těla a končí v úrovni $h$.
+Spodní knot vede od středu spodní strany těla a končí na úrovni $l$.
+Horní a spodní strana těla svíčky označují $o$ a $c$.
+Pokud platí $o<c$, svíčka je rostoucí, jinak klesající.
+Zároveň pokud je rostoucí, bývá tělo vybarveno zeleně, v opačném případě červeně \cite{candlestick-corporate}.
 
 \section{Historická tržní data}
 Historická tržní data jsou nezbytnou součástí zpětného testování, jelikož bez nich nelze provést historickou simulaci.
