@@ -272,6 +272,8 @@ Základní myšlenkou zpětného testování (backtesting) je zjistit, jak by fu
 Vychází z předpokladu, že pokud strategie fungovala dobře v minulosti, měla by fungovat dobře i v budoucnu.
 Zpětné testování je nezbytnou součástí rozvoje obchodní strategie, jelikož pomáhá lépe porozumět testované strategii a dává příležitost k jejímu zlepšení \cite{efficient-backtesting}.
 
+historická simulace by měla počítat s poplatky
+
 Strategie jsou často parametrizované a optimální hodnoty parametrů se mohou u jednotlivých aktiv lišit.
 Může být testována na různých aktivech a trzích.
 Procházení těchto možností je časově náročný proces, který závisí také na počtu poskytnutých historických dat \cite{efficient-backtesting}.
@@ -323,12 +325,27 @@ Data získaná ze simulace lze dále vizualizovat pomocí grafu, což také pom�
 Historická data jsou vykreslena pomocí svíčkového grafu, do kterého lze dále vykreslit hodnoty indikátorů, vstupní a výstupní body.
 Čistá hodnota v každém okamžiku je často vykreslena na samostatném grafu pod svíčkovým grafem \cite{pardo}.
 
-\section{Platformy poskytující zpětné testování}
+\subsection{Svíčky}
 
 \section{Historická tržní data}
+Historická tržní data jsou nezbytnou součástí zpětného testování, jelikož bez nich nelze provést historickou simulaci.
+Data je nutné pravidelně získávat a udržovat, často jen jejich získání v dostatečné kvalitě je obtížné \cite{pardo}.
+Existují specializovaní poskytovatelé dat, jejichž cena se liší v závislosti na jejich kvalitě a množství.
+
+Data jsou většinou k dispozici jako svíčky ve formátu \textit{OHLCV}, což je zkratka pro otevírací (open), nejvyšší (high), nejnižší (low) a uzavírací (close) ceny a objem (volume).
+Nejčastěji jsou ukládány do souborů ve formátu CSV.
+Jsou to stejná data, která se používají k vytváření svíčkových grafů.
+Počítají se pro různé časové intervaly od minut po dny.
+
+Svíčky se počítají na základě jednotlivých uskutečněných obchodů, které lze také uložit a použít pro přesnější simulaci.
+Tento druh dat se nazývá obchodní tiky (trade ticks).
+Pro dosažení větší přesnosti lze také použít nabídkové tiky (quote ticks), které ukládají údaje o nejlepší nabídce (bid) a poptávce (ask) z knihy objednávek v daném okamžiku \cite{polygon}.
+
+
+\section{Platformy poskytující zpětné testování}
 
 \section{Bazooka obchodní strategie}
-Pro testování v praktické části práce byla vybrána obchodní strategie s názvem \textit{Bazooka}, která byla vytvořena a poskytnuta externím subjektem.
+Pro optimalizaci v praktické části práce byla vybrána obchodní strategie s názvem \textit{Bazooka}, která byla vytvořena a poskytnuta externím subjektem.
 Jedná se o jednoduchou dobře definovanou a dříve otestovanou strategii, která pro rozhodování používá indikátory klouzavého průměru.
 Využívá také mechanismus řízení rizik.
 Strategie byla implementována na základě osobních setkání a ukázkové implementace v jazyku \textit{PineScript} pro platformu \textit{TradingView}.
