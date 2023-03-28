@@ -27,7 +27,6 @@ Cílem této práce je implementovat vybranou algoritmickou obchodní strategii 
 V rámci toho získat lepší porozumění algoritmickému obchodování a více zkušeností s implementací, používáním a laděním heuristik.
 Ideálně vytvořit dobrý základ pro budoucí práci.
 
-
 % popsat optimalizační kritérium
 \chapter{Kombinatorická optimalizace}
 Cílem řešení \textit{optimalizačního problému} je nalézt nejlepší řešení.
@@ -202,7 +201,7 @@ Pro řešení náročnějších problémů lze přidat \textit{dlouhodobou pamě
 Paměť je obvykle založena na frekvenci změn jednotlivých atributů.
 Pomáhá s lepším výběrem dalšího tahu \cite{laguna}.
 
-\section{Algoritmické obchodování}
+\chapter{Algoritmické obchodování}
 Algoritmické obchodování se používá k automatizaci obchodování pomocí počítačových programů.
 Hlavním cílem je maximalizovat zisk a zároveň snížit rizika.
 Vývoj těchto systémů vedl ke zrodu vysokofrekvenčního algoritmického obchodování, které drží pozice po extrémně krátkou dobu v řadech sekund až milisekund \cite{nuti, treleaven}.
@@ -226,7 +225,7 @@ Během předobchodní analýzy je aktivum analyzováno na základě finančních
 Výsledky se používají ke generování nákupních a prodejních signálů, které jsou následně převedeny na objednávky.
 Proces lze formulovat jako optimalizační problém, který lze řešit pomocí kvadratického programování, genetického programování nebo optimalizace roje částic \cite{nuti}.
 
-\subsection{Předobchodní analýza}
+\section{Předobchodní analýza}
 Předobchodní analýzu lze rozdělit do 3 kategorií: \textit{fundamentální}, \textit{technická} a \textit{kvantitativní} analýza.
 Cílem fundamentální analýzy je určit férovou cenu aktiva.
 Signály jsou obvykle generovány, když se aktuální cena aktiva liší od jeho férové ceny \cite{nuti}.
@@ -242,7 +241,7 @@ Kvantitativní analýza považuje ceny za náhodné a jejím cílem je vytvořit
 Tím se liší od předchozích dvou typů analýz, které předpokládají deterministické chování ceny.
 Stejně jako fundamentální analýza generuje obchodní signál, pokud se aktuální cena aktiva liší od jeho férové ceny \cite{nuti}.
 
-\subsection{Generování obchodního signálu}
+\section{Generování obchodního signálu}
 Výsledkem předobchodní analýzy jsou pouze doporučení k nákupu a prodeji, která jsou obohacena ve fázi generování obchodních signálu, kde jsou přidány informace, jako je cena a množství.
 Skládá se ze vstupní a výstupní strategie.
 Vstupní strategie určuje podmínky, kdy má program pozici otevřít, a výstupní strategie, kdy ji zavřít.
@@ -261,14 +260,14 @@ Nevýhodou této metody je, že nezohledňuje volatilitu trhu.
 Může být méně riskantní investovat menší částky během období vysoké volatility a větší částky v obdobích nízké volatility.
 Další metodou, kterou lze použít, je pevný zlomkový systém (fixed fractional system), který riskuje pevnou část kapitálu na každý obchod \cite{nuti}.
 
-\subsection{Provedení obchodu}
+\section{Provedení obchodu}
 Dalším krokem je samotné provedení objednávky.
 Hlavní věc, které se systém snaží dosáhnout, je minimalizace nákladů.
 V této fázi musí být rozhodnuto o typu objednávky a burze, na kterou má být objednávka zadána.
 Mezi nejdůležitější aspekty, které je třeba vzít v úvahu při výběru správné burzy, patří: nabídka aktiv, mechanismus obchodování, cena provedení, likvidita a stupeň anonymity obchodníka.
 Burzy s vyšší likviditou mají tendenci provádět objednávky rychleji a účtovat si nižší poplatky \cite{nuti}.
 
-\section{Zpětné testování}
+\chapter{Zpětné testování}
 Základní myšlenkou zpětného testování (backtesting) je zjistit, jak by fungovala obchodní strategie, kdyby byla nasazena v minulosti.
 Vychází z předpokladu, že pokud strategie fungovala dobře v minulosti, měla by fungovat dobře i v budoucnu.
 Zpětné testování je nezbytnou součástí rozvoje obchodní strategie, jelikož pomáhá lépe porozumět testované strategii a dává příležitost k jejímu zlepšení \cite{efficient-backtesting}.
@@ -277,17 +276,18 @@ Strategie jsou často parametrizované a optimální hodnoty parametrů se mohou
 Může být testována na různých aktivech a trzích.
 Procházení těchto možností je časově náročný proces, který závisí také na počtu poskytnutých historických dat \cite{efficient-backtesting}.
 
-\subsection{Historická simulace}
+\section{Historická simulace}
 Nezbytnou součástí zpětného testování je \textit{historická simulace}.
 Slouží k vyhodnocení obchodní strategie na historických datech.
 K provedení simulace musí být poskytnuta strategie a historická data.
 Na základě obchodů provedených během simulace jsou vypočítány statistiky \cite{pardo}.
 
-Výsledky jsou obvykle prezentovány jako zpráva, která obvykle zahrnuje souhrn výkonnosti (performance summary) a výpis obchodů.
+Výsledky jsou často prezentovány jako zpráva, která obvykle zahrnuje souhrn výkonnosti (performance summary) a výpis obchodů.
 Souhrn výkonnosti se skládá ze statistik, které popisují celkovou výkonnost strategie.
-Výpis obchodů obsahuje seznam všech uskutečněných obchodů s informacemi, jako je vstupní a výstupní čas, vstupní a výstupní cena a dosažený zisk nebo ztráta \cite{pardo}.
+Výpis obchodů obsahuje seznam všech uskutečněných obchodů s informacemi, jako je vstupní a výstupní čas, vstupní a výstupní cena a dosažený zisk nebo ztráta.
+Mohou pomoci lépe porozumět tomu, jak se strategie chová během různých tržních období \cite{pardo}.
 
-\subsubsection{Výkonnostní statistiky}
+\subsection{Výkonnostní statistiky}
 Výkonnostní statistiky se používají k měření odměny a rizika.
 Díky tomu, že jsou nezávislé na konkrétní obchodní strategii, tak poskytují způsob, jak je porovnat.
 Statistiky lze nejen vypočítat na historických datech, ale lze je také použít pro měření výkonnosti běžící strategie v reálném čase.
@@ -318,14 +318,14 @@ Mohou zahrnovat statistiky jako: celkový počet obchodů, počet vítězných a
     Lze jej vypočítat pomocí $mru=p-t$ nebo v procentech $mru_p=\frac{mru}{t}\cdot 100$.
 \end{description}
 
-\subsection{Vizualizace}
+\section{Vizualizace}
 Data získaná ze simulace lze dále vizualizovat pomocí grafu, což také pomáhá při ohodnocování a testování obchodní strategie.
 Historická data jsou vykreslena pomocí svíčkového grafu, do kterého lze dále vykreslit hodnoty indikátorů, vstupní a výstupní body.
 Čistá hodnota v každém okamžiku je často vykreslena na samostatném grafu pod svíčkovým grafem \cite{pardo}.
 
-\subsection{Platformy poskytující zpětné testování}
+\section{Platformy poskytující zpětné testování}
 
-\subsection{Historická tržní data}
+\section{Historická tržní data}
 
 \section{Bazooka obchodní strategie}
 Pro testování v praktické části práce byla vybrána obchodní strategie s názvem \textit{Bazooka}, která byla vytvořena a poskytnuta externím subjektem.
@@ -351,6 +351,34 @@ Pokud například $(ibn=100 \land s = (\frac{2}{10}, \frac{5}{10}, \frac{3}{10})
 Prodejní signál je vyvolán, pokud platí $mv\geq exv$, kde $exv$ je hodnota výstupního indikátoru a byla otevřena pozice.
 Na rozdíl od vstupní strategie, která zvětšuje velikost pozice po částech, výstupní strategie prodává celou pozici najednou.
 Strategie obchoduje, dokud není dosaženo minimálního vlastního kapitálu nebo je ručně vypnuta.
+
+\section{Klouzavé průměry}
+Klouzavé průměry jsou technické indikátory, jejichž cílem je určit trend daného aktiva výpočtem průměru jeho cen.
+Existují 3 běžně používané indikátory: jednoduchý klouzavý průměr (SMA), exponenciální klouzavý průměr (EMA) a vážený klouzavý průměr (WMA).
+Jsou počítány za určité období $k>1$, které určuje počet vzorků použitých k výpočtu.
+Pokud je proveden SMA na cenách představujících 10 dní, nazývá se 10denní SMA.
+Obvykle jsou vizualizovány společně s grafy cen akcií.
+Křížení indikátorů lze použít k identifikaci změny trendu  \cite{ma-algorithms}.
+
+\subsection{Jednoduchý klouzavý průměr}
+Jednoduchý klouzavý průměr (SMA) je nejběžněji používaným ukazatelem klouzavého průměru a jak název napovídá, nejsnáze se počítá.
+Průměrnou hodnotu posledních $k$ cen lze vypočítat pomocí $SMA_k = \frac{1}{k}\sum_{i=n-k+1}^{n} p_i$, kde $n$ je celkový počet cen a $p$ jsou samotné ceny.
+Pro výpočet následující hodnoty lze využít $SMA_{k,next}=SMA_{k,prev}+\frac{1}{k}(p_{n+1}-p_{n-k+1})$, kde $p_{n+1}$ je nejnovější a $p_{n-k+1}$ nejstarší cena.
+Lze jej efektivně implementovat pomocí datové struktury kruhový buffer.
+Nejčastěji používané SMA jsou období 50, 100 a 200 dnů \cite{ma-algorithms, sma-wiki}.
+
+
+\subsection{Exponenciální klouzavý průměr}
+Na rozdíl od SMA, kde má každá hodnota při výpočtu průměru stejnou váhu, tak exponenciální klouzavý průměr (EMA) přiřazuje cenám váhy.
+Hodnoty vah klesají exponenciálně, takže novější hodnoty mají větší váhu a tím i větší vliv na výslednou průměrnou hodnotu.
+Díky tomu reaguje rychleji na změny ceny aktiva než SMA.
+Obvykle se používá k výpočtu průměru za kratší časové období \cite{ma-algorithms, ema-institute}.
+
+Počáteční hodnota se vypočítá pomocí SMA se stejnou periodou.
+Následující hodnoty lze získat použitím
+$EMA_{k, next} = p_c \cdot wf + EMA_{k, prev} \cdot (1-wf) \land wf=\frac{sf}{k+1} \land sf\geq2$, kde $p_c$ je současná cena, $wf$ je vážený faktor a $sf$ je vyhlazovací faktor.
+Vážený faktor se používá k určení množství váhy, která je přiřazena nejnovější hodnotě.
+Například pokud $k=10 \land sf=2 \implies wf = 0,1818$, což znamená, že 18,18 \% celkové hmotnosti je přiřazeno nejnovější hodnotě \cite{ma-stockcharts}.
 
 \chapter{Volba technologie}
 \section{Programovací jazyky}
@@ -1221,3 +1249,18 @@ for (; !terminate(*this); it_++) {
 }
 (observers.end(*this), ...);
 \end{lstlisting}
+
+\chapter{Testování}
+
+
+\chapter{Experimentální vyhodnocení}
+
+\subsection{Metodika}
+Byly provedeny experimenty pro srovnání heuristických přístupů.
+Výsledky každého experimentu byly uloženy do samostatné složky.
+Skládají se z nastavení optimalizátoru, seznamu nejlepších výsledků a průběhu optimalizace.
+Nastavení jsou uložena, aby bylo možné experiment zopakovat.
+I když výsledky nemusí být stejné, je to nezbytná součást ladění heuristiky.
+Ukládají se také statistiky průběhu optimalizace, takže je lze později vykreslit.
+Nejlepší výsledky tvoří konfigurace a výkonnostní statistiky.
+Nastavení a výsledky se ukládají ve formátu JSON a průběh optimalizace jako CSV.
