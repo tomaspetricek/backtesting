@@ -301,7 +301,7 @@ Mohou zahrnovat statistiky jako: celkový počet obchodů, počet vítězných a
     \item [realizovaný zisk (realized profit)] $rp$ je částka ztracená nebo získaná po uzavření pozice.
     Lze ji vypočítat pomocí vzorce $rp=tr-ti$, kde $tr$ je celkem získaná částka a $ti$ je celkem investovaná částka.
     Může být také vyjádřena v procentech $rp_p=\frac{rp}{ti}\cdot 100$.
-    Pokud $rp\leq0$, tak se to označuje jako ztráta, jinak jako zisk.
+    Pokud $rp\leq0$, tak se označuje jako ztráta, jinak jako zisk.
     \item[hrubý zisk (gross profit)] $gp\geq0$ je částka, která se spočítá jako součet realizovaných zisků všech ziskových uzavřených pozic $gp=\sum_{i=0}^{n} max(rp_i, 0)$, kde $n$ je počet uzavřených pozic.
     \item[hrubá ztráta (gross loss)] $gl\leq0$ je částka, která se spočítá jako součet realizovaných ztrát všech ztrátových uzavřených pozic $gl=\sum_{i=0}^{n} min(rp_i, 0)$, kde $n$ je počet uzavřených pozic.
     \item[celkový zisk (net profit)] $np$ lze vypočítat buď součtem realizovaných zisků všech uzavřených pozic $np=\sum_{i=0}^{n} rp_i$, kde $n$ je počet uzavřených pozic nebo $np=gp+gl$.
@@ -341,18 +341,18 @@ Horní a spodní strana těla svíčky označují $o$ a $c$.
 Pokud platí $o<c$, svíčka je rostoucí, jinak klesající.
 Zároveň pokud je rostoucí, bývá tělo vybarveno zeleně, v opačném případě červeně \cite{candlestick-corporate}.
 
+Svíčky jsou většinou dostupné ve formátu OHLC, což je zkratka pro otevírací (open), nejvyšší (high), nejnižší (low) a uzavírací (close) ceny.
+Nejčastěji jsou ukládány do CSV souborů.
+Používají se také pro historickou simulaci, pro kterou je třeba tyto čtyři hodnoty zredukovat na jedinou.
+Obvykle se to provádí zprůměrováním cen a existuje několik běžně používaných metod: $hl2=\frac{h+l}{2}$, $hlc3=\frac{h+l+c}{3}$ nebo $ohlc4=\frac{o+h+l+c}{4}$.
+
 \section{Historická tržní data}
 Historická tržní data jsou nezbytnou součástí zpětného testování, jelikož bez nich nelze provést historickou simulaci.
 Data je nutné pravidelně získávat a udržovat, často jen jejich získání v dostatečné kvalitě je obtížné \cite{pardo}.
 Existují specializovaní poskytovatelé dat, jejichž cena se liší v závislosti na jejich kvalitě a množství.
 
-Data jsou většinou k dispozici jako svíčky ve formátu \textit{OHLCV}, což je zkratka pro otevírací (open), nejvyšší (high), nejnižší (low) a uzavírací (close) ceny a objem (volume).
-Nejčastěji jsou ukládány do souborů ve formátu CSV.
-Jsou to stejná data, která se používají k vytváření svíčkových grafů.
-Počítají se pro různé časové intervaly od minut po dny.
-
-Svíčky se počítají na základě jednotlivých uskutečněných obchodů, které lze také uložit a použít pro přesnější simulaci.
-Tento druh dat se nazývá obchodní tiky (trade ticks).
+Nejběžněji dostupná jsou data ve formátu OHLCV, což jsou OHLC a objem (volume), což je množství obchodů uskutečněných v daném časovém intervalu.
+Dále jsou ukládány samotné obchody ve formě obchodních tiků (trade ticks).
 Pro dosažení větší přesnosti lze také použít nabídkové tiky (quote ticks), které ukládají údaje o nejlepší nabídce (bid) a poptávce (ask) z knihy objednávek v daném okamžiku \cite{polygon}.
 
 
