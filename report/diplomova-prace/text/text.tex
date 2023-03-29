@@ -272,9 +272,19 @@ Základní myšlenkou zpětného testování (backtesting) je zjistit, jak by fu
 Vychází z předpokladu, že pokud strategie fungovala dobře v minulosti, měla by fungovat dobře i v budoucnu.
 Zpětné testování je nezbytnou součástí rozvoje obchodní strategie, jelikož pomáhá lépe porozumět testované strategii a dává příležitost k jejímu zlepšení \cite{efficient-backtesting}.
 
-Strategie jsou často parametrizované a optimální hodnoty parametrů se mohou u jednotlivých aktiv lišit.
-Může být testována na různých aktivech a trzích.
-Procházení těchto možností je časově náročný proces, který závisí také na počtu poskytnutých historických dat \cite{efficient-backtesting}.
+Spuštění strategie na historických datech se nazývá historická simulace.
+Během procesu se shromažďují různé statistiky, které jsou používány k vyhodnocení strategie.
+Strategie jsou často parametrizované a nalezení jejich optimálních hodnot je NP-těžký problém.
+Jednoduché metody jako hrubá síla nebo prioritní krokové vyhledávání jsou většinou nepoužitelné, protože nedokončí vyhledávání v dostatečně krátkém čase.
+Proto se doporučuje používat sofistikovanější vyhledávací metody, jako je simulované ochlazování nebo genetický algoritmus
+\cite{pardo, efficient-backtesting}.
+
+Statistiky shromážděné během historické simulace se používají k formulaci optimalizačního kritéria.
+Objektivní funkce založené na zisku jsou intuitivní volbou, ale ne nejlepší, protože mohou ignorovat podstatné nedostatky.
+Upřednostňuje se použití pokročilejších kritérií, jako je CECPP a PROM, protože lépe odrážejí celkovou výkonnost strategie \cite{pardo}.
+
+Dokonce i ta nejlepší nalezená konfigurace nemusí být nejlepší, protože může trpět jevem zvaným overfitting.
+V zásadě to znamená, že strategie funguje velmi dobře na historických datech, na kterých byla optimalizována, ale podstatě hůře ve zkutečném obchodování \cite{pardo}.
 
 % \cite{bowman}.
 % overfitting
@@ -284,7 +294,7 @@ Procházení těchto možností je časově náročný proces, který závisí t
 
 % historická simulace by měla počítat s poplatky
 \section{Historická simulace}
-Nezbytnou součástí zpětného testování je \textit{historická simulace}.
+Nezbytnou součástí zpětného testování je historická simulace.
 Slouží k vyhodnocení obchodní strategie na historických datech.
 K provedení simulace musí být poskytnuta strategie a historická data.
 Na základě obchodů provedených během simulace jsou vypočítány statistiky \cite{pardo}.
@@ -372,7 +382,7 @@ Historická tržní data jsou nezbytnou součástí zpětného testování, jeli
 Data je nutné pravidelně získávat a udržovat, často jen jejich získání v dostatečné kvalitě je obtížné \cite{pardo}.
 Existují specializovaní poskytovatelé dat, jejichž cena se liší v závislosti na jejich kvalitě a množství.
 
-Nejběžněji dostupná jsou data ve formátu OHLCV, což jsou OHLC a objem (volume), což je množství obchodů uskutečněných v daném časovém intervalu.
+Nejběžněji dostupná data jsou ve formátu OHLCV, což jsou OHLC a objem (volume) neboli množství obchodů uskutečněných v daném časovém intervalu.
 Dále jsou ukládány samotné obchody ve formě obchodních tiků (trade ticks).
 Pro dosažení větší přesnosti lze také použít nabídkové tiky (quote ticks), které ukládají údaje o nejlepší nabídce (bid) a poptávce (ask) z knihy objednávek v daném okamžiku \cite{polygon}.
 
