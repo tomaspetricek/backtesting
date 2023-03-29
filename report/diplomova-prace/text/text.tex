@@ -272,12 +272,18 @@ Základní myšlenkou zpětného testování (backtesting) je zjistit, jak by fu
 Vychází z předpokladu, že pokud strategie fungovala dobře v minulosti, měla by fungovat dobře i v budoucnu.
 Zpětné testování je nezbytnou součástí rozvoje obchodní strategie, jelikož pomáhá lépe porozumět testované strategii a dává příležitost k jejímu zlepšení \cite{efficient-backtesting}.
 
-historická simulace by měla počítat s poplatky
+\cite{bowman}.
 
 Strategie jsou často parametrizované a optimální hodnoty parametrů se mohou u jednotlivých aktiv lišit.
 Může být testována na různých aktivech a trzích.
 Procházení těchto možností je časově náročný proces, který závisí také na počtu poskytnutých historických dat \cite{efficient-backtesting}.
 
+% overfitting
+% need to be tested live
+% paper trading
+% representative data
+
+% historická simulace by měla počítat s poplatky
 \section{Historická simulace}
 Nezbytnou součástí zpětného testování je \textit{historická simulace}.
 Slouží k vyhodnocení obchodní strategie na historických datech.
@@ -355,8 +361,23 @@ Nejběžněji dostupná jsou data ve formátu OHLCV, což jsou OHLC a objem (vol
 Dále jsou ukládány samotné obchody ve formě obchodních tiků (trade ticks).
 Pro dosažení větší přesnosti lze také použít nabídkové tiky (quote ticks), které ukládají údaje o nejlepší nabídce (bid) a poptávce (ask) z knihy objednávek v daném okamžiku \cite{polygon}.
 
-
 \section{Platformy poskytující zpětné testování}
+V dnešní době existuje mnoho platforem nabízejících zpětné testování, liší se především druhem a množstvím dostupných historických dat, propracovaností, s jakou lze strategii implementovat, a částkou, kterou si účtují za používání jejich produktu \cite{bowman}
+
+\subsection{TradingView}
+TradingView je oblíbená obchodní platforma, která umožňuje provádět technickou analýzu, vývoj a zpětné testování obchodní strategie.
+Je přístupná jako webová, mobilní i desktopová aplikace. 
+Nabízí širokou škálu tržních dat, jako jsou akcie, kryptoměny, indexy, energetické a zemědělské komodity, drahé kovy a Forex.
+Základní funkce lze používat zdarma a pro přístup k pokročilejším jsou k dispozici různé cenové plány \cite{bowman}.
+
+Používá se především pro vizualizaci dat a technickou analýzu, k čemuž nabízí nástroje pro kreslení do grafů.
+Výsledné nápady lze uložit a sdílet s ostatními uživateli.
+Grafy lze vizualizovat a organizovat různými způsoby.
+Nabízí použití mnoha technických indikátorů \cite{tradingview}.
+
+Strategie lze specifikovat pomocí programovacího jazyka PineScript a testovat pomocí zpětného testování, které je poměrně jednoduché.
+Zpětné testování nabízí způsob nastavení strategie a vizualizace výsledků, které jsou k dispozici jako souhrn výkonnosti a seznam obchodů.
+Neposkytuje způsob optimalizace parametrů \cite{tradingview}.
 
 \section{Bazooka obchodní strategie}
 Pro optimalizaci v praktické části práce byla vybrána obchodní strategie s názvem \textit{Bazooka}, která byla vytvořena a poskytnuta externím subjektem.
