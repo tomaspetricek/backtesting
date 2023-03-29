@@ -295,6 +295,15 @@ Souhrn výkonnosti se skládá ze statistik, které popisují celkovou výkonnos
 Výpis obchodů obsahuje seznam všech uskutečněných obchodů s informacemi, jako je vstupní a výstupní čas, vstupní a výstupní cena a dosažený zisk nebo ztráta.
 Mohou pomoci lépe porozumět tomu, jak se strategie chová během různých tržních období \cite{pardo}.
 
+Simulace by měla být co nejpřesnější, jinak může vést k chybným závěrům a ztrátám při zkutečném obchodování.
+Trhy používají různé zaokrouhlování svých cen, pokud simulátor používá nesprávně zaokrouhlené ceny, může to mít za následek neprovedení objednávek nebo nesprávné hodnoty zisku.
+Chyby při zaokrouhlování mají obecně větší dopad na strategie, které obchodují častěji, protože rozdíl mezi otevírací a uzavírací cenou je menší \cite{pardo}.
+
+Také, pokud jsou během simulace strategii poskytnuta data z většího časového rámce, jako jsou denní svíčky, tak může během daného období dojít k vytvoření více objednávek a jejich pořadí je nejednoznačné.
+V reálném obchodování se cena, podle které se strategie rozhoduje, často aktualizuje, takže pořadí objednávek je dané.
+Jedním ze způsobů, jak se zbavit nejednoznačnosti, je poskytnout strategii cenová data z nižšího časového rámce, jako jsou minutové svíčky.
+Dalším používaným řešením je uhodnout pořadí objednávek \cite{pardo}.
+
 \subsection{Výkonnostní statistiky}
 Výkonnostní statistiky se používají k měření odměny a rizika.
 Díky tomu, že jsou nezávislé na konkrétní obchodní strategii, tak poskytují způsob, jak je porovnat.
@@ -362,7 +371,9 @@ Dále jsou ukládány samotné obchody ve formě obchodních tiků (trade ticks)
 Pro dosažení větší přesnosti lze také použít nabídkové tiky (quote ticks), které ukládají údaje o nejlepší nabídce (bid) a poptávce (ask) z knihy objednávek v daném okamžiku \cite{polygon}.
 
 \section{Platformy poskytující zpětné testování}
-V dnešní době existuje mnoho platforem nabízejících zpětné testování, liší se především druhem a množstvím dostupných historických dat, propracovaností, s jakou lze strategii implementovat, a částkou, kterou si účtují za používání jejich produktu \cite{bowman}
+V dnešní době existuje mnoho platforem nabízejících zpětné testování, liší se především druhem a množstvím dostupných historických dat, propracovaností, s jakou lze strategii implementovat, a částkou, kterou si účtují za používání jejich produktu \cite{bowman}.
+
+
 
 \subsection{TradingView}
 TradingView je oblíbená obchodní platforma, která umožňuje provádět technickou analýzu, vývoj a zpětné testování obchodní strategie.
@@ -370,10 +381,9 @@ Je přístupná jako webová, mobilní i desktopová aplikace.
 Nabízí širokou škálu tržních dat, jako jsou akcie, kryptoměny, indexy, energetické a zemědělské komodity, drahé kovy a Forex.
 Základní funkce lze používat zdarma a pro přístup k pokročilejším jsou k dispozici různé cenové plány \cite{bowman}.
 
-Používá se především pro vizualizaci dat a technickou analýzu, k čemuž nabízí nástroje pro kreslení do grafů.
+Používá se především pro vizualizaci dat a technickou analýzu, k čemuž nabízí nástroje pro kreslení do grafů a velké množství technických indikátorů.
 Výsledné nápady lze uložit a sdílet s ostatními uživateli.
-Grafy lze vizualizovat a organizovat různými způsoby.
-Nabízí použití mnoha technických indikátorů \cite{tradingview}.
+Grafy lze vizualizovat a organizovat různými způsoby \cite{tradingview}.
 
 Strategie lze specifikovat pomocí programovacího jazyka PineScript a testovat pomocí zpětného testování, které je poměrně jednoduché.
 Zpětné testování nabízí způsob nastavení strategie a vizualizace výsledků, které jsou k dispozici jako souhrn výkonnosti a seznam obchodů.
