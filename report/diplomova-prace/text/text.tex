@@ -272,12 +272,11 @@ Základní myšlenkou zpětného testování (backtesting) je zjistit, jak by fu
 Vychází z předpokladu, že pokud strategie fungovala dobře v minulosti, měla by fungovat dobře i v budoucnu.
 Zpětné testování je nezbytnou součástí rozvoje obchodní strategie, jelikož pomáhá lépe porozumět testované strategii a dává příležitost k jejímu zlepšení \cite{efficient-backtesting}.
 
-\cite{bowman}.
-
 Strategie jsou často parametrizované a optimální hodnoty parametrů se mohou u jednotlivých aktiv lišit.
 Může být testována na různých aktivech a trzích.
 Procházení těchto možností je časově náročný proces, který závisí také na počtu poskytnutých historických dat \cite{efficient-backtesting}.
 
+% \cite{bowman}.
 % overfitting
 % need to be tested live
 % paper trading
@@ -299,10 +298,17 @@ Simulace by měla být co nejpřesnější, jinak může vést k chybným závě
 Trhy používají různé zaokrouhlování svých cen, pokud simulátor používá nesprávně zaokrouhlené ceny, může to mít za následek neprovedení objednávek nebo nesprávné hodnoty zisku.
 Chyby při zaokrouhlování mají obecně větší dopad na strategie, které obchodují častěji, protože rozdíl mezi otevírací a uzavírací cenou je menší \cite{pardo}.
 
-Také, pokud jsou během simulace strategii poskytnuta data z většího časového rámce, jako jsou denní svíčky, tak může během daného období dojít k vytvoření více objednávek a jejich pořadí je nejednoznačné.
+Pokud jsou během simulace strategii poskytnuta data z většího časového rámce, jako jsou denní svíčky, tak může během daného období dojít k vytvoření více objednávek a jejich pořadí je nejednoznačné.
 V reálném obchodování se cena, podle které se strategie rozhoduje, často aktualizuje, takže pořadí objednávek je dané.
 Jedním ze způsobů, jak se zbavit nejednoznačnosti, je poskytnout strategii cenová data z nižšího časového rámce, jako jsou minutové svíčky.
 Dalším používaným řešením je uhodnout pořadí objednávek \cite{pardo}.
+
+Započítány by měly být i poplatky (commission) za vyřízení objednávky.
+Bývají fixní a jejich velikost závisí na zprostředkovateli.
+Dalším nákladem je cenový skluz (price slippage), ke kterému dochází při plnění objednávky.
+Je to rozdíl mezi cenou objednávky (order price) a skutečnou cenou (fill price), za kterou bylo aktivum obchodováno.
+Skluz je nízký, když je trh klidný a je málo objednávek, a vyšší, když je trh rušnější.
+Záleží také na typu objednávky, velikosti objednávky a likviditě trhu \cite{pardo}.
 
 \subsection{Výkonnostní statistiky}
 Výkonnostní statistiky se používají k měření odměny a rizika.
@@ -417,7 +423,7 @@ Strategie obchoduje, dokud není dosaženo minimálního vlastního kapitálu ne
 \section{Klouzavé průměry}
 Klouzavé průměry jsou technické indikátory, jejichž cílem je určit trend daného aktiva výpočtem průměru jeho cen.
 Existují 3 běžně používané indikátory: jednoduchý klouzavý průměr (SMA), exponenciální klouzavý průměr (EMA) a vážený klouzavý průměr (WMA).
-Jsou počítány za určité období $k>1$, které určuje počet vzorků použitých k výpočtu.
+Jsou počítány za určité období $k>0$, které určuje počet vzorků použitých k výpočtu.
 Pokud je proveden SMA na cenách představujících 10 dní, nazývá se 10denní SMA.
 Obvykle jsou vizualizovány společně s grafy cen akcií.
 Křížení indikátorů lze použít k identifikaci změny trendu  \cite{ma-algorithms}.
