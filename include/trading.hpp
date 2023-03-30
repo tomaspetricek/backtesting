@@ -30,11 +30,13 @@
 #include <trading/io/csv/reader.hpp>
 #include <trading/io/parser.hpp>
 #include <trading/io/stringifier.hpp>
+#include <trading/random/generators.hpp>
 #include <trading/simulated_anneling/cooler.hpp>
 #include <trading/simulated_anneling/equilibrium.hpp>
 #include <trading/simulated_anneling/optimizer.hpp>
 #include <trading/simulated_anneling/progress_collector.hpp>
 #include <trading/simulated_anneling/progress_reporter.hpp>
+#include <trading/systematic/generators.hpp>
 #include <trading/tabu_search/optimizer.hpp>
 #include <trading/tabu_search/progress_collector.hpp>
 #include <trading/tabu_search/progress_reporter.hpp>

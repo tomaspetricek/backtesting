@@ -6,7 +6,8 @@
 #include <unordered_map>
 #include <array>
 #include <exception>
-#include <trading/generators.hpp>
+#include <trading/systematic/generators.hpp>
+#include <trading/random/generators.hpp>
 
 #ifndef BACKTESTING_TEST_GENERATORS_HPP
 #define BACKTESTING_TEST_GENERATORS_HPP

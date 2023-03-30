@@ -9,7 +9,7 @@
 #include <random>
 #include <trading/bazooka/strategy.hpp>
 #include <trading/types.hpp>
-#include <trading/generators.hpp>
+#include <trading/random/generators.hpp>
 #include <trading/bazooka/strategy.hpp>
 #include "trading/ema.hpp"
 #include "trading/sma.hpp"

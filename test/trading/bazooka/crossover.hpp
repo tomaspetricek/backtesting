@@ -9,7 +9,7 @@
 #include <array>
 #include <algorithm>
 #include <trading/bazooka/crossover.hpp>
-#include <trading/generators.hpp>
+#include <trading/random/generators.hpp>
 #include <trading/types.hpp>
 #include <trading/tuple.hpp>
 
