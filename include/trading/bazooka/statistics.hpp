@@ -50,7 +50,7 @@ namespace trading::bazooka {
                     stats_.increase_total_close_orders();
                 }
                 else if (action==action::opened) {
-                    stats_.update_open_order_count(trader.curr_level()-1);
+                    stats_.update_open_order_count(trader.next_entry_level()-1);
                     stats_.increase_total_open_orders();
                 }
             }

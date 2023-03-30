@@ -25,7 +25,7 @@ namespace trading::bazooka {
         indicator entry_ma_;
         indicator exit_ma_;
         std::array<fraction_t, n_levels> entry_levels_;
-        std::size_t curr_level_{0};
+        std::size_t next_level_{0};
         static constexpr std::less_equal<> entry_comp_;
         static constexpr std::greater_equal<> exit_comp_;
 
@@ -81,13 +81,13 @@ namespace trading::bazooka {
         bool should_open(price_t curr)
         {
             // all levels passed
-            if (curr_level_==n_levels) return false;
-            assert(curr_level_<=n_levels);
-            auto entry = entry_value(curr_level_);
+            if (next_level_==n_levels) return false;
+            assert(next_level_<=n_levels);
+            auto entry = entry_value(next_level_);
 
             // passed current level
             if (entry_comp_(curr, entry)) {
-                curr_level_++;
+                next_level_++;
                 return true;
             }
             return false;
@@ -96,30 +96,30 @@ namespace trading::bazooka {
         bool should_close_all(price_t curr)
         {
             // hasn't opened any positions yet
-            if (!curr_level_) return false;
+            if (!next_level_) return false;
             auto exit = exit_ma_.value();
 
             // exceeded the value of the exit indicator
             if (exit_comp_(curr, exit)) {
-                curr_level_ = 0;
+                next_level_ = 0;
                 return true;
             }
             return false;
         }
 
-        const indicator& entry_ma() const
+        const indicator& entry_indicator() const
         {
             return entry_ma_;
         }
 
-        const indicator& exit_ma() const
+        const indicator& exit_indicator() const
         {
             return exit_ma_;
         }
 
-        size_t curr_level() const
+        size_t next_entry_level() const
         {
-            return curr_level_;
+            return next_level_;
         }
     };
 }
