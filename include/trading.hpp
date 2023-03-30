@@ -65,5 +65,6 @@
 #include <trading/order_sizer.hpp>
 #include <cppcoro/generator.hpp>
 #include <cppcoro/recursive_generator.hpp>
+#include <trading/validate.hpp>
 
 #endif //TRADING_TRADING_HPP

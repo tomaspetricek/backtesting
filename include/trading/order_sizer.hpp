@@ -10,6 +10,7 @@
 #include <trading/utils.hpp>
 #include <trading/convert.hpp>
 #include <fmt/format.h>
+#include <trading/validate.hpp>
 
 namespace trading {
     template<std::size_t n_sizes>
@@ -31,24 +32,6 @@ namespace trading {
 
             cum_sizes[n_sizes-1] = 1.0;
             return cum_sizes;
-        }
-
-        template<std::size_t size>
-        std::array<fraction_t, size> validate_sizes(const std::array<fraction_t, size>& sizes)
-        {
-            auto denom = sizes[0].denominator();
-            fraction_t sum{0, denom};
-
-            for (index_t i{0}; i<size; i++) {
-                if (sizes[i]<=fraction_t{0, denom} || sizes[i]>fraction_t{denom, denom})
-                    throw std::invalid_argument("Size has to be in interval (0, 1]");
-                sum += sizes[i];
-            }
-
-            if (fraction_t{denom, denom}!=sum)
-                throw std::invalid_argument("Sizes have to sum up to 1.0");
-
-            return sizes;
         }
 
     public:

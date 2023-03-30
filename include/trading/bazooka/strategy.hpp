@@ -15,6 +15,7 @@
 #include <trading/exception.hpp>
 #include <trading/types.hpp>
 #include <trading/bazooka/indicator.hpp>
+#include <trading/validate.hpp>
 
 namespace trading::bazooka {
     // entry levels: 0 - first level, n_levels-1 - last level
@@ -29,22 +30,6 @@ namespace trading::bazooka {
         static constexpr std::less_equal<> entry_comp_;
         static constexpr std::greater_equal<> exit_comp_;
 
-        static auto validate_entry_levels(const std::array<fraction_t, n_levels>& entry_levels)
-        {
-            auto denom = entry_levels[0].denominator();
-            fraction_t prev_level{denom, denom}; // 1.0 - represents baseline - value of entry ma
-
-            for (const auto& curr_level: entry_levels) {
-                if (curr_level<fraction_t{0, denom} || entry_comp_(prev_level, curr_level))
-                    throw std::invalid_argument(
-                            "The current level must be further from the baseline than the previous level");
-
-                prev_level = curr_level;
-            }
-
-            return entry_levels;
-        }
-
         price_t entry_value(index_t level) const
         {
             assert(level>=0 && level<n_levels);
@@ -56,7 +41,7 @@ namespace trading::bazooka {
         explicit strategy(indicator  entry_ma, indicator  exit_ma,
                 const std::array<fraction_t, n_levels>& entry_levels)
                 :entry_ma_(std::move(entry_ma)), exit_ma_(std::move(exit_ma)),
-                 entry_levels_(validate_entry_levels(entry_levels)) { }
+                 entry_levels_(validate_levels(entry_levels)) { }
 
         strategy() = default;
 
