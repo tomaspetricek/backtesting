@@ -38,13 +38,6 @@ namespace trading::bazooka {
             }, data_);
         }
 
-        void period(std::size_t period)
-        {
-            std::visit([&](auto& indic) {
-                indic.period(period);
-            }, data_);
-        }
-
         double value() const
         {
             return std::visit([](const auto& indic) {

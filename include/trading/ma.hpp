@@ -27,11 +27,6 @@ namespace trading {
         {
             return period_;
         }
-
-        void period(size_t period)
-        {
-            period_ = validate_period(period);
-        }
     };
 }
 

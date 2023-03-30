@@ -3,8 +3,9 @@
 //
 
 #define BOOST_TEST_MAIN
-#include "trading/bazooka/strategy.hpp"
 #include "trading/bazooka/crossover.hpp"
+#include "trading/bazooka/indicator.hpp"
+#include "trading/bazooka/strategy.hpp"
 #include "trading/wallet.hpp"
 #include "trading/trader.hpp"
 #include "trading/position.hpp"
