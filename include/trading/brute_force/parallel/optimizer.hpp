@@ -12,26 +12,17 @@
 
 
 namespace trading::brute_force::parallel {
-    template<class ConcreteFunction, class Config>
-    concept ObjectiveFunction = std::invocable<ConcreteFunction, const Config&> &&
-            std::same_as<double, std::invoke_result_t<ConcreteFunction, const Config&>>;
-
     template<class ConcreteSearchSpace, class Config>
     concept SearchSpace = std::invocable<ConcreteSearchSpace> &&
             std::same_as<cppcoro::generator<Config>, std::invoke_result_t<ConcreteSearchSpace>>;
 
     template<class Config>
     struct optimizer {
-        struct state {
-            Config config;
-            double value;
-        };
-
-        using state_type = state;
+        using state_type = state<Config>;
 
         template<class Result>
         void operator()(Result& result,
-                const Constraints<state> auto& constraints,
+                const Constraints<state_type> auto& constraints,
                 ObjectiveFunction<Config> auto&& objective,
                 SearchSpace<Config> auto&& search_space) const
         {
@@ -43,7 +34,7 @@ namespace trading::brute_force::parallel {
                         #pragma omp task
                         {
                             try {
-                                auto curr_state = state{curr_config, objective(curr_config)};
+                                auto curr_state = state_type{curr_config, objective(curr_config)};
                                 if (constraints(curr_state)) {
                                     #pragma omp critical
                                     result.update(curr_state);

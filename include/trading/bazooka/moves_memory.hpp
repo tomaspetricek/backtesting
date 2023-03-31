@@ -150,9 +150,9 @@ namespace trading::bazooka {
 
         bool contains(const move_type& move) const
         {
-            switch (move.indices()) {
+            switch (move.index()) {
             case move_type::indices::tag:
-                return indic_mem_.contains(move.tag);
+                return indic_mem_.contains(move.tag());
             case move_type::indices::period:
                 return period_mem_.contains(move.period());
             case move_type::indices::levels:
@@ -164,7 +164,7 @@ namespace trading::bazooka {
 
         void remember(const move_type& move)
         {
-            switch (move.indices()) {
+            switch (move.index()) {
             case move_type::indices::tag:
                 indic_mem_.remember(move.tag());
                 break;

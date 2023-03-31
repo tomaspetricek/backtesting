@@ -36,15 +36,10 @@ namespace trading::simulated_annealing {
 
     template<class Config>
     class optimizer {
-        struct state {
-            Config config;
-            double value;
-        };
-
         double start_temp_, min_temp_, curr_temp_;
         random::real_generator<double> rand_prob_gen_{0.0, 1.0};
         std::size_t it_{0};
-        state curr_state_;
+        state<Config> curr_state_;
 
         static double validate_min_temp(const double min_temp)
         {
@@ -61,7 +56,7 @@ namespace trading::simulated_annealing {
         }
 
     public:
-        using state_type = state;
+        using state_type = state<Config>;
 
         explicit optimizer(double start_temp, double min_temp)
                 :start_temp_(validate_start_temp(min_temp, start_temp)), min_temp_(validate_min_temp(min_temp)),
@@ -69,11 +64,11 @@ namespace trading::simulated_annealing {
 
         template<class Result, class... Observer>
         void operator()(const Config& init_config, Result& result,
-                const Constraints<state> auto& constraints,
+                const Constraints<state_type> auto& constraints,
                 Cooler<optimizer> auto&& cooler,
                 ObjectiveFunction<Config> auto&& objective,
                 Neighbor<Config> auto&& neighbor,
-                Appraiser<state> auto&& appraiser,
+                Appraiser<state_type> auto&& appraiser,
                 Equilibrium auto&& equilibrium,
                 Observer& ... observers)
         {
@@ -135,7 +130,7 @@ namespace trading::simulated_annealing {
             return min_temp_;
         }
 
-        const state& current_state() {
+        const state_type& current_state() {
             return curr_state_;
         }
     };

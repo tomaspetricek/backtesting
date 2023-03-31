@@ -384,6 +384,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
 {
     constexpr std::size_t n_levels{4};
     using config_type = bazooka::configuration<n_levels>;
+    using state_type = state<config_type>;
     using trader_type = decltype(create_trader<n_levels>(config_type()));
 
     random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
@@ -432,8 +433,10 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
     auto neighbor = bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen};
     config_type next;
 
+    auto constraints = [](const auto&) { return true; };
+    enumerative_result<state_type, optim_criteria> result{30, optim_criteria()};
     auto duration = measure_duration([&]() {
-        optimizer(init_genes,
+        optimizer(init_genes, result, constraints,
                 [&](const config_type& genes) -> double {
                     simulator(create_trader(genes), stats_collector);
                     auto total_profit = static_cast<double>(stats_collector.get().template total_profit<percent>());
@@ -461,6 +464,7 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
 {
     constexpr std::size_t n_levels{4};
     using config_type = bazooka::configuration<n_levels>;
+    using state_type = state<config_type>;
     using trader_type = decltype(create_trader<n_levels>(config_type()));
 
     random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
@@ -472,8 +476,6 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
                                                  levels_gen(), open_sizes_gen()};
 
     tabu_search::optimizer<config_type> optimizer;
-
-    auto optim_criteria = [](const auto& rhs, const auto& lhs) { return rhs>lhs; };
     bazooka::statistics<n_levels>::collector<trader_type> stats_collector;
 
     auto termination = iteration_based_termination{512};
@@ -520,15 +522,17 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
 
     tabu_search::progress_collector collector;
     tabu_search::progress_reporter reporter{logger};
+    auto constraints = [](const auto&) { return true; };
+    enumerative_result<state_type, optim_criteria> result{30, optim_criteria()};
     auto duration = measure_duration([&]() {
-        optimizer(init_config, moves_memory,
+        optimizer(init_config, result, constraints, moves_memory,
                 [&](const config_type& config) -> double {
                     simulator(create_trader(config), stats_collector);
                     return static_cast<double>(stats_collector.get().total_profit<percent>());
                 },
-                optim_criteria, neighbor, neighborhood_sizer, termination,
-                [&](const auto& candidate, const auto& optim) -> bool {
-                    return optim_criteria(candidate.fitness, optim.best_state().fitness);
+                neighbor, neighborhood_sizer, termination,
+                [&](const auto& candidate, const auto& optimizer) -> bool {
+                    return result.compare(candidate, optimizer.best_state());
                 },
                 collector, reporter
         );
@@ -617,6 +621,6 @@ int main()
             {"averaging method", decltype(averager)::name}
     }});
 
-    use_genetic_algorithm(std::move(simulator), std::move(settings), experiment_dir, logger);
+    use_tabu_search(std::move(simulator), std::move(settings), experiment_dir, logger);
     return EXIT_SUCCESS;
 }

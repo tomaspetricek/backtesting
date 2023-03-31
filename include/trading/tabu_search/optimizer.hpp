@@ -9,10 +9,6 @@
 #include <trading/concepts.hpp>
 
 namespace trading::tabu_search {
-    template<class ConcreteOptimizationCriteria, class State>
-    concept OptimizationCriteria = std::invocable<ConcreteOptimizationCriteria, double, double> &&
-            std::same_as<bool, std::invoke_result_t<ConcreteOptimizationCriteria, double, double>>;
-
     template<class ConcreteTabuTenure>
     concept TabuTenure = std::invocable<ConcreteTabuTenure> &&
             std::same_as<std::size_t, std::invoke_result_t<ConcreteTabuTenure>>;
@@ -31,28 +27,26 @@ namespace trading::tabu_search {
 
     template<class Config>
     class optimizer {
-        struct state {
-            Config config;
-            double fitness;
-        };
-
-        state best_, curr_;
+        using state_type = state<Config>;
+        state_type best_, curr_;
         std::size_t it_{0};
 
     public:
         // neighbourhood size
-        template<class TabuList, class... Observer>
-        void operator()(const Config& init, TabuList tabu_list,
-                FitnessFunction<Config> auto&& compute_fitness,
-                OptimizationCriteria<state> auto&& optim_criteria,
+        template<class Result, class TabuList, class... Observer>
+        void operator()(const Config& init,
+                Result& result,
+                const Constraints<state_type> auto& constraints,
+                TabuList tabu_list,
+                ObjectiveFunction<Config> auto&& compute_objective,
                 Neighbor<Config, typename TabuList::move_type> auto&& neighbor,
                 NeighborhoodSizer<optimizer> auto&& neighborhood_size,
                 TerminationCriteria<optimizer> auto&& terminate,
-                AspirationCriteria<state, optimizer> auto&& aspire,
+                AspirationCriteria<state_type, optimizer> auto&& aspire,
                 Observer& ... observers)
         {
-            best_ = curr_ = state{init, compute_fitness(init)};
-            state candidate, origin;
+            best_ = curr_ = state_type{init, compute_objective(init)};
+            state_type candidate, origin;
             typename TabuList::move_type curr_move, candidate_move;
 
             (observers.begin(*this), ...);
@@ -60,15 +54,15 @@ namespace trading::tabu_search {
                 // explore neighborhood
                 origin = curr_;
                 std::tie(curr_.config, curr_move) = neighbor(origin.config);
-                curr_.fitness = compute_fitness(curr_.config);
+                curr_.value = compute_objective(curr_.config);
 
                 for (std::size_t i{0}; i<neighborhood_size(*this)-1; i++) {
                     std::tie(candidate.config, candidate_move) = neighbor(origin.config);
 
                     if (!tabu_list.contains(candidate_move)) {
-                        candidate.fitness = compute_fitness(candidate.config);
+                        candidate.value = compute_objective(candidate.config);
 
-                        if (optim_criteria(candidate.fitness, curr_.fitness) || aspire(candidate, *this)) {
+                        if (result.compare(candidate, curr_) || aspire(candidate, *this)) {
                             curr_ = candidate;
                             curr_move = candidate_move;
                         }
@@ -76,22 +70,25 @@ namespace trading::tabu_search {
                 }
 
                 // try update best state
-                if (optim_criteria(curr_.fitness, best_.fitness))
+                if (result.compare(curr_, best_)) {
                     best_ = curr_;
+                    if (constraints(best_))
+                        result.update(best_);
+                }
 
-                tabu_list.forget(curr_move);
-                tabu_list.remember(curr_move.index());
+                tabu_list.forget(curr_move.index());
+                tabu_list.remember(curr_move);
                 (observers.iteration_passed(*this, tabu_list), ...);
             }
             (observers.end(*this), ...);
         }
 
-        const state& best_state() const
+        const state_type& best_state() const
         {
             return best_;
         }
 
-        const state& current_state() const
+        const state_type& current_state() const
         {
             return curr_;
         }

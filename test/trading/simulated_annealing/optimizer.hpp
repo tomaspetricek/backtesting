@@ -37,7 +37,11 @@ BOOST_AUTO_TEST_SUITE(simulated_annealing_optimizer_test)
 
         optimizer(init.value, result, constraints, cooler, objective, neighbor, appraiser, equilibrium);
         BOOST_REQUIRE_EQUAL(result.get().config, neighbor.to());
+        BOOST_REQUIRE(optimizer.current_temperature()<=min_temp);
+        BOOST_REQUIRE_EQUAL(optimizer.it(), start_temp-min_temp);
     }
+
+    // test cooling
 BOOST_AUTO_TEST_SUITE_END()
 
 #endif //BACKTESTING_TEST_SIMULATED_ANNEALING_OPTIMIZER_HPP

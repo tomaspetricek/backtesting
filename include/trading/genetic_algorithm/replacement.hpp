@@ -29,7 +29,7 @@ namespace trading::genetic_algorithm {
         void operator()(std::vector<Individual>& parents, std::vector<Individual>& children, std::vector<Individual>& next_generation)
         {
             std::sort(parents.begin(), parents.end(), [](const auto& rhs, const auto lhs) {
-                return rhs.fitness>lhs.fitness;
+                return rhs.value>lhs.value;
             });
             std::size_t n_elite = parents.size()*fraction_cast<float>(elite_ratio_);
             next_generation.reserve(children.size());

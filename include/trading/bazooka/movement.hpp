@@ -24,14 +24,14 @@ namespace trading::bazooka {
 
         movement() = default;
 
-        std::size_t index() const
+        indices index() const
         {
-            return data_.index();
+            return static_cast<indices>(data_.index());
         }
 
         const indicator_tag& tag() const
         {
-            return std::get<indices::tag>(data_);
+            return std::get<to_underlying(indices::tag)>(data_);
         }
 
         void tag(const indicator_tag& tag)
@@ -41,7 +41,7 @@ namespace trading::bazooka {
 
         std::size_t period() const
         {
-            return std::get<indices::period>(data_);
+            return std::get<to_underlying(indices::period)>(data_);
         }
 
         void period(std::size_t period)
@@ -51,7 +51,7 @@ namespace trading::bazooka {
 
         const std::array<fraction_t, n_levels>& levels() const
         {
-            return std::get<indices::levels>(data_);
+            return std::get<to_underlying(indices::levels)>(data_);
         }
 
         void levels(const std::array<fraction_t, n_levels>& levels)
@@ -61,7 +61,7 @@ namespace trading::bazooka {
 
         const std::array<fraction_t, n_levels>& open_sizes() const
         {
-            return std::get<indices::open_sizes>(data_);
+            return std::get<to_underlying(indices::open_sizes)>(data_);
         }
 
         void open_sizes(const std::array<fraction_t, n_levels>& sizes)

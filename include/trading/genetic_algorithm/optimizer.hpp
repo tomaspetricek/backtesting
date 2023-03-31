@@ -13,6 +13,7 @@
 #include <cppcoro/generator.hpp>
 #include <trading/tuple.hpp>
 #include <trading/concepts.hpp>
+#include <trading/optimizer.hpp>
 
 // https://stackoverflow.com/questions/31533469/check-a-parameter-pack-for-all-of-type-t
 template<typename T, typename ...Ts>
@@ -48,32 +49,31 @@ namespace trading::genetic_algorithm {
 
     template<class Genes>
     class optimizer {
-        struct individual {
-            Genes genes;
-            double fitness;
-        };
-
         std::size_t it_{0};
-        std::vector<individual> population_;
+        std::vector<state<Genes>> population_;
 
     public:
-        template<class... Observer>
-        std::vector<individual> operator()(const std::vector<Genes>& init_genes,
-                FitnessFunction<Genes> auto&& compute_fitness,
+        using state_type = state<Genes>;
+
+        template<class Result, class... Observer>
+        std::vector<state<Genes>> operator()(const std::vector<Genes>& init_genes,
+                Result& result,
+                const Constraints<state_type> auto& constraints,
+                ObjectiveFunction<Genes> auto&& compute_fitness,
                 PopulationSizer auto&& sizer,
-                Selection<individual> auto&& selection,
-                Matchmaker<individual> auto&& match,
+                Selection<state_type> auto&& selection,
+                Matchmaker<state_type> auto&& match,
                 Crossover<Genes> auto&& crossover,
                 Mutation<Genes> auto&& mutation,
-                Replacement<individual> auto&& replacement,
+                Replacement<state_type> auto&& replacement,
                 TerminationCriteria<optimizer<Genes>> auto&& termination,
                 Observer& ... observers)
         {
             population_.clear(), population_.reserve(init_genes.size());
             for (const auto& genes: init_genes)
-                population_.template emplace_back(std::move(individual{genes, compute_fitness(genes)}));
+                population_.template emplace_back(std::move(state_type{genes, compute_fitness(genes)}));
 
-            std::vector<individual> parents, children;
+            std::vector<state_type> parents, children;
             (observers.begin(*this), ...);
             for (; population_.size() && !termination(*this); it_++) {
                 parents.clear();
@@ -84,13 +84,18 @@ namespace trading::genetic_algorithm {
                 for (const auto& mates: match(parents))
                     for (auto&& genes: crossover(mates)) {
                         genes = mutation(std::move(genes));
-                        auto child = individual{genes, compute_fitness(genes)};
+                        auto child = state_type{genes, compute_fitness(genes)};
                         children.template emplace_back(std::move(child));
                     }
 
                 // replace
                 population_.clear();
                 replacement(parents, children, population_);
+
+                // update results
+                for (const auto& individual: population_)
+                    if (constraints(individual))
+                        result.update(individual);
                 (observers.population_updated(*this), ...);
             };
             (observers.end(*this), ...);
@@ -102,7 +107,7 @@ namespace trading::genetic_algorithm {
             return it_;
         }
 
-        const std::vector<individual>& population() const
+        const std::vector<state<Genes>>& population() const
         {
             return population_;
         }

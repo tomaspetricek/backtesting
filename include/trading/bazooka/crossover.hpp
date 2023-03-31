@@ -111,8 +111,8 @@ namespace trading::bazooka {
         std::array<config_type, n_children> operator()(const std::array<Individual, n_parents>& parents)
         {
             std::array<config_type, n_children> children;
-            config_type mother = parents[0].genes;
-            config_type father = parents[1].genes;
+            config_type mother = parents[0].config;
+            config_type father = parents[1].config;
 
             for (std::size_t i{0}; i<n_children; i++) {
                 children[i].tag = (coin_flip_(gen_)) ? mother.tag : father.tag;

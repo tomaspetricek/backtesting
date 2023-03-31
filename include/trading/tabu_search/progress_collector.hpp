@@ -28,7 +28,7 @@ namespace trading::tabu_search {
         template<class Optimizer, class TabuList>
         void iteration_passed(const Optimizer& optimizer, const TabuList& tabu_list)
         {
-            progress_.emplace_back(progress{optimizer.best_state().fitness, optimizer.current_state().fitness,
+            progress_.emplace_back(progress{optimizer.best_state().value, optimizer.current_state().value,
                     tabu_list.size()});
         }
 
