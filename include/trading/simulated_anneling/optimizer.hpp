@@ -9,6 +9,8 @@
 #include <cmath>
 #include <trading/generators.hpp>
 #include <trading/concepts.hpp>
+#include <trading/optimizer.hpp>
+
 
 namespace trading::simulated_annealing {
     // https://youtu.be/l6Y9PqyK1Mc
@@ -65,8 +67,9 @@ namespace trading::simulated_annealing {
                 :start_temp_(validate_start_temp(min_temp, start_temp)), min_temp_(validate_min_temp(min_temp)),
                  curr_temp_(start_temp) { }
 
-        template<class Result, class Constraints, class... Observer>
-        void operator()(const Config& init_config, Result& result, const Constraints& constraints,
+        template<class Result, class... Observer>
+        void operator()(const Config& init_config, Result& result,
+                const Constraints<state> auto& constraints,
                 Cooler<optimizer> auto&& cooler,
                 ObjectiveFunction<Config> auto&& objective,
                 Neighbor<Config> auto&& neighbor,
@@ -93,7 +96,7 @@ namespace trading::simulated_annealing {
                     else {
                         double diff = appraiser(curr_state_, candidate);
                         double threshold = std::exp(-diff/curr_temp_);
-                        assert(threshold>0.0 && threshold<1.0);
+                        assert(threshold>=0.0 && threshold<=1.0);
 
                         if (rand_prob_gen_()<threshold) {
                             curr_state_ = candidate;

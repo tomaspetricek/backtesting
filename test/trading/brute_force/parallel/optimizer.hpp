@@ -37,12 +37,12 @@ BOOST_AUTO_TEST_SUITE(brute_force_optimizer_test)
         trading::constructive_result result{init, [](const auto& lhs, const auto& rhs) {
             return lhs.value>rhs.value;
         }};
-        double max{5};
+        double max_value{5};
         auto search_space = trading::systematic::int_range(1, 10, 1);
-        auto constraints = [&](const auto& state) { return state.value<=max; };
+        auto constraints = [&](const auto& state) { return state.value<=max_value; };
         auto objective = [](const auto& config) { return static_cast<double>(config); };
         optimizer(result, constraints, objective, search_space);
-        BOOST_REQUIRE_EQUAL(result.get().value, max);
+        BOOST_REQUIRE_EQUAL(result.get().value, max_value);
     }
 
     BOOST_AUTO_TEST_CASE(no_constrains_satisfied_test)
@@ -86,7 +86,8 @@ BOOST_AUTO_TEST_SUITE(brute_force_optimizer_test)
         BOOST_REQUIRE_EQUAL(updated_count, 0);
     }
 
-    BOOST_AUTO_TEST_CASE(objective_throw_exception_test) {
+    BOOST_AUTO_TEST_CASE(objective_throw_exception_test)
+    {
         using optimizer_type = trading::brute_force::parallel::optimizer<int>;
         optimizer_type optimizer;
         optimizer_type::state_type init{0, 0.0};

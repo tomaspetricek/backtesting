@@ -28,6 +28,9 @@ namespace trading {
                  low_(price_t{low}), close_(price_t{close})
         {
             if (high<low) throw std::invalid_argument("High price has to be lower or equal to low price");
+            if (open<low || open>high) throw std::invalid_argument("Open price has to be between low and high price");
+            if (close<low || close>high)
+                throw std::invalid_argument("Close price has to be between low and high price");
         }
 
         // mean high and low
@@ -44,7 +47,7 @@ namespace trading {
         struct hlc3 {
             price_t operator()(const candle& candle) const
             {
-                return mean<price_t>(candle.high_, candle.low_);
+                return mean<price_t>(candle.high_, candle.low_, candle.close_);
             }
 
             static constexpr std::string_view name = "hlc3";

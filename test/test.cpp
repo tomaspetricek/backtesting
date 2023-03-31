@@ -8,6 +8,8 @@
 #include "trading/bazooka/manager.hpp"
 #include "trading/bazooka/strategy.hpp"
 #include "trading/brute_force/parallel/optimizer.hpp"
+#include "trading/simulated_annealing/optimizer.hpp"
+#include "trading/candle.hpp"
 #include "trading/wallet.hpp"
 #include "trading/trader.hpp"
 #include "trading/position.hpp"

@@ -8,6 +8,7 @@
 #include <functional>
 #include <cppcoro/generator.hpp>
 #include <trading/statistics.hpp>
+#include <trading/optimizer.hpp>
 
 
 namespace trading::brute_force::parallel {
@@ -28,8 +29,9 @@ namespace trading::brute_force::parallel {
 
         using state_type = state;
 
-        template<class Result, class Constraints>
-        void operator()(Result& result, const Constraints& constraints,
+        template<class Result>
+        void operator()(Result& result,
+                const Constraints<state> auto& constraints,
                 ObjectiveFunction<Config> auto&& objective,
                 SearchSpace<Config> auto&& search_space) const
         {
