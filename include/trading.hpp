@@ -56,11 +56,10 @@
 #include <trading/pack.hpp>
 #include <trading/resampler.hpp>
 #include <trading/result.hpp>
-#include <trading/table.hpp>
 #include <trading/termination.hpp>
 #include <trading/simulator.hpp>
 #include <trading/sizer.hpp>
-#include "trading/bazooka/manager.hpp"
+#include <trading/bazooka/manager.hpp>
 #include <trading/bazooka/trader.hpp>
 #include <trading/tuple.hpp>
 #include <trading/utils.hpp>

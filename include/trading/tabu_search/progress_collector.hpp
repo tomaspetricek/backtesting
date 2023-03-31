@@ -7,7 +7,6 @@
 
 #include <tuple>
 #include <vector>
-#include <trading/table.hpp>
 
 namespace trading::tabu_search {
     class progress_collector {

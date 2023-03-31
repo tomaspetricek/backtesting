@@ -9,7 +9,6 @@
 #include <iostream>
 #include <algorithm>
 #include <tuple>
-#include <trading/table.hpp>
 
 namespace trading::genetic_algorithm {
     class progress_collector {

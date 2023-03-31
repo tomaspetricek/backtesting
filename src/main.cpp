@@ -543,10 +543,7 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
 
 int main()
 {
-    {
-        trading::candle(0, 11., 10., 5., 7.);
-        return EXIT_SUCCESS;
-    }
+    return EXIT_SUCCESS;
     constexpr std::size_t n_levels{4};
 
     // read candles

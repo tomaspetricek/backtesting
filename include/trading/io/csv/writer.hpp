@@ -8,7 +8,6 @@
 #include <filesystem>
 #include <fstream>
 #include <utility>
-#include "trading/table.hpp"
 #include <trading/io/stringifier.hpp>
 
 namespace trading::io::csv {
