@@ -9,5 +9,5 @@ find_package(nlohmann_json 3.2.0 REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 target_link_libraries(backtesting PUBLIC ${Boost_LIBRARIES} fmt::fmt OpenMP::OpenMP_CXX PRIVATE etl::etl)
 # optimizations
-add_definitions(-DNDEBUG) # disables asserts
-set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -ffast-math")
+#add_definitions(-DNDEBUG) # disables asserts
+#set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -ffast-math")

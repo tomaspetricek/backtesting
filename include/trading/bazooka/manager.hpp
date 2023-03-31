@@ -28,27 +28,10 @@ namespace trading::bazooka {
         order last_open_order_{};
         order last_close_order_{};
 
-        void create_open_order(const price_point& point)
-        {
-            amount_t size = open_sizer_(market_.wallet_balance());
-            trading::order order{size, point.data, point.time};
-            market_.fill_open_order(order);
-            last_open_order_ = order;
-        }
-
         void reset_sizers()
         {
             open_sizer_.reset();
             close_sizer_.reset();
-        }
-
-        void create_close_all_order(const price_point& point)
-        {
-            amount_t size = market_.active_position().size();
-            trading::order order{size, point.data, point.time};
-            market_.fill_close_all_order(order);
-            last_close_order_ = order;
-            reset_sizers();
         }
 
     public:
@@ -57,6 +40,24 @@ namespace trading::bazooka {
         manager(trading::market market, const order_sizer<n_open>& open_sizer,
                 const order_sizer<n_close>& close_sizer)
                 :market_(market), open_sizer_(open_sizer), close_sizer_(close_sizer) { }
+
+        void create_open_order(const price_point& point)
+        {
+            amount_t size = open_sizer_(market_.wallet_balance());
+            trading::order order{size, point.data, point.time};
+            market_.fill_open_order(order);
+            last_open_order_ = order;
+        }
+
+        void create_close_all_order(const price_point& point)
+        {
+            assert(market_.has_active_position());
+            amount_t size = market_.active_position().size();
+            trading::order order{size, point.data, point.time};
+            market_.fill_close_all_order(order);
+            last_close_order_ = order;
+            reset_sizers();
+        }
 
         // it closes active trade, if there is one
         bool try_closing_active_position(const price_point& point)
@@ -103,6 +104,11 @@ namespace trading::bazooka {
         Type position_current_profit(const price_t& market)
         {
             return market_.template position_current_profit<Type>(market);
+        }
+
+        const market& market() const
+        {
+            return market_;
         }
     };
 }

@@ -29,7 +29,7 @@ namespace trading::brute_force::parallel {
         using state_type = state;
 
         template<class Result, class Constraints>
-        void operator()(Result& result, const Constraints& constrains,
+        void operator()(Result& result, const Constraints& constraints,
                 ObjectiveFunction<Config> auto&& objective,
                 SearchSpace<Config> auto&& search_space) const
         {
@@ -42,7 +42,7 @@ namespace trading::brute_force::parallel {
                         {
                             try {
                                 auto curr_state = state{curr_config, objective(curr_config)};
-                                if (constrains(curr_state)) {
+                                if (constraints(curr_state)) {
                                     #pragma omp critical
                                     result.update(curr_state);
                                 }

@@ -16,25 +16,22 @@ namespace trading {
 
     template<class Type, Comparator<Type> Comp>
     class constructive_result {
-        std::optional<Type> best_;
+        Type best_;
         Comp comp_;
 
     public:
-        explicit constructive_result(const Comp& comp)
-                :comp_{comp} { }
+        explicit constructive_result(Type init, const Comp& comp)
+                :best_{init}, comp_{comp} { }
 
         constructive_result() = default;
 
         void update(const Type& candidate)
         {
-            if (best_.has_value())
-                if (comp_(*best_, candidate))
-                    return;
-
-            best_ = std::make_optional<Type>(candidate);
+            if (comp_(best_, candidate)) return;
+            best_ = candidate;
         }
 
-        std::optional<Type> get() const
+        const Type& get() const
         {
             return best_;
         }

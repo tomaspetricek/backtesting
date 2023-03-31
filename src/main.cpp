@@ -544,9 +544,6 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
 int main()
 {
     {
-        constexpr std::size_t n_levels{2};
-        std::array<trading::fraction_t, n_levels> levels{{{1, 2}, {1, 4}}};
-        trading::bazooka::strategy{bazooka::indicator{trading::sma{10}}, bazooka::indicator{trading::ema{20}}, levels};
         return EXIT_SUCCESS;
     }
     constexpr std::size_t n_levels{4};
