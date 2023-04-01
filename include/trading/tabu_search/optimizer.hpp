@@ -49,7 +49,7 @@ namespace trading::tabu_search {
             state_type candidate, origin;
             typename TabuList::move_type curr_move, candidate_move;
 
-            (observers.begin(*this), ...);
+            (observers.started(*this), ...);
             for (; !terminate(*this); it_++) {
                 // explore neighborhood
                 origin = curr_;
@@ -80,7 +80,7 @@ namespace trading::tabu_search {
                 tabu_list.remember(curr_move);
                 (observers.iteration_passed(*this, tabu_list), ...);
             }
-            (observers.end(*this), ...);
+            (observers.finished(*this), ...);
         }
 
         const state_type& best_state() const

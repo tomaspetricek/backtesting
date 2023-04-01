@@ -22,7 +22,7 @@ namespace trading::genetic_algorithm {
 
     public:
         template<class Optimizer>
-        void begin(const Optimizer&)
+        void started(const Optimizer&)
         {
             progress_.clear();
         }
@@ -34,7 +34,7 @@ namespace trading::genetic_algorithm {
         }
 
         template<class Optimizer>
-        void end(const Optimizer&) { }
+        void finished(const Optimizer&) { }
 
         auto get()
         {

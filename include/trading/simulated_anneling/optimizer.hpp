@@ -72,14 +72,14 @@ namespace trading::simulated_annealing {
                 Equilibrium auto&& equilibrium,
                 Observer& ... observers)
         {
-            curr_state_ = state{init_config, objective(init_config)};
-            (observers.begin(*this), ...);
+            curr_state_ = state_type{init_config, objective(init_config)};
+            (observers.started(*this), ...);
 
             // frozen
             for (; curr_temp_>min_temp_; it_++) {
                 while (equilibrium()) {
                     Config config = neighbor(curr_state_.config);
-                    auto candidate = state{config, objective(config)};
+                    auto candidate = state_type{config, objective(config)};
 
                     if (result.compare(candidate, curr_state_)) {
                         curr_state_ = candidate;
@@ -102,7 +102,7 @@ namespace trading::simulated_annealing {
                 cooler(*this);
                 (observers.cooled(*this), ...);
             }
-            (observers.end(*this), ...);
+            (observers.finished(*this), ...);
         }
 
         double current_temperature() const

@@ -23,16 +23,15 @@ namespace trading::simulated_annealing {
         double threshold_sum{0};
         std::size_t threshold_count{0};
 
-    public:
         void reset_counters()
         {
             progress_.emplace_back(progress{0.0, 0.0, 0.0, 0, 0});
             threshold_count = 0;
             threshold_sum = 0.0;
         }
-
+    public:
         template<class Optimizer>
-        void begin(const Optimizer&)
+        void started(const Optimizer&)
         {
             progress_.clear();
             reset_counters();
@@ -66,7 +65,7 @@ namespace trading::simulated_annealing {
         }
 
         template<class Optimizer>
-        void end(const Optimizer&)
+        void finished(const Optimizer&)
         {
             progress_.pop_back();
         }

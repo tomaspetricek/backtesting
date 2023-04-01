@@ -18,7 +18,7 @@ namespace trading::genetic_algorithm {
                 :observers_{observers...} { }
 
         template<class Optimizer>
-        void begin(const Optimizer& optimizer)
+        void started(const Optimizer& optimizer)
         {
             trading::for_each(observers_, [&](auto& observer, std::size_t) {
                 observer.begin(optimizer);
@@ -42,7 +42,7 @@ namespace trading::genetic_algorithm {
         }
 
         template<class Optimizer>
-        void end(const Optimizer& optimizer)
+        void finished(const Optimizer& optimizer)
         {
             trading::for_each(observers_, [&](auto& observer, std::size_t) {
                 observer.end(optimizer);

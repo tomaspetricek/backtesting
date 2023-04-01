@@ -18,7 +18,7 @@ namespace trading::simulated_annealing {
                 :logger_{std::move(logger)} { }
 
         template<class Optimizer, class State>
-        void begin(const Optimizer&, const State&) { }
+        void started(const Optimizer&, const State&) { }
 
         template<class Optimizer>
         void better_accepted(const Optimizer&) { }
@@ -34,7 +34,7 @@ namespace trading::simulated_annealing {
         }
 
         template<class Optimizer>
-        void end(const Optimizer&) { }
+        void finished(const Optimizer&) { }
     };
 }
 

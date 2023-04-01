@@ -19,7 +19,7 @@ namespace trading::genetic_algorithm {
                 :logger_{std::move(logger)} { }
 
         template<class Optimizer>
-        void begin(const Optimizer&) { }
+        void started(const Optimizer&) { }
 
         template<class Optimizer>
         void population_updated(const Optimizer& optimizer, double mean_fitness, double best_fitness)
@@ -31,7 +31,7 @@ namespace trading::genetic_algorithm {
         }
 
         template<class Optimizer>
-        void end(const Optimizer&) { }
+        void finished(const Optimizer&) { }
     };
 }
 

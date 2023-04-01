@@ -20,7 +20,7 @@ namespace trading::tabu_search {
 
     public:
         template<class Optimizer>
-        void begin(const Optimizer&)
+        void started(const Optimizer&)
         {
             progress_.clear();
         }
@@ -33,7 +33,7 @@ namespace trading::tabu_search {
         }
 
         template<class Optimizer>
-        void end(const Optimizer&) { }
+        void finished(const Optimizer&) { }
 
         const auto& get()
         {

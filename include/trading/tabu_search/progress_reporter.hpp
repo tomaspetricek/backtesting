@@ -18,7 +18,7 @@ namespace trading::tabu_search {
                 :logger_{std::move(logger)} { }
 
         template<class Optimizer>
-        void begin(const Optimizer&) { }
+        void started(const Optimizer&) { }
 
         template<class Optimizer, class TabuList>
         void iteration_passed(const Optimizer& optimizer, const TabuList& tabu_list)
@@ -29,7 +29,7 @@ namespace trading::tabu_search {
         }
 
         template<class Optimizer>
-        void end(const Optimizer&) { }
+        void finished(const Optimizer&) { }
     };
 }
 

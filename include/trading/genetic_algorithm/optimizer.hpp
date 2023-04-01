@@ -74,7 +74,7 @@ namespace trading::genetic_algorithm {
                 population_.template emplace_back(std::move(state_type{genes, compute_fitness(genes)}));
 
             std::vector<state_type> parents, children;
-            (observers.begin(*this), ...);
+            (observers.started(*this), ...);
             for (; population_.size() && !termination(*this); it_++) {
                 parents.clear();
                 selection(sizer(population_.size()), population_, parents);
@@ -98,7 +98,7 @@ namespace trading::genetic_algorithm {
                         result.update(individual);
                 (observers.population_updated(*this), ...);
             };
-            (observers.end(*this), ...);
+            (observers.finished(*this), ...);
             return population_;
         }
 
