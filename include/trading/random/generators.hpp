@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 30.03.2023.
 //
 
-#ifndef BACKTESTING_TEST_RANDOM_GENERATORS_HPP
-#define BACKTESTING_TEST_RANDOM_GENERATORS_HPP
+#ifndef BACKTESTING_RANDOM_GENERATORS_HPP
+#define BACKTESTING_RANDOM_GENERATORS_HPP
 
 #include <array>
 #include <trading/types.hpp>
@@ -20,7 +20,7 @@ namespace trading::random {
             std::array<std::size_t, n_levels> indices_;
             std::size_t change_n_;
 
-            std::size_t validate_change_n(std::size_t change_n)
+            std::size_t validate_change_count(std::size_t change_n)
             {
                 if (change_n==0 || change_n>n_levels)
                     throw std::invalid_argument(fmt::format("Change n has to be in interval [1,{}]", n_levels));
@@ -30,9 +30,9 @@ namespace trading::random {
         public:
             using value_type = std::array<fraction_t, n_levels>;
 
-            explicit levels_generator(size_t n_unique = n_levels, std::size_t change_n = 1)
+            explicit levels_generator(size_t n_unique = n_levels, std::size_t change_count = 1)
                     :trading::levels_generator<n_levels>(n_unique), gen_{std::random_device{}()}, change_n_{
-                    validate_change_n(change_n)}
+                    validate_change_count(change_count)}
             {
                 all_options_.reserve(n_unique);
                 for (std::size_t i{0}; i<n_unique; i++)
@@ -79,12 +79,12 @@ namespace trading::random {
             std::size_t change_n_;
             static constexpr std::size_t min_change_n = 2;
 
-            std::size_t validate_change_n(std::size_t change_n)
+            std::size_t validate_change_count(std::size_t change_count)
             {
-                if (!(change_n>=min_change_n && change_n<=n_sizes))
+                if (!(change_count>=min_change_n && change_count<=n_sizes))
                     throw std::invalid_argument(
-                            fmt::format("Change n has to be in interval [{},{}]", min_change_n, change_n));
-                return change_n;
+                            fmt::format("Change n has to be in interval [{},{}]", min_change_n, change_count));
+                return change_count;
             }
 
             void fill_rest(std::size_t rest_num_sum, std::size_t curr_max_num, std::size_t first_index = 0)
@@ -105,7 +105,7 @@ namespace trading::random {
 
             explicit sizes_generator(size_t n_unique = 1, std::size_t change_n = min_change_n)
                     :trading::sizes_generator<n_sizes>(n_unique), gen_(std::random_device{}()),
-                     distrib_(1, this->max_num_), change_n_{validate_change_n(change_n)}
+                     distrib_(1, this->max_num_), change_n_{validate_change_count(change_n)}
             {
                 for (std::size_t i{0}; i<indices_.size(); i++)
                     indices_[i] = i;
@@ -136,13 +136,13 @@ namespace trading::random {
         };
 
         template<class Type, template<class> class Distribution>
-        class numeric_generator {
+        class numeric_interval_generator {
         private:
             std::mt19937 _gen;
             Distribution<Type> _distrib;
 
         public:
-            explicit numeric_generator(const Type& from, const Type& to)
+            explicit numeric_interval_generator(const Type& from, const Type& to)
                     :_gen{std::random_device{}()}, _distrib{from, to} { }
 
             Type operator()()
@@ -152,10 +152,10 @@ namespace trading::random {
         };
 
         template<class Type>
-        using real_generator = numeric_generator<Type, std::uniform_real_distribution>;
+        using real_interval_generator = numeric_interval_generator<Type, std::uniform_real_distribution>;
 
         template<class Type>
-        using int_generator = numeric_generator<Type, std::uniform_int_distribution>;
+        using int_interval_generator = numeric_interval_generator<Type, std::uniform_int_distribution>;
 
         class int_range : public trading::int_range {
             std::mt19937 gen_;
@@ -225,4 +225,4 @@ namespace trading::random {
         };
     }
 
-#endif //BACKTESTING_TEST_RANDOM_GENERATORS_HPP
+#endif //BACKTESTING_RANDOM_GENERATORS_HPP

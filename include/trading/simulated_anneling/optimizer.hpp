@@ -7,7 +7,7 @@
 
 #include <functional>
 #include <cmath>
-#include <trading/generators.hpp>
+#include <trading/random/generators.hpp>
 #include <trading/concepts.hpp>
 #include <trading/optimizer.hpp>
 
@@ -37,7 +37,7 @@ namespace trading::simulated_annealing {
     template<class Config>
     class optimizer {
         double start_temp_, min_temp_, curr_temp_;
-        random::real_generator<double> rand_prob_gen_{0.0, 1.0};
+        random::real_interval_generator<double> rand_prob_gen_{0.0, 1.0};
         std::size_t it_{0};
         state<Config> curr_state_;
 
