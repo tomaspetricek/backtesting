@@ -21,7 +21,7 @@ namespace trading::bazooka {
 
         statistics() = default;
 
-        void update_open_order_count(std::size_t level_idx)
+        void increase_open_order_count(std::size_t level_idx)
         {
             open_order_counts_[level_idx] += 1;
         }
@@ -50,7 +50,7 @@ namespace trading::bazooka {
                     stats_.increase_total_close_orders();
                 }
                 else if (action==action::opened) {
-                    stats_.update_open_order_count(trader.next_entry_level()-1);
+                    stats_.increase_open_order_count(trader.next_entry_level()-1);
                     stats_.increase_total_open_orders();
                 }
             }

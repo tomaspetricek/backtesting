@@ -6,6 +6,7 @@
 #include "trading/bazooka/crossover.hpp"
 #include "trading/bazooka/indicator.hpp"
 #include "trading/bazooka/manager.hpp"
+#include "trading/bazooka/statistics.hpp"
 #include "trading/bazooka/strategy.hpp"
 #include "trading/bazooka/trader.hpp"
 #include "trading/brute_force/parallel/optimizer.hpp"
