@@ -21,16 +21,16 @@ namespace trading::genetic_algorithm {
         static constexpr std::size_t n_parents = n_parents_;
 
         template<class Individual>
-        cppcoro::generator<std::array<Individual, n_parents>> operator()(std::vector<Individual>& parents)
+        cppcoro::generator<std::array<typename Individual::config_type, n_parents>> operator()(std::vector<Individual>& parents)
         {
             if (parents.size()<n_parents)
                 co_return;
 
             std::shuffle(parents.begin(), parents.end(), gen_);
-            std::array<Individual, n_parents> match;
+            std::array<typename Individual::config_type, n_parents> match;
 
             for (std::size_t i{0}; i<parents.size(); i++) {
-                match[i%n_parents] = parents[i];
+                match[i%n_parents] = parents[i].config;
 
                 if (!((i+1)%n_parents))
                     co_yield match;

@@ -107,12 +107,10 @@ namespace trading::bazooka {
         constexpr static std::size_t n_parents{2}, n_children{n_children_};
         using config_type = bazooka::configuration<n_levels>;
 
-        template<class Individual>
-        std::array<config_type, n_children> operator()(const std::array<Individual, n_parents>& parents)
+        std::array<config_type, n_children> operator()(const std::array<config_type, n_parents>& parents)
         {
             std::array<config_type, n_children> children;
-            config_type mother = parents[0].config;
-            config_type father = parents[1].config;
+            config_type mother = parents[0], father = parents[1];
 
             for (std::size_t i{0}; i<n_children; i++) {
                 children[i].tag = (coin_flip_(gen_)) ? mother.tag : father.tag;

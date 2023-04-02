@@ -21,7 +21,7 @@ namespace trading::genetic_algorithm {
         void started(const Optimizer& optimizer)
         {
             trading::for_each(observers_, [&](auto& observer, std::size_t) {
-                observer.begin(optimizer);
+                observer.started(optimizer);
             });
         }
 
@@ -45,7 +45,7 @@ namespace trading::genetic_algorithm {
         void finished(const Optimizer& optimizer)
         {
             trading::for_each(observers_, [&](auto& observer, std::size_t) {
-                observer.end(optimizer);
+                observer.finished(optimizer);
             });
         }
     };

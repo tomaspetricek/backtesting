@@ -20,6 +20,8 @@ namespace trading {
     struct state {
         Config config;
         double value;
+
+        using config_type = Config;
     };
 }
 

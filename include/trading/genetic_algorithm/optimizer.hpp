@@ -25,9 +25,9 @@ namespace trading::genetic_algorithm {
             std::same_as<Genes, std::invoke_result_t<ConcreteMutation, Genes&&>>;
 
     template<class ConcreteCrossover, class Genes>
-    concept Crossover = std::invocable<ConcreteCrossover, const std::array<Genes, ConcreteCrossover::n_parents>&> &&
+    concept Crossover = std::invocable<ConcreteCrossover, const std::array<Genes, ConcreteCrossover::n_parents>> &&
             std::same_as<std::array<Genes, ConcreteCrossover::n_children>, std::invoke_result_t<ConcreteCrossover,
-                    const std::array<Genes, ConcreteCrossover::n_parents>&>>;
+                    const std::array<Genes, ConcreteCrossover::n_parents>>>;
 
     template<class ConcreteSelection, class Individual>
     concept Selection =
@@ -41,7 +41,7 @@ namespace trading::genetic_algorithm {
 
     template<class ConcreteMatchmaker, class Individual>
     concept Matchmaker = std::invocable<ConcreteMatchmaker, std::vector<Individual>&>
-            && std::same_as<cppcoro::generator<std::array<Individual, std::remove_reference_t<ConcreteMatchmaker>::n_parents>>, std::invoke_result_t<ConcreteMatchmaker, std::vector<Individual>&>>;
+            && std::same_as<cppcoro::generator<std::array<typename Individual::config_type, std::remove_reference_t<ConcreteMatchmaker>::n_parents>>, std::invoke_result_t<ConcreteMatchmaker, std::vector<Individual>&>>;
 
     template<class ConcreteSizer>
     concept PopulationSizer = std::invocable<ConcreteSizer, std::size_t> &&

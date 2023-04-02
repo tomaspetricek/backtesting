@@ -8,11 +8,11 @@
 #include <cstddef>
 
 namespace trading::simulated_annealing {
-    class fixed_iteration_equilibrium {
+    class fixed_equilibrium {
         std::size_t n_tries_, it_{0};
 
     public:
-        explicit fixed_iteration_equilibrium(std::size_t n_tries)
+        explicit fixed_equilibrium(std::size_t n_tries)
                 :n_tries_(n_tries) { }
 
         bool operator()()

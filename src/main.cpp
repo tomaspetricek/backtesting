@@ -138,44 +138,6 @@ void to_csv(chart_series<n_levels>&& series, const std::filesystem::path& out_di
     write_csv({out_dir/"equity-series.csv"}, std::array<std::string, 2>{"time", "equity"}, series.equity);
 }
 
-template<class SystemicGenerator, class RandomGenerator>
-void test_generators(SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen, std::size_t n_it)
-{
-    using value_type = typename RandomGenerator::value_type;
-    std::size_t it{0};
-    using map_type = std::map<value_type, std::size_t>;
-    map_type options;
-
-    for (const auto& sizes: sys_gen())
-        options.insert(typename map_type::value_type{sizes, 0});
-
-    auto origin = rand_gen();
-    auto duration = measure_duration([&]() {
-        while (it++!=n_it) {
-            origin = rand_gen(origin);
-            assert(options.contains(origin));
-            options[origin] += 1;
-        }
-    });
-
-    using pair_type = std::pair<value_type, std::size_t>;
-    std::vector<pair_type> counts;
-    counts.reserve(options.size());
-    std::copy(options.begin(), options.end(), std::back_inserter(counts));
-
-    std::sort(counts.begin(), counts.end(), [=](const pair_type& a, const pair_type& b) {
-        return a.second>b.second;
-    });
-
-    for (const auto& [sizes, count]: counts) {
-//        assert(count);
-        std::cout << json{sizes} << ", " << std::setprecision(2) << (static_cast<double>(count)/n_it)*100
-                  << " %"
-                  << std::endl;
-    }
-    std::cout << "duration: " << duration << std::endl;
-}
-
 inline std::string name_experiment_directory(std::size_t num)
 {
     return fmt::format("{:02d}", num);
@@ -329,7 +291,7 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings, const std::
     progress_observer_type progress_observer;
     simulated_annealing::progress_reporter reporter{logger};
 
-    auto equilibrium = simulated_annealing::fixed_iteration_equilibrium{n_tries};
+    auto equilibrium = simulated_annealing::fixed_equilibrium{n_tries};
     config_type next;
 
     auto duration = measure_duration([&]() {
@@ -621,6 +583,6 @@ int main()
             {"averaging method", decltype(averager)::name}
     }});
 
-    use_tabu_search(std::move(simulator), std::move(settings), experiment_dir, logger);
+    use_genetic_algorithm(std::move(simulator), std::move(settings), experiment_dir, logger);
     return EXIT_SUCCESS;
 }
