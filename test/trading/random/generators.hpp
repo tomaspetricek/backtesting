@@ -97,6 +97,16 @@ BOOST_AUTO_TEST_SUITE(random_sizes_generator_test)
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(random_int_generator_test)
+    BOOST_AUTO_TEST_CASE(constructor_exception_test)
+    {
+        using gen_type = trading::random::int_range;
+        BOOST_REQUIRE_THROW(gen_type(1, 2, 0), std::invalid_argument);
+        BOOST_REQUIRE_THROW(gen_type(10, 2, -3), std::invalid_argument);
+        BOOST_REQUIRE_THROW(gen_type(10, 2, 1), std::invalid_argument);
+        BOOST_REQUIRE_THROW(gen_type(2, 10, 3), std::invalid_argument);
+        BOOST_REQUIRE_THROW(gen_type(2, 10, -1), std::invalid_argument);
+    }
+
     BOOST_AUTO_TEST_CASE(change_span_exception_test)
     {
         int from{1}, to{10}, step{1};
@@ -110,14 +120,14 @@ BOOST_AUTO_TEST_SUITE(random_int_generator_test)
             int from, to, step;
         };
         std::vector<setting> settings{
-                {1, 10, 1},
-                {10, 1, -1},
-                {-5, 5, 1},
-                {5, -5, -1},
-                {-10, -1, 1},
-                {-1, -10, -1},
-                {-3, -30, -3},
-                {-2, -20, -2},
+                {1,   10,  1},
+                {10,  1,   -1},
+                {-5,  5,   1},
+                {5,   -5,  -1},
+                {-10, -1,  1},
+                {-1,  -10, -1},
+                {-3,  -30, -3},
+                {-2,  -20, -2},
         };
         std::size_t n_tries{10'000};
         for (const auto& set: settings) {

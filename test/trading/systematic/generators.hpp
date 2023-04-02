@@ -1,19 +1,18 @@
 //
-// Created by Tomáš Petříček on 29.12.2022.
+// Created by Tomáš Petříček on 02.04.2023.
 //
 
+#ifndef BACKTESTING_TEST_SYSTEMATIC_GENERATORS_HPP
+#define BACKTESTING_TEST_SYSTEMATIC_GENERATORS_HPP
+
 #include <boost/test/unit_test.hpp>
-#include <unordered_map>
 #include <array>
 #include <exception>
 #include <trading/systematic/generators.hpp>
-#include <trading/random/generators.hpp>
-
-#ifndef BACKTESTING_TEST_GENERATORS_HPP
-#define BACKTESTING_TEST_GENERATORS_HPP
+#include <trading/types.hpp>
 
 template<typename Generator, std::size_t seq_size>
-void test_usage(Generator&& gen, const std::vector<std::array<fraction_t, seq_size>>& expect_seqs)
+void test_usage(Generator&& gen, const std::vector<std::array<trading::fraction_t, seq_size>>& expect_seqs)
 {
     std::size_t n_gen{0};
     for (const auto& actual_seq: gen()) {
@@ -38,14 +37,14 @@ BOOST_AUTO_TEST_SUITE(systematic_levels_generator_test)
         std::size_t n_fracs{n_levels};
         std::size_t denom{n_fracs+1}; // 3
         test_usage(trading::systematic::levels_generator<n_levels>(n_fracs),
-                std::vector<std::array<fraction_t, n_levels>>{
+                std::vector<std::array<trading::fraction_t, n_levels>>{
                         {{{{2, denom}, {1, denom}}}}
                 });
 
         n_fracs = n_levels+1;
         denom = n_fracs+1;
         test_usage(trading::systematic::levels_generator<n_levels>(n_fracs),
-                std::vector<std::array<fraction_t, n_levels>>{
+                std::vector<std::array<trading::fraction_t, n_levels>>{
                         {{{3, denom}, {2, denom}}},
                         {{{3, denom}, {1, denom}}},
                         {{{2, denom}, {1, denom}}},
@@ -54,7 +53,7 @@ BOOST_AUTO_TEST_SUITE(systematic_levels_generator_test)
         n_fracs = n_levels+2; // 4
         denom = n_fracs+1; // 5
         test_usage(trading::systematic::levels_generator<n_levels>(n_fracs),
-                std::vector<std::array<fraction_t, n_levels>>{
+                std::vector<std::array<trading::fraction_t, n_levels>>{
                         {{{4, denom}, {3, denom}}},
                         {{{4, denom}, {2, denom}}},
                         {{{4, denom}, {1, denom}}},
@@ -77,14 +76,14 @@ BOOST_AUTO_TEST_SUITE(systematic_sizes_generator_test)
         std::size_t n_unique_fracs{1};
         std::size_t denom{n_sizes+n_unique_fracs-1};
         test_usage(trading::systematic::sizes_generator<n_sizes>(n_unique_fracs),
-                std::vector<std::array<fraction_t, n_sizes>>{
+                std::vector<std::array<trading::fraction_t, n_sizes>>{
                         {{{1, denom}, {1, denom}, {1, denom}}}
                 });
 
         n_unique_fracs = 2;
         denom = n_sizes+n_unique_fracs-1;
         test_usage(trading::systematic::sizes_generator<n_sizes>(n_unique_fracs),
-                std::vector<std::array<fraction_t, n_sizes>>{
+                std::vector<std::array<trading::fraction_t, n_sizes>>{
                         {{{1, denom}, {1, denom}, {2, denom}}},
                         {{{1, denom}, {2, denom}, {1, denom}}},
                         {{{2, denom}, {1, denom}, {1, denom}}},
@@ -93,7 +92,7 @@ BOOST_AUTO_TEST_SUITE(systematic_sizes_generator_test)
         n_unique_fracs = 3;
         denom = n_sizes+n_unique_fracs-1;
         test_usage(trading::systematic::sizes_generator<n_sizes>(n_unique_fracs),
-                std::vector<std::array<fraction_t, n_sizes>>{
+                std::vector<std::array<trading::fraction_t, n_sizes>>{
                         {{{1, denom}, {1, denom}, {3, denom}}},
                         {{{1, denom}, {2, denom}, {2, denom}}},
                         {{{1, denom}, {3, denom}, {1, denom}}},
@@ -102,49 +101,47 @@ BOOST_AUTO_TEST_SUITE(systematic_sizes_generator_test)
                         {{{3, denom}, {1, denom}, {1, denom}}},
                 });
     }
-
 BOOST_AUTO_TEST_SUITE_END()
 
-template<class RandomGenerator, class SystematicGenerator>
-void test_reachability(RandomGenerator& rand_gen, SystematicGenerator& sys_gen, std::size_t max_it)
-{
-    using map_type = std::map<typename RandomGenerator::value_type, bool>;
-    map_type all;
-
-    for (const auto& sizes: sys_gen())
-        all.insert(typename map_type::value_type{sizes, false});
-
-    std::size_t it{0};
-    while (++it!=max_it) {
-        const auto& sizes = rand_gen();
-        BOOST_REQUIRE(all.contains(sizes));
-        all[sizes] = true;
-    }
-
-    for (const auto& [sizes, generated]: all)
-        BOOST_REQUIRE(generated);
-}
-
-BOOST_AUTO_TEST_SUITE(random_sizes_generator_test)
-    BOOST_AUTO_TEST_CASE(accessibility_test)
+BOOST_AUTO_TEST_SUITE(systematic_int_generator_test)
+    BOOST_AUTO_TEST_CASE(constructor_exception_test)
     {
-        const std::size_t n_levels{3};
-        std::size_t n_unique{10};
-        trading::random::sizes_generator<n_levels> rand_gen{n_unique};
-        trading::systematic::sizes_generator<n_levels> sys_gen{n_unique};
-        test_reachability(rand_gen, sys_gen, 1'000);
+        using gen_type = trading::systematic::int_range;
+        BOOST_REQUIRE_THROW(gen_type(1, 2, 0), std::invalid_argument);
+        BOOST_REQUIRE_THROW(gen_type(10, 2, -3), std::invalid_argument);
+        BOOST_REQUIRE_THROW(gen_type(10, 2, 1), std::invalid_argument);
+        BOOST_REQUIRE_THROW(gen_type(2, 10, 3), std::invalid_argument);
+        BOOST_REQUIRE_THROW(gen_type(2, 10, -1), std::invalid_argument);
     }
-BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE(random_levels_generator_test)
-    BOOST_AUTO_TEST_CASE(accessibility_test)
+    BOOST_AUTO_TEST_CASE(usage_test)
     {
-        const std::size_t n_levels{3};
-        std::size_t n_unique{15};
-        trading::random::levels_generator<n_levels> rand_gen{n_unique};
-        trading::systematic::levels_generator<n_levels> sys_gen{n_unique};
-        test_reachability(rand_gen, sys_gen, 10'000);
+        using gen_type = trading::systematic::int_range;
+        struct setting {
+            int from, to, step;
+        };
+        std::vector<setting> settings{
+                {1,   10,  1},
+                {10,  1,   -1},
+                {-5,  5,   1},
+                {5,   -5,  -1},
+                {-10, -1,  1},
+                {-1,  -10, -1},
+                {-3,  -30, -3},
+                {-2,  -20, -2},
+        };
+
+        int expect_val;
+        for (const auto& set: settings) {
+            auto gen = gen_type{set.from, set.to, set.step};
+            expect_val = set.from;
+
+            for (const auto& actual_val: gen()) {
+                BOOST_REQUIRE_EQUAL(expect_val, actual_val);
+                expect_val += set.step;
+            }
+        }
     }
 BOOST_AUTO_TEST_SUITE_END()
 
-#endif //BACKTESTING_TEST_GENERATORS_HPP
+#endif //BACKTESTING_TEST_SYSTEMATIC_GENERATORS_HPP

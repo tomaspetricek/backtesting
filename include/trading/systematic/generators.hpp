@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 30.03.2023.
 //
 
-#ifndef BACKTESTING_TEST_SYSTEMATIC_GENERATORS_HPP
-#define BACKTESTING_TEST_SYSTEMATIC_GENERATORS_HPP
+#ifndef BACKTESTING_SYSTEMATIC_GENERATORS_HPP
+#define BACKTESTING_SYSTEMATIC_GENERATORS_HPP
 
 #include <trading/generators.hpp>
 
@@ -88,4 +88,4 @@ namespace trading::systematic {
         };
     }
 
-#endif //BACKTESTING_TEST_SYSTEMATIC_GENERATORS_HPP
+#endif //BACKTESTING_SYSTEMATIC_GENERATORS_HPP

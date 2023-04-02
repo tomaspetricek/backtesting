@@ -12,6 +12,7 @@
 #include "trading/brute_force/parallel/optimizer.hpp"
 #include "trading/random/generators.hpp"
 #include "trading/simulated_annealing/optimizer.hpp"
+#include "trading/systematic/generators.hpp"
 #include "trading/candle.hpp"
 #include "trading/wallet.hpp"
 #include "trading/trader.hpp"
@@ -23,5 +24,4 @@
 #include "trading/indicator/ema.hpp"
 #include "trading/indicator/sma.hpp"
 #include "trading/fee_charger.hpp"
-#include "trading/generators.hpp"
 #include "trading/result.hpp"

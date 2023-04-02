@@ -70,9 +70,7 @@ namespace trading {
 
     class int_range {
     protected:
-        int from_;
-        int to_;
-        int step_;
+        int from_, to_, step_;
 
         static int validate_step(int step)
         {
