@@ -47,7 +47,7 @@ Největší výhodou tohoto přístupu je, že zaručuje nalezení nejlepšího 
 Konfigurace mohou být reprezentovány různými datovými strukturami, mezi nejběžnější patří: pole a stromy.
 Typ kódování závisí na problému \cite{peres}.
 
-\subsection{Třídy složitosti}
+\section{Třídy složitosti}
 Obtížnost problému lze měřit pomocí \textit{výpočetní složitosti}, která se vztahuje k době, kterou algoritmus potřebuje k získání výsledku v závislosti na velikosti vstupu.
 Výhodou je, že je nezávislá na hardwaru a umožňuje srovnání algoritmů \cite{peres}.
 
@@ -1329,6 +1329,103 @@ for (; !terminate(*this); it_++) {
 \end{lstlisting}
 
 \chapter{Testování}
+V C++ existuje několik testovacích frameworků, ale Boost.Test a GoogleTest jsou 2, které vynikají nejvíce.
+Oba používají makra k vytváření testovacích sad, testovacích případů a asercí, což minimalizuje množství práce potřebné k vytvoření testu.
+Jsou dobře zdokumentované, široce používané a také integrované do IDE, jako je Visual Studio a CLion.
+Pro tuto práci byl vybrán Boost.Test, protože je známější.
+
+Testy jsou organizovány do testovacích modulů, které se skládají z testovacích sad obsahujících testovací případy.
+Existuje několik způsobů, jak danou hierarchii vytvářet a používat.
+Způsob vybraný pro projekt začíná vytvořením souboru \texttt{test.cpp}, který spojuje všechny moduly dohromady.
+V souboru je jako první definováno makro \texttt{BOOST\_TEST\_MAIN} a pod ním jsou zahrnuty všechny moduly.
+Na začátku každého modulu je nejprve zahrnut hlavičkový soubor frameworku.
+Testovací sady a případy jsou vytvářeny pomocí maker.
+Minimální příklad použití lze vidět na \ref{lst:test:module}.
+
+\begin{lstlisting}[caption={~Ukázka testovacího modulu},label={lst:test:module},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+#include <boost/test/unit_test.hpp>
+#include <trading/ema.hpp>
+
+BOOST_AUTO_TEST_SUITE(ema_test)
+    BOOST_AUTO_TEST_CASE(default_constructor_test)
+    {
+        BOOST_REQUIRE_EQUAL(trading::ema{}.period(), std::size_t{1});
+    }
+    BOOST_AUTO_TEST_CASE(constructor_exception_test)
+    {
+        BOOST_REQUIRE_THROW(ema{0}, std::invalid_argument);
+    }
+    BOOST_AUTO_TEST_CASE(usage_test)
+    {
+        ma_usage_test<5,3,ema>({1, 2, 3, 7, 9}, {2.0, 4.5, 6.75}, 0.01);
+    }
+BOOST_AUTO_TEST_SUITE_END()
+\end{lstlisting}
+
+K samotnému testování jsou používány výroky (assertion), které jsou vyhodnoceny jako pravdivé nebo nepravdivé.
+Framework nabízí různé výroky, které jsou spojeny s jednou ze tří úrovní testování.
+Nejméně závažná je úroveň \texttt{WARN}, která vydá varovnou zprávu, pokud výrok není pravdivý.
+Pokud je použita úroveň \texttt{CHECK}, vygeneruje chybu, ale umožní pokračovat v testování.
+Nejzávažnější je úroveň \texttt{REQUIRE}, která vygeneruje chybovou hlášku a přeruší provedení daného testovacího případu.
+
+Nabízí velmi dobře formátované a přehledné konzolové logy, které slouží k hlášení průběhu testování.
+K dispozici jsou různé úrovně logování.
+Ve výchozím nastavení je hlášeno vše: úspěch, varování, chyby, nezachycené výjimky a další.
+Úroveň lze nastavit pomocí proměnné prostředí nebo příznaků příkazového řádku.
+
+V CLion IDE lze testovací sady a případy spouštět jednotlivě.
+Mohou být také spuštěny v režimu ladění.
+Poskytuje různé nástroje, jak lépe prozkoumat výsledky testování.
+
+\section{Optimalizátory}
+Díky flexibilitě šablon lze použít jako konfigurace celá čísla a funkce lambda namísto instancí tříd.
+Zároveň \texttt{systematic::int\_range} a \texttt{random::int\_range} mohly být použity jako generátory stavového prostoru.
+Díky tomu bylo vytváření testů mnohem jednodušší.
+
+Objektivní funkce převádí celá čísla na čísla s dvojnásobnou přesností.
+Cílem všech testů bylo nalézt její maximální hodnotu.
+K testování bylo také možné využít pozorovatele.
+Pro každou heuristickou metodu byl implementován pozorovatel, který počítá výskyt událostí.
+Ukázku testování lze vidět na \ref{lst:test:event:counter}.
+
+\begin{lstlisting}[caption={~Testování optimalizátoru pomocí pozorovatele},label={lst:test:event:counter},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+BOOST_AUTO_TEST_CASE(count_events_test)
+{
+    using config_t = int;
+    using optimizer_t =trading::simulated_annealing::optimizer<config_t>;
+    using state_t = optimizer_t::state_type;
+    double start_temp{100}, min_temp{1};
+    auto cooler = [](auto& optimizer) {
+        optimizer.current_temperature(optimizer.current_temperature()-1);
+    };
+    auto appraiser = [](const auto& current, const auto& candidate) {
+        return current.value-candidate.value;;
+    };
+    auto objective = [](const auto& config) {
+        return static_cast<double>(config);
+    };
+    auto constraints = [](const state_t& candidate) { return true; };
+    auto neighbor = trading::random::int_range(1, 100, 1);
+    auto equilibrium=trading::simulated_annealing::fixed_equilibrium{10};
+    auto optimizer = optimizer_t{start_temp, min_temp};
+    auto counter = event_counter{};
+    int init_value{neighbor()};
+    state_t init{init_value, objective(init_value)};
+    trading::constructive_result result{init,
+        [&](const auto& lhs, const auto& rhs) {
+        return lhs.value>rhs.value;
+    }};
+    optimizer(init.config, result, constraints, cooler,
+        objective, neighbor, appraiser, equilibrium, counter);
+    BOOST_REQUIRE_EQUAL(counter.started_count, 1);
+    BOOST_REQUIRE_EQUAL(counter.finished_count, 1);
+    BOOST_REQUIRE_EQUAL(counter.cooled_count, optimizer.it());
+    BOOST_REQUIRE(counter.better_accepted_count>0);
+    BOOST_REQUIRE(counter.worse_accepted_count>0);
+}
+\end{lstlisting}
+
+\subsection{Generátory stavového prostoru}
 
 
 \chapter{Experimentální vyhodnocení}

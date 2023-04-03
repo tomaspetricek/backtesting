@@ -92,23 +92,22 @@ BOOST_AUTO_TEST_SUITE(simulated_annealing_optimizer_test)
             return current.value-candidate.value;;
         };
         auto objective = [](const auto& config) { return static_cast<double>(config); };
-        int init_value{1};
+        auto constraints = [](const auto& state) { return true; };
+        auto neighbor = trading::random::int_range(1, 100, 1);
+        auto equilibrium = trading::simulated_annealing::fixed_equilibrium{10};
+        auto optimizer = optimizer_type{start_temp, min_temp};
+        auto counter = event_counter{};
+        int init_value{neighbor()};
         state_type init{init_value, objective(init_value)};
         trading::constructive_result result{init, [&](const auto& lhs, const auto& rhs) {
             return lhs.value>rhs.value;
         }};
-        auto constraints = [](const auto& state) { return true; };
-        auto neighbor = trading::random::int_range(1, 100, 1);
-        auto equilibrium = trading::simulated_annealing::fixed_equilibrium{10};
-        auto optimizer = trading::simulated_annealing::optimizer<config_type>(start_temp, min_temp);
-        auto counter = event_counter{};
-
-        optimizer(init.value, result, constraints, cooler, objective, neighbor, appraiser, equilibrium, counter);
+        optimizer(init.config, result, constraints, cooler, objective, neighbor, appraiser, equilibrium, counter);
         BOOST_REQUIRE_EQUAL(counter.started_count, 1);
         BOOST_REQUIRE_EQUAL(counter.finished_count, 1);
         BOOST_REQUIRE_EQUAL(counter.cooled_count, optimizer.it());
-        BOOST_REQUIRE(counter.better_accepted_count>=0);
-        BOOST_REQUIRE(counter.worse_accepted_count>=0);
+        BOOST_REQUIRE(counter.better_accepted_count>0);
+        BOOST_REQUIRE(counter.worse_accepted_count>0);
     }
 
     BOOST_AUTO_TEST_CASE(no_constrains_satisfied_test)

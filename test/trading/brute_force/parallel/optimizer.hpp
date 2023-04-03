@@ -18,13 +18,14 @@ BOOST_AUTO_TEST_SUITE(brute_force_optimizer_test)
     {
         using optimizer_type = trading::brute_force::parallel::optimizer<int>;
         optimizer_type optimizer;
-        optimizer_type::state_type init{0, 0.0};
+        auto objective = [](const auto& config) { return static_cast<double>(config); };
+        int init_value{0};
+        optimizer_type::state_type init{init_value, objective(init_value)};
         trading::constructive_result result{init, [](const auto& lhs, const auto& rhs) {
             return lhs.value>rhs.value;
         }};
         auto search_space = trading::systematic::int_range(1, 10, 1);
         auto constraints = [](const auto& state) { return true; };
-        auto objective = [](const auto& config) { return static_cast<double>(config); };
         optimizer(result, constraints, objective, search_space);
         BOOST_REQUIRE_EQUAL(result.get().config, search_space.to());
     }
