@@ -12,11 +12,12 @@
 #include <trading/io/csv/reader.hpp>
 
 BOOST_AUTO_TEST_SUITE(io_csv_reader_test)
+    std::filesystem::path test_files_dir{"../../test/data/in/csv"};
+
     BOOST_AUTO_TEST_CASE(constructor_exception_test)
     {
         BOOST_REQUIRE_THROW(trading::io::csv::reader<2>{{"does-not-exist.csv"}}, std::invalid_argument);
     }
-    std::filesystem::path test_files_dir{"../../test/data/in/csv"};
 
     BOOST_AUTO_TEST_CASE(read_incorrect_column_count_test)
     {
@@ -31,10 +32,11 @@ BOOST_AUTO_TEST_SUITE(io_csv_reader_test)
     {
         constexpr std::size_t col_count{3};
         using reader_type = trading::io::csv::reader<col_count>;
+        using header_type = std::array<std::string, reader_type::column_count>;
         reader_type reader{{test_files_dir/"header-only.csv"}};
-        std::array<std::string, reader_type::column_count> actual_header;
+        header_type actual_header;
         BOOST_REQUIRE(reader.read_header(actual_header));
-        std::array<std::string, reader_type::column_count> expect_header{"season", "gender", "height"};
+        header_type expect_header{"season", "gender", "height"};
         BOOST_TEST(actual_header==expect_header);
     }
 

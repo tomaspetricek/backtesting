@@ -9,28 +9,25 @@
 #include <fstream>
 #include <utility>
 #include <trading/io/stringifier.hpp>
+#include <trading/io/csv/base.hpp>
 
 namespace trading::io::csv {
     template<std::size_t n_cols>
-    class writer final {
-        std::ofstream file_;
-        const char delim_;
+    class writer final : public base<n_cols,std::ofstream>{
+        using base_type = base<n_cols,std::ofstream>;
         std::ios_base::openmode mode_{std::ios_base::out};
 
         void write_value(std::size_t i, const std::string& val)
         {
-            char sep = (i<n_cols-1) ? delim_ : '\n';
-            file_ << val << sep;
+            char sep = (i<n_cols-1) ? this->delim_ : '\n';
+            this->file_ << val << sep;
         }
 
     public:
-        explicit writer(const std::filesystem::path& path, char delim = ',')
-                :delim_(delim)
+        explicit writer(const std::filesystem::path& path, char delim = base_type::default_delim)
+                :base_type{delim}
         {
-            file_ = std::ofstream{path.string(), mode_};
-
-            if (!file_.is_open())
-                throw std::runtime_error("Cannot open "+path.string());
+            this->file_ = typename base_type::file_stream_type{path.string(), mode_};
         }
 
         void write_header(const std::array<std::string, n_cols>& header)

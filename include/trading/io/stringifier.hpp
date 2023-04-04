@@ -22,6 +22,11 @@ namespace trading {
         {
             return data;
         }
+
+        inline static std::string to_string(const char* data)
+        {
+            return data;
+        }
     };
 }
 
