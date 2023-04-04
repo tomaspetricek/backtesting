@@ -16,8 +16,14 @@
 #include <trading/tuple.hpp>
 
 namespace trading::io {
-    class parser final {
-    public:
+    struct parser final {
+        template<class T>
+        requires std::same_as<T, int>
+        inline static long parse(const std::string& data)
+        {
+            return std::stoi(data);
+        }
+
         template<class T>
         requires std::same_as<T, long>
         inline static long parse(const std::string& data)

@@ -25,5 +25,7 @@
 #include "trading/indicator/ma.hpp"
 #include "trading/indicator/ema.hpp"
 #include "trading/indicator/sma.hpp"
+#include "trading/io/csv/reader.hpp"
+#include "trading/io/csv/writer.hpp"
 #include "trading/fee_charger.hpp"
 #include "trading/result.hpp"
