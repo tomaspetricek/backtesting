@@ -11,16 +11,15 @@
 #include <trading/random/generators.hpp>
 #include <trading/systematic/generators.hpp>
 
-template<class Value, class SystemicGenerator, class RandomGenerator>
-void test_reachability(Value origin, SystemicGenerator&& sys_gen, RandomGenerator&& rand_gen, std::size_t n_it)
+template<class Value, class SystematicGenerator, class RandomGenerator>
+void test_reachability(Value origin, SystematicGenerator&& sys_gen, RandomGenerator&& rand_gen, std::size_t n_it)
 {
     std::size_t it{0};
     using map_type = std::map<Value, std::size_t>;
-    using pair_type = std::pair<Value, std::size_t>;
     map_type options;
 
-    for (const auto& sizes: sys_gen())
-        options.insert(typename map_type::value_type{sizes, 0});
+    for (const auto& value: sys_gen())
+        options.insert(typename map_type::value_type{value, 0});
 
     while (it++!=n_it) {
         origin = rand_gen(origin);

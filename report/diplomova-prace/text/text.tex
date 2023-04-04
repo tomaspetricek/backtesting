@@ -1379,7 +1379,7 @@ Poskytuje různé nástroje, jak lépe prozkoumat výsledky testování.
 
 \section{Optimalizátory}
 Díky flexibilitě šablon lze použít jako konfigurace celá čísla a funkce lambda namísto instancí tříd.
-Zároveň \texttt{systematic::int\_range} a \texttt{random::int\_range} mohly být použity jako generátory stavového prostoru.
+Zároveň mohly být použity \texttt{systematic::int\_range} a \texttt{random::int\_range}  jako generátory stavového prostoru.
 Díky tomu bylo vytváření testů mnohem jednodušší.
 
 Objektivní funkce převádí celá čísla na čísla s dvojnásobnou přesností.
@@ -1425,8 +1425,35 @@ BOOST_AUTO_TEST_CASE(count_events_test)
 }
 \end{lstlisting}
 
-\subsection{Generátory stavového prostoru}
+\section{Generátory stavového prostoru}
+Generátory byly testovány na výjimky, které generují pro neplatný vstup.
+Hodnoty generované systematickými generátory byly zkontrolovány na platnost a jedinečnost a porovnány se sadou očekávaných hodnot.
+Současně byly použity různé kombinace hodnot parametrů.
+Jakmile byla získána určitá úroveň důvěry, byly systematické generátory použity k testování náhodných generátorů.
+Hlavním cílem byla kontrola dosažitelnosti, pokud náhodné generátory vygenerovaly všechny možné hodnoty v určitém počtu iterací, byly považovány za validní \ref{lst:test:reachability}.
 
+\begin{lstlisting}[caption={~Testování dosažitelnosti stavů},label={lst:test:reachability},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+template<class Value, class SystematicGenerator, class RandomGenerator>
+void test_reachability(Value origin, SystematicGenerator&& sys_gen,
+    RandomGenerator&& rand_gen, std::size_t n_it)
+{
+    std::size_t it{0};
+    using map_type = std::map<Value, std::size_t>;
+    map_type options;
+
+    for (const auto& value: sys_gen())
+        options.insert(typename map_type::value_type{value, 0});
+
+    while (it++!=n_it) {
+        origin = rand_gen(origin);
+        BOOST_REQUIRE(options.contains(origin));
+        options[origin] += 1;
+    }
+
+    for (const auto& [opt, count]: options)
+        BOOST_REQUIRE(count);
+}
+\end{lstlisting}
 
 \chapter{Experimentální vyhodnocení}
 
