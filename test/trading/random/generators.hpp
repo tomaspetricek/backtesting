@@ -16,6 +16,7 @@ void test_reachability(Value origin, SystemicGenerator&& sys_gen, RandomGenerato
 {
     std::size_t it{0};
     using map_type = std::map<Value, std::size_t>;
+    using pair_type = std::pair<Value, std::size_t>;
     map_type options;
 
     for (const auto& sizes: sys_gen())
@@ -27,16 +28,7 @@ void test_reachability(Value origin, SystemicGenerator&& sys_gen, RandomGenerato
         options[origin] += 1;
     }
 
-    using pair_type = std::pair<Value, std::size_t>;
-    std::vector<pair_type> counts;
-    counts.reserve(options.size());
-    std::copy(options.begin(), options.end(), std::back_inserter(counts));
-
-    std::sort(counts.begin(), counts.end(), [=](const pair_type& a, const pair_type& b) {
-        return a.second>b.second;
-    });
-
-    for (const auto& [sizes, count]: counts)
+    for (const auto& [opt, count]: options)
         BOOST_REQUIRE(count);
 }
 

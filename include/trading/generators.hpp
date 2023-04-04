@@ -36,6 +36,7 @@ namespace trading {
                 :denom_(n_sizes+validate_n_unique(n_unique)-1), max_num_(denom_-n_sizes+1) { }
 
     public:
+        using value_type = std::array<fraction_t, n_sizes>;
 
         std::size_t unique_count()
         {
@@ -62,6 +63,8 @@ namespace trading {
                 :denom_(validate_n_unique(n_unique)+1) { }
 
     public:
+        using value_type = std::array<fraction_t, n_levels>;
+
         std::size_t unique_count()
         {
             return denom_-1;
@@ -101,6 +104,8 @@ namespace trading {
         }
 
     public:
+        using value_type = int;
+
         int step() const
         {
             return step_;

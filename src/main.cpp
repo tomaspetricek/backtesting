@@ -192,7 +192,7 @@ int use_brute_force(Simulator&& simulator, json&& settings)
     auto restrictions = [](const state_type&) { return true; };
 
     systematic::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
-    systematic::sizes_generator<n_levels> sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
+    systematic::levels_generator<n_levels> sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
     const auto& period_doc = settings["search space"]["moving average"]["period"];
     systematic::int_range periods_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
     auto tags = {bazooka::indicator_tag::ema, bazooka::indicator_tag::sma};
