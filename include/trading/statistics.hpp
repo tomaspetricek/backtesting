@@ -60,10 +60,8 @@ namespace trading {
     public:
         void update(amount_t position_profit)
         {
-            if (position_profit<amount_t{0.0})
-                gross_loss_ += position_profit;
-            else
-                gross_profit_ += position_profit;
+            if (position_profit<amount_t{0.0}) gross_loss_ += position_profit;
+            else gross_profit_ += position_profit;
         }
 
         amount_t gross_profit() const
@@ -83,24 +81,31 @@ namespace trading {
 
         double profit_factor() const
         {
-//            assert(gross_loss_!=0.0);
             return gross_profit_/std::abs(gross_loss_);
         }
     };
 
     class statistics {
-        amount_t init_balance_;
-        amount_t final_balance_;
+        amount_t init_balance_{0};
+        amount_t final_balance_{init_balance_};
         motion_statistics close_balance_;
         motion_statistics equity_;
         profit_statistics profit_;
         std::size_t total_open_orders_{0};
         std::size_t total_close_orders_{0};
 
+        void validate_init_balance(amount_t init_balance)
+        {
+            if (init_balance<amount_t{0.0})
+                throw std::invalid_argument{"Initial balance has to be greater than 0"};
+        }
     public:
         explicit statistics(amount_t init_balance)
                 :init_balance_{init_balance}, final_balance_{init_balance}, close_balance_{init_balance},
-                 equity_{init_balance} { }
+                 equity_{init_balance}
+        {
+            validate_init_balance(init_balance);
+        }
 
         statistics() = default;
 
@@ -132,6 +137,11 @@ namespace trading {
         void increase_total_close_orders()
         {
             total_close_orders_++;
+        }
+
+        amount_t init_balance() const
+        {
+            return init_balance_;
         }
 
         amount_t final_balance() const

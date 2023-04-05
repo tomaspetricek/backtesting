@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_SUITE(genetic_algorithm_optimizer_test)
         using state_type = optimizer_type::state_type;
         auto generator = trading::random::int_range_generator{1, 100, 1};
 
-        std::size_t population_size{75};
+        std::size_t population_size{100};
         std::vector<config_type> init_population;
         init_population.reserve(population_size);
         for (std::size_t i{0}; i<population_size; i++)
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_SUITE(genetic_algorithm_optimizer_test)
         auto optimizer = optimizer_type{};
         optimizer(init_population, result, constraints, objective, sizer, selection,
                 match, crossover_type{}, mutation, replacement, termination, counter);
-        BOOST_REQUIRE_EQUAL(result.get().config, generator.to());
+        BOOST_REQUIRE_EQUAL(result.get().config, generator.max());
         BOOST_REQUIRE_EQUAL(counter.started_count, 1);
         BOOST_REQUIRE_EQUAL(counter.finished_count, 1);
         BOOST_REQUIRE_EQUAL(counter.population_updated_count, termination.max_it());

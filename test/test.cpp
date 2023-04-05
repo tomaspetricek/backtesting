@@ -32,3 +32,4 @@
 #include "trading/fee_charger.hpp"
 #include "trading/fixtures.hpp"
 #include "trading/result.hpp"
+#include "trading/statistics.hpp"
