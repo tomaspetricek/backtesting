@@ -35,6 +35,7 @@ BOOST_AUTO_TEST_SUITE(genetic_algorithm_roulette_selection_test)
     {
         test_usage(10, 100);
         test_usage(0, 100);
+        test_usage(0, 1);
     }
 BOOST_AUTO_TEST_SUITE_END()
 
