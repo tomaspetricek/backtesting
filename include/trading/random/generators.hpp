@@ -154,8 +154,11 @@ namespace trading::random {
         Distribution<Type> _distrib;
 
     public:
-        explicit numeric_interval_generator(const Type& from, const Type& to)
-                :_gen{std::random_device{}()}, _distrib{from, to} { }
+        explicit numeric_interval_generator(const Type& min, const Type& max)
+                :_gen{std::random_device{}()}, _distrib{min, max}
+        {
+            if (!(min<max)) throw std::invalid_argument("Maximum has  to be greater than minimum");
+        }
 
         Type operator()()
         {
@@ -189,7 +192,7 @@ namespace trading::random {
         {
             int positive_step = std::abs(step_);
             distrib_.param(
-                    std::uniform_int_distribution<int>::param_type{min_/positive_step,max_/positive_step});
+                    std::uniform_int_distribution<int>::param_type{min_/positive_step, max_/positive_step});
             int val = distrib_(gen_)*positive_step;
             assert(val>=min_ && val<=max_);
             return val;

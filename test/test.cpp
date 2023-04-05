@@ -11,6 +11,7 @@
 #include "trading/bazooka/trader.hpp"
 #include "trading/brute_force/parallel/optimizer.hpp"
 #include "trading/genetic_algorithm/optimizer.hpp"
+#include "trading/genetic_algorithm/selection.hpp"
 #include "trading/random/generators.hpp"
 #include "trading/simulated_annealing/equilibrium.hpp"
 #include "trading/simulated_annealing/optimizer.hpp"
