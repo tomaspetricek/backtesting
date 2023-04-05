@@ -71,7 +71,7 @@ namespace trading {
         }
     };
 
-    class int_range {
+    class int_range_generator {
     protected:
         int from_, to_, step_;
 
@@ -81,7 +81,7 @@ namespace trading {
             return step;
         }
 
-        int_range(int from, int to, int step)
+        int_range_generator(int from, int to, int step)
                 :from_{from}, to_{to}, step_(validate_step(step))
         {
             if (from==to) {

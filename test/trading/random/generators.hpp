@@ -87,10 +87,10 @@ BOOST_AUTO_TEST_SUITE(random_sizes_generator_test)
     }
 BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE(random_int_generator_test)
+BOOST_AUTO_TEST_SUITE(random_int_range_generator_test)
     BOOST_AUTO_TEST_CASE(constructor_exception_test)
     {
-        using gen_type = trading::random::int_range;
+        using gen_type = trading::random::int_range_generator;
         BOOST_REQUIRE_THROW(gen_type(1, 2, 0), std::invalid_argument);
         BOOST_REQUIRE_THROW(gen_type(10, 2, -3), std::invalid_argument);
         BOOST_REQUIRE_THROW(gen_type(10, 2, 1), std::invalid_argument);
@@ -101,8 +101,8 @@ BOOST_AUTO_TEST_SUITE(random_int_generator_test)
     BOOST_AUTO_TEST_CASE(change_span_exception_test)
     {
         int from{1}, to{10}, step{1};
-        BOOST_REQUIRE_THROW(trading::random::int_range(from, to, step, 0), std::invalid_argument);
-        BOOST_REQUIRE_THROW(trading::random::int_range(from, to, step, (to/2)+1), std::invalid_argument);
+        BOOST_REQUIRE_THROW(trading::random::int_range_generator(from, to, step, 0), std::invalid_argument);
+        BOOST_REQUIRE_THROW(trading::random::int_range_generator(from, to, step, (to/2)+1), std::invalid_argument);
     }
 
     BOOST_AUTO_TEST_CASE(reachability_test)
@@ -122,9 +122,9 @@ BOOST_AUTO_TEST_SUITE(random_int_generator_test)
         };
         std::size_t n_tries{10'000};
         for (const auto& set: settings) {
-            auto sys_gen = trading::systematic::int_range{set.from, set.to, set.step};
+            auto sys_gen = trading::systematic::int_range_generator{set.from, set.to, set.step};
             for (std::size_t change_count{1}; change_count<=10/2; change_count++) {
-                auto rand_gen = trading::random::int_range(set.from, set.to, set.step, change_count);
+                auto rand_gen = trading::random::int_range_generator(set.from, set.to, set.step, change_count);
                 auto origin = rand_gen();
                 test_reachability(origin, sys_gen, [&](const auto& origin) {
                     return rand_gen(origin);
@@ -134,6 +134,17 @@ BOOST_AUTO_TEST_SUITE(random_int_generator_test)
                 }, n_tries);
             }
         }
+    }
+
+    BOOST_AUTO_TEST_CASE(some_test){
+        int from{1}, to{100}, step{1};
+        trading::systematic::int_range_generator sys_gen{from, to, step};
+        trading::random::int_range_generator rand_gen{from, to, step, 10};
+        auto origin = rand_gen();
+        std::size_t n_tries{1'000};
+        test_reachability(origin, sys_gen, [&](const auto& origin) {
+            return rand_gen(origin);
+        }, n_tries);
     }
 BOOST_AUTO_TEST_SUITE_END()
 

@@ -10,61 +10,16 @@
 #include <map>
 #include <trading/bazooka/configuration.hpp>
 #include <trading/bazooka/movement.hpp>
+#include <trading/tabu_search/memory.hpp>
 
 namespace trading::bazooka {
     template<class Tenure>
-    class period_memory {
-        std::size_t from_, to_, step_;
-        Tenure tenure_;
-        std::vector<std::size_t> mem_;
-        std::size_t size_{0};
-
-        std::size_t index(std::size_t period) const
-        {
-            return (period-from_)/step_;
-        }
-
-    public:
-        explicit period_memory(std::size_t from, std::size_t to, std::size_t step, Tenure tenure)
-                :from_(from), to_(to), step_(step), tenure_(tenure), mem_(((to-from)/step)+1, 0) { }
-
-        bool contains(std::size_t period) const
-        {
-            return mem_[index(period)];
-        }
-
-        void remember(std::size_t period)
-        {
-            if (!mem_[index(period)]) size_++;
-            mem_[index(period)] = tenure_();
-        }
-
-        void forget()
-        {
-            for (auto& count: mem_)
-                if (count)
-                    if (!--count)
-                        size_--;
-        }
-
-        std::size_t size() const
-        {
-            return size_;
-        }
-
-        Tenure tenure() const
-        {
-            return tenure_;
-        }
-    };
-
-    template<class Tenure>
-    class indicator_type_memory {
+    class indicator_tag_memory {
         Tenure tenure_;
         std::size_t mem_{0};
 
     public:
-        explicit indicator_type_memory(const Tenure& tenure)
+        explicit indicator_tag_memory(const Tenure& tenure)
                 :tenure_(tenure) { }
 
         bool contains(const bazooka::indicator_tag&) const
@@ -133,17 +88,17 @@ namespace trading::bazooka {
     };
 
     template<std::size_t n_levels, class MaTenure, class PeriodTenure, class LevelsTenure, class SizesTenure>
-    class configuration_moves_memory {
-        indicator_type_memory<MaTenure> indic_mem_;
-        period_memory<PeriodTenure> period_mem_;
+    class configuration_memory {
+        indicator_tag_memory<MaTenure> indic_mem_;
+        tabu_search::int_range_memory<PeriodTenure> period_mem_;
         array_memory<n_levels, LevelsTenure> levels_mem_;
         array_memory<n_levels, SizesTenure> sizes_mem_;
 
     public:
         using move_type = movement<n_levels>;
 
-        configuration_moves_memory(const indicator_type_memory<MaTenure>& ma_mem,
-                const period_memory<PeriodTenure>& period_mem,
+        configuration_memory(const indicator_tag_memory<MaTenure>& ma_mem,
+                const tabu_search::int_range_memory<PeriodTenure>& period_mem,
                 const array_memory<n_levels, LevelsTenure>& levels_mem,
                 const array_memory<n_levels, SizesTenure>& sizes_mem)
                 :indic_mem_(ma_mem), period_mem_(period_mem), levels_mem_(levels_mem), sizes_mem_(sizes_mem) { }
@@ -179,21 +134,12 @@ namespace trading::bazooka {
             }
         }
 
-        void forget(typename move_type::indices index)
+        void forget()
         {
-            switch (index) {
-            case move_type::indices::tag:
-                indic_mem_.forget();
-                break;
-            case move_type::indices::period:
-                period_mem_.forget();
-                break;
-            case move_type::indices::levels:
-                levels_mem_.forget();
-                break;
-            default:
-                sizes_mem_.forget();
-            }
+            indic_mem_.forget();
+            period_mem_.forget();
+            levels_mem_.forget();
+            sizes_mem_.forget();
         }
 
         std::size_t size() const
@@ -201,12 +147,12 @@ namespace trading::bazooka {
             return indic_mem_.size()+period_mem_.size()+levels_mem_.size()+sizes_mem_.size();
         }
 
-        const indicator_type_memory<MaTenure>& indicator_memory() const
+        const indicator_tag_memory<MaTenure>& indicator_memory() const
         {
             return indic_mem_;
         }
 
-        const period_memory<PeriodTenure>& period_memory() const
+        const tabu_search::int_range_memory<PeriodTenure>& period_memory() const
         {
             return period_mem_;
         }

@@ -8,7 +8,7 @@
 #include <trading/bazooka/configuration.hpp>
 #include <trading/bazooka/crossover.hpp>
 #include <trading/bazooka/strategy.hpp>
-#include <trading/bazooka/moves_memory.hpp>
+#include <trading/bazooka/memory.hpp>
 #include <trading/bazooka/neighbor.hpp>
 #include <trading/bazooka/statistics.hpp>
 #include <trading/brute_force/parallel/optimizer.hpp>
@@ -37,6 +37,7 @@
 #include <trading/simulated_anneling/progress_collector.hpp>
 #include <trading/simulated_anneling/progress_reporter.hpp>
 #include <trading/systematic/generators.hpp>
+#include <trading/tabu_search/memory.hpp>
 #include <trading/tabu_search/optimizer.hpp>
 #include <trading/tabu_search/progress_collector.hpp>
 #include <trading/tabu_search/progress_reporter.hpp>

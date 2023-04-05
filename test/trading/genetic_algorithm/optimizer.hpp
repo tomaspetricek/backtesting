@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_SUITE(genetic_algorithm_optimizer_test)
         using config_type = int;
         using optimizer_type = trading::genetic_algorithm::optimizer<config_type>;
         using state_type = optimizer_type::state_type;
-        auto generator = trading::random::int_range{1, 100, 1};
+        auto generator = trading::random::int_range_generator{1, 100, 1};
 
         std::size_t population_size{75};
         std::vector<config_type> init_population;

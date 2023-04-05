@@ -163,10 +163,10 @@ BOOST_AUTO_TEST_SUITE(systematic_sizes_generator_test)
     }
 BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE(systematic_int_generator_test)
+BOOST_AUTO_TEST_SUITE(systematic_int_range_generator_test)
     BOOST_AUTO_TEST_CASE(constructor_exception_test)
     {
-        using gen_type = trading::systematic::int_range;
+        using gen_type = trading::systematic::int_range_generator;
         BOOST_REQUIRE_THROW(gen_type(1, 2, 0), std::invalid_argument);
         BOOST_REQUIRE_THROW(gen_type(10, 2, -3), std::invalid_argument);
         BOOST_REQUIRE_THROW(gen_type(10, 2, 1), std::invalid_argument);
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_SUITE(systematic_int_generator_test)
 
     BOOST_AUTO_TEST_CASE(usage_test)
     {
-        using gen_type = trading::systematic::int_range;
+        using gen_type = trading::systematic::int_range_generator;
         struct setting {
             int from, to, step;
         };

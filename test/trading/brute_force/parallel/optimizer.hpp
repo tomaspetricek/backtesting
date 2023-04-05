@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_SUITE(brute_force_optimizer_test)
         trading::constructive_result result{init, [](const auto& lhs, const auto& rhs) {
             return lhs.value>rhs.value;
         }};
-        auto search_space = trading::systematic::int_range(1, 10, 1);
+        auto search_space = trading::systematic::int_range_generator(1, 10, 1);
         auto constraints = [](const auto& state) { return true; };
         optimizer(result, constraints, objective, search_space);
         BOOST_REQUIRE_EQUAL(result.get().config, search_space.to());
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_SUITE(brute_force_optimizer_test)
             return lhs.value>rhs.value;
         }};
         double max_value{5};
-        auto search_space = trading::systematic::int_range(1, 10, 1);
+        auto search_space = trading::systematic::int_range_generator(1, 10, 1);
         auto constraints = [&](const auto& state) { return state.value<=max_value; };
         auto objective = [](const auto& config) { return static_cast<double>(config); };
         optimizer(result, constraints, objective, search_space);
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_SUITE(brute_force_optimizer_test)
             updated_count++;
             return lhs.value>rhs.value;
         }};
-        auto search_space = trading::systematic::int_range(1, 10, 1);
+        auto search_space = trading::systematic::int_range_generator(1, 10, 1);
         auto constraints = [&](const auto& state) {
             constraints_checked_count++;
             return false;
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_SUITE(brute_force_optimizer_test)
             throw std::exception();
             return true;
         }};
-        auto search_space = trading::systematic::int_range(1, 10, 1);
+        auto search_space = trading::systematic::int_range_generator(1, 10, 1);
         auto constraints = [](const auto& state) { return true; };
         auto objective = [](const auto& config) { return static_cast<double>(config); };
         BOOST_REQUIRE_THROW(optimizer(result, constraints, objective, search_space), std::runtime_error);

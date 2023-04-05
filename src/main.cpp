@@ -194,7 +194,7 @@ int use_brute_force(Simulator&& simulator, json&& settings)
     systematic::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
     systematic::levels_generator<n_levels> sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
     const auto& period_doc = settings["search space"]["moving average"]["period"];
-    systematic::int_range periods_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
+    systematic::int_range_generator periods_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
     auto tags = {bazooka::indicator_tag::ema, bazooka::indicator_tag::sma};
 
     // create search space
@@ -273,7 +273,7 @@ void use_simulated_annealing(Simulator&& simulator, json&& settings, const std::
     random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
     random::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
     const auto& period_doc = settings["search space"]["moving average"]["period"];
-    random::int_range period_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
+    random::int_range_generator period_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
     bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
     bazooka::configuration<n_levels> init_config{bazooka::indicator_tag::sma, static_cast<std::size_t>(period_gen()),
                                                  levels_gen(), open_sizes_gen()};
@@ -352,7 +352,7 @@ void use_genetic_algorithm(Simulator&& simulator, json&& settings, const std::fi
     random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
     random::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
     const auto& period_doc = settings["search space"]["moving average"]["period"];
-    random::int_range period_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
+    random::int_range_generator period_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
     std::vector<config_type> init_genes;
     genetic_algorithm::optimizer<config_type> optimizer;
 
@@ -432,7 +432,7 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
     random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
     random::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
     const auto& period_doc = settings["search space"]["moving average"]["period"];
-    random::int_range period_gen{period_doc["from"], period_doc["to"], period_doc["step"], 10};
+    random::int_range_generator period_gen{period_doc["from"], period_doc["to"], period_doc["step"], 10};
     bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
     bazooka::configuration<n_levels> init_config{bazooka::indicator_tag::sma, static_cast<std::size_t>(period_gen()),
                                                  levels_gen(), open_sizes_gen()};
@@ -442,12 +442,10 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
 
     auto termination = iteration_based_termination{512};
     std::size_t n_it{42};
-    bazooka::configuration_moves_memory moves_memory{
-            bazooka::indicator_type_memory{tabu_search::fixed_tenure{n_it}},
-            bazooka::period_memory{static_cast<std::size_t>(period_gen.from()),
-                                   static_cast<std::size_t>(period_gen.to()),
-                                   static_cast<std::size_t>(period_gen.step()),
-                                   tabu_search::fixed_tenure{n_it}},
+    bazooka::configuration_memory moves_memory{
+            bazooka::indicator_tag_memory{tabu_search::fixed_tenure{n_it}},
+            bazooka::int_range_memory{period_gen.from(), period_gen.to(), period_gen.step(),
+                                      tabu_search::fixed_tenure{n_it}},
             bazooka::array_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{n_it}},
             bazooka::array_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{n_it}}
     };
@@ -509,6 +507,17 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
 
 int main()
 {
+    {
+        int from{1}, to{100}, step{1};
+        trading::random::int_range_generator rand_gen{from, to, step, 10};
+        auto origin = rand_gen();
+        std::size_t it_count{1'000};
+
+        for (std::size_t i{0}; i<it_count; i++){
+            origin = rand_gen(origin);
+            std::cout << origin << std::endl;
+        }
+    }
     return EXIT_SUCCESS;
     constexpr std::size_t n_levels{4};
 

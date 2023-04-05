@@ -73,12 +73,12 @@ namespace trading::systematic {
             }
         };
 
-        class int_range : public trading::int_range {
+        class int_range_generator : public trading::int_range_generator {
         public:
-            using value_type = trading::int_range::value_type;
+            using value_type = trading::int_range_generator::value_type;
 
-            int_range(int from, int to, int step)
-                    :trading::int_range(from, to, step) { }
+            int_range_generator(int from, int to, int step)
+                    :trading::int_range_generator(from, to, step) { }
 
             cppcoro::generator<value_type> operator()()
             {

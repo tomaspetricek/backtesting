@@ -168,7 +168,7 @@ namespace trading::random {
     template<class Type>
     using int_interval_generator = numeric_interval_generator<Type, std::uniform_int_distribution>;
 
-    class int_range : public trading::int_range {
+    class int_range_generator : public trading::int_range_generator {
         std::mt19937 gen_;
         std::uniform_int_distribution<int> distrib_;
         std::size_t change_span_, n_vals_;
@@ -177,8 +177,8 @@ namespace trading::random {
     public:
         using value_type = int;
 
-        explicit int_range(int from, int to, int step, std::size_t change_span = 1)
-                :trading::int_range(from, to, step), change_span_{change_span}
+        explicit int_range_generator(int from, int to, int step, std::size_t change_span = 1)
+                :trading::int_range_generator(from, to, step), change_span_{change_span}
         {
             int positive_step = std::abs(this->step_);
             n_vals_ = (std::abs(to-from)+positive_step)/positive_step;
@@ -223,13 +223,13 @@ namespace trading::random {
     class configuration_generator {
         random::sizes_generator<n_levels> rand_sizes_;
         random::levels_generator<n_levels> rand_levels_;
-        random::int_range rand_period_;
+        random::int_range_generator rand_period_;
         std::mt19937 gen_{std::random_device{}()};
         std::uniform_int_distribution<std::size_t> coin_flip_{0, 1};
 
     public:
         explicit configuration_generator(const random::sizes_generator<n_levels>& rand_sizes,
-                random::levels_generator<n_levels> rand_levels, const random::int_range& rand_period)
+                random::levels_generator<n_levels> rand_levels, const random::int_range_generator& rand_period)
                 :rand_sizes_(rand_sizes), rand_levels_(std::move(rand_levels)), rand_period_(rand_period) { }
 
         bazooka::configuration<n_levels> operator()()

@@ -15,6 +15,7 @@
 #include "trading/simulated_annealing/equilibrium.hpp"
 #include "trading/simulated_annealing/optimizer.hpp"
 #include "trading/systematic/generators.hpp"
+#include "trading/tabu_search/optimizer.hpp"
 #include "trading/candle.hpp"
 #include "trading/wallet.hpp"
 #include "trading/trader.hpp"

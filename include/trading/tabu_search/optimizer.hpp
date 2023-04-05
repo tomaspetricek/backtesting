@@ -7,6 +7,7 @@
 
 #include <unordered_map>
 #include <trading/concepts.hpp>
+#include <trading/optimizer.hpp>
 
 namespace trading::tabu_search {
     template<class ConcreteTabuTenure>
@@ -27,12 +28,12 @@ namespace trading::tabu_search {
 
     template<class Config>
     class optimizer {
-        using state_type = state<Config>;
-        state_type best_, curr_;
+        state<Config> best_, curr_;
         std::size_t it_{0};
 
     public:
-        // neighbourhood size
+        using state_type = state<Config>;
+
         template<class Result, class TabuList, class... Observer>
         void operator()(const Config& init,
                 Result& result,
@@ -48,6 +49,7 @@ namespace trading::tabu_search {
             best_ = curr_ = state_type{init, compute_objective(init)};
             state_type candidate, origin;
             typename TabuList::move_type curr_move, candidate_move;
+            std::size_t neighborhood;
 
             (observers.started(*this), ...);
             for (; !terminate(*this); it_++) {
@@ -56,7 +58,9 @@ namespace trading::tabu_search {
                 std::tie(curr_.config, curr_move) = neighbor(origin.config);
                 curr_.value = compute_objective(curr_.config);
 
-                for (std::size_t i{0}; i<neighborhood_size(*this)-1; i++) {
+                neighborhood = neighborhood_size(*this);
+                assert(neighborhood>=1);
+                for (std::size_t i{0}; i<neighborhood-1; i++) {
                     std::tie(candidate.config, candidate_move) = neighbor(origin.config);
 
                     if (!tabu_list.contains(candidate_move)) {
@@ -76,7 +80,7 @@ namespace trading::tabu_search {
                         result.update(best_);
                 }
 
-                tabu_list.forget(curr_move.index());
+                tabu_list.forget();
                 tabu_list.remember(curr_move);
                 (observers.iteration_passed(*this, tabu_list), ...);
             }
