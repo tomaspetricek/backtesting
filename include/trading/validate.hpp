@@ -42,6 +42,28 @@ namespace trading {
 
         return sizes;
     }
+
+    void validate_int_range(int from, int to, int step) {
+        if (step==0) throw std::invalid_argument("Step cannot be zero");
+
+        if (from==to) {
+            throw std::invalid_argument("From and to has to be different");
+        }
+        else if (from>to) {
+            if ((from-to)%step!=0)
+                throw std::invalid_argument("Difference between from and to must be multiple of step");
+
+            if (step>0)
+                throw std::invalid_argument("Step has to be lower than 0 if from is greater than to");
+        }
+        else if (from<to) {
+            if ((to-from)%step!=0)
+                throw std::invalid_argument("Difference between from and to must be multiple of step");
+
+            if (step<0)
+                throw std::invalid_argument("Step has to be greater than 0 if from is lower than to");
+        }
+    }
 }
 
 #endif //BACKTESTING_VALIDATE_HPP

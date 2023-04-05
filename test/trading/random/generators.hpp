@@ -10,6 +10,7 @@
 #include <type_traits>
 #include <trading/random/generators.hpp>
 #include <trading/systematic/generators.hpp>
+#include "../fixtures.hpp"
 
 template<class Value, class SystematicGenerator, class RandomGenerator>
 void test_reachability(Value origin, SystematicGenerator&& sys_gen, RandomGenerator&& rand_gen, std::size_t n_it)
@@ -88,14 +89,12 @@ BOOST_AUTO_TEST_SUITE(random_sizes_generator_test)
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(random_int_range_generator_test)
+    using generator_type = trading::systematic::int_range_generator;
+
     BOOST_AUTO_TEST_CASE(constructor_exception_test)
     {
-        using gen_type = trading::random::int_range_generator;
-        BOOST_REQUIRE_THROW(gen_type(1, 2, 0), std::invalid_argument);
-        BOOST_REQUIRE_THROW(gen_type(10, 2, -3), std::invalid_argument);
-        BOOST_REQUIRE_THROW(gen_type(10, 2, 1), std::invalid_argument);
-        BOOST_REQUIRE_THROW(gen_type(2, 10, 3), std::invalid_argument);
-        BOOST_REQUIRE_THROW(gen_type(2, 10, -1), std::invalid_argument);
+        for (const auto& set : int_range::invalid)
+            BOOST_REQUIRE_THROW(generator_type(set.from, set.to, set.step), std::invalid_argument);
     }
 
     BOOST_AUTO_TEST_CASE(change_span_exception_test)
@@ -107,23 +106,10 @@ BOOST_AUTO_TEST_SUITE(random_int_range_generator_test)
 
     BOOST_AUTO_TEST_CASE(reachability_test)
     {
-        struct setting {
-            int from, to, step;
-        };
-        std::vector<setting> settings{
-                {1,   10,  1},
-                {10,  1,   -1},
-                {-5,  5,   1},
-                {5,   -5,  -1},
-                {-10, -1,  1},
-                {-1,  -10, -1},
-                {-3,  -30, -3},
-                {-2,  -20, -2},
-        };
         std::size_t n_tries{10'000};
-        for (const auto& set: settings) {
+        for (const auto& set: int_range::valid) {
             auto sys_gen = trading::systematic::int_range_generator{set.from, set.to, set.step};
-            for (std::size_t change_count{1}; change_count<=10/2; change_count++) {
+            for (std::size_t change_count{1}; change_count<=sys_gen.value_count()/2; change_count++) {
                 auto rand_gen = trading::random::int_range_generator(set.from, set.to, set.step, change_count);
                 auto origin = rand_gen();
                 test_reachability(origin, sys_gen, [&](const auto& origin) {

@@ -15,6 +15,7 @@
 #include "trading/simulated_annealing/equilibrium.hpp"
 #include "trading/simulated_annealing/optimizer.hpp"
 #include "trading/systematic/generators.hpp"
+#include "trading/tabu_search/memory.hpp"
 #include "trading/tabu_search/optimizer.hpp"
 #include "trading/candle.hpp"
 #include "trading/wallet.hpp"
@@ -29,4 +30,5 @@
 #include "trading/io/csv/reader.hpp"
 #include "trading/io/csv/writer.hpp"
 #include "trading/fee_charger.hpp"
+#include "trading/fixtures.hpp"
 #include "trading/result.hpp"

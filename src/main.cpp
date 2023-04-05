@@ -444,7 +444,7 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
     std::size_t n_it{42};
     bazooka::configuration_memory moves_memory{
             bazooka::indicator_tag_memory{tabu_search::fixed_tenure{n_it}},
-            bazooka::int_range_memory{period_gen.from(), period_gen.to(), period_gen.step(),
+            tabu_search::int_range_memory{period_gen.from(), period_gen.to(), period_gen.step(),
                                       tabu_search::fixed_tenure{n_it}},
             bazooka::array_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{n_it}},
             bazooka::array_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{n_it}}
@@ -508,8 +508,7 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
 int main()
 {
     {
-        int from{1}, to{100}, step{1};
-        trading::random::int_range_generator rand_gen{from, to, step, 10};
+        trading::random::int_range_generator rand_gen{1, 100, 1, 5};
         auto origin = rand_gen();
         std::size_t it_count{1'000};
 

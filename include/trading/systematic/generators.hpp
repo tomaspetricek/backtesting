@@ -6,6 +6,7 @@
 #define BACKTESTING_SYSTEMATIC_GENERATORS_HPP
 
 #include <trading/generators.hpp>
+#include <trading/int_range.hpp>
 
 namespace trading::systematic {
         // generates unique subsequent fractions in interval (0, max), such as max is in interval (0.0, 1.0]
@@ -73,12 +74,14 @@ namespace trading::systematic {
             }
         };
 
-        class int_range_generator : public trading::int_range_generator {
+        class int_range_generator : public trading::int_range {
+            using base_type = trading::int_range;
+
         public:
-            using value_type = trading::int_range_generator::value_type;
+            using value_type = base_type::value_type;
 
             int_range_generator(int from, int to, int step)
-                    :trading::int_range_generator(from, to, step) { }
+                    :base_type(from, to, step) { }
 
             cppcoro::generator<value_type> operator()()
             {

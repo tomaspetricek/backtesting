@@ -11,6 +11,7 @@
 #include <map>
 #include <trading/systematic/generators.hpp>
 #include <trading/types.hpp>
+#include "../fixtures.hpp"
 
 template<typename Generator, std::size_t size>
 void test_usage(Generator&& gen, const std::vector<std::array<trading::fraction_t, size>>& expect_seqs)
@@ -164,36 +165,19 @@ BOOST_AUTO_TEST_SUITE(systematic_sizes_generator_test)
 BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(systematic_int_range_generator_test)
+    using generator_type = trading::systematic::int_range_generator;
+
     BOOST_AUTO_TEST_CASE(constructor_exception_test)
     {
-        using gen_type = trading::systematic::int_range_generator;
-        BOOST_REQUIRE_THROW(gen_type(1, 2, 0), std::invalid_argument);
-        BOOST_REQUIRE_THROW(gen_type(10, 2, -3), std::invalid_argument);
-        BOOST_REQUIRE_THROW(gen_type(10, 2, 1), std::invalid_argument);
-        BOOST_REQUIRE_THROW(gen_type(2, 10, 3), std::invalid_argument);
-        BOOST_REQUIRE_THROW(gen_type(2, 10, -1), std::invalid_argument);
+        for (const auto& set : int_range::invalid)
+            BOOST_REQUIRE_THROW(generator_type(set.from, set.to, set.step), std::invalid_argument);
     }
 
     BOOST_AUTO_TEST_CASE(usage_test)
     {
-        using gen_type = trading::systematic::int_range_generator;
-        struct setting {
-            int from, to, step;
-        };
-        std::vector<setting> settings{
-                {1,   10,  1},
-                {10,  1,   -1},
-                {-5,  5,   1},
-                {5,   -5,  -1},
-                {-10, -1,  1},
-                {-1,  -10, -1},
-                {-3,  -30, -3},
-                {-2,  -20, -2},
-        };
-
         int expect_val;
-        for (const auto& set: settings) {
-            auto gen = gen_type{set.from, set.to, set.step};
+        for (const auto& set: int_range::valid) {
+            auto gen = generator_type{set.from, set.to, set.step};
             expect_val = set.from;
 
             for (const auto& actual_val: gen()) {

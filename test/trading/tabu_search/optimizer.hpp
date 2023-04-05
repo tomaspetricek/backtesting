@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_SUITE(tabu_search_optimizer_test)
         auto counter = event_counter{};
         optimizer(init, result, constraints, memory, objective, neighbor, neighborhood, termination, aspiration,
                 counter);
-        BOOST_REQUIRE_EQUAL(result.get().config, gen.to());
+        BOOST_REQUIRE_EQUAL(result.get().config, gen.max());
         BOOST_REQUIRE_EQUAL(counter.started_count, 1);
         BOOST_REQUIRE_EQUAL(counter.finished_count, 1);
         BOOST_REQUIRE_EQUAL(counter.iteration_passed_count, termination.max_it());

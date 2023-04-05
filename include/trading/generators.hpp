@@ -70,57 +70,6 @@ namespace trading {
             return denom_-1;
         }
     };
-
-    class int_range_generator {
-    protected:
-        int from_, to_, step_;
-
-        static int validate_step(int step)
-        {
-            if (step==0) throw std::invalid_argument("Step cannot be zero");
-            return step;
-        }
-
-        int_range_generator(int from, int to, int step)
-                :from_{from}, to_{to}, step_(validate_step(step))
-        {
-            if (from==to) {
-                throw std::invalid_argument("From and to has to be different");
-            }
-            else if (from>to) {
-                if ((from-to)%step!=0)
-                    throw std::invalid_argument("Difference between from and to must be multiple of step");
-
-                if (step>0)
-                    throw std::invalid_argument("Step has to be lower than 0 if from is greater than to");
-            }
-            else if (from<to) {
-                if ((to-from)%step!=0)
-                    throw std::invalid_argument("Difference between from and to must be multiple of step");
-
-                if (step<0)
-                    throw std::invalid_argument("Step has to be greater than 0 if from is lower than to");
-            }
-        }
-
-    public:
-        using value_type = int;
-
-        int step() const
-        {
-            return step_;
-        }
-
-        int from() const
-        {
-            return from_;
-        }
-
-        int to() const
-        {
-            return to_;
-        }
-    };
 }
 
 #endif //BACKTESTING_GENERATORS_HPP

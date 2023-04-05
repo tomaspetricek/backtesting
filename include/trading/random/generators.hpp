@@ -8,6 +8,7 @@
 #include <array>
 #include <trading/types.hpp>
 #include <trading/generators.hpp>
+#include <trading/int_range.hpp>
 #include <trading/bazooka/configuration.hpp>
 #include <trading/bazooka/indicator.hpp>
 #include <boost/assert.hpp>
@@ -168,41 +169,35 @@ namespace trading::random {
     template<class Type>
     using int_interval_generator = numeric_interval_generator<Type, std::uniform_int_distribution>;
 
-    class int_range_generator : public trading::int_range_generator {
+    class int_range_generator : public trading::int_range {
         std::mt19937 gen_;
         std::uniform_int_distribution<int> distrib_;
-        std::size_t change_span_, n_vals_;
-        int min_, max_;
+        std::size_t change_span_;
 
     public:
-        using value_type = int;
+        using value_type = int_range::value_type;
 
         explicit int_range_generator(int from, int to, int step, std::size_t change_span = 1)
-                :trading::int_range_generator(from, to, step), change_span_{change_span}
+                :trading::int_range(from, to, step), change_span_{change_span}
         {
-            int positive_step = std::abs(this->step_);
-            n_vals_ = (std::abs(to-from)+positive_step)/positive_step;
             int max_span = static_cast<int>(n_vals_)/2;
             if (!change_span_ || change_span>max_span)
                 throw std::invalid_argument(fmt::format("Change span has to be in interval [1,{}]", max_span));
-
-            std::tie(min_, max_) = make_tuple(std::minmax(from, to));
         }
 
         int operator()()
         {
-            int positive_step = std::abs(this->step_);
+            int positive_step = std::abs(step_);
             distrib_.param(
-                    std::uniform_int_distribution<int>::param_type{this->min_/positive_step,
-                                                                   this->max_/positive_step});
+                    std::uniform_int_distribution<int>::param_type{min_/positive_step,max_/positive_step});
             int val = distrib_(gen_)*positive_step;
-            assert(val>=this->min_ && val<=this->max_);
+            assert(val>=min_ && val<=max_);
             return val;
         }
 
         int operator()(int origin)
         {
-            int positive_step = std::abs(this->step_);
+            int positive_step = std::abs(step_);
             int curr_min = origin-static_cast<int>(change_span_*positive_step);
             int curr_max = origin+static_cast<int>(change_span_*positive_step);
             distrib_.param(
@@ -210,11 +205,9 @@ namespace trading::random {
             int val = distrib_(gen_)*positive_step;
             assert(val>=curr_min && val<=curr_max);
 
-            if (val<min_)
-                val += static_cast<int>(n_vals_*positive_step);
-            if (val>max_)
-                val -= static_cast<int>(n_vals_*positive_step);
-            assert(val>=this->min_ && val<=this->max_);
+            if (val<min_) val += static_cast<int>(n_vals_*positive_step);
+            if (val>max_) val -= static_cast<int>(n_vals_*positive_step);
+            assert(val>=min_ && val<=max_);
             return val;
         }
     };
