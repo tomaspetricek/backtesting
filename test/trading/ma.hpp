@@ -6,7 +6,7 @@
 #define BACKTESTING_TEST_MA_HPP
 
 #include <boost/test/unit_test.hpp>
-#include <trading/types.hpp>
+#include "trading/types.hpp"
 
 using namespace trading;
 

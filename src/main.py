@@ -1,4 +1,7 @@
 import numpy as np
+import pandas as pd
+import numpy as np
+import talib
 
 
 # https://plainenglish.io/blog/how-to-calculate-the-ema-of-a-stock-with-python
@@ -12,9 +15,9 @@ def ema(prices, period, smoothing=2):
 
 
 def main():
-    samples = np.array([1, 2, 3, 7, 9])
+    data = np.array([-1, 2, -3, 7, -9])
     period = 3
-    print(ema(samples, period))
+    print(talib.SMA(data, period))
 
 
 if __name__ == "__main__":
