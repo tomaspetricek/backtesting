@@ -1381,7 +1381,6 @@ Poskytuje různé nástroje, jak lépe prozkoumat výsledky testování.
 Díky flexibilitě šablon lze použít jako konfigurace celá čísla a funkce lambda namísto instancí tříd.
 Zároveň mohly být použity \texttt{systematic::int\_range} a \texttt{random::int\_range}  jako generátory stavového prostoru.
 Díky tomu bylo vytváření testů mnohem jednodušší.
-
 Objektivní funkce převádí celá čísla na čísla s dvojnásobnou přesností.
 Cílem všech testů bylo nalézt její maximální hodnotu.
 K testování bylo také možné využít pozorovatele.
@@ -1454,6 +1453,11 @@ void test_reachability(Value origin, SystematicGenerator&& sys_gen,
         BOOST_REQUIRE(count);
 }
 \end{lstlisting}
+
+\section{Výkonností statistiky}
+Výkonnostní statistiky byly testovány, aby bylo zajištěno, že jsou hodnoty správně inicializovány a aktualizovány.
+Bylo využito toho, že jsou rozděleny do 4 nezávislých skupin: statistiky související s pohybem, statistiky související se ziskem, čítače otevřených a uzavřených objednávek a zůstatky.
+Na všech byly proto provedeny samostatné testovací případy.
 
 \section{Čtení a zápis do CSV}
 Pro testování čtení a zápisu do CSV souborů byly připraveny 4 soubory: prázdný, pouze s hlavičkou, pouze s daty a kompletní soubor.
