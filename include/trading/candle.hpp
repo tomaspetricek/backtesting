@@ -27,10 +27,12 @@ namespace trading {
                 :opened_(opened), open_(price_t{open}), high_(price_t{high}),
                  low_(price_t{low}), close_(price_t{close})
         {
-            if (high<low) throw std::invalid_argument("High price has to be lower or equal to low price");
-            if (open<low || open>high) throw std::invalid_argument("Open price has to be between low and high price");
+            if (high<low)
+                throw std::invalid_argument("High price has to be higher or equal to low price");
+            if (open<low || open>high)
+                throw std::invalid_argument("Open price has to be between or equal to low and high price");
             if (close<low || close>high)
-                throw std::invalid_argument("Close price has to be between low and high price");
+                throw std::invalid_argument("Close price has to be between or equal to low and high price");
         }
 
         // mean high and low

@@ -1329,6 +1329,21 @@ for (; !terminate(*this); it_++) {
 \end{lstlisting}
 
 \chapter{Testování}
+K zajištění správnosti kódu byly použity 2 nástroje, a to tvrzení (assertions) a unit testování.
+Když něco vždy platí, lze to ověřit pomocí tvrzení.
+V C++ jsou k dispozici makra z hlavičkového souboru \texttt{assert.h}.
+Lze je například použít ke kontrole předpokladu, že vygenerované číslo je v požadovaném rozsahu.
+Pokud neplatí, způsobí ukončení programu a nelze je zachytit jako výjimky.
+Jejich cílem je zajistit, aby programátor neudělal chybu.
+Mohou být použity ve fázi ladění a odstraněny, když je program připravený do produkce.
+V C++ je lze snadno odstranit během kompilace pomocí příznaku \texttt{-DNDEBUG}.
+
+Hlavním účelem výjimek je sdělit uživateli, proč program nemůže provést požadovanou úlohu.
+Mohou být způsobeny například poskytnutím nesprávně naformátovaného CSV souboru s historickými svíčkovými daty, bez nichž program nemůže pokračovat.
+Kontrola výjimečných stavů způsobuje režii navíc, takže se používají hlavně ve fázi konstrukce objektu, která se provádí pouze jednou.
+Výjimky jsou vnořeny pomocí \texttt{std::throw\_with\_nested}, aby mohl uživatel získat co nejvíce informací k vyřešení problému.
+
+\section{Unit testování}
 V C++ existuje několik testovacích frameworků, ale Boost.Test a GoogleTest jsou 2, které vynikají nejvíce.
 Oba používají makra k vytváření testovacích sad, testovacích případů a asercí, což minimalizuje množství práce potřebné k vytvoření testu.
 Jsou dobře zdokumentované, široce používané a také integrované do IDE, jako je Visual Studio a CLion.
@@ -1377,7 +1392,7 @@ V CLion IDE lze testovací sady a případy spouštět jednotlivě.
 Mohou být také spuštěny v režimu ladění.
 Poskytuje různé nástroje, jak lépe prozkoumat výsledky testování.
 
-\section{Optimalizátory}
+\subsection{Optimalizátory}
 Díky flexibilitě šablon lze použít jako konfigurace celá čísla a funkce lambda namísto instancí tříd.
 Zároveň mohly být použity \texttt{systematic::int\_range} a \texttt{random::int\_range}  jako generátory stavového prostoru.
 Díky tomu bylo vytváření testů mnohem jednodušší.
@@ -1424,7 +1439,7 @@ BOOST_AUTO_TEST_CASE(count_events_test)
 }
 \end{lstlisting}
 
-\section{Generátory stavového prostoru}
+\subsection{Generátory stavového prostoru}
 Generátory byly testovány na výjimky, které generují pro neplatný vstup.
 Hodnoty generované systematickými generátory byly zkontrolovány na platnost a jedinečnost a porovnány se sadou očekávaných hodnot.
 Současně byly použity různé kombinace hodnot parametrů.
@@ -1454,12 +1469,15 @@ void test_reachability(Value origin, SystematicGenerator&& sys_gen,
 }
 \end{lstlisting}
 
-\section{Výkonností statistiky}
+\subsection{Indikátory}
+
+
+\subsection{Výkonností statistiky}
 Výkonnostní statistiky byly testovány, aby bylo zajištěno, že jsou hodnoty správně inicializovány a aktualizovány.
 Bylo využito toho, že jsou rozděleny do 4 nezávislých skupin: statistiky související s pohybem, statistiky související se ziskem, čítače otevřených a uzavřených objednávek a zůstatky.
 Na všech byly proto provedeny samostatné testovací případy.
 
-\section{Čtení a zápis do CSV}
+\subsection{Čtení a zápis do CSV}
 Pro testování čtení a zápisu do CSV souborů byly připraveny 4 soubory: prázdný, pouze s hlavičkou, pouze s daty a kompletní soubor.
 Při použití čtecí třídy může být vyvolána výjimka \texttt{std::runtime\_error}, buď při volání konstruktoru, pokud soubor neexistuje, nebo při samotném čtení, pokud je soubor nesprávně naformátován nebo je třída nesprávně používána.
 Rozlišuje mezi výjimkou, která nastane při oddělování dat oddělovačem, a výjimkou, která nastane při převodu dat na požadovaný datový typ.
