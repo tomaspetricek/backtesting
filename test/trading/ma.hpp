@@ -15,15 +15,18 @@ void ma_usage_test(const std::array<double, n_samples>& samples,
         const std::array<double, n_samples-(period-1)>& actual_values, double tolerance)
 {
     MovingAverage ma{period};
+    bool ready;
 
     for (index_t i{0}; i<samples.size(); i++) {
-        ma.update(samples[i]);
+        ready = ma.update(samples[i]);
 
         if (i<period-1) {
             BOOST_REQUIRE(!ma.is_ready());
+            BOOST_REQUIRE(!ready);
         }
         else {
             BOOST_REQUIRE(ma.is_ready());
+            BOOST_REQUIRE(ready);
             BOOST_REQUIRE_CLOSE(ma.value(), actual_values[i-(period-1)], tolerance);
         }
     }

@@ -1470,7 +1470,10 @@ void test_reachability(Value origin, SystematicGenerator&& sys_gen,
 \end{lstlisting}
 
 \subsection{Indikátory}
-
+Hodnoty generované implementací indikátorů EMA a SMA byly porovnány s hodnotami generovanými knihovnou pro technickou analýzu TA-lib.
+Pro testování byly použity různé hodnoty period a hodnot vzorků.
+Otestováno bylo také, že při zavolání konstruktoru s neplatnými parametry, je vyhozena výjimka.
+Byla zkontrolována správná indikace připravenosti indikátoru jak při zavolání metody \texttt{update} tak \texttt{is\_ready}.
 
 \subsection{Výkonností statistiky}
 Výkonnostní statistiky byly testovány, aby bylo zajištěno, že jsou hodnoty správně inicializovány a aktualizovány.
@@ -1482,7 +1485,8 @@ Pro testování čtení a zápisu do CSV souborů byly připraveny 4 soubory: pr
 Při použití čtecí třídy může být vyvolána výjimka \texttt{std::runtime\_error}, buď při volání konstruktoru, pokud soubor neexistuje, nebo při samotném čtení, pokud je soubor nesprávně naformátován nebo je třída nesprávně používána.
 Rozlišuje mezi výjimkou, která nastane při oddělování dat oddělovačem, a výjimkou, která nastane při převodu dat na požadovaný datový typ.
 Hlavním rozdílem mezi nimi je obsah chybové zprávy.
-Třída čtení byla použita k testování třídy zápisu, aby se ověřilo, že je výstup správně naformátován.
+Byly provedeny důkladné testy k simulaci požadovaných a výjimečných situací.
+Třída čtení byla použita k testování třídy zápisu, aby se ověřilo, že produkuje validní výstup.
 
 \chapter{Experimentální vyhodnocení}
 

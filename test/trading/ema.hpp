@@ -9,6 +9,12 @@
 #include "trading/ema.hpp"
 
 BOOST_AUTO_TEST_SUITE(ema_test)
+    BOOST_AUTO_TEST_CASE(default_constructor_exception_test)
+    {
+        BOOST_REQUIRE_THROW(trading::ema(0), std::invalid_argument);
+        BOOST_REQUIRE_THROW(trading::ema(1, 1), std::invalid_argument);
+    }
+
     BOOST_AUTO_TEST_CASE(default_constructor_test)
     {
         BOOST_REQUIRE_EQUAL(trading::ema{}.period(), std::size_t{1});
