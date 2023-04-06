@@ -1455,9 +1455,16 @@ void test_reachability(Value origin, SystematicGenerator&& sys_gen,
 }
 \end{lstlisting}
 
+\section{Čtení a zápis do CSV}
+Pro testování čtení a zápisu do CSV souborů byly připraveny 4 soubory: prázdný, pouze s hlavičkou, pouze s daty a kompletní soubor.
+Při použití čtecí třídy může být vyvolána výjimka \texttt{std::runtime\_error}, buď při volání konstruktoru, pokud soubor neexistuje, nebo při samotném čtení, pokud je soubor nesprávně naformátován nebo je třída nesprávně používána.
+Rozlišuje mezi výjimkou, která nastane při oddělování dat oddělovačem, a výjimkou, která nastane při převodu dat na požadovaný datový typ.
+Hlavním rozdílem mezi nimi je obsah chybové zprávy.
+Třída čtení byla použita k testování třídy zápisu, aby se ověřilo, že je výstup správně naformátován.
+
 \chapter{Experimentální vyhodnocení}
 
-\subsection{Metodika}
+\section{Metodika}
 Byly provedeny experimenty pro srovnání heuristických přístupů.
 Výsledky každého experimentu byly uloženy do samostatné složky.
 Skládají se z nastavení optimalizátoru, seznamu nejlepších výsledků a průběhu optimalizace.
