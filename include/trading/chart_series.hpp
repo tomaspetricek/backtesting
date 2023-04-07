@@ -25,13 +25,13 @@ namespace trading {
             chart_series<n_levels> series_;
 
         public:
-            void begin(const Trader& trader, const price_point& first)
+            void started(const Trader& trader, const price_point& first)
             {
                 series_.equity.template emplace_back(first.time, trader.equity(first.data));
                 series_.close_balance.template emplace_back(first.time, trader.wallet_balance());
             }
 
-            void traded(const Trader& trader, const trading::action& action, const price_point& curr)
+            void decided(const Trader& trader, const trading::action& action, const price_point& curr)
             {
                 if (action==action::closed_all) {
                     series_.equity.template emplace_back(curr.time, trader.equity(curr.data));
@@ -50,7 +50,7 @@ namespace trading {
                 series_.exit.template emplace_back(curr.time, trader.exit_value());
             }
 
-            void end(const Trader& trader, const price_point&)
+            void finished(const Trader& trader, const price_point&)
             {
                 for (const auto& open: trader.open_orders())
                     series_.open_order.template emplace_back(open.created, open.price);

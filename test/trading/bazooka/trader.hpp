@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_SUITE(trader_test)
     {
         auto trader = trading::bazooka::trader{mock_strategy{}, mock_manager{}};
         auto point = trading::price_point{};
-        BOOST_REQUIRE(trader.trade(point)==trading::action::none);
+        BOOST_REQUIRE(trader(point)==trading::action::none);
         BOOST_REQUIRE(!trader.manager().open_created);
         BOOST_REQUIRE(!trader.manager().close_all_created);
     }
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_SUITE(trader_test)
         strategy.ready = true;
         auto trader = trading::bazooka::trader{strategy, mock_manager{}};
         auto point = trading::price_point{};
-        BOOST_REQUIRE(trader.trade(point)==trading::action::none);
+        BOOST_REQUIRE(trader(point)==trading::action::none);
         BOOST_REQUIRE(!trader.manager().open_created);
         BOOST_REQUIRE(!trader.manager().close_all_created);
     }
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_SUITE(trader_test)
         strategy.open = true;
         auto trader = trading::bazooka::trader{strategy, mock_manager{}};
         auto point = trading::price_point{};
-        BOOST_REQUIRE(trader.trade(point)==trading::action::opened);
+        BOOST_REQUIRE(trader(point)==trading::action::opened);
         BOOST_REQUIRE(trader.manager().open_created);
         BOOST_REQUIRE(!trader.manager().close_all_created);
     }
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_SUITE(trader_test)
         strategy.close_all = true;
         auto trader = trading::bazooka::trader{strategy, mock_manager{}};
         auto point = trading::price_point{};
-        BOOST_REQUIRE(trader.trade(point)==trading::action::closed_all);
+        BOOST_REQUIRE(trader(point)==trading::action::closed_all);
         BOOST_REQUIRE(!trader.manager().open_created);
         BOOST_REQUIRE(trader.manager().close_all_created);
     }

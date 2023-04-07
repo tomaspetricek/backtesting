@@ -8,6 +8,7 @@
 #include <boost/test/unit_test.hpp>
 #include <vector>
 #include <array>
+#include <trading/candle.hpp>
 
 struct int_range {
     struct setting {
@@ -39,4 +40,14 @@ struct int_range {
     };
 };
 
+std::vector<trading::candle> valid_candles{
+        {
+                {0, 5'000, 15'000, 2'500, 10'000},
+                {0, 10'100, 12'000, 8'500, 11'000},
+                {0, 10'900, 17'000, 9'900, 13'000},
+                {0, 12'000, 20'000, 11'500, 18'000},
+                {0, 17'500, 20'300, 13'500, 16'400},
+                {0, 17'000, 25'000, 15'500, 23'400},
+        }
+};
 #endif //BACKTESTING_FIXTURES_HPP

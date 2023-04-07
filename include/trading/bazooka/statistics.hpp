@@ -36,12 +36,12 @@ namespace trading::bazooka {
             bazooka::statistics<n_levels> stats_;
 
         public:
-            void begin(const Trader& trader, const price_point&)
+            void started(const Trader& trader, const price_point&)
             {
                 stats_ = bazooka::statistics<n_levels>(trader.wallet_balance());
             }
 
-            void traded(const Trader& trader, const trading::action& action, const price_point& curr)
+            void decided(const Trader& trader, const trading::action& action, const price_point& curr)
             {
                 if (action==action::closed_all) {
                     stats_.update_close_balance(trader.wallet_balance());
@@ -62,7 +62,7 @@ namespace trading::bazooka {
 
             void indicators_updated(const Trader&, const price_point&) { }
 
-            void end(const Trader& trader, const price_point&)
+            void finished(const Trader& trader, const price_point&)
             {
                 stats_.set_final_balance(trader.wallet_balance());;
             }

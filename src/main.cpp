@@ -571,7 +571,7 @@ int main()
     // create simulator
     std::chrono::minutes resampling_period{std::chrono::minutes(30)};
     auto averager = candle::ohlc4{};
-    trading::simulator simulator{std::move(candles), resampling_period, averager, 100};
+    trading::simulator simulator{candles, static_cast<std::size_t>(resampling_period.count()), averager, 100};
     settings.emplace(json{"resampling", {
             {"period[min]", resampling_period.count()},
             {"averaging method", decltype(averager)::name}

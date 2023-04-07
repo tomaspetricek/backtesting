@@ -22,7 +22,7 @@ namespace trading {
     public:
         candle() = default;
 
-        explicit candle(std::time_t opened, const price_t& open, const price_t& high,
+        constexpr candle(std::time_t opened, const price_t& open, const price_t& high,
                 const price_t& low, const price_t& close)
                 :opened_(opened), open_(price_t{open}), high_(price_t{high}),
                  low_(price_t{low}), close_(price_t{close})

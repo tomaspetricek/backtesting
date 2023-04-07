@@ -13,6 +13,12 @@ namespace trading {
     struct data_point {
         std::time_t time;
         Data data;
+
+        friend bool operator==(const data_point& lhs, const data_point& rhs)
+        {
+            return lhs.time==rhs.time &&
+                    lhs.data==rhs.data;
+        }
     };
 
     using price_point = data_point<price_t>;

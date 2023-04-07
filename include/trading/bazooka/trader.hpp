@@ -20,7 +20,7 @@ namespace trading::bazooka {
 
         trader() = default;
 
-        action trade(const price_point& curr)
+        action operator()(const price_point& curr)
         {
             action done{action::none};
             if (!Strategy::is_ready()) return done;
