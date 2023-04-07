@@ -97,7 +97,7 @@ namespace trading::bazooka {
         }
 
         template<class Type>
-        Type position_current_profit(const price_t& market)
+        auto position_current_profit(const price_t& market)
         {
             return market_.template position_current_profit<Type>(market);
         }

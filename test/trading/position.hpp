@@ -10,7 +10,7 @@
 #include <trading/order.hpp>
 
 BOOST_AUTO_TEST_SUITE(position_test)
-    BOOST_AUTO_TEST_CASE(spot_test)
+    BOOST_AUTO_TEST_CASE(comparison_test)
     {
         trading::price_t open{9'414.21};
         trading::position pos{trading::open_order{1159.0478454228034, open, 0}};
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_SUITE(position_test)
         BOOST_REQUIRE_CLOSE(pos.total_realized_profit<trading::amount>(), -166.85, 1);
     }
 
-    BOOST_AUTO_TEST_CASE(spot_loss_test)
+    BOOST_AUTO_TEST_CASE(loss_test)
     {
         trading::position pos{trading::open_order{100, 10'000, 0}};
         pos.close_all(trading::close_all_order{5'000, 0});

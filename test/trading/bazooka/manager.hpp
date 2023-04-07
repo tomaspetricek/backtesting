@@ -10,52 +10,80 @@
 #include <trading/market.hpp>
 #include <trading/order_sizer.hpp>
 #include <trading/data_point.hpp>
+#include <trading/types.hpp>
 
 BOOST_AUTO_TEST_SUITE(bazooka_manager_test)
-    BOOST_AUTO_TEST_CASE(create_open_order_test)
+    BOOST_AUTO_TEST_CASE(constructor_test)
     {
         trading::wallet wallet{10'000};
         trading::market market{wallet, trading::fraction_t{0, 1}, trading::fraction_t{0, 1}};
-        constexpr std::size_t n_open{2}, n_close{1};
-        trading::order_sizer<n_open> open_sizer{{{{1, 2}, {1, 2}}}};
-        trading::order_sizer<n_close> close_sizer{{{{1, 1}}}};
+        constexpr std::size_t n_open{3};
+        trading::order_sizer<n_open> open_sizer{{{{2, 10}, {3, 10}, {5, 10}}}};
         trading::bazooka::manager manager{market, open_sizer};
 
-        // open order
-        trading::price_t entry_price{1'000};
-        manager.create_open_order(trading::price_point{0, entry_price});
-        BOOST_REQUIRE_EQUAL(manager.equity(entry_price), wallet.balance());
-        BOOST_REQUIRE_EQUAL(manager.wallet_balance(),
-                wallet.balance()*trading::fraction_cast<trading::price_t>(trading::fraction_t{1, 2}));
-        BOOST_REQUIRE_EQUAL(manager.has_active_position(), true);
-        BOOST_REQUIRE_EQUAL(manager.last_open_order().price, entry_price);
-        BOOST_REQUIRE_EQUAL(manager.last_open_order().created, 0);
-        BOOST_REQUIRE_EQUAL(manager.last_open_order().sold,
-                wallet.balance()*trading::fraction_cast<trading::price_t>(trading::fraction_t{1, 2}));
+        BOOST_REQUIRE_EQUAL(manager.wallet_balance(), market.wallet_balance());
+        trading::price_t curr{1'000};
+        BOOST_REQUIRE_EQUAL(manager.equity(curr), market.equity(curr));
+        BOOST_REQUIRE_EQUAL(manager.has_active_position(), market.has_active_position());
+        BOOST_REQUIRE(!manager.try_closing_active_position(trading::price_point{0, curr}));
     }
 
-    BOOST_AUTO_TEST_CASE(create_close_all_order_test)
+    BOOST_AUTO_TEST_CASE(usage_test)
     {
         trading::wallet wallet{10'000};
         trading::market market{wallet, trading::fraction_t{0, 1}, trading::fraction_t{0, 1}};
-        constexpr std::size_t n_open{2}, n_close{1};
-        trading::order_sizer<n_open> open_sizer{{{{1, 2}, {1, 2}}}};
-        trading::order_sizer<n_close> close_sizer{{{{1, 1}}}};
+        constexpr std::size_t n_open{2};
+        std::array<trading::fraction_t, n_open> sizes{{{1, 2}, {1, 2}}};
+        trading::order_sizer open_sizer{sizes};
         trading::bazooka::manager manager{market, open_sizer};
 
-        // open order
-        trading::price_point entry{0, 1'000};
+        // open position
+        trading::price_point entry{0, 20'000};
         manager.create_open_order(entry);
+        trading::open_order expect_open_order{open_sizer(market.wallet_balance()), entry.data, entry.time};
+        auto actual_open_order = manager.last_open_order();
+        BOOST_REQUIRE(actual_open_order==expect_open_order);
 
-        // close all order
-        float multiplier{2};
-        trading::price_point exit{0, entry.data*multiplier};
+        wallet.withdraw(expect_open_order.sold);
+        market.fill_open_order(expect_open_order);
+        trading::price_t curr_price{1'000.};
+        BOOST_REQUIRE_EQUAL(manager.wallet_balance(), market.wallet_balance());
+        BOOST_REQUIRE_EQUAL(manager.equity(curr_price), market.equity(curr_price));
+        BOOST_REQUIRE_EQUAL(manager.has_active_position(), market.has_active_position());
+        BOOST_REQUIRE_EQUAL(manager.position_current_profit<trading::amount>(curr_price),
+                market.position_current_profit<trading::amount>(curr_price));
+        BOOST_REQUIRE_EQUAL(manager.position_current_profit<trading::percent>(curr_price),
+                market.position_current_profit<trading::percent>(curr_price));
+
+        // increase position
+        entry = trading::price_point{0, 10'000};
+        manager.create_open_order(entry);
+        expect_open_order = trading::open_order{open_sizer(market.wallet_balance()), entry.data, entry.time};
+        actual_open_order = manager.last_open_order();
+        BOOST_REQUIRE(actual_open_order==expect_open_order);
+
+        wallet.withdraw(expect_open_order.sold);
+        market.fill_open_order(expect_open_order);
+        BOOST_REQUIRE_EQUAL(manager.wallet_balance(), market.wallet_balance());
+        BOOST_REQUIRE_EQUAL(manager.equity(curr_price), market.equity(curr_price));
+        BOOST_REQUIRE_EQUAL(manager.has_active_position(), market.has_active_position());
+        BOOST_REQUIRE_EQUAL(manager.position_current_profit<trading::amount>(curr_price),
+                market.position_current_profit<trading::amount>(curr_price));
+        BOOST_REQUIRE_EQUAL(manager.position_current_profit<trading::percent>(curr_price),
+                market.position_current_profit<trading::percent>(curr_price));
+
+        // close position
+        trading::price_point exit{0, 3'000};
         manager.create_close_all_order(exit);
-//        BOOST_REQUIRE_EQUAL(manager.equity(exit.data), wallet.balance()*multiplier);
-//        BOOST_REQUIRE_EQUAL(manager.wallet_balance(), wallet.balance()*multiplier);
-//        BOOST_REQUIRE_EQUAL(manager.has_active_position(), false);
-//        BOOST_REQUIRE_EQUAL(manager.last_close_order().price, exit.data);
-//        BOOST_REQUIRE_EQUAL(manager.last_open_order().created, exit.time);
+        trading::close_all_order expect_close_all{exit.data, exit.time};
+        auto actual_close_all = manager.last_close_all_order();
+        BOOST_REQUIRE(actual_close_all==expect_close_all);
+
+        market.fill_close_all_order(expect_close_all);
+        BOOST_REQUIRE_EQUAL(manager.wallet_balance(), market.wallet_balance());
+        BOOST_REQUIRE_EQUAL(manager.equity(curr_price), market.equity(curr_price));
+        BOOST_REQUIRE_EQUAL(manager.has_active_position(), market.has_active_position());
+        BOOST_REQUIRE(manager.last_closed_position()==market.last_closed_position());
     }
 BOOST_AUTO_TEST_SUITE_END()
 
