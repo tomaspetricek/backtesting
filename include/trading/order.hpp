@@ -10,15 +10,15 @@
 #include <trading/types.hpp>
 
 namespace trading {
-    struct order {
+    struct open_order {
         amount_t sold;
         price_t price;
         std::time_t created;
+    };
 
-        order(amount_t sold, price_t price, time_t created)
-                :sold(sold), price(price), created(created) { }
-
-        order() = default;
+    struct close_all_order {
+        price_t price;
+        std::time_t created;
     };
 }
 

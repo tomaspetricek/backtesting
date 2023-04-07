@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_SUITE(bazooka_manager_test)
         constexpr std::size_t n_open{2}, n_close{1};
         trading::order_sizer<n_open> open_sizer{{{{1, 2}, {1, 2}}}};
         trading::order_sizer<n_close> close_sizer{{{{1, 1}}}};
-        trading::bazooka::manager manager{market, open_sizer, close_sizer};
+        trading::bazooka::manager manager{market, open_sizer};
 
         // open order
         trading::price_t entry_price{1'000};
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_SUITE(bazooka_manager_test)
         constexpr std::size_t n_open{2}, n_close{1};
         trading::order_sizer<n_open> open_sizer{{{{1, 2}, {1, 2}}}};
         trading::order_sizer<n_close> close_sizer{{{{1, 1}}}};
-        trading::bazooka::manager manager{market, open_sizer, close_sizer};
+        trading::bazooka::manager manager{market, open_sizer};
 
         // open order
         trading::price_point entry{0, 1'000};

@@ -9,7 +9,7 @@
 #include <trading/trade.hpp>
 #include <trading/order.hpp>
 #include <trading/position.hpp>
-#include <trading/fee_charger.hpp>
+#include <trading/types.hpp>
 
 namespace trading {
     class market {
@@ -17,15 +17,23 @@ namespace trading {
         trading::wallet wallet_;
         std::optional<position> active_{std::nullopt};
         position last_closed_{};
-        fraction_t open_fee_, close_fee_;
+        constexpr static fraction_t default_fee{0, 1};
+        fraction_t open_fee_{default_fee}, close_fee_{default_fee};
+
+        static fraction_t validate_fee(fraction_t fee)
+        {
+            if (fraction_cast<double>(fee)>1.0)
+                throw std::invalid_argument("Fee has to be in interval [0, 1]");
+            return fee;
+        }
 
     public:
-        explicit market(const wallet& wallet, fraction_t open_fee, fraction_t close_fee)
-                :wallet_(wallet), open_fee_(open_fee), close_fee_(close_fee) { }
+        explicit market(const wallet& wallet, fraction_t open_fee = default_fee, fraction_t close_fee = default_fee)
+                :wallet_(wallet), open_fee_(validate_fee(open_fee)), close_fee_(validate_fee(close_fee)) { }
 
         market() = default;
 
-        void fill_open_order(const order& order)
+        void fill_open_order(const open_order& order)
         {
             assert(order.sold>=amount_t{0.0});
             wallet_.withdraw(order.sold);
@@ -39,10 +47,10 @@ namespace trading {
             }
         }
 
-        void fill_close_all_order(const order& order)
+        void fill_close_all_order(const close_all_order& order)
         {
             assert(active_);
-            auto received = active_->close(order);
+            auto received = active_->close_all(order);
             assert(received>=amount_t{0.0});
             wallet_.deposit(received);
             assert(wallet_balance()==equity(order.price));
@@ -56,7 +64,7 @@ namespace trading {
         }
 
         template<class Type>
-        Type position_current_profit(price_t market)
+        auto position_current_profit(price_t market)
         {
             assert(active_);
             return active_->template current_profit<Type>(market);
@@ -83,6 +91,16 @@ namespace trading {
         const position& last_closed_position() const
         {
             return last_closed_;
+        }
+
+        const fraction_t& open_fee() const
+        {
+            return open_fee_;
+        }
+
+        const fraction_t& close_fee() const
+        {
+            return close_fee_;
         }
     };
 }

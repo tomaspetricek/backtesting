@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 13.10.2022.
 //
 
-#ifndef BACKTESTING_TEST_FRACTIONER_HPP
-#define BACKTESTING_TEST_FRACTIONER_HPP
+#ifndef BACKTESTING_TEST_ORDER_SIZER_HPP
+#define BACKTESTING_TEST_ORDER_SIZER_HPP
 
 #include <array>
 #include <boost/test/unit_test.hpp>
@@ -58,4 +58,4 @@ BOOST_AUTO_TEST_SUITE(sizer_test)
     }
 BOOST_AUTO_TEST_SUITE_END()
 
-#endif //BACKTESTING_TEST_FRACTIONER_HPP
+#endif //BACKTESTING_TEST_ORDER_SIZER_HPP

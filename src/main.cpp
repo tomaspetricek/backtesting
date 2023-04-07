@@ -40,12 +40,8 @@ auto create_trader(const bazooka::configuration<n_levels>& config)
     // create open sizer
     order_sizer open_sizer{config.open_sizes};
 
-    // create close sizer
-    std::array close_fracs{fraction_t{1}};
-    order_sizer close_sizer{close_fracs};
-
     // create trade manager
-    bazooka::manager manager{market, open_sizer, close_sizer};
+    bazooka::manager manager{market, open_sizer};
     return trading::bazooka::trader{strategy, manager};
 }
 
@@ -507,16 +503,6 @@ void use_tabu_search(Simulator&& simulator, json&& settings, const std::filesyst
 
 int main()
 {
-    {
-        trading::random::int_range_generator rand_gen{1, 100, 1, 5};
-        auto origin = rand_gen();
-        std::size_t it_count{1'000};
-
-        for (std::size_t i{0}; i<it_count; i++){
-            origin = rand_gen(origin);
-            std::cout << origin << std::endl;
-        }
-    }
     return EXIT_SUCCESS;
     constexpr std::size_t n_levels{4};
 

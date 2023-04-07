@@ -19,32 +19,29 @@
 namespace trading::bazooka {
     // to avoid use of virtual functions CRTP is used
     // src: https://www.fluentcpp.com/2017/05/12/curiously-recurring-template-pattern/
-    template<std::size_t n_open, std::size_t n_close>
+    template<std::size_t n_open>
     class manager {
     protected:
         market market_;
         order_sizer<n_open> open_sizer_;
-        order_sizer<n_close> close_sizer_;
-        order last_open_order_{};
-        order last_close_order_{};
+        open_order last_open_order_{};
+        close_all_order last_close_all_order_{};
 
         void reset_sizers()
         {
             open_sizer_.reset();
-            close_sizer_.reset();
         }
 
     public:
         manager() = default;
 
-        manager(trading::market market, const order_sizer<n_open>& open_sizer,
-                const order_sizer<n_close>& close_sizer)
-                :market_(market), open_sizer_(open_sizer), close_sizer_(close_sizer) { }
+        manager(const trading::market& market, const order_sizer<n_open>& open_sizer)
+                :market_(market), open_sizer_(open_sizer) { }
 
         void create_open_order(const price_point& point)
         {
             amount_t size = open_sizer_(market_.wallet_balance());
-            trading::order order{size, point.data, point.time};
+            trading::open_order order{size, point.data, point.time};
             market_.fill_open_order(order);
             last_open_order_ = order;
         }
@@ -52,10 +49,9 @@ namespace trading::bazooka {
         void create_close_all_order(const price_point& point)
         {
             assert(market_.has_active_position());
-            amount_t size = market_.active_position().size();
-            trading::order order{size, point.data, point.time};
+            trading::close_all_order order{point.data, point.time};
             market_.fill_close_all_order(order);
-            last_close_order_ = order;
+            last_close_all_order_ = order;
             reset_sizers();
         }
 
@@ -80,9 +76,9 @@ namespace trading::bazooka {
             return last_open_order_;
         }
 
-        const auto& last_close_order() const
+        const auto& last_close_all_order() const
         {
-            return last_close_order_;
+            return last_close_all_order_;
         }
 
         bool has_active_position()

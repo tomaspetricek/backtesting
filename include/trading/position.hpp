@@ -25,7 +25,7 @@ namespace trading {
         }
 
     public:
-        explicit position(const order& order, fraction_t open_fee = default_fee,
+        explicit position(const open_order& order, fraction_t open_fee = default_fee,
                 fraction_t close_fee = default_fee)
                 :open_fee_(open_fee), close_fee_(close_fee)
         {
@@ -39,14 +39,14 @@ namespace trading {
             return apply_fee(market*size_, close_fee_);
         }
 
-        void increase(const order& order)
+        void increase(const open_order& order)
         {
             amount_t bought = apply_fee(order.sold/order.price, open_fee_);
             size_ += bought;
             total_invested_ += order.sold;
         }
 
-        amount_t close(const order& order)
+        amount_t close_all(const close_all_order& order)
         {
             amount_t bought = current_value(order.price);
             total_realized_profit_ = current_profit<amount>(order.price);
@@ -91,6 +91,19 @@ namespace trading {
         amount_t total_invested() const
         {
             return total_invested_;
+        }
+
+        bool operator==(const position& rhs) const
+        {
+            return size_==rhs.size_ &&
+                    total_invested_==rhs.total_invested_ &&
+                    total_realized_profit_==rhs.total_realized_profit_ &&
+                    open_fee_==rhs.open_fee_ &&
+                    close_fee_==rhs.close_fee_;
+        }
+        bool operator!=(const position& rhs) const
+        {
+            return !(rhs==*this);
         }
     };
 }
