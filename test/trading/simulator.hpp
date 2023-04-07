@@ -1,0 +1,8 @@
+//
+// Created by Tomáš Petříček on 07.04.2023.
+//
+
+#ifndef BACKTESTING_TEST_SIMULATOR_HPP
+#define BACKTESTING_TEST_SIMULATOR_HPP
+
+#endif //BACKTESTING_TEST_SIMULATOR_HPP

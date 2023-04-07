@@ -12,7 +12,10 @@
 
 namespace trading {
     class position {
+    public:
         constexpr static fraction_t default_fee{0};
+
+    private:
         amount_t size_{0.0};
         amount_t total_invested_{0.0};
         amount_t total_realized_profit_{0.0};
@@ -58,6 +61,7 @@ namespace trading {
         requires std::same_as<Type, amount>
         amount_t current_profit(price_t market)
         {
+            assert(total_invested_>0.0 && size_>0.0);
             return current_value(market)-total_invested_;
         }
 
@@ -79,7 +83,7 @@ namespace trading {
         requires std::same_as<Type, percent>
         percent_t total_realized_profit() const
         {
-            assert(total_invested_>=0.0);
+            assert(total_invested_>0.0);
             return (total_realized_profit_/total_invested_)*100;
         }
 
@@ -93,6 +97,16 @@ namespace trading {
             return total_invested_;
         }
 
+        const fraction_t& open_fee() const
+        {
+            return open_fee_;
+        }
+
+        const fraction_t& close_fee() const
+        {
+            return close_fee_;
+        }
+
         bool operator==(const position& rhs) const
         {
             return size_==rhs.size_ &&
@@ -100,10 +114,6 @@ namespace trading {
                     total_realized_profit_==rhs.total_realized_profit_ &&
                     open_fee_==rhs.open_fee_ &&
                     close_fee_==rhs.close_fee_;
-        }
-        bool operator!=(const position& rhs) const
-        {
-            return !(rhs==*this);
         }
     };
 }
