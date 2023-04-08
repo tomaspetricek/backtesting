@@ -551,10 +551,10 @@ int main()
     settings.emplace(json{"search space", {
             {"levels", {
                     {"count", n_levels},
-                    {"unique count", 5},
+                    {"unique count", 10},
             }},
             {"open order sizes", {
-                    {"unique count", 5}
+                    {"unique count", 10}
             }},
             {"moving average", {
                     {"types", {"sma", "ema"}},

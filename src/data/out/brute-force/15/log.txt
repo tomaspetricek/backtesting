@@ -3,9 +3,9 @@ from: 2017-Aug-17 04:00:00
 to: 2022-Oct-28 12:27:00
 difference: 1898d 08:27:00.000000
 count: 2725146
-duration: 3.732633s
+duration: 6.976567s
 search space:
-n states: 3600
-began: 2023-Apr-08 10:07:21
-ended: 2023-Apr-08 10:07:43
-duration: 22.421987s
+n states: 158400
+began: 2023-Apr-08 16:28:13
+ended: 2023-Apr-08 16:43:55
+duration: 15:42.121436

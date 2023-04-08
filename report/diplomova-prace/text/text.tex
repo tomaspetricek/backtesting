@@ -1609,7 +1609,54 @@ K dispozici jsou různé statistiky, které mohou pomoci lépe porozumět chová
 },
 \end{lstlisting}
 
+Experimenty byly prováděny na notebooku MacBook Pro s 2,3 GHz Intel 4jádrovým procesorem s 32 GB RAM pamětí.
+Procesor podporuje hyper-trading, který umožňuje současný běh 2 vláken na každém jádru.
+Což ovlivňuje framework OpenMP, který díky tomu může používat 8 vláken.
+
 \section{Hrubá síla}
+Hlavním účelem algoritmu hrubé síly bylo vyzkoušet použití různých optimalizačních kritérií a omezení.
+Je to také dobrý způsob měření vlivu optimalizace.
+Může to být jednoduché a dostatečně efektivní řešení pro optimalizaci na malém vyhledávacím prostoru pro jednodušší strategie.
+Nebylo potřeba provádět white-box ani black-box vyhodnocení, protože optimalizátor nemá žádné nastavitelné parametry.
+
+Log byl doplněn o informace o celkovém počtu stavů prohledávaného stavového prostoru a čase zahájení a ukončení optimalizace (viz \ref{lst:brute:force:log}).
+Časy byly získány a naformátovány pomocí funkce z knihovny Boost.DateTime.
+Celkový počet stavů byl vypočten procházením vyhledávacího prostoru, což u malých vyhledávacích prostorů nezabere ve srovnání s dobou optimalizace významné množství času.
+
+\begin{lstlisting}[caption={~Rozšíření logu pro algoritmus hrubé síly},label={lst:brute:force:log},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount]
+search space:
+n states: 158400
+began: 2023-Apr-08 16:28:13
+ended: 2023-Apr-08 16:43:55
+duration: 15:42.121436
+\end{lstlisting}
+
+\subsection{Použití optimalizací}
+První experimenty, které byly provedeny byly zaměřeny na měření účinků optimalizací.
+Byly použity 2 typy optimalizací: optimalizace kompilátoru a paralelismus.
+Hlavní použitá optimalizace kompilátoru byla \texttt{O3}, která nastavuje nejvyšší úroveň optimalizací.
+Druhou je \texttt{march=native}, která říká kompilátoru, aby provedl optimalizaci pro konkrétní CPU na daném počítači.
+
+Dopad těchto optimalizací byl znatelný, protože sekvenční implementace se zapnutými optimalizacemi byla \textbf{11krát} rychlejší než ta bez nich.
+Použitím paralelismu byl algoritmus ještě \textbf{3,6krát} rychlejší s 8 vlákny.
+Porovnání výsledků experimentu s vyhledávacím prostorem skládajícím se z 3600 stavů a simulací běžící na 2,5 milionu minutových svíček si lze prohlédnout v tabulce \ref{tab:brute:force:optimization}.
+
+Průměrná doba výpočtu objektivní funkce je přibližně 0,006 sekundy, což znamená, že prohledání 1 milionu různých stavů by trvalo přibližně 1,5 hodiny.
+Výpočet byl proveden na mnohem větším vyhledávacím prostoru pro získání přesnějších výsledků.
+
+\begin{table}\centering
+\caption[Příklad tabulky]{~Porovnání výsledků optimalizacÍ aplikovaných na algoritmus hrubé síly}\label{tab:brute:force:optimization}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Optimalizace}                  & \textbf{Doba trvání (s)} & \textbf{Zrychlení} \\ \hline
+žádné                                   & 986                      & 1                                                     \\ \hline
+optimalizace kompilátoru                & 88                       & 11,2                                                  \\ \hline
+optimalizace kompilátoru a paralelismus & 24                       & 41,1                                                   \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Použití různého počtu úrovní nákupu}
+
 
 % optimlaizace
 

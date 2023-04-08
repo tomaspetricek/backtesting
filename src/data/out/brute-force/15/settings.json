@@ -15,7 +15,7 @@
     "search space": {
         "levels": {
             "count": 3,
-            "unique count": 5
+            "unique count": 10
         },
         "moving average": {
             "period": {
@@ -29,7 +29,7 @@
             ]
         },
         "open order sizes": {
-            "unique count": 5
+            "unique count": 10
         }
     }
 }

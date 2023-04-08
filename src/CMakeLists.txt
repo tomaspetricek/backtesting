@@ -11,4 +11,4 @@ target_link_libraries(backtesting PUBLIC ${Boost_LIBRARIES} fmt::fmt OpenMP::Ope
 
 # optimizations
 add_definitions(-DNDEBUG) # disables asserts
-set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -ffast-math")
+set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -march=native")
