@@ -31,7 +31,6 @@ namespace nlohmann {
         static void to_json(nlohmann::json& j, const trading::bazooka::statistics<n_levels>& stats)
         {
             j = {{"net profit",         stats.net_profit()},
-                 {"pt ratio",           stats.pt_ratio()},
                  {"profit factor",      stats.profit_factor()},
                  {"gross profit",       stats.gross_profit()},
                  {"gross loss",         stats.gross_loss()},
@@ -79,10 +78,12 @@ namespace nlohmann {
     struct adl_serializer<trading::bazooka::configuration<n_levels>> {
         static void to_json(nlohmann::json& j, const trading::bazooka::configuration<n_levels>& config)
         {
+            std::ostringstream os;
+            os << config.tag;
             j = {{"levels",     config.levels},
                  {"open sizes", config.open_sizes},
                  {"indicator",  {
-                                        {"type", config.tag},
+                                        {"type", os.str()},
                                         {"period", config.period}
                                 }}
             };

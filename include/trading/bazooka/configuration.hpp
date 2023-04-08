@@ -15,6 +15,19 @@ namespace trading::bazooka {
         ema,
     };
 
+    std::ostream& operator<<(std::ostream& os, const indicator_tag& tag)
+    {
+        switch (tag) {
+        case indicator_tag::sma:
+            os << "sma";
+            break;
+        case indicator_tag::ema:
+            os << "ema";
+            break;
+        }
+        return os;
+    }
+
     template<std::size_t n_levels>
     struct configuration {
         indicator_tag tag;

@@ -1469,6 +1469,8 @@ void test_reachability(Value origin, SystematicGenerator&& sys_gen,
 }
 \end{lstlisting}
 
+\subsection{Pozice}
+
 \subsection{Indikátory}
 Hodnoty generované implementací indikátorů EMA a SMA byly porovnány s hodnotami generovanými knihovnou pro technickou analýzu TA-lib.
 Pro testování byly použity různé hodnoty period a hodnot vzorků.
@@ -1489,13 +1491,130 @@ Byly provedeny důkladné testy k simulaci požadovaných a výjimečných situa
 Třída čtení byla použita k testování třídy zápisu, aby se ověřilo, že produkuje validní výstup.
 
 \chapter{Experimentální vyhodnocení}
+Cílem experimentálního vyhodnocení bylo najít vhodná nastavení pro optimalizátory a mít možnost je vzájemně porovnat.
+Experimenty byly prováděny systematicky tak, že nejprve bylo nalezeno nejlepší nastavení pro jednu sadu historických dat a poté několik málo dalších.
+Tímto způsobem byla provedena fáze hodnocení white-box následovaná fází black-box, během které byla pro hodnocení použita historická data, která byla dříve neznámá.
+Výsledky experimentů byly pečlivě a systematicky uchovávány, aby bylo co nejjednodušší rozhodování, co upravit pro další experiment.
 
-\section{Metodika}
-Byly provedeny experimenty pro srovnání heuristických přístupů.
-Výsledky každého experimentu byly uloženy do samostatné složky.
-Skládají se z nastavení optimalizátoru, seznamu nejlepších výsledků a průběhu optimalizace.
-Nastavení jsou uložena, aby bylo možné experiment zopakovat.
-I když výsledky nemusí být stejné, je to nezbytná součást ladění heuristiky.
-Ukládají se také statistiky průběhu optimalizace, takže je lze později vykreslit.
-Nejlepší výsledky tvoří konfigurace a výkonnostní statistiky.
-Nastavení a výsledky se ukládají ve formátu JSON a průběh optimalizace jako CSV.
+Výsledky experimentů jsou umístěny v systematicky uspořádané hierarchii složek.
+Všechny mají společný adresář výstupních dat, který obsahuje 4 složky s názvy odpovídajícími jednotlivým optimalizátorům, do nichž patří složky s výsledky jednotlivých experimentů.
+Názvy složek s výsledky jsou čísla podle pořadí, ve kterém byl daný experiment proveden.
+Například výsledky 1. experimentu genetického algoritmu lze nalézt ve složce \textit{data/out/genetic-algorithm/01}.
+
+Výsledky všech experimentů se skládají z minimálně 3 souborů: log.txt, best-states.json a settings.json.
+Soubor log.txt obsahuje zprávy, které byly během procesu optimalizace zobrazeny do konzole.
+Aby bylo možné výsledky zobrazit na standardní výstup a zároveň je zapsat do souboru, byl použit \texttt{boost::iostreams::stream} spolu s \texttt{boost::iostreams::tee\_device}.
+Všechny optimalizátory mají společný začátek logu s informacemi o načtených historických datech \ref{lst:log:candles}.
+
+\begin{lstlisting}[caption={~Informace o načtených historických svíčkách z výstupního logu},label={lst:log:candles},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+candles read:
+from: 2017-Aug-17 04:00:00
+to: 2022-Oct-28 12:27:00
+difference: 1898d 08:27:00.000000
+count: 2725146
+duration: 3.664928s
+\end{lstlisting}
+
+Nastavení experimentu jsou uložena do souboru JSON.
+Díky tomu je experiment opakovatelný, i když výsledky nemusí být stejné, alespoň to platí pro všechny heuristické optimalizátory, protože spoléhají na randomizaci.
+Všechny optimalizátory mají společné sekce nastavení.
+Obsahují informace o historických datech, převzorkování a vyhledávacím prostoru \ref{lst:common:settings}.
+
+\begin{lstlisting}[caption={~Společné části nastavení},label={lst:common:settings},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+{
+    "candles": {
+        "count": 2725146,
+        "currency pair": {
+            "base": "eth",
+            "quote": "usdt"
+        },
+        "from": 1502942400,
+        "to": 1666960020
+    },
+    "resampling": {
+        "averaging method": "ohlc4",
+        "period[min]": 30
+    },
+    "search space": {
+        "levels": {
+            "count": 3,
+            "unique count": 5
+        },
+        "moving average": {
+            "period": {
+                "from": 3,
+                "step": 3,
+                "to": 36
+            },
+            "types": [
+                "sma",
+                "ema"
+            ]
+        },
+        "open order sizes": {
+            "unique count": 5
+        }
+    }
+}
+\end{lstlisting}
+
+Nejlepší stavy jsou uloženy jako seznam konfigurací a statistik v souboru best-states.json.
+Při optimalizaci je jako optimalizační hodnota použit pouze jeden parametr, takže jsou statistiky po dokončení optimalizace spočteny znovu.
+K dispozici jsou různé statistiky, které mohou pomoci lépe porozumět chování optimalizované strategie \ref{lst:best-state}.
+
+\begin{lstlisting}[caption={~Informace uložené o nejlepším stavu},label={lst:best-state},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount]
+{
+    "configuration": {
+        "indicator": {
+            "period": 36,
+            "type": "ema"
+        },
+        "levels": ["5/6","4/6","2/6"],
+        "open sizes": ["5/7","1/7","1/7"]
+    },
+    "statistics": {
+        "close balance": {
+            "max": 78961.828125,
+            "max drawdown": {
+                "amount": -459.23828125,
+                "percent": -1.4765747785568237
+            },
+            "max run up": {
+                "amount": 68961.828125,
+                "percent": 689.6182861328125
+            },
+            "min": 10000.0
+        },
+        "equity": {
+            "max": 78961.828125,
+            "max drawdown": {
+                "amount": -11520.890625,
+                "percent": -34.7911491394043
+            },
+            "max run up": {
+                "amount": 69040.4375,
+                "percent": 695.8746337890625
+            },
+            "min": 9921.390625
+        },
+        "gross loss": -459.23828125,
+        "gross profit": 69421.0625,
+        "net profit": 68961.828125,
+        "open order counts": [24,2,0],
+        "order ratio": 1.0833333333333333,
+        "profit factor": 151.16566467285156,
+        "total close orders": 24,
+        "total open orders": 26
+    }
+},
+\end{lstlisting}
+
+\section{Hrubá síla}
+
+% optimlaizace
+
+% logování
+
+% zhodnocení výsledků
+% porovnání optimalizačních kritérií
+

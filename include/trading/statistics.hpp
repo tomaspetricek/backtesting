@@ -237,11 +237,6 @@ namespace trading {
             return profit_.profit_factor();
         }
 
-        double pt_ratio() const
-        {
-            return net_profit()/-max_close_balance_drawdown<amount>();
-        }
-
         double order_ratio() const
         {
             return static_cast<double>(total_open_orders_)/total_close_orders_;

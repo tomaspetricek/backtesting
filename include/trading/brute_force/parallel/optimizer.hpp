@@ -41,7 +41,7 @@ namespace trading::brute_force::parallel {
                                 }
                             }
                             catch (...) {
-                                std::throw_with_nested(std::runtime_error("Exception thrown while calling a function"));
+                                std::throw_with_nested(std::runtime_error("Exception thrown while calling an objective function"));
                             }
                         }
                     }

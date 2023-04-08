@@ -31,16 +31,17 @@ namespace trading::bazooka {
             return open_order_counts_;
         }
 
-        template<class Trader>
         class collector {
             bazooka::statistics<n_levels> stats_;
 
         public:
+            template<class Trader>
             void started(const Trader& trader, const price_point&)
             {
                 stats_ = bazooka::statistics<n_levels>(trader.wallet_balance());
             }
 
+            template<class Trader>
             void decided(const Trader& trader, const trading::action& action, const price_point& curr)
             {
                 if (action==action::closed_all) {
@@ -55,13 +56,16 @@ namespace trading::bazooka {
                 }
             }
 
+            template<class Trader>
             void position_active(const Trader& trader, const price_point& curr)
             {
                 stats_.update_equity(trader.equity(curr.data));
             }
 
+            template<class Trader>
             void indicators_updated(const Trader&, const price_point&) { }
 
+            template<class Trader>
             void finished(const Trader& trader, const price_point&)
             {
                 stats_.set_final_balance(trader.wallet_balance());;
