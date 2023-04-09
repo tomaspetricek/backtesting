@@ -14,20 +14,11 @@
 struct mock_strategy {
     bool ready{false}, open{false}, close_all{false};
 
-    bool is_ready() const
-    {
-        return ready;
-    }
+    bool is_ready() const { return ready; }
 
-    bool should_open(trading::price_t price) const
-    {
-        return open;
-    }
+    bool should_open(trading::price_t) const { return open; }
 
-    bool should_close_all(trading::price_t price) const
-    {
-        return close_all;
-    }
+    bool should_close_all(trading::price_t) const { return close_all; }
 };
 
 struct mock_manager {

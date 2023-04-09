@@ -1343,7 +1343,6 @@ Mohou být způsobeny například poskytnutím nesprávně naformátovaného CSV
 Kontrola výjimečných stavů způsobuje režii navíc, takže se používají hlavně ve fázi konstrukce objektu, která se provádí pouze jednou.
 Výjimky jsou vnořeny pomocí \texttt{std::throw\_with\_nested}, aby mohl uživatel získat co nejvíce informací k vyřešení problému.
 
-\section{Unit testování}
 V C++ existuje několik testovacích frameworků, ale Boost.Test a GoogleTest jsou 2, které vynikají nejvíce.
 Oba používají makra k vytváření testovacích sad, testovacích případů a asercí, což minimalizuje množství práce potřebné k vytvoření testu.
 Jsou dobře zdokumentované, široce používané a také integrované do IDE, jako je Visual Studio a CLion.
@@ -1392,6 +1391,96 @@ V CLion IDE lze testovací sady a případy spouštět jednotlivě.
 Mohou být také spuštěny v režimu ladění.
 Poskytuje různé nástroje, jak lépe prozkoumat výsledky testování.
 
+\section{Simulace obchodování}
+
+\subsection{Strategie}
+
+\subsection{Indikátory}
+Hodnoty generované implementací indikátorů EMA a SMA byly porovnány s hodnotami generovanými knihovnou pro technickou analýzu TA-lib.
+Pro testování byly použity různé hodnoty period a hodnot vzorků.
+Otestováno bylo také, že při zavolání konstruktoru s neplatnými parametry, je vyhozena výjimka.
+Byla zkontrolována správná indikace připravenosti indikátoru jak při zavolání metody \texttt{update} tak \texttt{is\_ready}.
+
+\subsection{Manažer}
+Manažer přijímá signály generované strategií a převádí je na objednávky, které jsou následně předány burze.
+Je to složitější třída, ale její stav lze simulovat zvenčí.
+Proto byly při testování pro srovnání stavu trhu použity očekávané instance tříd \texttt{market}, \texttt{wallet}, \texttt{order\_sizer}, \texttt{open\_order} a \texttt{close\_all\_order}.
+
+Nejprve byla zkontrolována správná inicializace třídy a poté byl proveden test použití.
+Během testování byly volány metody pro vytváření tržních objednávek k otevření, zvýšení a uzavření pozice.
+V každé fázi byly nejprve vypočítány očekávané objednávky, které byly použity k aktualizaci očekávaného trhu.
+Objednávky bylo možné porovnat se skutečnými objednávkami pomocí metod pro přístup k posledním objednávkám, jako je \texttt{last\_open\_order}.
+Jakmile měly být tržní stavy identické, mohly být k jejich porovnání použity metody přístupu k tržnímu stavu jako \texttt{wallet\_balance}.
+
+\subsection{Obchodník}
+Třída \texttt{manager} spojuje funkčnost strategie a manažera.
+Implementuje jedinou metodu volání, která rozhoduje, kdy obchodovat.
+Jelikož třída přebírá manažera a strategii jako šablonové argumenty, mohly by být zaměněny za falešné (mock) objekty.
+Objekty jsou velmi jednoduché, implementují dané rozhraní a jejich atributy jsou typu boolean.
+Atributy se používají k nastavení výsledků volání metod.
+Implementaci falešné strategie lze vidět na výpisu \ref{lst:mock:strategy}.
+Tímto způsobem mohly být snadno otestovány všechny možné scénáře.
+
+\begin{lstlisting}[caption={~Implementace falešná strategie},label={lst:mock:strategy},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+struct mock_strategy {
+    bool ready{false}, open{false}, close_all{false};
+
+    bool is_ready() const { return ready; }
+
+    bool should_open(trading::price_t) const { return open; }
+
+    bool should_close_all(trading::price_t) const { return close_all; }
+};
+\end{lstlisting}
+
+\subsection{Burza}
+
+\subsection{Pozice}
+Nejprve byla testována výchozí inicializace pro kontrolu, že jsou všechny atributy správně inicializovány.
+Pozice by měla být otevřena předáním otevírací objednávky, nicméně  může být někdy nutné použít výchozí konstruktor.
+Testována byla i běžná inicializace.
+Hlavním provedeným testem byl test použití, během kterého byla pozice otevřena, navýšena a uzavřena.
+Během testu jsou počítány očekávaná celková investovaná částka a očekávaná velikost pozice pro porovnání výsledků volání metod a pro kontrolu stavu atributů pozice.
+
+\subsection{Simulátor}
+
+\subsection{Statistiky}
+Výkonnostní statistiky byly testovány, aby bylo zajištěno, že jsou hodnoty správně inicializovány a aktualizovány.
+Bylo využito toho, že jsou rozděleny do 4 nezávislých skupin: statistiky související s pohybem, statistiky související se ziskem, čítače otevřených a uzavřených objednávek a zůstatky.
+Na všech byly proto provedeny samostatné testovací případy.
+
+\section{Optimalizace}
+
+\subsection{Generátory stavového prostoru}
+Generátory byly testovány na výjimky, které generují pro neplatný vstup.
+Hodnoty generované systematickými generátory byly zkontrolovány na platnost a jedinečnost a porovnány se sadou očekávaných hodnot.
+Současně byly použity různé kombinace hodnot parametrů.
+Jakmile byla získána určitá úroveň důvěry, byly systematické generátory použity k testování náhodných generátorů.
+Hlavním cílem byla kontrola dosažitelnosti, pokud náhodné generátory vygenerovaly všechny možné hodnoty v určitém počtu iterací, byly považovány za validní \ref{lst:test:reachability}.
+
+\begin{lstlisting}[caption={~Testování dosažitelnosti stavů},label={lst:test:reachability},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+template<class Value, class SystematicGenerator, class RandomGenerator>
+void test_reachability(Value origin, SystematicGenerator&& sys_gen,
+    RandomGenerator&& rand_gen, std::size_t n_it)
+{
+    std::size_t it{0};
+    using map_type = std::map<Value, std::size_t>;
+    map_type options;
+
+    for (const auto& value: sys_gen())
+        options.insert(typename map_type::value_type{value, 0});
+
+    while (it++!=n_it) {
+        origin = rand_gen(origin);
+        BOOST_REQUIRE(options.contains(origin));
+        options[origin] += 1;
+    }
+
+    for (const auto& [opt, count]: options)
+        BOOST_REQUIRE(count);
+}
+\end{lstlisting}
+
 \subsection{Optimalizátory}
 Díky flexibilitě šablon lze použít jako konfigurace celá čísla a funkce lambda namísto instancí tříd.
 Zároveň mohly být použity \texttt{systematic::int\_range} a \texttt{random::int\_range}  jako generátory stavového prostoru.
@@ -1439,48 +1528,7 @@ BOOST_AUTO_TEST_CASE(count_events_test)
 }
 \end{lstlisting}
 
-\subsection{Generátory stavového prostoru}
-Generátory byly testovány na výjimky, které generují pro neplatný vstup.
-Hodnoty generované systematickými generátory byly zkontrolovány na platnost a jedinečnost a porovnány se sadou očekávaných hodnot.
-Současně byly použity různé kombinace hodnot parametrů.
-Jakmile byla získána určitá úroveň důvěry, byly systematické generátory použity k testování náhodných generátorů.
-Hlavním cílem byla kontrola dosažitelnosti, pokud náhodné generátory vygenerovaly všechny možné hodnoty v určitém počtu iterací, byly považovány za validní \ref{lst:test:reachability}.
-
-\begin{lstlisting}[caption={~Testování dosažitelnosti stavů},label={lst:test:reachability},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-template<class Value, class SystematicGenerator, class RandomGenerator>
-void test_reachability(Value origin, SystematicGenerator&& sys_gen,
-    RandomGenerator&& rand_gen, std::size_t n_it)
-{
-    std::size_t it{0};
-    using map_type = std::map<Value, std::size_t>;
-    map_type options;
-
-    for (const auto& value: sys_gen())
-        options.insert(typename map_type::value_type{value, 0});
-
-    while (it++!=n_it) {
-        origin = rand_gen(origin);
-        BOOST_REQUIRE(options.contains(origin));
-        options[origin] += 1;
-    }
-
-    for (const auto& [opt, count]: options)
-        BOOST_REQUIRE(count);
-}
-\end{lstlisting}
-
-\subsection{Pozice}
-
-\subsection{Indikátory}
-Hodnoty generované implementací indikátorů EMA a SMA byly porovnány s hodnotami generovanými knihovnou pro technickou analýzu TA-lib.
-Pro testování byly použity různé hodnoty period a hodnot vzorků.
-Otestováno bylo také, že při zavolání konstruktoru s neplatnými parametry, je vyhozena výjimka.
-Byla zkontrolována správná indikace připravenosti indikátoru jak při zavolání metody \texttt{update} tak \texttt{is\_ready}.
-
-\subsection{Výkonností statistiky}
-Výkonnostní statistiky byly testovány, aby bylo zajištěno, že jsou hodnoty správně inicializovány a aktualizovány.
-Bylo využito toho, že jsou rozděleny do 4 nezávislých skupin: statistiky související s pohybem, statistiky související se ziskem, čítače otevřených a uzavřených objednávek a zůstatky.
-Na všech byly proto provedeny samostatné testovací případy.
+\section{Další}
 
 \subsection{Čtení a zápis do CSV}
 Pro testování čtení a zápisu do CSV souborů byly připraveny 4 soubory: prázdný, pouze s hlavičkou, pouze s daty a kompletní soubor.
