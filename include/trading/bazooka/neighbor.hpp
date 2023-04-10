@@ -22,9 +22,9 @@ namespace trading::bazooka {
         static const std::size_t n_choices{4};
         std::uniform_int_distribution<std::size_t> choose_{0, n_choices-1};
         std::mt19937 gen_{std::random_device{}()};
-        trading::random::levels_generator<n_levels> levels_gen_;
-        trading::random::sizes_generator<n_levels> open_sizes_gen_;
-        trading::random::int_range_generator period_gen_;
+        trading::random::levels_generator<n_levels> rand_levels_;
+        trading::random::sizes_generator<n_levels> rand_sizes_;
+        trading::random::int_range_generator rand_period_;
 
         std::array<fraction_t, n_levels>
         create_diff(const std::array<fraction_t, n_levels>& before, const std::array<fraction_t, n_levels>& after)
@@ -42,7 +42,7 @@ namespace trading::bazooka {
     public:
         explicit neighbor(const random::levels_generator<n_levels>& levels_gen,
                 const random::sizes_generator<n_levels>& open_sizes_gen, const random::int_range_generator& period_gen)
-                :levels_gen_(levels_gen), open_sizes_gen_(open_sizes_gen), period_gen_(period_gen) { }
+                :rand_levels_(levels_gen), rand_sizes_(open_sizes_gen), rand_period_(period_gen) { }
 
         std::tuple<configuration<n_levels>, movement<n_levels>> operator()(const configuration<n_levels>& origin)
         {
@@ -51,7 +51,7 @@ namespace trading::bazooka {
 
             switch (choose_(gen_)) {
             case 0:
-                next.period = period_gen_(next.period);
+                next.period = rand_period_(next.period);
                 move.period(next.period);
                 break;
             case 1: {
@@ -61,13 +61,13 @@ namespace trading::bazooka {
                 break;
             }
             case 2: {
-                next.levels = levels_gen_(next.levels);
+                next.levels = rand_levels_(next.levels);
                 move.levels(create_diff(origin.levels, next.levels));
                 break;
             }
             default:
-                next.open_sizes = open_sizes_gen_(next.open_sizes);
-                move.open_sizes(create_diff(origin.open_sizes, next.open_sizes));
+                next.sizes = rand_sizes_(next.sizes);
+                move.open_sizes(create_diff(origin.sizes, next.sizes));
             }
 
             return std::make_tuple(next, move);

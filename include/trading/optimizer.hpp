@@ -16,6 +16,10 @@ namespace trading {
     concept ObjectiveFunction = std::invocable<ConcreteFunction, const Config&> &&
             std::same_as<double, std::invoke_result_t<ConcreteFunction, const Config&>>;
 
+    template<class ConcreteTerminationCriteria, class Optimizer>
+    concept TerminationCriteria = std::invocable<ConcreteTerminationCriteria, const Optimizer&> &&
+            std::same_as<bool, std::invoke_result_t<ConcreteTerminationCriteria, const Optimizer&>>;
+
     template<class Config>
     struct state {
         Config config;

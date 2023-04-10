@@ -22,10 +22,9 @@ namespace trading {
     protected:
         static_assert(n_sizes>1);
         std::array<fraction_t, n_sizes> sizes_;
-        std::size_t denom_;
-        std::size_t max_num_;
+        std::size_t denom_, max_num_;
 
-        std::size_t validate_n_unique(std::size_t n_unique)
+        std::size_t validate_unique_count(std::size_t n_unique)
         {
             if (!n_unique)
                 throw std::invalid_argument{"The number of unique sizes has to be greater than zero"};
@@ -33,7 +32,7 @@ namespace trading {
         }
 
         explicit sizes_generator(std::size_t n_unique)
-                :denom_(n_sizes+validate_n_unique(n_unique)-1), max_num_(denom_-n_sizes+1) { }
+                :denom_(n_sizes+validate_unique_count(n_unique)-1), max_num_(denom_-n_sizes+1) { }
 
     public:
         using value_type = std::array<fraction_t, n_sizes>;
@@ -51,7 +50,7 @@ namespace trading {
         std::array<fraction_t, n_levels> levels_;
         std::size_t denom_;
 
-        std::size_t validate_n_unique(std::size_t n_unique)
+        std::size_t validate_unique_count(std::size_t n_unique)
         {
             if (n_unique<n_levels)
                 throw std::invalid_argument{
@@ -60,7 +59,7 @@ namespace trading {
         }
 
         explicit levels_generator(size_t n_unique = n_levels)
-                :denom_(validate_n_unique(n_unique)+1) { }
+                :denom_(validate_unique_count(n_unique)+1) { }
 
     public:
         using value_type = std::array<fraction_t, n_levels>;

@@ -33,14 +33,14 @@ namespace trading::bazooka {
         indicator_tag tag;
         std::size_t period;
         std::array<fraction_t, n_levels> levels;
-        std::array<fraction_t, n_levels> open_sizes;
+        std::array<fraction_t, n_levels> sizes;
 
         bool operator==(const configuration& rhs) const
         {
             return tag==rhs.tag &&
                     period==rhs.period &&
                     levels==rhs.levels &&
-                    open_sizes==rhs.open_sizes;
+                    sizes==rhs.sizes;
         }
 
         bool operator<(const configuration& rhs) const
@@ -57,7 +57,7 @@ namespace trading::bazooka {
                 return true;
             if (rhs.levels<levels)
                 return false;
-            return open_sizes<rhs.open_sizes;
+            return sizes<rhs.sizes;
         }
         bool operator>(const configuration& rhs) const
         {
@@ -83,7 +83,7 @@ namespace std {
             boost::hash_combine(seed, boost::hash_value(config.tag));
             boost::hash_combine(seed, boost::hash_value(config.period));
             boost::hash_combine(seed, boost::hash_value(config.levels));
-            boost::hash_combine(seed, boost::hash_value(config.open_sizes));
+            boost::hash_combine(seed, boost::hash_value(config.sizes));
             return seed;
         }
     };

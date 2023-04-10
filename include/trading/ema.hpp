@@ -62,6 +62,11 @@ namespace trading {
         {
             return sma_.is_ready();
         }
+
+        std::string name() const
+        {
+            return "ema";
+        }
     };
 }
 

@@ -42,7 +42,7 @@ auto create_trader(const bazooka::configuration<n_levels>& config)
     trading::market market{wallet{init_balance}, fee, fee};
 
     // create open sizer
-    order_sizer open_sizer{config.open_sizes};
+    order_sizer open_sizer{config.sizes};
 
     // create trade manager
     bazooka::manager manager{market, open_sizer};

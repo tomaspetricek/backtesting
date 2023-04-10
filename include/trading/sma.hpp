@@ -43,6 +43,11 @@ namespace trading {
             assert(is_ready());
             return sum_/static_cast<double>(samples_.size());
         }
+
+        std::string name() const
+        {
+            return "sma";
+        }
     };
 }
 

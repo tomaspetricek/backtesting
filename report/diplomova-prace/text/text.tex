@@ -1084,8 +1084,8 @@ auto search_space = [&]() -> cppcoro::generator<config_type> {
     for (std::size_t period: periods_gen())
         for (const auto& tag: tags)
             for (const auto& levels: levels_gen())
-                for (const auto& open_sizes: sizes_gen())
-                    co_yield config_type{tag, period, levels, open_sizes};
+                for (const auto& sizes: sizes_gen())
+                    co_yield config_type{tag, period, levels, sizes};
 };
 \end{lstlisting}
 
@@ -1315,7 +1315,7 @@ bool contains(const move_type& move) const
     case move_type::indices::levels:
         return levels_mem_.contains(move.levels());
     default:
-        return sizes_mem_.contains(move.open_sizes());
+        return sizes_mem_.contains(move.sizes());
     }
 }
 \end{lstlisting}

@@ -81,7 +81,7 @@ namespace nlohmann {
             std::ostringstream os;
             os << config.tag;
             j = {{"levels",     config.levels},
-                 {"open sizes", config.open_sizes},
+                 {"open sizes", config.sizes},
                  {"indicator",  {
                                         {"type", os.str()},
                                         {"period", config.period}
