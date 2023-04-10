@@ -1379,6 +1379,26 @@ void operator()(const Config& init, Result& result,
 \end{lstlisting}
 
 \chapter{Vizualizace}
+V současnosti Python nabízí jednu z nejrozšířenějších a nejrozvinutějších sad nástrojů pro vizualizaci a datovou vědu jako takovou, a proto byl v této části práce upřednostněn před C++.
+Grafy jsou potřebné k vizualizaci průběhu optimalizačního procesu, aby bylo možné činit rozhodnutí ve fázi ladění.
+Jsou zároveň užitečné při vizuálním testování strategie nebo prohlížení průběhu historické simulace.
+
+Data určená pro tvorbu grafů se ukládají do CSV souborů, jelikož je lze snadno načíst pomocí knihovny \texttt{Pandas} do instance třídy \texttt{DataFrame}.
+Třída představuje tabulku s řádky a sloupci a nabízí širokou škálu metod pro manipulaci s uloženými daty.
+Operace mohou zahrnovat konverzi dat, výběr, čištění a spojení více instancí tříd \texttt{DataFrame}.
+
+Jakmile jsou data připravena, jsou vykreslena pomocí knihovny \texttt{Matplotlib}.
+Nabízí způsoby, jak upřesnit typ grafu, legendu, nadpis, štítky, barvy a další.
+Instance třídy \texttt{DataFrame} lze často použít přímo pro vykreslování.
+Grafy lze uložit jako obrázky ve formátu PNG.
+Knihovna je dobře zdokumentována a na fóru Stack Overflow existuje spousta užitečných diskuzí.
+
+K vývoji a spuštění kódu byl použit Jupyter Notebook.
+Prostředí je dostupné pomocí webového prohlížeče.
+Kód lze organizovat do samostatných buněk, které lze anotovat pomocí jazyka Markdown.
+Jakmile je program spuštěn, lze přistupovat ke všem hodnotám proměnných, dokud běží jádro platformy.
+Hodnoty lze zobrazit do prostoru pod buňkami.
+Vizuální vzhled notebooku je zachován i po zastavení běhu jádra, což zahrnuje i vykreslené grafy.
 
 
 \chapter{Testování}
@@ -1445,8 +1465,8 @@ Mohou být také spuštěny v režimu ladění.
 Poskytuje různé nástroje, jak lépe prozkoumat výsledky testování.
 
 \section{Strategie}
-Strategie byla testována, aby se zjistilo, zda byly dobře implementovány podmínky pro spuštění signálu.
-Byl použit ukazatel SMA s periodou 1, jelikož je jeho hodnota rovna poslednímu předanému vzorku, což usnadňuje testování.
+Strategie byla testována především proto, aby se zjistilo, zda byly správně implementovány podmínky pro vyvolání signálu.
+Pro testování byl použit ukazatel typu SMA s periodou 1, jelikož je jeho hodnota rovna poslednímu předanému vzorku, což usnadňuje vytváření testů.
 Každá metoda pro generování signálu vrací booleovskou hodnotu označující, zda má být vytvořena objednávka, čehož bylo využito při testování (viz \ref{lst:test:strategy:should:open}).
 Byly také provedeny testy pro kontrolu inicializace, aktualizace indikátorů a metod pro získávání hodnot indikátorů.
 
@@ -1482,13 +1502,14 @@ Byla zkontrolována správná indikace připravenosti indikátoru jak při zavol
 
 \section{Manažer}
 Manažer přijímá signály generované strategií a převádí je na objednávky, které jsou následně předány burze.
-Je to složitější třída, ale její stav lze simulovat zvenčí.
+I když je to složitější třída, tak lze její stav simulovat zvenčí.
 Proto byly při testování pro srovnání stavu trhu použity očekávané instance tříd \texttt{market}, \texttt{wallet}, \texttt{order\_sizer}, \texttt{open\_order} a \texttt{close\_all\_order}.
 Nejprve byla zkontrolována správná inicializace třídy a poté byl proveden test použití.
+
 Během testování byly volány metody pro vytváření tržních objednávek k otevření, zvýšení a uzavření pozice.
 V každé fázi byly nejprve vypočítány očekávané objednávky, které byly použity k aktualizaci očekávaného trhu.
 Objednávky bylo možné porovnat se skutečnými objednávkami pomocí metod pro přístup k posledním objednávkám, jako je \texttt{last\_open\_order}.
-Jakmile měly být tržní stavy identické, mohly být k jejich porovnání použity metody přístupu k tržnímu stavu jako \texttt{wallet\_balance}.
+Jakmile byly tržní stavy identické, mohly být k jejich porovnání použity metody přístupu k tržnímu stavu jako \texttt{wallet\_balance}.
 
 \section{Obchodník}
 Třída \texttt{trader} spojuje funkcionality strategie a manažera.
