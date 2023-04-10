@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_SUITE(simulated_annealing_optimizer_test)
         BOOST_REQUIRE_EQUAL(optimizer.start_temperature(), start_temp);
         BOOST_REQUIRE_EQUAL(optimizer.minimum_temperature(), min_temp);
 
-        optimizer(init.value, result, constraints, cooler, objective, neighbor, appraiser, equilibrium);
+        optimizer(init.value, result, constraints, objective, cooler, neighbor, appraiser, equilibrium);
         BOOST_REQUIRE_EQUAL(result.get().config, neighbor.to());
         BOOST_REQUIRE(optimizer.current_temperature()<=min_temp);
         BOOST_REQUIRE_EQUAL(optimizer.it(), start_temp-min_temp);
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_SUITE(simulated_annealing_optimizer_test)
         trading::constructive_result result{init, [&](const auto& lhs, const auto& rhs) {
             return lhs.value>rhs.value;
         }};
-        optimizer(init.config, result, constraints, cooler, objective, neighbor, appraiser, equilibrium, counter);
+        optimizer(init.config, result, constraints, objective, cooler, neighbor, appraiser, equilibrium, counter);
         BOOST_REQUIRE_EQUAL(counter.started_count, 1);
         BOOST_REQUIRE_EQUAL(counter.finished_count, 1);
         BOOST_REQUIRE_EQUAL(counter.cooled_count, optimizer.it());
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_SUITE(simulated_annealing_optimizer_test)
         auto neighbor = trading::random::int_range_generator(1, 100, 1);
         auto equilibrium = trading::simulated_annealing::fixed_equilibrium{10};
         auto optimizer = trading::simulated_annealing::optimizer<config_type>(start_temp, min_temp);
-        optimizer(init.value, result, constraints, cooler, objective, neighbor, appraiser, equilibrium);
+        optimizer(init.value, result, constraints, objective, cooler, neighbor, appraiser, equilibrium);
         BOOST_REQUIRE_EQUAL(result.get().value, init_value);
     }
 

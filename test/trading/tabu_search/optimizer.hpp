@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_SUITE(tabu_search_optimizer_test)
         };
         auto optimizer = optimizer_type{};
         auto counter = event_counter{};
-        optimizer(init, result, constraints, memory, objective, neighbor, neighborhood, termination, aspiration,
+        optimizer(init, result, constraints, objective, memory , neighbor, neighborhood, termination, aspiration,
                 counter);
         BOOST_REQUIRE_EQUAL(result.get().config, gen.max());
         BOOST_REQUIRE_EQUAL(counter.started_count, 1);
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_SUITE(tabu_search_optimizer_test)
         };
         auto optimizer = optimizer_type{};
         auto counter = event_counter{};
-        optimizer(init, result, constraints, memory, objective, neighbor, neighborhood, termination, aspiration,
+        optimizer(init, result, constraints, objective, memory, neighbor, neighborhood, termination, aspiration,
                 counter);
         BOOST_REQUIRE_EQUAL(result.get().size(), 0);
         BOOST_REQUIRE_EQUAL(counter.started_count, 1);

@@ -58,39 +58,39 @@ namespace trading::genetic_algorithm {
         template<class Result, class... Observer>
         std::vector<state<Genes>> operator()(const std::vector<Genes>& init_genes,
                 Result& result,
-                const Constraints<state_type> auto& constraints,
-                ObjectiveFunction<Genes> auto&& compute_fitness,
-                PopulationSizer auto&& sizer,
-                Selection<state_type> auto&& selection,
+                Constraints<state_type> auto&& constraints,
+                ObjectiveFunction<Genes> auto&& fitness,
+                PopulationSizer auto&& size,
+                Selection<state_type> auto&& select,
                 Matchmaker<state_type> auto&& match,
                 Crossover<Genes> auto&& crossover,
-                Mutation<Genes> auto&& mutation,
-                Replacement<state_type> auto&& replacement,
-                TerminationCriteria<optimizer<Genes>> auto&& termination,
+                Mutation<Genes> auto&& mutate,
+                Replacement<state_type> auto&& replace,
+                TerminationCriteria<optimizer<Genes>> auto&& terminate,
                 Observer& ... observers)
         {
             population_.clear(), population_.reserve(init_genes.size());
             for (const auto& genes: init_genes)
-                population_.template emplace_back(std::move(state_type{genes, compute_fitness(genes)}));
+                population_.template emplace_back(state_type{genes, fitness(genes)});
 
             std::vector<state_type> parents, children;
             (observers.started(*this), ...);
-            for (; population_.size() && !termination(*this); it_++) {
+            for (; population_.size() && !terminate(*this); it_++) {
                 parents.clear();
-                selection(sizer(population_.size()), population_, parents);
+                select(size(population_.size()), population_, parents);
 
                 // mate
                 children.clear();
                 for (const auto& mates: match(parents))
                     for (auto&& genes: crossover(mates)) {
-                        genes = mutation(std::move(genes));
-                        auto child = state_type{genes, compute_fitness(genes)};
+                        genes = mutate(std::move(genes));
+                        auto child = state_type{genes, fitness(genes)};
                         children.template emplace_back(std::move(child));
                     }
 
                 // replace
                 population_.clear();
-                replacement(parents, children, population_);
+                replace(parents, children, population_);
 
                 // update results
                 for (const auto& individual: population_)

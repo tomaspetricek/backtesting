@@ -35,18 +35,17 @@ namespace trading::tabu_search {
         using state_type = state<Config>;
 
         template<class Result, class TabuList, class... Observer>
-        void operator()(const Config& init,
-                Result& result,
+        void operator()(const Config& init, Result& result,
                 const Constraints<state_type> auto& constraints,
+                ObjectiveFunction<Config> auto&& objective,
                 TabuList tabu_list,
-                ObjectiveFunction<Config> auto&& compute_objective,
                 Neighbor<Config, typename TabuList::move_type> auto&& neighbor,
                 NeighborhoodSizer<optimizer> auto&& neighborhood_size,
                 TerminationCriteria<optimizer> auto&& terminate,
                 AspirationCriteria<state_type, optimizer> auto&& aspire,
                 Observer& ... observers)
         {
-            best_ = curr_ = state_type{init, compute_objective(init)};
+            best_ = curr_ = state_type{init, objective(init)};
             state_type candidate, origin;
             typename TabuList::move_type curr_move, candidate_move;
             std::size_t neighborhood;
@@ -56,7 +55,7 @@ namespace trading::tabu_search {
                 // explore neighborhood
                 origin = curr_;
                 std::tie(curr_.config, curr_move) = neighbor(origin.config);
-                curr_.value = compute_objective(curr_.config);
+                curr_.value = objective(curr_.config);
 
                 neighborhood = neighborhood_size(*this);
                 assert(neighborhood>=1);
@@ -64,7 +63,7 @@ namespace trading::tabu_search {
                     std::tie(candidate.config, candidate_move) = neighbor(origin.config);
 
                     if (!tabu_list.contains(candidate_move)) {
-                        candidate.value = compute_objective(candidate.config);
+                        candidate.value = objective(candidate.config);
 
                         if (result.compare(candidate, curr_) || aspire(candidate, *this)) {
                             curr_ = candidate;

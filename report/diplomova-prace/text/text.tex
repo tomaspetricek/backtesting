@@ -1103,18 +1103,24 @@ Pokud stav splňuje omezující podmínky, je v kritické sekci aktualizován v�
 Je nutné použít synchronizaci, protože může být výsledek modifikován více vlákny najednou.
 
 \begin{lstlisting}[caption={~Optimalizace pomocí algoritmu hrubé síly},label={lst:brute-force},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-#pragma omp parallel
+template<class Result>
+void operator()(Result& result,
+    Constraints<state_type> auto&& constraints,
+    ObjectiveFunction<Config> auto&& objective,
+    SearchSpace<Config> auto&& search_space) const
 {
-    #pragma omp single
+    #pragma omp parallel
     {
-        for (const auto& config: search_space()) {
-            #pragma omp task
-            {
-                auto curr_state = state{config, cost(config)};
-                if (constrains(curr_state)) {
-                    #pragma omp critical
-                    result.update(curr_state);
-                }}}}}
+        #pragma omp single
+        {
+            for (const Config& config: search_space()) {
+                #pragma omp task
+                {
+                    auto state = state_type{config, objective(config)};
+                    if (constraints(state)) {
+                        #pragma omp critical
+                        result.update(state);
+                    }}}}}}
 \end{lstlisting}
 
 \subsection{Simulované ochlazování}
@@ -1150,35 +1156,46 @@ Pro sběr dat o průběhu optimalizace byla implementována třída \texttt{simu
 Za účelem logování byla vytvořena třída \texttt{simulated\_annealing::progress\_reporter}.
 
 \begin{lstlisting}[caption={~Implementace simulovaného ochlazování},label={lst:simulated:annealing},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-curr_state_ = state{init_config, objective(init_config)};
-(observers.begin(*this), ...);
+template<class Result, class... Observer>
+void operator()(const Config& init_config, Result& result,
+    Constraints<state_type> auto&& constraints,
+    ObjectiveFunction<Config> auto&& objective,
+    Cooler<optimizer> auto&& cool,
+    Neighbor<Config> auto&& neighbor,
+    Appraiser<state_type> auto&& appraise,
+    Equilibrium auto&& equilibrium,
+    Observer& ... observers)
+{
+    curr_state_ = state_type{init_config, objective(init_config)};
+    (observers.started(*this), ...);
 
-for (; curr_temp_>min_temp_; it_++) {
-    while (equilibrium()) {
-        Config config = neighbor(curr_state_.config);
-        auto candidate = state{config, objective(config)};
+    for (; curr_temp_>min_temp_; it_++) {
+        while (equilibrium()) {
+            Config config = neighbor(curr_state_.config);
+            auto candidate = state_type{config, objective(config)};
 
-        if (result.compare(candidate, curr_state_)) {
-            curr_state_ = candidate;
-            (observers.better_accepted(*this), ...);
-
-            if (constraints(curr_state_))
-                result.update(curr_state_);
-        }
-        else {
-            double diff = appraiser(curr_state_, candidate);
-            double threshold = std::exp(-diff/curr_temp_);
-
-            if (rand_prob_()<threshold) {
+            if (result.compare(candidate, curr_state_)) {
                 curr_state_ = candidate;
-                (observers.worse_accepted(*this, threshold), ...);
+                (observers.better_accepted(*this), ...);
+
+                if (constraints(curr_state_))
+                    result.update(curr_state_);
+            }
+            else {
+                double diff = appraise(curr_state_, candidate);
+                double threshold = std::exp(-diff/curr_temp_);
+
+                if (rand_prob_()<threshold) {
+                    curr_state_ = candidate;
+                    (observers.worse_accepted(*this, threshold), ...);
+                }
             }
         }
+        cool(*this);
+        (observers.cooled(*this), ...);
     }
-    cooler(*this);
-    (observers.cooled(*this), ...);
+    (observers.finished(*this), ...);
 }
-(observers.end(*this), ...);
 \end{lstlisting}
 
 \subsection{Genetický algoritmus}
@@ -1227,33 +1244,49 @@ Implementaci algoritmu lze vidět ve výpise \ref{lst:genetic:algorithm}.
 Data o průběhu optimalizace lze shromažďovat pomocí \texttt{progress\_collector} a zaznamenávat pomocí \texttt{progress\_reporter}.
 
 \begin{lstlisting}[caption={~Implementace genetického algoritmu},label={lst:genetic:algorithm},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-population_.clear(), population_.reserve(init_genes.size());
-for (const auto& genes: init_genes)
-    population_.emplace_back(std::move(individual{genes,
-        compute_fitness(genes)}));
+template<class Result, class... Observer>
+std::vector<state<Genes>> operator()(const std::vector<Genes>& init_genes,
+    Result& result,
+    Constraints<state_type> auto&& constraints,
+    ObjectiveFunction<Genes> auto&& fitness,
+    PopulationSizer auto&& size,
+    Selection<state_type> auto&& select,
+    Matchmaker<state_type> auto&& match,
+    Crossover<Genes> auto&& crossover,
+    Mutation<Genes> auto&& mutate,
+    Replacement<state_type> auto&& replace,
+    TerminationCriteria<optimizer<Genes>> auto&& terminate,
+    Observer& ... observers)
+{
+    population_.clear(), population_.reserve(init_genes.size());
+    for (const auto& genes: init_genes)
+        population_.emplace_back(state_type{genes, fitness(genes)});
 
-std::vector<individual> parents, children;
-(observers.begin(*this), ...);
-for (; population_.size() && !termination(*this); it_++) {
-    parents.clear();
-    selection(sizer(population_.size()), population_, parents);
+    std::vector<state_type> parents, children;
+    (observers.started(*this), ...);
+    for (; population_.size() && !terminate(*this); it_++) {
+        parents.clear();
+        select(size(population_.size()), population_, parents);
 
-    // mate
-    children.clear();
-    for (const auto& mates: match(parents))
-        for (auto&& genes: crossover(mates)) {
-            genes = mutation(std::move(genes));
-            auto child = individual{genes, compute_fitness(genes)};
-            children.template emplace_back(std::move(child));
-        }
+        children.clear();
+        for (const auto& mates: match(parents))
+            for (auto&& genes: crossover(mates)) {
+                genes = mutate(std::move(genes));
+                auto child = state_type{genes, fitness(genes)};
+                children.template emplace_back(std::move(child));
+            }
 
-    // replace
-    population_.clear();
-    replacement(parents, children, population_);
-    (observers.population_updated(*this), ...);
-};
-(observers.end(*this), ...);
-return population_;
+        population_.clear();
+        replace(parents, children, population_);
+
+        for (const auto& individual: population_)
+            if (constraints(individual))
+                result.update(individual);
+        (observers.population_updated(*this), ...);
+    };
+    (observers.finished(*this), ...);
+    return population_;
+}
 \end{lstlisting}
 
 \subsection{Tabu prohledávání}
@@ -1296,36 +1329,53 @@ Velikost sousedství říká, kolik sousedních konfigurací je prohledáno běh
 Celý algoritmus lze vidět ve výpise \ref{lst:tabu:search}.
 
 \begin{lstlisting}[caption={~Implementace genetického algoritmu},label={lst:tabu:search},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-best_ = curr_ = state{init, compute_fitness(init)};
-state candidate, origin;
-typename TabuList::move_type curr_move, candidate_move;
+template<class Result, class TabuList, class... Observer>
+void operator()(const Config& init, Result& result,
+    const Constraints<state_type> auto& constraints,
+    ObjectiveFunction<Config> auto&& objective,
+    TabuList tabu_list,
+    Neighbor<Config, typename TabuList::move_type> auto&& neighbor,
+    NeighborhoodSizer<optimizer> auto&& neighborhood_size,
+    TerminationCriteria<optimizer> auto&& terminate,
+    AspirationCriteria<state_type, optimizer> auto&& aspire,
+    Observer& ... observers)
+{
+    best_ = curr_ = state_type{init, objective(init)};
+    state_type candidate, origin;
+    typename TabuList::move_type curr_move, candidate_move;
+    std::size_t neighborhood;
 
-(observers.begin(*this), ...);
-for (; !terminate(*this); it_++) {
-    origin = curr_;
-    std::tie(curr_.config, curr_move) = neighbor(origin.config);
-    curr_.fitness = compute_fitness(curr_.config);
+    (observers.started(*this), ...);
+    for (; !terminate(*this); it_++) {
+        origin = curr_;
+        std::tie(curr_.config, curr_move) = neighbor(origin.config);
+        curr_.value = objective(curr_.config);
+        
+        for (std::size_t i{0}; i<neighborhood_size(*this)-1; i++) {
+            std::tie(candidate.config, candidate_move) = neighbor(origin.config);
 
-    for (std::size_t i{0}; i<neighborhood_size(*this)-1; i++) {
-        std::tie(candidate.config,candidate_move)=neighbor(origin.config);
+            if (!tabu_list.contains(candidate_move)) {
+                candidate.value = objective(candidate.config);
 
-        if (!tabu_list.contains(candidate_move)) {
-            candidate.fitness = compute_fitness(candidate.config);
+                if (result.compare(candidate, curr_) || aspire(candidate, *this)) {
+                    curr_ = candidate;
+                    curr_move = candidate_move;
+                }
+            }
+        }
 
-            if (optim_criteria(candidate.fitness, curr_.fitness)
-                || aspire(candidate, *this)) {
-                curr_ = candidate;
-                curr_move = candidate_move;
-            }}}
+        if (result.compare(curr_, best_)) {
+            best_ = curr_;
+            if (constraints(best_))
+                result.update(best_);
+        }
 
-    if (optim_criteria(curr_.fitness, best_.fitness))
-        best_ = curr_;
-
-    tabu_list.forget(curr_move);
-    tabu_list.remember(curr_move.index());
-    (observers.iteration_passed(*this, tabu_list), ...);
+        tabu_list.forget();
+        tabu_list.remember(curr_move);
+        (observers.iteration_passed(*this, tabu_list), ...);
+    }
+    (observers.finished(*this), ...);
 }
-(observers.end(*this), ...);
 \end{lstlisting}
 
 \chapter{Testování}
@@ -1391,9 +1441,7 @@ V CLion IDE lze testovací sady a případy spouštět jednotlivě.
 Mohou být také spuštěny v režimu ladění.
 Poskytuje různé nástroje, jak lépe prozkoumat výsledky testování.
 
-\section{Simulace obchodování}
-
-\subsection{Strategie}
+\section{Strategie}
 Strategie byla testována, aby se zjistilo, zda byly dobře implementovány podmínky pro spuštění signálu.
 Byl použit ukazatel SMA s periodou 1, jelikož je jeho hodnota rovna poslednímu předanému vzorku, což usnadňuje testování.
 Každá metoda pro generování signálu vrací booleovskou hodnotu označující, zda má být vytvořena objednávka, čehož bylo využito při testování (viz \ref{lst:test:strategy:should:open}).
@@ -1423,13 +1471,13 @@ BOOST_AUTO_TEST_CASE(should_open_test)
 }
 \end{lstlisting}
 
-\subsection{Indikátory}
+\section{Indikátory}
 Hodnoty generované implementací indikátorů EMA a SMA byly porovnány s hodnotami generovanými knihovnou pro technickou analýzu TA-lib.
 Pro testování byly použity různé hodnoty period a hodnot vzorků.
 Otestováno bylo také, že při zavolání konstruktoru s neplatnými parametry, je vyhozena výjimka.
 Byla zkontrolována správná indikace připravenosti indikátoru jak při zavolání metody \texttt{update} tak \texttt{is\_ready}.
 
-\subsection{Manažer}
+\section{Manažer}
 Manažer přijímá signály generované strategií a převádí je na objednávky, které jsou následně předány burze.
 Je to složitější třída, ale její stav lze simulovat zvenčí.
 Proto byly při testování pro srovnání stavu trhu použity očekávané instance tříd \texttt{market}, \texttt{wallet}, \texttt{order\_sizer}, \texttt{open\_order} a \texttt{close\_all\_order}.
@@ -1439,7 +1487,7 @@ V každé fázi byly nejprve vypočítány očekávané objednávky, které byly
 Objednávky bylo možné porovnat se skutečnými objednávkami pomocí metod pro přístup k posledním objednávkám, jako je \texttt{last\_open\_order}.
 Jakmile měly být tržní stavy identické, mohly být k jejich porovnání použity metody přístupu k tržnímu stavu jako \texttt{wallet\_balance}.
 
-\subsection{Obchodník}
+\section{Obchodník}
 Třída \texttt{trader} spojuje funkcionality strategie a manažera.
 Implementuje jedinou metodu, která rozhoduje, kdy obchodovat.
 Jelikož třída přebírá manažera a strategii jako šablonové argumenty, mohly by být zaměněny za falešné (mock) objekty.
@@ -1460,18 +1508,18 @@ struct mock_strategy {
 };
 \end{lstlisting}
 
-\subsection{Burza}
+\section{Burza}
 Třída \texttt{market} byla nejprve testována na správnou inicializaci a výjimky, které mohou být vyvolány při volání konstruktoru.
 Konstruktor vyvolá výjimku typu \texttt{std::invalid\_argument}, když je mu předána neplatná hodnota poplatku.
 Aby bylo možné otestovat její použití, byly k porovnání hodnot udržovány instance tříd \texttt{position} a \texttt{wallet} představují očekávaný stav třídy.
 Test prošel všemi stavy aktivní pozice: vytvoření, navýšení a uzavření, během kterých byly skutečné hodnoty poskytované metodami třídy porovnány s očekávanými.
 
-\subsection{Pozice}
+\section{Pozice}
 Nejprve byla testována inicializace pro kontrolu, že jsou všechny atributy správně inicializovány.
 Hlavním provedeným testem byl test použití, během kterého byla pozice otevřena, navýšena a uzavřena.
 Během testu byly počítány očekávaná celková investovaná částka a očekávaná velikost pozice pro kontrolu výsledků volání metod a stavu atributů pozice.
 
-\subsection{Simulátor}
+\section{Simulátor}
 Cílem prvního testu bylo ujistit se, že proces převzorkování prováděný v těle konstruktoru je správně implementován.
 Za tímto účelem byly vypočteny očekávané ceny a indikátorové ceny a porovnány s hodnotami získanými pomocí getrů instanciované třídy.
 Poté byla testována samotná simulace přístupná pomocí volacího operátoru třídy, který přebírá 2 typy parametrů: obchodníka a sadu pozorovatelů.
@@ -1479,14 +1527,12 @@ Ke kontrole, zda jsou pozorovatelé voláni správně, byl použit pozorovatel p
 Jako obchodník byla použita mockovací třída, která umožňovala nastavení výsledků volání metod před použitím simulátoru.
 Pomocí těchto 2 objektů bylo provedeno několik testovacích případů.
 
-\subsection{Statistiky}
+\section{Statistiky}
 Výkonnostní statistiky byly testovány, aby bylo zajištěno, že jsou hodnoty správně inicializovány a aktualizovány.
 Bylo využito toho, že jsou rozděleny do 4 nezávislých skupin: statistiky související s pohybem, statistiky související se ziskem, čítače otevřených a uzavřených objednávek a zůstatky.
 Na všech byly proto provedeny samostatné testovací případy.
 
-\section{Optimalizace}
-
-\subsection{Generátory stavového prostoru}
+\section{Generátory stavového prostoru}
 Generátory byly testovány na výjimky, které generují pro neplatný vstup.
 Hodnoty generované systematickými generátory byly zkontrolovány na platnost a jedinečnost a porovnány se sadou očekávaných hodnot.
 Současně byly použity různé kombinace hodnot parametrů.
@@ -1516,15 +1562,16 @@ void test_reachability(Value origin, SystematicGenerator&& sys_gen,
 }
 \end{lstlisting}
 
-\subsection{Optimalizátory}
-Díky flexibilitě šablon lze použít jako konfigurace celá čísla a funkce lambda namísto instancí tříd.
-Zároveň mohly být použity \texttt{systematic::int\_range} a \texttt{random::int\_range}  jako generátory stavového prostoru.
-Díky tomu bylo vytváření testů mnohem jednodušší.
-Objektivní funkce převádí celá čísla na čísla s dvojnásobnou přesností.
+\section{Optimalizátory}
+Optimalizátory nabízejí vysokou úroveň abstrakce díky použití konceptů a šablon, takže pro jejich testování mohl být použit integer jako typ konfigurace, což značně zjednodušilo testy.
+Pro generování stavového prostoru mohly být využity generátory  \texttt{systematic::int\_range} a \texttt{random::int\_range}.
+
+Jako objektivní funkce byla zvolena funkce převádějící integer na double.
 Cílem všech testů bylo nalézt její maximální hodnotu.
-K testování bylo také možné využít pozorovatele.
-Pro každou heuristickou metodu byl implementován pozorovatel, který počítá výskyt událostí.
-Ukázku testování lze vidět na \ref{lst:test:event:counter}.
+Omezení mohla být definována uvedením minimální objektivní hodnoty.
+Byly testovány na výjimky, které by mohly být vyvolány během inicializace objektu.
+Aby bylo možné zkontrolovat, zda jsou pozorovatelé informováni o událostech správně, byli vytvořeni pozorovatelé pro počítání událostí.
+Ukázku testování simulovaného ochlazování pomocí čítacího pozorovatele lze vidět na \ref{lst:test:event:counter}.
 
 \begin{lstlisting}[caption={~Testování optimalizátoru pomocí pozorovatele},label={lst:test:event:counter},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 BOOST_AUTO_TEST_CASE(count_events_test)
@@ -1563,9 +1610,15 @@ BOOST_AUTO_TEST_CASE(count_events_test)
 }
 \end{lstlisting}
 
-\section{Další}
+\subsection{Hrubá síla}
 
-\subsection{Čtení a zápis do CSV}
+\subsection{Simulované ochlazování}
+
+\subsection{Genetický algoritmus}
+
+\subsection{Tabu prohledávání}
+
+\section{Čtení a zápis do CSV}
 Pro testování čtení a zápisu do CSV souborů byly připraveny 4 soubory: prázdný, pouze s hlavičkou, pouze s daty a kompletní soubor.
 Při použití čtecí třídy může být vyvolána výjimka \texttt{std::runtime\_error}, buď při volání konstruktoru, pokud soubor neexistuje, nebo při samotném čtení, pokud je soubor nesprávně naformátován nebo je třída nesprávně používána.
 Rozlišuje mezi výjimkou, která nastane při oddělování dat oddělovačem, a výjimkou, která nastane při převodu dat na požadovaný datový typ.

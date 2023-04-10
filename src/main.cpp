@@ -188,7 +188,7 @@ int use_brute_force(trading::simulator&& simulator, json&& settings, const std::
     using optimizer_type = brute_force::parallel::optimizer<config_type>;
     using state_type = typename optimizer_type::state_type;
 
-    auto restrictions = [](const state_type&) { return true; };
+    auto constraints = [](const state_type&) { return true; };
 
     systematic::levels_generator<n_levels> levels{settings["search space"]["levels"]["unique count"]};
     systematic::sizes_generator<n_levels> sizes{settings["search space"]["open order sizes"]["unique count"]};
@@ -232,7 +232,7 @@ int use_brute_force(trading::simulator&& simulator, json&& settings, const std::
 
     *logger << "began: " << boost::posix_time::second_clock::local_time() << std::endl;
     auto duration = measure_duration(to_function([&] {
-        optimize(result, restrictions,
+        optimize(result, constraints,
                 [&](const auto& config) -> double {
                     return static_cast<double>(compute_stats(config).template total_profit<percent>());
                 }, search_space);
@@ -298,11 +298,12 @@ use_simulated_annealing(trading::simulator&& simulator, json&& settings, const s
     config_type next;
 
     auto duration = measure_duration([&]() {
-        optimizer(init_config, result, constrains, cooler,
+        optimizer(init_config, result, constrains,
                 [&](const auto& config) -> double {
                     simulator(create_trader(config), stats_collector);
                     return static_cast<double>(stats_collector.get().template total_profit<percent>());
                 },
+                cooler,
                 [&](const config_type& genes) {
                     std::tie(next, std::ignore) = neighbor(genes);
                     return next;

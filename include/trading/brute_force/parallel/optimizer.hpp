@@ -22,7 +22,7 @@ namespace trading::brute_force::parallel {
 
         template<class Result>
         void operator()(Result& result,
-                const Constraints<state_type> auto& constraints,
+                Constraints<state_type> auto&& constraints,
                 ObjectiveFunction<Config> auto&& objective,
                 SearchSpace<Config> auto&& search_space) const
         {
@@ -30,14 +30,14 @@ namespace trading::brute_force::parallel {
             {
                 #pragma omp single
                 {
-                    for (const Config& curr_config: search_space()) {
+                    for (const Config& config: search_space()) {
                         #pragma omp task
                         {
                             try {
-                                auto curr_state = state_type{curr_config, objective(curr_config)};
-                                if (constraints(curr_state)) {
+                                auto state = state_type{config, objective(config)};
+                                if (constraints(state)) {
                                     #pragma omp critical
-                                    result.update(curr_state);
+                                    result.update(state);
                                 }
                             }
                             catch (...) {

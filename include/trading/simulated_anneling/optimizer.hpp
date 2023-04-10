@@ -37,7 +37,7 @@ namespace trading::simulated_annealing {
     template<class Config>
     class optimizer {
         double start_temp_, min_temp_, curr_temp_;
-        random::real_interval_generator<double> rand_prob_gen_{0.0, 1.0};
+        random::real_interval_generator<double> rand_prob_{0.0, 1.0};
         std::size_t it_{0};
         state<Config> curr_state_;
 
@@ -64,11 +64,11 @@ namespace trading::simulated_annealing {
 
         template<class Result, class... Observer>
         void operator()(const Config& init_config, Result& result,
-                const Constraints<state_type> auto& constraints,
-                Cooler<optimizer> auto&& cooler,
+                Constraints<state_type> auto&& constraints,
                 ObjectiveFunction<Config> auto&& objective,
+                Cooler<optimizer> auto&& cool,
                 Neighbor<Config> auto&& neighbor,
-                Appraiser<state_type> auto&& appraiser,
+                Appraiser<state_type> auto&& appraise,
                 Equilibrium auto&& equilibrium,
                 Observer& ... observers)
         {
@@ -89,17 +89,17 @@ namespace trading::simulated_annealing {
                             result.update(curr_state_);
                     }
                     else {
-                        double diff = appraiser(curr_state_, candidate);
+                        double diff = appraise(curr_state_, candidate);
                         double threshold = std::exp(-diff/curr_temp_);
                         assert(threshold>=0.0 && threshold<=1.0);
 
-                        if (rand_prob_gen_()<threshold) {
+                        if (rand_prob_()<threshold) {
                             curr_state_ = candidate;
                             (observers.worse_accepted(*this, threshold), ...);
                         }
                     }
                 }
-                cooler(*this);
+                cool(*this);
                 (observers.cooled(*this), ...);
             }
             (observers.finished(*this), ...);
