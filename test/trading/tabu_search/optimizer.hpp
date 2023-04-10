@@ -16,16 +16,29 @@ BOOST_AUTO_TEST_SUITE(tabu_search_optimizer_test)
         std::size_t started_count{0}, finished_count{0}, iteration_passed_count{0};
 
         template<class Optimizer>
-        void started(const Optimizer&) { started_count++; }
+        void started(const Optimizer&)
+        {
+            BOOST_REQUIRE_EQUAL(started_count, 0);
+            BOOST_REQUIRE_EQUAL(finished_count, 0);
+            BOOST_REQUIRE_EQUAL(iteration_passed_count, 0);
+            started_count++;
+        }
 
         template<class Optimizer, class TabuList>
         void iteration_passed(const Optimizer&, const TabuList& tabu_list)
         {
+            BOOST_REQUIRE_EQUAL(started_count, 1);
+            BOOST_REQUIRE_EQUAL(finished_count, 0);
             iteration_passed_count++;
         }
 
         template<class Optimizer>
-        void finished(const Optimizer&) { finished_count++; }
+        void finished(const Optimizer&)
+        {
+            BOOST_REQUIRE_EQUAL(started_count, 1);
+            BOOST_REQUIRE_EQUAL(finished_count, 0);
+            finished_count++;
+        }
     };
     struct maximization_criterion {
         template<class State>
@@ -60,7 +73,7 @@ BOOST_AUTO_TEST_SUITE(tabu_search_optimizer_test)
         };
         auto optimizer = optimizer_type{};
         auto counter = event_counter{};
-        optimizer(init, result, constraints, objective, memory , neighbor, neighborhood, termination, aspiration,
+        optimizer(init, result, constraints, objective, memory, neighbor, neighborhood, termination, aspiration,
                 counter);
         BOOST_REQUIRE_EQUAL(result.get().config, gen.max());
         BOOST_REQUIRE_EQUAL(counter.started_count, 1);

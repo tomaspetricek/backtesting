@@ -51,30 +51,41 @@ BOOST_AUTO_TEST_SUITE(simulated_annealing_optimizer_test)
         template<class Optimizer>
         void started(const Optimizer&)
         {
+            BOOST_REQUIRE_EQUAL(started_count, 0);
+            BOOST_REQUIRE_EQUAL(finished_count, 0);
+            BOOST_REQUIRE_EQUAL(better_accepted_count, 0);
+            BOOST_REQUIRE_EQUAL(worse_accepted_count, 0);
             started_count++;
         }
 
         template<class Optimizer>
         void better_accepted(const Optimizer&)
         {
+            BOOST_REQUIRE_EQUAL(started_count, 1);
             better_accepted_count++;
         }
 
         template<class Optimizer>
         void worse_accepted(const Optimizer&, double threshold)
         {
+            BOOST_REQUIRE_EQUAL(started_count, 1);
+            BOOST_REQUIRE_EQUAL(finished_count, 0);
             worse_accepted_count++;
         }
 
         template<class Optimizer>
         void cooled(const Optimizer& optimizer)
         {
+            BOOST_REQUIRE_EQUAL(started_count, 1);
+            BOOST_REQUIRE_EQUAL(finished_count, 0);
             cooled_count++;
         }
 
         template<class Optimizer>
         void finished(const Optimizer&)
         {
+            BOOST_REQUIRE_EQUAL(started_count, 1);
+            BOOST_REQUIRE_EQUAL(finished_count, 0);
             finished_count++;
         }
     };

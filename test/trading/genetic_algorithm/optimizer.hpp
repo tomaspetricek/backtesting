@@ -23,18 +23,24 @@ BOOST_AUTO_TEST_SUITE(genetic_algorithm_optimizer_test)
         template<class Optimizer>
         void started(Optimizer&)
         {
+            BOOST_REQUIRE_EQUAL(started_count, 0);
+            BOOST_REQUIRE_EQUAL(finished_count, 0);
             started_count++;
         }
 
         template<class Optimizer>
         void population_updated(Optimizer&)
         {
+            BOOST_REQUIRE_EQUAL(started_count, 1);
+            BOOST_REQUIRE_EQUAL(finished_count, 0);
             population_updated_count++;
         }
 
         template<class Optimizer>
         void finished(Optimizer&)
         {
+            BOOST_REQUIRE_EQUAL(started_count, 1);
+            BOOST_REQUIRE_EQUAL(finished_count, 0);
             finished_count++;
         }
     };
