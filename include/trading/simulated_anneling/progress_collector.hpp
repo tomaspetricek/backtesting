@@ -13,21 +13,19 @@ namespace trading::simulated_annealing {
     class progress_collector {
         struct progress {
             amount_t curr_state_value;
-            double temperature;
-            double worse_acceptance_mean_threshold;
-            std::size_t better_accepted_count;
-            std::size_t worse_accepted_count;
+            double temperature, worse_acceptance_mean_threshold;
+            std::size_t better_accepted_count, worse_accepted_count;
         };
 
         std::vector<progress> progress_;
-        double threshold_sum{0};
-        std::size_t threshold_count{0};
+        double threshold_sum_{0};
+        std::size_t threshold_count_{0};
 
         void reset_counters()
         {
             progress_.emplace_back(progress{0.0, 0.0, 0.0, 0, 0});
-            threshold_count = 0;
-            threshold_sum = 0.0;
+            threshold_count_ = 0;
+            threshold_sum_ = 0.0;
         }
     public:
         template<class Optimizer>
@@ -47,9 +45,8 @@ namespace trading::simulated_annealing {
         void worse_accepted(const Optimizer&, double threshold)
         {
             progress_.back().worse_accepted_count++;
-            threshold_sum += threshold;
-            threshold_count++;
-            std::cout << "threshold: " << threshold << std::endl;
+            threshold_sum_ += threshold;
+            threshold_count_++;
         }
 
         template<class Optimizer>
@@ -57,11 +54,9 @@ namespace trading::simulated_annealing {
         {
             progress_.back().curr_state_value = optimizer.current_state().value;
             progress_.back().temperature = optimizer.current_temperature();
-            auto mean_threshold = (threshold_sum==0.0) ? 0.0 : threshold_sum/threshold_count;
+            auto mean_threshold = (threshold_sum_==0.0) ? 0.0 : threshold_sum_/threshold_count_;
             progress_.back().worse_acceptance_mean_threshold = mean_threshold;
             reset_counters();
-            std::cout << "curr: temp: " << optimizer.current_temperature() <<
-                      ", net profit: " << optimizer.current_state().value << std::endl;
         }
 
         template<class Optimizer>
@@ -73,6 +68,16 @@ namespace trading::simulated_annealing {
         auto get()
         {
             return progress_;
+        }
+
+        double threshold_sum() const
+        {
+            return threshold_sum_;
+        }
+
+        size_t threshold_count() const
+        {
+            return threshold_count_;
         }
     };
 }

@@ -8,7 +8,6 @@
 #include <functional>
 #include <cmath>
 #include <trading/random/generators.hpp>
-#include <trading/concepts.hpp>
 #include <trading/optimizer.hpp>
 
 

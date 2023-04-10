@@ -5,8 +5,6 @@
 #ifndef BACKTESTING_OPTIMIZER_HPP
 #define BACKTESTING_OPTIMIZER_HPP
 
-#include <trading/concepts.hpp>
-
 namespace trading {
     template<class ConcreteConstraints, class State>
     concept Constraints = std::invocable<ConcreteConstraints, const State&> &&

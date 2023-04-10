@@ -50,7 +50,6 @@
 #include <trading/currency.hpp>
 #include <trading/data_point.hpp>
 #include <trading/exception.hpp>
-#include <trading/fee_charger.hpp>
 #include <trading/function.hpp>
 #include <trading/generators.hpp>
 #include <trading/motion_tracker.hpp>

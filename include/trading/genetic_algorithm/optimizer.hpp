@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <cppcoro/generator.hpp>
 #include <trading/tuple.hpp>
-#include <trading/concepts.hpp>
 #include <trading/optimizer.hpp>
 
 // https://stackoverflow.com/questions/31533469/check-a-parameter-pack-for-all-of-type-t

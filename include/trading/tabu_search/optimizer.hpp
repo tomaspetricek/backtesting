@@ -6,7 +6,6 @@
 #define BACKTESTING_TABU_SEARCH_OPTIMIZER_HPP
 
 #include <unordered_map>
-#include <trading/concepts.hpp>
 #include <trading/optimizer.hpp>
 
 namespace trading::tabu_search {
