@@ -52,7 +52,6 @@ BOOST_AUTO_TEST_SUITE(statistics_test)
 
         // nans
         BOOST_REQUIRE(stats.profit_factor()!=nan);
-        BOOST_REQUIRE(stats.pt_ratio()!=nan);
         BOOST_REQUIRE(stats.order_ratio()!=nan);
     }
 

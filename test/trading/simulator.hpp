@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_SUITE(simulator_test)
         }
     };
 
-    struct simple_trader {
+    struct mock_trader {
         bool position_active{false};
         trading::action action{trading::action::none};
         double equity_value{0.0};
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_SUITE(simulator_test)
         auto averager = trading::candle::ohlc4{};
         trading::simulator simulator{candles, period, averager, min_equity};
 
-        auto trader = simple_trader{};
+        auto trader = mock_trader{};
         auto counter = event_counter{};
         simulator(trader, counter);
         BOOST_REQUIRE_EQUAL(counter.started_count, 1);
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_SUITE(simulator_test)
         auto averager = trading::candle::ohlc4{};
         trading::simulator simulator{candles, period, averager, min_equity};
 
-        auto trader = simple_trader{};
+        auto trader = mock_trader{};
         trader.equity_value = min_equity+1;
         auto counter = event_counter{};
         simulator(trader, counter);

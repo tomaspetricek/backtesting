@@ -1394,6 +1394,34 @@ Poskytuje různé nástroje, jak lépe prozkoumat výsledky testování.
 \section{Simulace obchodování}
 
 \subsection{Strategie}
+Strategie byla testována, aby se zjistilo, zda byly dobře implementovány podmínky pro spuštění signálu.
+Byl použit ukazatel SMA s periodou 1, jelikož je jeho hodnota rovna poslednímu předanému vzorku, což usnadňuje testování.
+Každá metoda pro generování signálu vrací booleovskou hodnotu označující, zda má být vytvořena objednávka, čehož bylo využito při testování (viz \ref{lst:test:strategy:should:open}).
+Byly také provedeny testy pro kontrolu inicializace, aktualizace indikátorů a metod pro získávání hodnot indikátorů.
+
+\begin{lstlisting}[caption={~Testování podmínek pro signalizaci vytvoření otevírací objednávky},label={lst:test:strategy:should:open},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+BOOST_AUTO_TEST_CASE(should_open_test)
+{
+    constexpr std::size_t n_levels{2};
+    using indicator_t = trading::bazooka::indicator;
+    using strategy_t = trading::bazooka::strategy<n_levels>;
+    trading::sma entry{1}, exit{1};
+    entry.update(10), exit.update(20);
+    std::array<trading::fraction_t, n_levels> levels{{{2, 4}, {1, 4}}};
+    strategy_t strategy(indicator_t{entry}, indicator_t{exit}, levels);
+
+    // try open position above
+    BOOST_REQUIRE_EQUAL(strategy.should_open(entry.value()*
+        trading::fraction_cast<double>(levels[0])*1.001), false);
+    BOOST_REQUIRE_EQUAL(strategy.next_entry_level(), 0);
+
+    // open position
+    BOOST_REQUIRE_EQUAL(strategy.should_open(entry.value()*
+        trading::fraction_cast<double>(levels[0])), true);
+    BOOST_REQUIRE_EQUAL(strategy.next_entry_level(), 1);
+    ...
+}
+\end{lstlisting}
 
 \subsection{Indikátory}
 Hodnoty generované implementací indikátorů EMA a SMA byly porovnány s hodnotami generovanými knihovnou pro technickou analýzu TA-lib.
@@ -1405,7 +1433,6 @@ Byla zkontrolována správná indikace připravenosti indikátoru jak při zavol
 Manažer přijímá signály generované strategií a převádí je na objednávky, které jsou následně předány burze.
 Je to složitější třída, ale její stav lze simulovat zvenčí.
 Proto byly při testování pro srovnání stavu trhu použity očekávané instance tříd \texttt{market}, \texttt{wallet}, \texttt{order\_sizer}, \texttt{open\_order} a \texttt{close\_all\_order}.
-
 Nejprve byla zkontrolována správná inicializace třídy a poté byl proveden test použití.
 Během testování byly volány metody pro vytváření tržních objednávek k otevření, zvýšení a uzavření pozice.
 V každé fázi byly nejprve vypočítány očekávané objednávky, které byly použity k aktualizaci očekávaného trhu.
@@ -1413,8 +1440,8 @@ Objednávky bylo možné porovnat se skutečnými objednávkami pomocí metod pr
 Jakmile měly být tržní stavy identické, mohly být k jejich porovnání použity metody přístupu k tržnímu stavu jako \texttt{wallet\_balance}.
 
 \subsection{Obchodník}
-Třída \texttt{manager} spojuje funkčnost strategie a manažera.
-Implementuje jedinou metodu volání, která rozhoduje, kdy obchodovat.
+Třída \texttt{trader} spojuje funkcionality strategie a manažera.
+Implementuje jedinou metodu, která rozhoduje, kdy obchodovat.
 Jelikož třída přebírá manažera a strategii jako šablonové argumenty, mohly by být zaměněny za falešné (mock) objekty.
 Objekty jsou velmi jednoduché, implementují dané rozhraní a jejich atributy jsou typu boolean.
 Atributy se používají k nastavení výsledků volání metod.
@@ -1434,15 +1461,23 @@ struct mock_strategy {
 \end{lstlisting}
 
 \subsection{Burza}
+Třída \texttt{market} byla nejprve testována na správnou inicializaci a výjimky, které mohou být vyvolány při volání konstruktoru.
+Konstruktor vyvolá výjimku typu \texttt{std::invalid\_argument}, když je mu předána neplatná hodnota poplatku.
+Aby bylo možné otestovat její použití, byly k porovnání hodnot udržovány instance tříd \texttt{position} a \texttt{wallet} představují očekávaný stav třídy.
+Test prošel všemi stavy aktivní pozice: vytvoření, navýšení a uzavření, během kterých byly skutečné hodnoty poskytované metodami třídy porovnány s očekávanými.
 
 \subsection{Pozice}
-Nejprve byla testována výchozí inicializace pro kontrolu, že jsou všechny atributy správně inicializovány.
-Pozice by měla být otevřena předáním otevírací objednávky, nicméně  může být někdy nutné použít výchozí konstruktor.
-Testována byla i běžná inicializace.
+Nejprve byla testována inicializace pro kontrolu, že jsou všechny atributy správně inicializovány.
 Hlavním provedeným testem byl test použití, během kterého byla pozice otevřena, navýšena a uzavřena.
-Během testu jsou počítány očekávaná celková investovaná částka a očekávaná velikost pozice pro porovnání výsledků volání metod a pro kontrolu stavu atributů pozice.
+Během testu byly počítány očekávaná celková investovaná částka a očekávaná velikost pozice pro kontrolu výsledků volání metod a stavu atributů pozice.
 
 \subsection{Simulátor}
+Cílem prvního testu bylo ujistit se, že proces převzorkování prováděný v těle konstruktoru je správně implementován.
+Za tímto účelem byly vypočteny očekávané ceny a indikátorové ceny a porovnány s hodnotami získanými pomocí getrů instanciované třídy.
+Poté byla testována samotná simulace přístupná pomocí volacího operátoru třídy, který přebírá 2 typy parametrů: obchodníka a sadu pozorovatelů.
+Ke kontrole, zda jsou pozorovatelé voláni správně, byl použit pozorovatel počítající počet událostí.
+Jako obchodník byla použita mockovací třída, která umožňovala nastavení výsledků volání metod před použitím simulátoru.
+Pomocí těchto 2 objektů bylo provedeno několik testovacích případů.
 
 \subsection{Statistiky}
 Výkonnostní statistiky byly testovány, aby bylo zajištěno, že jsou hodnoty správně inicializovány a aktualizovány.

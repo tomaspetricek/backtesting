@@ -1,0 +1,9 @@
+candles read:
+from: 2017-Aug-17 04:00:00
+to: 2022-Oct-28 12:27:00
+difference: 1898d 08:27:00.000000
+count: 2725146
+duration: 5.875074s
+search space:
+n states: 158400
+began: 2023-Apr-09 16:05:57

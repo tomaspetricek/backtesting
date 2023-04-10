@@ -64,11 +64,12 @@ BOOST_AUTO_TEST_SUITE(bazooka_strategy_test)
     BOOST_AUTO_TEST_CASE(should_open_test)
     {
         constexpr std::size_t n_levels{2};
+        using indicator_t = trading::bazooka::indicator;
+        using strategy_t = trading::bazooka::strategy<n_levels>;
         trading::sma entry{1}, exit{1};
         entry.update(10), exit.update(20);
         std::array<trading::fraction_t, n_levels> levels{{{2, 4}, {1, 4}}};
-        trading::bazooka::strategy strategy(trading::bazooka::indicator{entry}, trading::bazooka::indicator{exit},
-                levels);
+        strategy_t strategy(indicator_t{entry}, indicator_t{exit}, levels);
 
         // try open position above
         BOOST_REQUIRE_EQUAL(strategy.should_open(entry.value()*trading::fraction_cast<double>(levels[0])*1.001), false);
@@ -101,9 +102,9 @@ BOOST_AUTO_TEST_SUITE(bazooka_strategy_test)
                 levels);
 
         // update indicators
-        trading::price_t update_val{5};
-        entry.update(update_val), exit.update(update_val);
-        strategy.update_indicators(update_val);
+        trading::price_t update_value{5};
+        entry.update(update_value), exit.update(update_value);
+        strategy.update_indicators(update_value);
 
         BOOST_REQUIRE_EQUAL(strategy.entry_indicator().value(), entry.value());
         BOOST_REQUIRE_EQUAL(strategy.exit_indicator().value(), exit.value());

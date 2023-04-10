@@ -22,7 +22,7 @@
 #include "trading/tabu_search/optimizer.hpp"
 #include "trading/candle.hpp"
 #include "trading/wallet.hpp"
-#include "trading/trader.hpp"
+#include "trading/bazooka/trader.hpp"
 #include "trading/position.hpp"
 #include "trading/order_sizer.hpp"
 #include "trading/motion_tracker.hpp"

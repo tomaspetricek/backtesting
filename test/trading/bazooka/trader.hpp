@@ -6,10 +6,10 @@
 #define BACKTESTING_TEST_BAZOOKA_TRADER_HPP
 
 #include <boost/test/unit_test.hpp>
-#include <trading/bazooka/trader.hpp>
-#include <trading/action.hpp>
-#include <trading/types.hpp>
-#include <trading/data_point.hpp>
+#include "trading/bazooka/trader.hpp"
+#include "trading/action.hpp"
+#include "trading/types.hpp"
+#include "trading/data_point.hpp"
 
 struct mock_strategy {
     bool ready{false}, open{false}, close_all{false};
