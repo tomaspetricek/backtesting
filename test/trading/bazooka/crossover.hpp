@@ -72,27 +72,25 @@ BOOST_AUTO_TEST_SUITE(bazooka_sizes_crossover_test)
     BOOST_AUTO_TEST_CASE(different_parents_test)
     {
         constexpr std::size_t n_levels{20};
-        trading::random::sizes_generator<n_levels> gen;
-        std::array<trading::fraction_t, n_levels> mother{gen()}, father{gen()};
-        trading::bazooka::sizes_crossover<n_levels> crossover;
-        std::array<trading::fraction_t, n_levels> min, max;
+        trading::random::sizes_generator<n_levels> rand_genes;
+        std::array<trading::fraction_t, n_levels> mother, father;
 
-        for (std::size_t i{0}; i<n_levels; i++)
-            std::tie(min[i], max[i]) = trading::make_tuple(std::minmax(mother[i], father[i]));
+        for (std::size_t j{0}; j<20; j++) {
+            mother = rand_genes(), father = rand_genes();
+            trading::bazooka::sizes_crossover<n_levels> crossover;
+            std::array<trading::fraction_t, n_levels> min, max;
 
-        for (std::size_t i{0}; i<100; i++) {
-            auto child = crossover(mother, father);
+            for (std::size_t i{0}; i<n_levels; i++)
+                std::tie(min[i], max[i]) = trading::make_tuple(std::minmax(mother[i], father[i]));
 
-            try {
-                trading::validate_sizes(child);
+            for (std::size_t i{0}; i<100; i++) {
+                auto child = crossover(mother, father);
+                BOOST_REQUIRE_NO_THROW(trading::validate_sizes(child));
+
+                for (std::size_t l{0}; l<n_levels; l++)
+                    if (!(min[l]<=child[l] && child[l]<=max[l]))
+                        BOOST_REQUIRE(false);
             }
-            catch (...) {
-                BOOST_REQUIRE(false);
-            }
-
-            for (std::size_t l{0}; l<n_levels; l++)
-                if (!(min[l]<=child[l] && child[l]<=max[l]))
-                    BOOST_REQUIRE(false);
         }
     }
 BOOST_AUTO_TEST_SUITE_END()

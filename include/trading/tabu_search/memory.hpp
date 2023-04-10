@@ -10,6 +10,47 @@
 #include <trading/int_range.hpp>
 
 namespace trading::tabu_search {
+    template<class Type, std::size_t n, class Tenure>
+    class array_memory {
+        Tenure tenure_;
+        std::map<std::array<Type, n>, std::size_t> mem_;
+
+    public:
+        using value_type = std::array<Type, n>;
+
+        explicit array_memory(const Tenure& tenure)
+                :tenure_(tenure) { }
+
+        bool contains(const value_type& arr) const
+        {
+            return mem_.contains(arr);
+        }
+
+        void remember(const value_type& arr)
+        {
+            mem_.insert({arr, tenure_()});
+        }
+
+        void forget()
+        {
+            for (auto it = mem_.begin(); it!=mem_.end();) {
+                auto& count = it->second;
+                if (!(--count)) it = mem_.erase(it);
+                else ++it;
+            }
+        }
+
+        std::size_t size() const
+        {
+            return mem_.size();
+        }
+
+        const Tenure& tenure() const
+        {
+            return tenure_;
+        }
+    };
+
     template<class Tenure>
     class int_range_memory : public int_range {
         using base_type = int_range;

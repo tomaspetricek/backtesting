@@ -76,4 +76,85 @@ BOOST_AUTO_TEST_SUITE(tabu_search_int_range_memory_test)
     }
 BOOST_AUTO_TEST_SUITE_END()
 
+BOOST_AUTO_TEST_SUITE(tabu_search_array_memory_test)
+    using tenure_t = trading::tabu_search::fixed_tenure;
+    using memory_t = trading::tabu_search::array_memory<int, 2, tenure_t>;
+    using value_t = memory_t::value_type;
+
+    BOOST_AUTO_TEST_CASE(constructor_test)
+    {
+        auto tenure = tenure_t{1};
+        memory_t memory{tenure};
+        BOOST_REQUIRE_EQUAL(memory.size(), 0);
+        BOOST_REQUIRE(memory.tenure().it_count()==tenure.it_count());
+    }
+
+    BOOST_AUTO_TEST_CASE(usage_test)
+    {
+        auto tenure = tenure_t{2};
+        memory_t memory{tenure};
+        value_t a{1, 2}, b{3, 4}, c{10, 20};
+
+        memory.forget();
+        BOOST_REQUIRE(!memory.contains(a));
+        BOOST_REQUIRE(!memory.contains(b));
+        BOOST_REQUIRE(!memory.contains(c));
+        BOOST_REQUIRE_EQUAL(memory.size(), 0);
+
+        memory.remember(a);
+        BOOST_REQUIRE(memory.contains(a));
+        BOOST_REQUIRE(!memory.contains(b));
+        BOOST_REQUIRE(!memory.contains(c));
+        BOOST_REQUIRE_EQUAL(memory.size(), 1);
+
+        memory.remember(b);
+        BOOST_REQUIRE(memory.contains(a));
+        BOOST_REQUIRE(memory.contains(b));
+        BOOST_REQUIRE(!memory.contains(c));
+        BOOST_REQUIRE_EQUAL(memory.size(), 2);
+
+        memory.forget();
+        BOOST_REQUIRE(memory.contains(a));
+        BOOST_REQUIRE(memory.contains(b));
+        BOOST_REQUIRE(!memory.contains(c));
+        BOOST_REQUIRE_EQUAL(memory.size(), 2);
+
+        memory.remember(c);
+        BOOST_REQUIRE(memory.contains(a));
+        BOOST_REQUIRE(memory.contains(b));
+        BOOST_REQUIRE(memory.contains(c));
+        BOOST_REQUIRE_EQUAL(memory.size(), 3);
+
+        memory.forget();
+        BOOST_REQUIRE(!memory.contains(a));
+        BOOST_REQUIRE(!memory.contains(b));
+        BOOST_REQUIRE(memory.contains(c));
+        BOOST_REQUIRE_EQUAL(memory.size(), 1);
+
+        memory.remember(a);
+        BOOST_REQUIRE(memory.contains(a));
+        BOOST_REQUIRE(!memory.contains(b));
+        BOOST_REQUIRE(memory.contains(c));
+        BOOST_REQUIRE_EQUAL(memory.size(), 2);
+
+        memory.forget();
+        BOOST_REQUIRE(memory.contains(a));
+        BOOST_REQUIRE(!memory.contains(b));
+        BOOST_REQUIRE(!memory.contains(c));
+        BOOST_REQUIRE_EQUAL(memory.size(), 1);
+
+        memory.forget();
+        BOOST_REQUIRE(!memory.contains(a));
+        BOOST_REQUIRE(!memory.contains(b));
+        BOOST_REQUIRE(!memory.contains(c));
+        BOOST_REQUIRE_EQUAL(memory.size(), 0);
+
+        memory.forget();
+        BOOST_REQUIRE(!memory.contains(a));
+        BOOST_REQUIRE(!memory.contains(b));
+        BOOST_REQUIRE(!memory.contains(c));
+        BOOST_REQUIRE_EQUAL(memory.size(), 0);
+    }
+BOOST_AUTO_TEST_SUITE_END()
+
 #endif //BACKTESTING_TEST_TABU_SEARCH_MEMORY_HPP

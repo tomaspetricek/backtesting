@@ -32,9 +32,10 @@ namespace trading::genetic_algorithm {
                 return rhs.value>lhs.value;
             });
             std::size_t n_elite = parents.size()*fraction_cast<float>(elite_ratio_);
-            next_generation.reserve(children.size());
+            next_generation.reserve(n_elite+children.size());
             next_generation.insert(next_generation.end(), parents.begin(), parents.begin()+n_elite);
-            next_generation.insert(next_generation.end(), children.begin()+n_elite, children.end());
+            next_generation.insert(next_generation.end(), children.begin(), children.end());
+            assert(next_generation.size()==n_elite+children.size());
         }
 
         const fraction_t& elite_ratio() const

@@ -1084,8 +1084,8 @@ auto search_space = [&]() -> cppcoro::generator<config_type> {
     for (std::size_t period: periods_gen())
         for (const auto& tag: tags)
             for (const auto& levels: levels_gen())
-                for (const auto& sizes: sizes_gen())
-                    co_yield config_type{tag, period, levels, sizes};
+                for (const auto& open_sizes: sizes_gen())
+                    co_yield config_type{tag, period, levels, open_sizes};
 };
 \end{lstlisting}
 
@@ -1315,7 +1315,7 @@ bool contains(const move_type& move) const
     case move_type::indices::levels:
         return levels_mem_.contains(move.levels());
     default:
-        return sizes_mem_.contains(move.sizes());
+        return sizes_mem_.contains(move.open_sizes());
     }
 }
 \end{lstlisting}
@@ -1377,6 +1377,9 @@ void operator()(const Config& init, Result& result,
     (observers.finished(*this), ...);
 }
 \end{lstlisting}
+
+\chapter{Vizualizace}
+
 
 \chapter{Testování}
 K zajištění správnosti kódu byly použity 2 nástroje, a to tvrzení (assertions) a unit testování.
@@ -1564,7 +1567,7 @@ void test_reachability(Value origin, SystematicGenerator&& sys_gen,
 
 \section{Optimalizátory}
 Optimalizátory nabízejí vysokou úroveň abstrakce díky použití konceptů a šablon, takže pro jejich testování mohl být použit integer jako typ konfigurace, což značně zjednodušilo testy.
-Pro generování stavového prostoru mohly být využity generátory  \texttt{systematic::int\_range} a \texttt{random::int\_range}.
+Pro generování stavového prostoru mohly být využity generátory  \texttt{systematic::int\_range\_generator} a \texttt{random::int\_range\_generator}.
 
 Jako objektivní funkce byla zvolena funkce převádějící integer na double.
 Cílem všech testů bylo nalézt její maximální hodnotu.
@@ -1611,12 +1614,38 @@ BOOST_AUTO_TEST_CASE(count_events_test)
 \end{lstlisting}
 
 \subsection{Hrubá síla}
+Optimalizátor hrubé síly byl nejsnáze testovatelný.
+Vyhledávací prostor byl generován pomocí systematicky, takže optimalizátor vždy najde nejlepší stav.
+Testováno bylo také použití omezení a procházení prázdného vyhledávacího prostoru.
 
 \subsection{Simulované ochlazování}
+Třída \texttt{simulated\_annealing::optimizer} byla nejprve testována na správnou inicializaci a výjimky, které jsou vyvolány při předání neplatných hodnot.
+Ke kontrole, zda byli pozorovatelé správně informováni o událostech, byl použit čítač událostí.
+Jednotlivé čítače událostí byly kontrolovány během optimalizace uvnitř metod čítače (viz \ref{lst:event:counter:finished}) a nakonec po jejím skončení.
+Hledání závisí na náhodném prohledávání sousedních stavů, takže test použití byl nastaven tak, aby po dostatečném množství iterací bylo nalezení nejlepšího stavu téměř jisté.
+
+\begin{lstlisting}[caption={~Kontrola hodnot čítače uvnitř metody \texttt{finished}},label={lst:event:counter:finished},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+template<class Optimizer>
+void finished(const Optimizer&)
+{
+    BOOST_REQUIRE_EQUAL(started_count, 1);
+    BOOST_REQUIRE_EQUAL(finished_count, 0);
+    finished_count++;
+}
+\end{lstlisting}
 
 \subsection{Genetický algoritmus}
+Třída \texttt{genetic\_algorithm::optimizer} byla testována velmi podobně.
+Operátor křížení byl implementován jako průměr konfigurací 2 rodičů.
+Mutace byla provedena stejně, pouze druhý rodič byl generován náhodně.
+Byly navrženy 2 testovací případy pro kontrolu \texttt{bazooka::crossover} třídy.
+Cílem prvního bylo se ujistit, že pokud jsou rodiče stejní, tak je totožné i jejich dítě.
+Při druhém byli opakovaně vygenerováni náhodní rodiče a bylo zkontrolováno, že produkují validní potomky.
 
 \subsection{Tabu prohledávání}
+Třída \texttt{int\_range\_memory} byla použita jako paměť pro testování \texttt{tabu\_search::optimizer}.
+Jinak testování probíhalo stejně jako u ostatních optimalizátorů.
+Paměťové třídy byly také testovány, aby bylo zajištěno, že si správně pamatují a zapomínají hodnoty, které jim byly předány.
 
 \section{Čtení a zápis do CSV}
 Pro testování čtení a zápisu do CSV souborů byly připraveny 4 soubory: prázdný, pouze s hlavičkou, pouze s daty a kompletní soubor.
