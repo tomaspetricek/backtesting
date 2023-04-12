@@ -14,19 +14,10 @@
 #include <boost/assert.hpp>
 #include <fmt/format.h>
 
-// https://stackoverflow.com/questions/2193544/how-to-print-additional-information-when-assert-fails
-#ifndef NDEBUG
-#define ASSERT_EX(condition, statement) \
-    do { \
-        if (!(condition)) { statement; assert(condition); } \
-    } while (false)
-#else
-#define ASSERT_EX(condition, statement) ((void)0)
-#endif
-
 namespace trading::random {
     template<std::size_t n_levels>
     class levels_generator : public trading::levels_generator<n_levels> {
+        using base_type = trading::levels_generator<n_levels>;
         std::mt19937 gen_;
         std::vector<fraction_t> all_options_;
         std::array<std::size_t, n_levels> indices_;
@@ -42,13 +33,14 @@ namespace trading::random {
     public:
         using value_type = std::array<fraction_t, n_levels>;
 
-        explicit levels_generator(size_t n_unique = n_levels, std::size_t change_count = 1)
-                :trading::levels_generator<n_levels>(n_unique), gen_{std::random_device{}()}, change_n_{
+        explicit levels_generator(size_t unique_count = n_levels, std::size_t change_count = 1,
+                fraction_t lower_bound = base_type::default_lower_bound)
+                :base_type(unique_count, lower_bound), gen_{std::random_device{}()}, change_n_{
                 validate_change_count(change_count)}
         {
-            all_options_.reserve(n_unique);
-            for (std::size_t i{0}; i<n_unique; i++)
-                all_options_.emplace_back(i+1, this->denom_);
+            all_options_.reserve(unique_count);
+            for (std::size_t i{0}; i<unique_count; i++)
+                all_options_.emplace_back(this->rescale(i+1));
 
             for (std::size_t i{0}; i<n_levels; i++)
                 indices_[i] = i;

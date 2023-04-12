@@ -54,14 +54,20 @@ namespace trading {
     };
 
     class profit_statistics {
-        amount_t gross_profit_{0.0};
-        amount_t gross_loss_{0.0};
+        amount_t gross_profit_{0.0}, gross_loss_{0.0};
+        std::size_t win_count_{0}, loss_count_{0};
 
     public:
         void update(amount_t position_profit)
         {
-            if (position_profit<amount_t{0.0}) gross_loss_ += position_profit;
-            else gross_profit_ += position_profit;
+            if (position_profit<amount_t{0.0}) {
+                gross_loss_ -= position_profit;
+                loss_count_++;
+            }
+            else {
+                gross_profit_ += position_profit;
+                win_count_++;
+            }
         }
 
         amount_t gross_profit() const
@@ -76,12 +82,22 @@ namespace trading {
 
         amount_t net_profit() const
         {
-            return gross_profit_+gross_loss_;
+            return gross_profit_-gross_loss_;
         }
 
         double profit_factor() const
         {
-            return gross_profit_/std::abs(gross_loss_);
+            return gross_profit_/gross_loss_;
+        }
+
+        std::size_t win_count() const
+        {
+            return win_count_;
+        }
+
+        std::size_t loss_count() const
+        {
+            return loss_count_;
         }
     };
 
@@ -240,6 +256,16 @@ namespace trading {
         double order_ratio() const
         {
             return static_cast<double>(total_open_orders_)/total_close_orders_;
+        }
+
+        std::size_t win_count() const
+        {
+            return profit_.win_count();
+        }
+
+        std::size_t loss_count() const
+        {
+            return profit_.loss_count();
         }
     };
 }

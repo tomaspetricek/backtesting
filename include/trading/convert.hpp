@@ -16,6 +16,7 @@
 #include <trading/genetic_algorithm/matchmaker.hpp>
 #include <trading/genetic_algorithm/selection.hpp>
 #include <trading/sizer.hpp>
+#include <trading/io/parser.hpp>
 
 namespace nlohmann {
     template<typename T>
@@ -23,6 +24,17 @@ namespace nlohmann {
         static void to_json(nlohmann::json& j, const trading::fraction<T>& frac)
         {
             j = fmt::format("{}/{}", frac.numerator(), frac.denominator());
+        }
+
+        static void from_json(const nlohmann::json& j, trading::fraction<T>& frac)
+        {
+            std::string s{j};
+            std::string delim{"/"};
+            auto start = 0U;
+            auto end = s.find(delim);
+            auto num = trading::io::parser::parse<T>(s.substr(start, end-start));
+            auto denom = trading::io::parser::parse<T>(s.substr(end+1, s.npos));
+            frac = trading::fraction<T>(num, denom);
         }
     };
 
@@ -38,6 +50,8 @@ namespace nlohmann {
                  {"total open orders",  stats.total_open_orders()},
                  {"total close orders", stats.total_close_orders()},
                  {"open order counts",  stats.open_order_counts()},
+                 {"win count",          stats.win_count()},
+                 {"loss count",         stats.loss_count()},
                  {"close balance",      {
                                                 {"min", stats.min_close_balance()},
                                                 {"max", stats.max_close_balance()},

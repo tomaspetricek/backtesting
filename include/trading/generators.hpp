@@ -46,9 +46,23 @@ namespace trading {
     template<std::size_t n_levels>
     class levels_generator {
         static_assert(n_levels>0);
+
     protected:
+        static constexpr fraction_t default_lower_bound{0, 1};
         std::array<fraction_t, n_levels> levels_;
-        std::size_t denom_;
+        std::size_t unique_count_;
+        fraction_t lower_bound_{default_lower_bound};
+
+        std::size_t unscaled_denom() const
+        {
+            return unique_count_+1;
+        }
+
+        trading::fraction_t rescale(std::size_t num) const
+        {
+            return {num*(lower_bound_.denominator()-lower_bound_.numerator())+lower_bound_.numerator()*unscaled_denom(),
+                    lower_bound_.denominator()*unscaled_denom()};
+        }
 
         std::size_t validate_unique_count(std::size_t n_unique)
         {
@@ -58,15 +72,20 @@ namespace trading {
             return n_unique;
         }
 
-        explicit levels_generator(size_t n_unique = n_levels)
-                :denom_(validate_unique_count(n_unique)+1) { }
+        explicit levels_generator(size_t unique_count = n_levels, const fraction_t& lower_bound = default_lower_bound)
+                :unique_count_{validate_unique_count(unique_count)}, lower_bound_(lower_bound) { }
 
     public:
         using value_type = std::array<fraction_t, n_levels>;
 
         std::size_t unique_count()
         {
-            return denom_-1;
+            return unique_count_;
+        }
+
+        fraction_t min() const
+        {
+            return {lower_bound_.numerator()*unscaled_denom(), lower_bound_.denominator()*unscaled_denom()};
         }
     };
 }

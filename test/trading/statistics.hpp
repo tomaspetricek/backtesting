@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_SUITE(statistics_test)
             // update
             profit = rand_profit();
             stats.update_profit(profit);
-            if (profit<0) expect_gross_loss += profit;
+            if (profit<0) expect_gross_loss -= profit;
             else expect_gross_profit += profit;
         }
     }

@@ -42,7 +42,19 @@ void test_uniqueness(Generator&& gen)
 template<class Generator, class Validator>
 void test_validity(Generator&& gen, Validator&& validate)
 {
-    for (auto val: gen()) BOOST_REQUIRE_NO_THROW(validate(val));
+    for (auto val: gen()) {
+        BOOST_REQUIRE_NO_THROW(validate(val));
+    }
+}
+
+template<class Generator, class Validator>
+void test_levels_validity(Generator&& gen, Validator&& validate)
+{
+    for (auto levels: gen()) {
+        for (const auto& level : levels)
+            BOOST_REQUIRE(level>=gen.min());
+        BOOST_REQUIRE_NO_THROW(validate(levels));
+    }
 }
 
 BOOST_AUTO_TEST_SUITE(systematic_levels_generator_test)
@@ -85,23 +97,18 @@ BOOST_AUTO_TEST_SUITE(systematic_levels_generator_test)
                 });
     }
 
-    BOOST_AUTO_TEST_CASE(valid_levels_test)
+    BOOST_AUTO_TEST_CASE(validity_and_uniqueness_test)
     {
         constexpr std::size_t n_levels{3};
         using generator_type = trading::systematic::levels_generator<n_levels>;
         constexpr std::array<std::size_t, 5> unique_counts{3, 4, 7, 11, 18};
-        for (const auto& unique_count: unique_counts)
-            test_validity(generator_type(unique_count),
-                    trading::validate_levels<n_levels>);
-    }
+        constexpr std::array<trading::fraction_t, 5> lower_bounds{{{0, 1}, {1, 10}, {1, 2}, {3, 4}, {9, 10}}};
 
-    BOOST_AUTO_TEST_CASE(unique_levels_test)
-    {
-        constexpr std::size_t n_levels{3};
-        using generator_type = trading::systematic::levels_generator<n_levels>;
-        constexpr std::array<std::size_t, 5> unique_counts{3, 4, 7, 11, 18};
         for (const auto& unique_count: unique_counts)
-            test_uniqueness(generator_type{unique_count});
+            for (const auto& lower_bound : lower_bounds) {
+                test_levels_validity(generator_type(unique_count, lower_bound), trading::validate_levels<n_levels>);
+                test_uniqueness(generator_type{unique_count, lower_bound});
+            }
     }
 BOOST_AUTO_TEST_SUITE_END()
 

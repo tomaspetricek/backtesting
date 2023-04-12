@@ -45,19 +45,21 @@ BOOST_AUTO_TEST_SUITE(random_levels_generator_test)
     BOOST_AUTO_TEST_CASE(reachability_test)
     {
         constexpr std::size_t n_levels{2}, n_tries{10'000};
-        for (std::size_t unique_count{n_levels}; unique_count<n_levels*10; unique_count++) {
-            auto sys_gen = trading::systematic::levels_generator<n_levels>(unique_count);
-            for (std::size_t change_count{1}; change_count<=n_levels; change_count++) {
-                auto rand_gen = trading::random::levels_generator<n_levels>(unique_count, change_count);
-                auto origin = rand_gen();
-                test_reachability(origin, sys_gen, [&](const auto& origin) {
-                    return rand_gen(origin);
-                }, n_tries);
-                test_reachability(origin, sys_gen, [&](const auto& origin) {
-                    return rand_gen();
-                }, n_tries);
+        constexpr std::array<trading::fraction_t, 5> lower_bounds{{{0, 1}, {1, 10}, {1, 2}, {3, 4}, {9, 10}}};
+        for (std::size_t unique_count{n_levels}; unique_count<n_levels*10; unique_count++)
+            for (const auto& lower_bound : lower_bounds) {
+                auto sys_gen = trading::systematic::levels_generator<n_levels>(unique_count, lower_bound);
+                for (std::size_t change_count{1}; change_count<=n_levels; change_count++) {
+                    auto rand_gen = trading::random::levels_generator<n_levels>(unique_count, change_count, lower_bound);
+                    auto origin = rand_gen();
+                    test_reachability(origin, sys_gen, [&](const auto& origin) {
+                        return rand_gen(origin);
+                    }, n_tries);
+                    test_reachability(origin, sys_gen, [&](const auto& origin) {
+                        return rand_gen();
+                    }, n_tries);
+                }
             }
-        }
     }
 BOOST_AUTO_TEST_SUITE_END()
 

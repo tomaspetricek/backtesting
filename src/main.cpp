@@ -37,7 +37,7 @@ auto create_trader(const bazooka::configuration<n_levels>& config)
     bazooka::strategy strategy{ma, ma, config.levels};
 
     // create market
-    fraction_t fee{1, 1'000};   // 0.1 %
+    fraction_t fee{1, 100};   // 1 %
     amount_t init_balance{10'000};
     trading::market market{wallet{init_balance}, fee, fee};
 
@@ -188,13 +188,23 @@ int use_brute_force(trading::simulator&& simulator, json&& settings, const std::
     using optimizer_type = brute_force::parallel::optimizer<config_type>;
     using state_type = typename optimizer_type::state_type;
 
-    auto constraints = [](const state_type&) { return true; };
+    auto constraints = [](const state_type&) {
+        return true;
+    };
 
-    systematic::levels_generator<n_levels> levels{settings["search space"]["levels"]["unique count"]};
+    const auto& level_doc = settings["search space"]["levels"];
+    auto lower_bound = level_doc["lower bound"].get<trading::fraction_t>();
+    systematic::levels_generator<n_levels> levels{level_doc["unique count"], lower_bound};
     systematic::sizes_generator<n_levels> sizes{settings["search space"]["open order sizes"]["unique count"]};
     const auto& period_doc = settings["search space"]["moving average"]["period"];
     systematic::int_range_generator periods{period_doc["from"], period_doc["to"], period_doc["step"]};
-    auto tags = {bazooka::indicator_tag::ema, bazooka::indicator_tag::sma};
+    auto tags = etl::vector<trading::bazooka::indicator_tag, 2>();
+
+    for (const auto& name: settings["search space"]["moving average"]["types"]) {
+        if (name=="sma") tags.emplace_back(trading::bazooka::indicator_tag::sma);
+        else if (name=="ema") tags.emplace_back(trading::bazooka::indicator_tag::ema);
+        else throw std::invalid_argument("Invalid indicator type name");
+    }
 
     {
         std::ofstream writer{experiment_dir/"settings.json"};
@@ -210,16 +220,22 @@ int use_brute_force(trading::simulator&& simulator, json&& settings, const std::
                         co_yield config_type{tag, period, levels, open_sizes};
     };
 
+    std::size_t period_count, tag_count, levels_count, sizes_count;
+    period_count = tag_count = levels_count = sizes_count = 0;
+    for (const auto& p: periods()) period_count++;
+    for (const auto& t: tags) tag_count++;
+    for (const auto& l: levels()) levels_count++;
+    for (const auto& s: sizes()) sizes_count++;
+    std::cout << "periods count: " << period_count << std::endl
+              << "tag count: " << tag_count << std::endl
+              << "levels count: " << levels_count << std::endl
+              << "sizes count: " << sizes_count << std::endl;
+
     // count number of states
     std::size_t n_states{0};
     for (const auto& curr: search_space()) n_states++;
     *logger << "search space:" << std::endl
             << "n states: " << n_states << std::endl;
-
-//    std::cerr << "Proceed to testing? y/n" << std::endl;
-//    char answer;
-//    std::cin >> answer;
-//    if (answer!='y') return EXIT_SUCCESS;
 
     // use brute force optimizer
     optimizer_type optimize{};
@@ -230,11 +246,13 @@ int use_brute_force(trading::simulator&& simulator, json&& settings, const std::
         return collector.get();
     };
 
+    auto optim_criteria = prom_criterion{};
+
     *logger << "began: " << boost::posix_time::second_clock::local_time() << std::endl;
     auto duration = measure_duration(to_function([&] {
         optimize(result, constraints,
                 [&](const auto& config) -> double {
-                    return static_cast<double>(compute_stats(config).template total_profit<percent>());
+                    return optim_criteria(compute_stats(config));
                 }, search_space);
     }));
     *logger << "ended: " << boost::posix_time::second_clock::local_time() << std::endl
@@ -245,8 +263,9 @@ int use_brute_force(trading::simulator&& simulator, json&& settings, const std::
     auto best = result.get();
     for (const auto& top: best)
         result_doc.emplace_back(json{
-                {"configuration", top.config},
-                {"statistics", compute_stats(top.config)}
+                {"configuration",      top.config},
+                {"statistics",         compute_stats(top.config)},
+                {"optimization value", top.value}
         });
     {
         std::ofstream writer{experiment_dir/"best-states.json"};
@@ -447,8 +466,10 @@ void use_tabu_search(trading::simulator&& simulator, json&& settings, const std:
             bazooka::indicator_tag_memory{tabu_search::fixed_tenure{n_it}},
             tabu_search::int_range_memory{period_gen.from(), period_gen.to(), period_gen.step(),
                                           tabu_search::fixed_tenure{n_it}},
-            bazooka::array_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{n_it}},
-            bazooka::array_memory<n_levels, tabu_search::fixed_tenure>{tabu_search::fixed_tenure{n_it}}
+            tabu_search::array_memory<trading::fraction_t, n_levels, tabu_search::fixed_tenure>{
+                    tabu_search::fixed_tenure{n_it}},
+            tabu_search::array_memory<trading::fraction_t, n_levels, tabu_search::fixed_tenure>{
+                    tabu_search::fixed_tenure{n_it}}
     };
     auto neighborhood_sizer = fixed_sizer{128};
 
@@ -508,12 +529,11 @@ void use_tabu_search(trading::simulator&& simulator, json&& settings, const std:
 
 int main()
 {
-    constexpr std::size_t n_levels{3};
+    constexpr std::size_t n_levels{2};
 
     // read candles
     std::filesystem::path data_dir{"../../src/data"};
-    std::filesystem::path in_dir{data_dir/"in"};
-    std::filesystem::path out_dir{data_dir/"out"};
+    std::filesystem::path in_dir{data_dir/"in"}, out_dir{data_dir/"out"};
     std::filesystem::path optim_dir{out_dir/"brute-force"};
     std::filesystem::create_directory(optim_dir);
     std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
@@ -552,23 +572,24 @@ int main()
     settings.emplace(json{"search space", {
             {"levels", {
                     {"count", n_levels},
-                    {"unique count", 10},
+                    {"unique count", 30},
+                    {"lower bound", trading::fraction_t{3, 4}},
             }},
             {"open order sizes", {
-                    {"unique count", 10}
+                    {"unique count", 30}
             }},
             {"moving average", {
-                    {"types", {"sma", "ema"}},
+                    {"types", {"sma"}},
                     {"period", {
-                            {"from", 3},
-                            {"to", 36},
-                            {"step", 3}
+                            {"from", 30},
+                            {"to", 60},
+                            {"step", 2}
                     }}
             }},
     }});
 
     // create simulator
-    std::chrono::minutes resampling_period{std::chrono::minutes(30)};
+    std::chrono::minutes resampling_period{std::chrono::minutes(15)};
     auto averager = candle::ohlc4{};
     trading::simulator simulator{candles, static_cast<std::size_t>(resampling_period.count()), averager, 100};
     settings.emplace(json{"resampling", {

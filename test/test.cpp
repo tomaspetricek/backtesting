@@ -22,6 +22,7 @@
 #include "trading/tabu_search/memory.hpp"
 #include "trading/tabu_search/optimizer.hpp"
 #include "trading/candle.hpp"
+#include "trading/criterion.hpp"
 #include "trading/wallet.hpp"
 #include "trading/bazooka/trader.hpp"
 #include "trading/position.hpp"
