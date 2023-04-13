@@ -2,7 +2,6 @@
 #include <chrono>
 #include <limits>
 #include <filesystem>
-#include <type_traits>
 #include <set>
 #include <list>
 #include <utility>
@@ -171,7 +170,12 @@ std::filesystem::path try_create_experiment_directory(const std::filesystem::pat
     return empty_dir;
 }
 
-struct optim_criteria {
+std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
+{
+    return os << frac.numerator() << '/' << frac.denominator() << ")";
+}
+
+struct maximization {
     template<class State>
     bool operator()(const State& rhs, const State& lhs) const
     {
@@ -179,362 +183,17 @@ struct optim_criteria {
     }
 };
 
-template<std::size_t n_levels>
-int use_brute_force(trading::simulator&& simulator, json&& settings, const std::filesystem::path& experiment_dir,
-        std::shared_ptr<logger_t> logger)
-{
-    using stats_type = bazooka::statistics<n_levels>;
-    using config_type = bazooka::configuration<n_levels>;
-    using optimizer_type = brute_force::parallel::optimizer<config_type>;
-    using state_type = typename optimizer_type::state_type;
-
-    auto constraints = [](const state_type&) {
-        return true;
-    };
-
-    const auto& level_doc = settings["search space"]["levels"];
-    auto lower_bound = level_doc["lower bound"].get<trading::fraction_t>();
-    systematic::levels_generator<n_levels> levels{level_doc["unique count"], lower_bound};
-    systematic::sizes_generator<n_levels> sizes{settings["search space"]["open order sizes"]["unique count"]};
-    const auto& period_doc = settings["search space"]["moving average"]["period"];
-    systematic::int_range_generator periods{period_doc["from"], period_doc["to"], period_doc["step"]};
-    auto tags = etl::vector<trading::bazooka::indicator_tag, 2>();
-
-    for (const auto& name: settings["search space"]["moving average"]["types"]) {
-        if (name=="sma") tags.emplace_back(trading::bazooka::indicator_tag::sma);
-        else if (name=="ema") tags.emplace_back(trading::bazooka::indicator_tag::ema);
-        else throw std::invalid_argument("Invalid indicator type name");
-    }
-
-    {
-        std::ofstream writer{experiment_dir/"settings.json"};
-        writer << std::setw(4) << settings << std::endl;
-    }
-
-    // create search space
-    auto search_space = [&]() -> cppcoro::generator<config_type> {
-        for (std::size_t period: periods())
-            for (const auto& tag: tags)
-                for (const auto& levels: levels())
-                    for (const auto& open_sizes: sizes())
-                        co_yield config_type{tag, period, levels, open_sizes};
-    };
-
-    std::size_t period_count, tag_count, levels_count, sizes_count;
-    period_count = tag_count = levels_count = sizes_count = 0;
-    for (const auto& p: periods()) period_count++;
-    for (const auto& t: tags) tag_count++;
-    for (const auto& l: levels()) levels_count++;
-    for (const auto& s: sizes()) sizes_count++;
-    std::cout << "periods count: " << period_count << std::endl
-              << "tag count: " << tag_count << std::endl
-              << "levels count: " << levels_count << std::endl
-              << "sizes count: " << sizes_count << std::endl;
-
-    // count number of states
-    std::size_t n_states{0};
-    for (const auto& curr: search_space()) n_states++;
-    *logger << "search space:" << std::endl
-            << "n states: " << n_states << std::endl;
-
-    // use brute force optimizer
-    optimizer_type optimize{};
-    enumerative_result<state_type, optim_criteria> result{30, optim_criteria()};
-    auto compute_stats = [&](const config_type& curr) {
-        typename stats_type::collector collector{};
-        simulator(create_trader(curr), collector);
-        return collector.get();
-    };
-
-    auto optim_criteria = prom_criterion{};
-
-    *logger << "began: " << boost::posix_time::second_clock::local_time() << std::endl;
-    auto duration = measure_duration(to_function([&] {
-        optimize(result, constraints,
-                [&](const auto& config) -> double {
-                    return optim_criteria(compute_stats(config));
-                }, search_space);
-    }));
-    *logger << "ended: " << boost::posix_time::second_clock::local_time() << std::endl
-            << "duration: " << duration << std::endl;
-
-    // save results to json document
-    json result_doc;
-    auto best = result.get();
-    for (const auto& top: best)
-        result_doc.emplace_back(json{
-                {"configuration",      top.config},
-                {"statistics",         compute_stats(top.config)},
-                {"optimization value", top.value}
-        });
-    {
-        std::ofstream writer{experiment_dir/"best-states.json"};
-        writer << std::setw(4) << result_doc << std::endl;
-    }
-
-//    auto config = result.get()[0].config;
-//    chart_series<n_levels>::collector<typename Simulator::trader_type> series_collector;
-//    stats_type::collector<typename Simulator::trader_type> stats_collector;
-//    simulator(config, stats_collector);
-//    std::filesystem::path best_dir{out_dir/"best-series"};
-//    std::filesystem::create_directory(best_dir);
-//    to_csv(series_collector.get(), best_dir);
-}
-
-template<std::size_t n_levels>
-void
-use_simulated_annealing(trading::simulator&& simulator, json&& settings, const std::filesystem::path& experiment_dir,
-        std::shared_ptr<logger_t> logger)
-{
-    using config_type = bazooka::configuration<n_levels>;
-    using state_type = typename simulated_annealing::optimizer<config_type>::state_type;
-
-    std::size_t n_best{30};
-    auto constrains = [](const auto&) { return true; };
-
-    random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
-    random::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
-    const auto& period_doc = settings["search space"]["moving average"]["period"];
-    random::int_range_generator period_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
-    bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
-    bazooka::configuration<n_levels> init_config{bazooka::indicator_tag::sma, static_cast<std::size_t>(period_gen()),
-                                                 levels_gen(), open_sizes_gen()};
-
-    typename bazooka::statistics<n_levels>::collector stats_collector;
-    simulator(create_trader(init_config), stats_collector);
-
-    double start_temp{128}, min_temp{26};
-    std::size_t n_tries{256};
-//    float decay{50};
-    auto cooler = simulated_annealing::basic_cooler{};
-    simulated_annealing::optimizer<config_type> optimizer{start_temp, min_temp};
-    enumerative_result<state_type, optim_criteria> result{n_best, optim_criteria()};
-    using progress_observer_type = simulated_annealing::progress_collector;
-    progress_observer_type progress_observer;
-    simulated_annealing::progress_reporter reporter{logger};
-
-    auto equilibrium = simulated_annealing::fixed_equilibrium{n_tries};
-    config_type next;
-
-    auto duration = measure_duration([&]() {
-        optimizer(init_config, result, constrains,
-                [&](const auto& config) -> double {
-                    simulator(create_trader(config), stats_collector);
-                    return static_cast<double>(stats_collector.get().template total_profit<percent>());
-                },
-                cooler,
-                [&](const config_type& genes) {
-                    std::tie(next, std::ignore) = neighbor(genes);
-                    return next;
-                },
-                [](const state_type& current, const state_type& candidate) -> double {
-                    return current.value-candidate.value;
-                },
-                equilibrium, progress_observer, reporter);
-    });
-    std::cout << "duration: " << duration << std::endl;
-
-    settings.emplace(json{"optimizer", {
-            {"start temperature", optimizer.start_temperature()},
-            {"minimum temperature", optimizer.minimum_temperature()},
-            {"equilibrium", {
-                    {"tries count", equilibrium.tries_count()},
-            }}
-    }});
-    settings.emplace(json{"cooler", {
-            {"type", decltype(cooler)::name},
-//                     {"decay", cooler.decay()}
-    }});
-
-    std::ofstream settings_file{experiment_dir/"settings.json"};
-    settings_file << std::setw(4) << settings << std::endl;
-
-    io::csv::writer<3> writer(experiment_dir/"progress.csv");
-    writer.write_header({"curr state value", "temperature", "mean threshold worse acceptance"});
-    for (const auto& progress: progress_observer.get())
-        writer.write_row(progress.curr_state_value, progress.temperature, progress.worse_acceptance_mean_threshold);
-
-//    std::ofstream results_file{experiment_dir/"results.json"};
-//    results_file << std::setw(4) << json{result.get()};
-}
-
-std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
-{
-    return os << frac.numerator() << '/' << frac.denominator() << ")";
-}
-
-template<std::size_t n_levels>
-void use_genetic_algorithm(trading::simulator&& simulator, json&& settings, const std::filesystem::path& experiment_dir,
-        std::shared_ptr<logger_t> logger)
-{
-    using config_type = bazooka::configuration<n_levels>;
-    using state_type = state<config_type>;
-
-    random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
-    random::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
-    const auto& period_doc = settings["search space"]["moving average"]["period"];
-    random::int_range_generator period_gen{period_doc["from"], period_doc["to"], period_doc["step"]};
-    std::vector<config_type> init_genes;
-    genetic_algorithm::optimizer<config_type> optimizer;
-
-    std::size_t n_init_genes{1'024};
-    init_genes.reserve(n_init_genes);
-    auto rand_genes = random::configuration_generator<n_levels>{open_sizes_gen, levels_gen, period_gen};
-    settings.emplace(json{"initial genes count", n_init_genes});
-
-    constexpr std::size_t n_children{2};
-    using crossover_type = bazooka::configuration_crossover<n_levels, n_children>;
-
-    for (std::size_t i{0}; i<n_init_genes; i++)
-        init_genes.emplace_back(rand_genes());
-
-    typename bazooka::statistics<n_levels>::collector stats_collector;
-    genetic_algorithm::progress_collector progress_collector;
-    genetic_algorithm::progress_reporter reporter{logger};
-    genetic_algorithm::progress_observers observers{progress_collector, reporter};
-
-    auto sizer = basic_sizer{1.005};
-    auto selection = genetic_algorithm::roulette_selection{};
-    auto matchmaker = genetic_algorithm::random_matchmaker<crossover_type::n_parents>{};
-    auto replacement = genetic_algorithm::elitism_replacement{{16, 100}};
-    auto termination = iteration_based_termination{40};
-
-    settings.emplace(json{"optimizer", {
-            {"sizer", sizer},
-            {"selection", selection},
-            {"crossover", {
-                    {"children count", n_children},
-            }},
-            {"matchmaker", matchmaker},
-            {"replacement", replacement},
-            {"termination", termination},
-    }});
-
-    std::ofstream settings_file{experiment_dir/"settings.json"};
-    settings_file << std::setw(4) << settings << std::endl;
-
-    auto neighbor = bazooka::neighbor<n_levels>{levels_gen, open_sizes_gen, period_gen};
-    config_type next;
-
-    auto constraints = [](const auto&) { return true; };
-    enumerative_result<state_type, optim_criteria> result{30, optim_criteria()};
-    auto duration = measure_duration([&]() {
-        optimizer(init_genes, result, constraints,
-                [&](const config_type& genes) -> double {
-                    simulator(create_trader(genes), stats_collector);
-                    auto total_profit = static_cast<double>(stats_collector.get().template total_profit<percent>());
-                    total_profit = (total_profit>=0.0) ? total_profit : 0.0;
-                    return total_profit;
-                },
-                sizer, selection, matchmaker, crossover_type{},
-                [&](const config_type& genes) {
-                    std::tie(next, std::ignore) = neighbor(genes);
-                    return next;
-                },
-                replacement, termination, observers);
-    });
-    *logger << "duration: " << duration << std::endl;
-
-    io::csv::writer<3> writer(experiment_dir/"progress.csv");
-    writer.write_header({"mean fitness", "best fitness", "population size"});
-    for (const auto& progress: progress_collector.get())
-        writer.write_row(progress.mean_fitness, progress.best_fitness, progress.population_size);
-};
-
-template<std::size_t n_levels>
-void use_tabu_search(trading::simulator&& simulator, json&& settings, const std::filesystem::path& experiment_dir,
-        std::shared_ptr<logger_t> logger)
-{
-    using config_type = bazooka::configuration<n_levels>;
-    using state_type = state<config_type>;
-    using trader_type = decltype(create_trader<n_levels>(config_type()));
-
-    random::sizes_generator<n_levels> open_sizes_gen{settings["search space"]["open order sizes"]["unique count"]};
-    random::levels_generator<n_levels> levels_gen{settings["search space"]["levels"]["unique count"]};
-    const auto& period_doc = settings["search space"]["moving average"]["period"];
-    random::int_range_generator period_gen{period_doc["from"], period_doc["to"], period_doc["step"], 10};
-    bazooka::neighbor<n_levels> neighbor{levels_gen, open_sizes_gen, period_gen};
-    bazooka::configuration<n_levels> init_config{bazooka::indicator_tag::sma, static_cast<std::size_t>(period_gen()),
-                                                 levels_gen(), open_sizes_gen()};
-
-    tabu_search::optimizer<config_type> optimizer;
-    typename bazooka::statistics<n_levels>::collector stats_collector;
-
-    auto termination = iteration_based_termination{512};
-    std::size_t n_it{42};
-    bazooka::configuration_memory moves_memory{
-            bazooka::indicator_tag_memory{tabu_search::fixed_tenure{n_it}},
-            tabu_search::int_range_memory{period_gen.from(), period_gen.to(), period_gen.step(),
-                                          tabu_search::fixed_tenure{n_it}},
-            tabu_search::array_memory<trading::fraction_t, n_levels, tabu_search::fixed_tenure>{
-                    tabu_search::fixed_tenure{n_it}},
-            tabu_search::array_memory<trading::fraction_t, n_levels, tabu_search::fixed_tenure>{
-                    tabu_search::fixed_tenure{n_it}}
-    };
-    auto neighborhood_sizer = fixed_sizer{128};
-
-    settings.emplace(json{"optimizer", {
-            {"neighborhood size", neighborhood_sizer.size()},
-            {"moves memory", {
-                    {"indicator memory", {
-                            {"tenure", {
-                                    {"iteration count", moves_memory.indicator_memory().tenure().it_count()}
-                            }},
-                    }},
-                    {"period memory", {
-                            {"tenure", {
-                                    {"iteration count", moves_memory.period_memory().tenure().it_count()}
-                            }},
-                    }},
-                    {"levels memory", {
-                            {"tenure", {
-                                    {"iteration count", moves_memory.levels_memory().tenure().it_count()}
-                            }},
-                    }},
-                    {"sizes memory", {
-                            {"tenure", {
-                                    {"iteration count", moves_memory.sizes_memory().tenure().it_count()}
-                            }},
-                    }},
-            }},
-            {"termination", termination},
-    }});
-    std::ofstream settings_file{experiment_dir/"settings.json"};
-    settings_file << std::setw(4) << settings << std::endl;
-
-    tabu_search::progress_collector collector;
-    tabu_search::progress_reporter reporter{logger};
-    auto constraints = [](const auto&) { return true; };
-    enumerative_result<state_type, optim_criteria> result{30, optim_criteria()};
-    auto duration = measure_duration([&]() {
-        optimizer(init_config, result, constraints, moves_memory,
-                [&](const config_type& config) -> double {
-                    simulator(create_trader(config), stats_collector);
-                    return static_cast<double>(stats_collector.get().template total_profit<percent>());
-                },
-                neighbor, neighborhood_sizer, termination,
-                [&](const auto& candidate, const auto& optimizer) -> bool {
-                    return result.compare(candidate, optimizer.best_state());
-                },
-                collector, reporter
-        );
-    });
-    *logger << "duration: " << duration << std::endl;
-
-    io::csv::writer<3> writer(experiment_dir/"progress.csv");
-    writer.write_header({"best fitness", "curr fitness", "tabu list size"});
-    for (const auto& progress: collector.get())
-        writer.write_row(progress.best_state_fitness, progress.curr_state_fitness, progress.tabu_list_size);
-}
-
 int main()
 {
-    constexpr std::size_t n_levels{2};
+    constexpr std::size_t n_levels{3};
+    using state_type = trading::bazooka::state<n_levels>;
+    using config_type = state_type::config_type;
+    std::string optimizer_name{"brute force"};
 
     // read candles
     std::filesystem::path data_dir{"../../src/data"};
     std::filesystem::path in_dir{data_dir/"in"}, out_dir{data_dir/"out"};
-    std::filesystem::path optim_dir{out_dir/"brute-force"};
+    std::filesystem::path optim_dir{out_dir/optimizer_name};
     std::filesystem::create_directory(optim_dir);
     std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
 
@@ -569,39 +228,296 @@ int main()
             }},
     }});
 
+    std::size_t levels_unique_count{10}, sizes_unique_count{8};
+    int period_from{2}, period_to{60}, period_step{2};
+    etl::vector<bazooka::indicator_tag, 2> tags{bazooka::indicator_tag::sma};
+    trading::fraction_t levels_lower_bound{13, 20};
+
+    json tags_doc;
+    std::ostringstream os;
+    for (const auto& tag: tags) {
+        os << tag;
+        tags_doc.template emplace_back(os.str());
+        os.clear();
+    }
+
     settings.emplace(json{"search space", {
             {"levels", {
                     {"count", n_levels},
-                    {"unique count", 30},
-                    {"lower bound", trading::fraction_t{3, 4}},
-            }},
-            {"open order sizes", {
-                    {"unique count", 30}
-            }},
-            {"moving average", {
-                    {"types", {"sma"}},
-                    {"period", {
-                            {"from", 30},
-                            {"to", 60},
-                            {"step", 2}
-                    }}
-            }},
-    }});
+                    {"unique count", levels_unique_count},
+                    {"lower bound", levels_lower_bound}},
+             {"open order sizes", {
+                     {"unique count", sizes_unique_count}
+             }},
+             {"indicator", {
+                     {"types", tags_doc},
+                     {"period", {
+                             {"from", period_from},
+                             {"to", period_to},
+                             {"step", period_step}
+                     }}
+             }},
+            }}});
 
     // create simulator
-    std::chrono::minutes resampling_period{std::chrono::minutes(15)};
+    std::size_t resampling_period{std::chrono::minutes(15).count()};
     auto averager = candle::ohlc4{};
-    trading::simulator simulator{candles, static_cast<std::size_t>(resampling_period.count()), averager, 100};
+    trading::simulator simulator{candles, static_cast<std::size_t>(resampling_period), averager, 100};
+
     settings.emplace(json{"resampling", {
-            {"period[min]", resampling_period.count()},
+            {"period[lower_bound]", resampling_period},
             {"averaging method", decltype(averager)::name}
     }});
 
-    try {
-        use_brute_force<n_levels>(std::move(simulator), std::move(settings), experiment_dir, logger);
+    // create result
+    enumerative_result<state_type, maximization> result{30, maximization()};
+    auto constraints = [](const state_type& curr) { return curr.stats.net_profit()>0.0;};
+    auto optim_criterion = prom_criterion{};
+
+    // create objective
+    auto objective = [&](const config_type& curr) {
+        bazooka::statistics<n_levels>::collector collector{};
+        simulator(create_trader(curr), collector);
+        auto stats = collector.get();
+        return state_type{{curr, optim_criterion(stats)}, stats};
+    };
+
+    if (optimizer_name=="brute force") {
+        systematic::levels_generator<n_levels> sys_levels{levels_unique_count, levels_lower_bound};
+        systematic::sizes_generator<n_levels> sys_sizes{sizes_unique_count};
+        systematic::int_range_generator sys_periods{period_from, period_to, period_step};
+
+        // create search space
+        auto search_space = [&]() -> cppcoro::generator<config_type> {
+            for (std::size_t period: sys_periods())
+                for (const auto& tag: tags)
+                    for (const auto& levels: sys_levels())
+                        for (const auto& open_sizes: sys_sizes())
+                            co_yield config_type{tag, period, levels, open_sizes};
+        };
+
+        std::size_t period_count, tag_count, levels_count, sizes_count;
+        period_count = tag_count = levels_count = sizes_count = 0;
+        for (const auto& p: sys_periods()) period_count++;
+        for (const auto& t: tags) tag_count++;
+        for (const auto& l: sys_levels()) levels_count++;
+        for (const auto& s: sys_sizes()) sizes_count++;
+        std::cout << "periods count: " << period_count << std::endl
+                  << "tag count: " << tag_count << std::endl
+                  << "levels count: " << levels_count << std::endl
+                  << "sizes count: " << sizes_count << std::endl
+                  << "total count: " << period_count*tag_count*levels_count*sizes_count << std::endl;
+
+        // use brute force optimizer
+        brute_force::parallel::optimizer<state_type> optimizer{};
+
+        *logger << "began: " << boost::posix_time::second_clock::local_time() << std::endl;
+        duration = measure_duration(to_function([&] {
+            optimizer(result, constraints, objective, search_space);
+        }));
+        *logger << "ended: " << boost::posix_time::second_clock::local_time() << std::endl
+                << "duration: " << duration << std::endl;
     }
-    catch (std::exception& e) {
-        print_exception(e);
+    else if (optimizer_name=="simulated annealing") {
+        double start_temp{128}, min_temp{26};
+        std::size_t n_tries{256};
+        float decay{50};
+
+        simulated_annealing::optimizer<state_type> optimizer{start_temp, min_temp};
+        auto cooler = simulated_annealing::basic_cooler{};
+        auto equilibrium = simulated_annealing::fixed_equilibrium{n_tries};
+
+        settings.emplace(json{"optimizer", {
+                {"start temperature", optimizer.start_temperature()},
+                {"minimum temperature", optimizer.minimum_temperature()},
+                {"equilibrium", {
+                        {"tries count", equilibrium.tries_count()},
+                }}
+        }});
+        settings.emplace(json{"cooler", {
+                {"type", decltype(cooler)::name},
+//                {"decay", cooler.decay()}
+        }});
+
+        random::levels_generator<n_levels> rand_levels{levels_unique_count, levels_lower_bound};
+        random::sizes_generator<n_levels> rand_sizes{sizes_unique_count};
+        random::int_range_generator rand_period{period_from, period_to, period_to};
+        bazooka::neighbor<n_levels> neighbor{rand_levels, rand_sizes, rand_period};
+        bazooka::configuration<n_levels> init_config{tags[0], static_cast<std::size_t>(rand_period()), rand_levels(),
+                                                     rand_sizes()};
+
+        using progress_observer_type = simulated_annealing::progress_collector;
+        progress_observer_type progress_observer;
+        simulated_annealing::progress_reporter reporter{logger};
+        config_type next;
+
+        duration = measure_duration([&]() {
+            optimizer(init_config, result, constraints, objective, cooler,
+                    [&](const config_type& genes) {
+                        std::tie(next, std::ignore) = neighbor(genes);
+                        return next;
+                    },
+                    [](const state_type& current, const state_type& candidate) -> double {
+                        return current.value-candidate.value;
+                    },
+                    equilibrium, progress_observer, reporter);
+        });
+        *logger << "duration: " << duration << std::endl;
+
+        io::csv::writer<3> writer(experiment_dir/"progress.csv");
+        writer.write_header({"curr state value", "temperature", "mean threshold worse acceptance"});
+        for (const auto& progress: progress_observer.get())
+            writer.write_row(progress.curr_state_value, progress.temperature, progress.worse_acceptance_mean_threshold);
+    }
+    else if (optimizer_name=="genetic algorithm") {
+        constexpr std::size_t n_children{2};
+        std::size_t init_genes_count = 1'024;
+        using crossover_type = bazooka::configuration_crossover<n_levels, n_children>;
+
+        auto sizer = basic_sizer{1.005};
+        auto selection = genetic_algorithm::roulette_selection{};
+        auto matchmaker = genetic_algorithm::random_matchmaker<crossover_type::n_parents>{};
+        auto replacement = genetic_algorithm::elitism_replacement{{16, 100}};
+        auto termination = iteration_based_termination{40};
+
+        random::levels_generator<n_levels> rand_levels{levels_unique_count, levels_lower_bound};
+        random::sizes_generator<n_levels> rand_sizes{sizes_unique_count};
+        random::int_range_generator rand_period{period_from, period_to, period_to};
+
+        settings.emplace(json{"initial genes count", init_genes_count});
+        settings.emplace(json{"optimizer", {
+                {"sizer", sizer},
+                {"selection", selection},
+                {"crossover", {
+                        {"children count", n_children},
+                }},
+                {"matchmaker", matchmaker},
+                {"replacement", replacement},
+                {"termination", termination},
+        }});
+
+        std::vector<config_type> init_genes;
+        init_genes.reserve(init_genes_count);
+        auto rand_genes = random::configuration_generator<n_levels>{rand_sizes, rand_levels, rand_period};
+
+        for (std::size_t i{0}; i<init_genes_count; i++)
+            init_genes.emplace_back(rand_genes());
+
+        genetic_algorithm::progress_collector progress_collector;
+        genetic_algorithm::progress_reporter reporter{logger};
+        genetic_algorithm::progress_observers observers{progress_collector, reporter};
+
+        auto neighbor = bazooka::neighbor<n_levels>{rand_levels, rand_sizes, rand_period};
+        config_type next;
+        genetic_algorithm::optimizer<state_type> optimizer;
+
+        auto duration = measure_duration([&]() {
+            optimizer(init_genes, result, constraints, objective,
+                    sizer, selection, matchmaker, crossover_type{},
+                    [&](const config_type& genes) {
+                        std::tie(next, std::ignore) = neighbor(genes);
+                        return next;
+                    },
+                    replacement, termination, observers);
+        });
+        *logger << "duration: " << duration << std::endl;
+
+        io::csv::writer<3> writer(experiment_dir/"progress.csv");
+        writer.write_header({"mean fitness", "best fitness", "population size"});
+        for (const auto& progress: progress_collector.get())
+            writer.write_row(progress.mean_fitness, progress.best_fitness, progress.population_size);
+    }
+    else {
+        auto termination = iteration_based_termination{512};
+        std::size_t neighborhood{128}, tenure_it_count{42};
+
+        random::levels_generator<n_levels> rand_levels{levels_unique_count, levels_lower_bound};
+        random::sizes_generator<n_levels> rand_sizes{sizes_unique_count};
+        random::int_range_generator rand_period{period_from, period_to, period_step, 10};
+
+        bazooka::neighbor<n_levels> neighbor{rand_levels, rand_sizes, rand_period};
+        bazooka::configuration<n_levels> init{tags[0], static_cast<std::size_t>(rand_period()),
+                                                     rand_levels(), rand_sizes()};
+
+        auto tenure = tabu_search::fixed_tenure{tenure_it_count};
+        bazooka::configuration_memory memory{
+                bazooka::indicator_tag_memory{tenure},
+                tabu_search::int_range_memory{rand_period.from(), rand_period.to(), rand_period.step(), tenure},
+                tabu_search::array_memory<trading::fraction_t, n_levels, tabu_search::fixed_tenure>{tenure},
+                tabu_search::array_memory<trading::fraction_t, n_levels, tabu_search::fixed_tenure>{tenure}
+        };
+        auto neighborhood_sizer = fixed_sizer{neighborhood};
+
+        settings.emplace(json{"optimizer", {
+                {"neighborhood size", neighborhood},
+                {"moves memory", {
+                        {"indicator memory", {
+                                {"tenure", {
+                                        {"iteration count", tenure_it_count}
+                                }},
+                        }},
+                        {"period memory", {
+                                {"tenure", {
+                                        {"iteration count", tenure_it_count}
+                                }},
+                        }},
+                        {"levels memory", {
+                                {"tenure", {
+                                        {"iteration count", tenure_it_count}
+                                }},
+                        }},
+                        {"sizes memory", {
+                                {"tenure", {
+                                        {"iteration count", tenure_it_count}
+                                }},
+                        }},
+                }},
+                {"termination", termination},
+        }});
+
+        tabu_search::progress_collector collector;
+        tabu_search::progress_reporter reporter{logger};
+        tabu_search::optimizer<state_type> optimizer{};
+
+        duration = measure_duration([&]() {
+            optimizer(init, result, constraints, objective, memory,
+                    neighbor, neighborhood_sizer, termination,
+                    [&](const auto& candidate, const auto& optimizer) -> bool {
+                        return result.compare(candidate, optimizer.best_state());
+                    },
+                    collector, reporter
+            );
+        });
+        *logger << "duration: " << duration << std::endl;
+
+        io::csv::writer<3> writer(experiment_dir/"progress.csv");
+        writer.write_header({"best fitness", "curr fitness", "tabu list size"});
+        for (const auto& progress: collector.get())
+            writer.write_row(progress.best_state_fitness, progress.curr_state_fitness, progress.tabu_list_size);
+    }
+
+    // save settings
+    std::ofstream{experiment_dir/"settings.json"} << std::setw(4) << settings << std::endl;
+
+    // save top states
+    json result_doc;
+    auto best = result.get();
+    for (const auto& top: best)
+        result_doc.emplace_back(json{
+                {"configuration",      top.config},
+                {"statistics",         top.stats},
+                {"optimization value", top.value}
+        });
+    std::ofstream{experiment_dir/"best-states.json"} << std::setw(4) << result_doc << std::endl;
+
+    // save best state series
+    auto top = result.get();
+    if (top.size()) {
+        chart_series<n_levels>::collector series_collector;
+        simulator(create_trader(top[0].config), series_collector);
+        std::filesystem::path best_dir{out_dir/"best-series"};
+        std::filesystem::create_directory(best_dir);
+        to_csv(series_collector.get(), best_dir);
     }
     return EXIT_SUCCESS;
 }

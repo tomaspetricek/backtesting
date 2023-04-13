@@ -1,0 +1,21 @@
+candles read:
+from: 2017-Aug-17 04:00:00
+to: 2022-Oct-28 12:27:00
+difference: 1898d 08:27:00.000000
+count: 2725146
+duration: 5.387479s
+it: 0, best value: -95.9797, curr value: -95.9797, tabu list size: 1
+it: 1, best value: -73.447, curr value: -73.447, tabu list size: 2
+it: 2, best value: -73.447, curr value: -73.447, tabu list size: 3
+it: 3, best value: 13.3283, curr value: 13.3283, tabu list size: 4
+it: 4, best value: 13.3283, curr value: 13.3283, tabu list size: 5
+it: 5, best value: 34.8778, curr value: 34.8778, tabu list size: 6
+it: 6, best value: 38.0212, curr value: 38.0212, tabu list size: 7
+it: 7, best value: 154.321, curr value: 154.321, tabu list size: 8
+it: 8, best value: 249.783, curr value: 249.783, tabu list size: 9
+it: 9, best value: 401.429, curr value: 401.429, tabu list size: 10
+it: 10, best value: 469.574, curr value: 469.574, tabu list size: 11
+it: 11, best value: 560.105, curr value: 560.105, tabu list size: 12
+it: 12, best value: 567.835, curr value: 567.835, tabu list size: 13
+it: 13, best value: 663.371, curr value: 663.371, tabu list size: 14
+it: 14, best value: 713.237, curr value: 713.237, tabu list size: 15

@@ -23,6 +23,7 @@ namespace trading {
         static_assert(n_sizes>1);
         std::array<fraction_t, n_sizes> sizes_;
         std::size_t denom_, max_num_;
+        static constexpr std::size_t default_unique_count{1};
 
         std::size_t validate_unique_count(std::size_t n_unique)
         {
@@ -31,7 +32,7 @@ namespace trading {
             return n_unique;
         }
 
-        explicit sizes_generator(std::size_t n_unique)
+        explicit sizes_generator(std::size_t n_unique = default_unique_count)
                 :denom_(n_sizes+validate_unique_count(n_unique)-1), max_num_(denom_-n_sizes+1) { }
 
     public:
@@ -83,7 +84,7 @@ namespace trading {
             return unique_count_;
         }
 
-        fraction_t min() const
+        fraction_t lower_bound() const
         {
             return {lower_bound_.numerator()*unscaled_denom(), lower_bound_.denominator()*unscaled_denom()};
         }

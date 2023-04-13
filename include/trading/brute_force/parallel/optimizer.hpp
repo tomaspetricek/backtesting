@@ -16,25 +16,26 @@ namespace trading::brute_force::parallel {
     concept SearchSpace = std::invocable<ConcreteSearchSpace> &&
             std::same_as<cppcoro::generator<Config>, std::invoke_result_t<ConcreteSearchSpace>>;
 
-    template<class Config>
+    template<class State>
     struct optimizer {
-        using state_type = state<Config>;
+        using state_type = State;
+        using config_type = typename state_type::config_type;
 
         template<class Result>
         void operator()(Result& result,
                 Constraints<state_type> auto&& constraints,
-                ObjectiveFunction<Config> auto&& objective,
-                SearchSpace<Config> auto&& search_space) const
+                ObjectiveFunction<state_type> auto&& objective,
+                SearchSpace<config_type> auto&& search_space) const
         {
             #pragma omp parallel
             {
                 #pragma omp single
                 {
-                    for (const Config& config: search_space()) {
+                    for (const config_type& config: search_space()) {
                         #pragma omp task
                         {
                             try {
-                                auto state = state_type{config, objective(config)};
+                                auto state = objective(config);
                                 if (constraints(state)) {
                                     #pragma omp critical
                                     result.update(state);

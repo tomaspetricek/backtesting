@@ -12,6 +12,11 @@
 #include <trading/tabu_search/tenure.hpp>
 
 BOOST_AUTO_TEST_SUITE(tabu_search_optimizer_test)
+    using config_type = int;
+    using state_type = trading::state<config_type>;
+    using optimizer_type = trading::tabu_search::optimizer<state_type>;
+    auto objective = [](const auto& config) { return state_type{config, static_cast<double>(config)}; };
+
     struct event_counter {
         std::size_t started_count{0}, finished_count{0}, iteration_passed_count{0};
 
@@ -50,14 +55,10 @@ BOOST_AUTO_TEST_SUITE(tabu_search_optimizer_test)
 
     BOOST_AUTO_TEST_CASE(event_counter_test)
     {
-        using config_type = int;
         using move_type = config_type;
-        using optimizer_type = trading::tabu_search::optimizer<config_type>;
-        using state_type = optimizer_type::state_type;
         auto gen = trading::random::int_range_generator{1, 100, 1, 5};
-        auto objective = [](const auto& config) { return static_cast<double>(config); };
         int init{gen()};
-        trading::constructive_result result{state_type{init, objective(init)}, maximization_criterion{}};
+        trading::constructive_result result{objective(init), maximization_criterion{}};
         auto constraints = [](const state_type& candidate) { return true; };
         auto neighbor = [&](const config_type& origin) {
             config_type next = gen(origin);
@@ -83,12 +84,8 @@ BOOST_AUTO_TEST_SUITE(tabu_search_optimizer_test)
 
     BOOST_AUTO_TEST_CASE(unsatisfiable_constraints_test)
     {
-        using config_type = int;
         using move_type = config_type;
-        using optimizer_type = trading::tabu_search::optimizer<config_type>;
-        using state_type = optimizer_type::state_type;
         auto gen = trading::random::int_range_generator{1, 100, 1, 5};
-        auto objective = [](const auto& config) { return static_cast<double>(config); };
         int init{gen()};
         trading::enumerative_result<state_type, maximization_criterion> result{1, maximization_criterion{}};
         auto constraints = [](const state_type& candidate) { return false; };

@@ -53,7 +53,7 @@ namespace nlohmann {
                  {"win count",          stats.win_count()},
                  {"loss count",         stats.loss_count()},
                  {"close balance",      {
-                                                {"min", stats.min_close_balance()},
+                                                {"lower_bound", stats.min_close_balance()},
                                                 {"max", stats.max_close_balance()},
                                                 {"max drawdown", {
                                                                          {"percent", stats.template max_close_balance_drawdown<trading::percent>()},
@@ -65,7 +65,7 @@ namespace nlohmann {
                                                                }}
                                         }},
                  {"equity",             {
-                                                {"min", stats.min_equity()},
+                                                {"lower_bound", stats.min_equity()},
                                                 {"max", stats.max_equity()},
                                                 {"max drawdown", {
                                                                          {"percent", stats.template max_equity_drawdown<trading::percent>()},

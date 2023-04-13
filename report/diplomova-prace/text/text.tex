@@ -1245,17 +1245,17 @@ Data o průběhu optimalizace lze shromažďovat pomocí \texttt{progress\_colle
 
 \begin{lstlisting}[caption={~Implementace genetického algoritmu},label={lst:genetic:algorithm},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 template<class Result, class... Observer>
-std::vector<state<Genes>> operator()(const std::vector<Genes>& init_genes,
+std::vector<state<State>> operator()(const std::vector<State>& init_genes,
     Result& result,
     Constraints<state_type> auto&& constraints,
-    ObjectiveFunction<Genes> auto&& fitness,
+    ObjectiveFunction<State> auto&& fitness,
     PopulationSizer auto&& size,
     Selection<state_type> auto&& select,
     Matchmaker<state_type> auto&& match,
-    Crossover<Genes> auto&& crossover,
-    Mutation<Genes> auto&& mutate,
+    Crossover<State> auto&& crossover,
+    Mutation<State> auto&& mutate,
     Replacement<state_type> auto&& replace,
-    TerminationCriteria<optimizer<Genes>> auto&& terminate,
+    TerminationCriteria<optimizer<State>> auto&& terminate,
     Observer& ... observers)
 {
     population_.clear(), population_.reserve(init_genes.size());
@@ -1781,7 +1781,7 @@ K dispozici jsou různé statistiky, které mohou pomoci lépe porozumět chová
                 "amount": 69040.4375,
                 "percent": 695.8746337890625
             },
-            "min": 9921.390625
+            "lower_bound": 9921.390625
         },
         "gross loss": -459.23828125,
         "gross profit": 69421.0625,

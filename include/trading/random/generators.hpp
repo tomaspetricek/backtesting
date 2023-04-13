@@ -33,8 +33,8 @@ namespace trading::random {
     public:
         using value_type = std::array<fraction_t, n_levels>;
 
-        explicit levels_generator(size_t unique_count = n_levels, std::size_t change_count = 1,
-                fraction_t lower_bound = base_type::default_lower_bound)
+        explicit levels_generator(size_t unique_count = n_levels,
+                fraction_t lower_bound = base_type::default_lower_bound, std::size_t change_count = 1)
                 :base_type(unique_count, lower_bound), gen_{std::random_device{}()}, change_n_{
                 validate_change_count(change_count)}
         {
@@ -106,9 +106,11 @@ namespace trading::random {
 
     public:
         using value_type = std::array<fraction_t, n_sizes>;
+        using base_type = trading::sizes_generator<n_sizes>;
 
-        explicit sizes_generator(size_t n_unique = 1, std::size_t change_n = min_change_n)
-                :trading::sizes_generator<n_sizes>(n_unique), gen_(std::random_device{}()),
+        explicit sizes_generator(size_t unique_count = base_type::default_unique_count,
+                std::size_t change_n = min_change_n)
+                :base_type(unique_count), gen_(std::random_device{}()),
                  distrib_(1, this->max_num_), change_n_{validate_change_count(change_n)}
         {
             for (std::size_t i{0}; i<indices_.size(); i++)

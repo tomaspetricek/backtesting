@@ -52,7 +52,7 @@ void test_levels_validity(Generator&& gen, Validator&& validate)
 {
     for (auto levels: gen()) {
         for (const auto& level : levels)
-            BOOST_REQUIRE(level>=gen.min());
+            BOOST_REQUIRE(level>=gen.lower_bound());
         BOOST_REQUIRE_NO_THROW(validate(levels));
     }
 }

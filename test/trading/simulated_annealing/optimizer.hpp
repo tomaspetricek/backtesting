@@ -12,11 +12,13 @@
 #include <trading/result.hpp>
 
 BOOST_AUTO_TEST_SUITE(simulated_annealing_optimizer_test)
+    using config_type = int;
+    using state_type = trading::state<config_type>;
+    using optimizer_type = trading::simulated_annealing::optimizer<state_type>;
+    auto objective = [](const auto& config) { return state_type{config, static_cast<double>(config)}; };
+
     BOOST_AUTO_TEST_CASE(usage_test)
     {
-        using config_type = int;
-        using optimizer_type = trading::simulated_annealing::optimizer<config_type>;
-        using state_type = optimizer_type::state_type;
         double start_temp{100}, min_temp{1};
         auto cooler = [](auto& optimizer) {
             optimizer.current_temperature(optimizer.current_temperature()-1);
@@ -24,16 +26,14 @@ BOOST_AUTO_TEST_SUITE(simulated_annealing_optimizer_test)
         auto appraiser = [](const auto& current, const auto& candidate) {
             return current.value-candidate.value;;
         };
-        auto objective = [](const auto& config) { return static_cast<double>(config); };
-        int init_value{1};
-        state_type init{init_value, objective(init_value)};
+        state_type init{objective(1)};
         trading::constructive_result result{init, [&](const auto& lhs, const auto& rhs) {
             return lhs.value>rhs.value;
         }};
         auto constraints = [](const auto& state) { return true; };
         auto neighbor = trading::random::int_range_generator(1, 100, 1);
         auto equilibrium = trading::simulated_annealing::fixed_equilibrium{10};
-        auto optimizer = trading::simulated_annealing::optimizer<config_type>(start_temp, min_temp);
+        auto optimizer = optimizer_type(start_temp, min_temp);
         BOOST_REQUIRE_EQUAL(optimizer.current_temperature(), start_temp);
         BOOST_REQUIRE_EQUAL(optimizer.start_temperature(), start_temp);
         BOOST_REQUIRE_EQUAL(optimizer.minimum_temperature(), min_temp);
@@ -92,9 +92,6 @@ BOOST_AUTO_TEST_SUITE(simulated_annealing_optimizer_test)
 
     BOOST_AUTO_TEST_CASE(count_events_test)
     {
-        using config_type = int;
-        using optimizer_type = trading::simulated_annealing::optimizer<config_type>;
-        using state_type = optimizer_type::state_type;
         double start_temp{100}, min_temp{1};
         auto cooler = [](auto& optimizer) {
             optimizer.current_temperature(optimizer.current_temperature()-1);
@@ -102,14 +99,12 @@ BOOST_AUTO_TEST_SUITE(simulated_annealing_optimizer_test)
         auto appraiser = [](const auto& current, const auto& candidate) {
             return current.value-candidate.value;;
         };
-        auto objective = [](const auto& config) { return static_cast<double>(config); };
         auto constraints = [](const auto& state) { return true; };
         auto neighbor = trading::random::int_range_generator(1, 100, 1);
         auto equilibrium = trading::simulated_annealing::fixed_equilibrium{10};
         auto optimizer = optimizer_type{start_temp, min_temp};
         auto counter = event_counter{};
-        int init_value{neighbor()};
-        state_type init{init_value, objective(init_value)};
+        state_type init{objective(neighbor())};
         trading::constructive_result result{init, [&](const auto& lhs, const auto& rhs) {
             return lhs.value>rhs.value;
         }};
@@ -123,9 +118,6 @@ BOOST_AUTO_TEST_SUITE(simulated_annealing_optimizer_test)
 
     BOOST_AUTO_TEST_CASE(no_constrains_satisfied_test)
     {
-        using config_type = int;
-        using optimizer_type = trading::simulated_annealing::optimizer<config_type>;
-        using state_type = optimizer_type::state_type;
         double start_temp{100}, min_temp{1};
         auto cooler = [](auto& optimizer) {
             optimizer.current_temperature(optimizer.current_temperature()-1);
@@ -133,32 +125,28 @@ BOOST_AUTO_TEST_SUITE(simulated_annealing_optimizer_test)
         auto appraiser = [](const auto& current, const auto& candidate) {
             return current.value-candidate.value;;
         };
-        auto objective = [](const auto& config) { return static_cast<double>(config); };
-        int init_value{0};
-        state_type init{init_value, objective(init_value)};
+        state_type init{objective(0)};
         trading::constructive_result result{init, [&](const auto& lhs, const auto& rhs) {
             return lhs.value>rhs.value;
         }};
         auto constraints = [](const auto& state) { return false; };
         auto neighbor = trading::random::int_range_generator(1, 100, 1);
         auto equilibrium = trading::simulated_annealing::fixed_equilibrium{10};
-        auto optimizer = trading::simulated_annealing::optimizer<config_type>(start_temp, min_temp);
+        auto optimizer = optimizer_type(start_temp, min_temp);
         optimizer(init.value, result, constraints, objective, cooler, neighbor, appraiser, equilibrium);
-        BOOST_REQUIRE_EQUAL(result.get().value, init_value);
+        BOOST_REQUIRE_EQUAL(result.get().value, init.value);
     }
 
     BOOST_AUTO_TEST_CASE(minimum_temperature_exception_test)
     {
-        using config_type = int;
         double start_temp{100}, min_temp{-1};
-        BOOST_REQUIRE_THROW(trading::simulated_annealing::optimizer<config_type>(start_temp, min_temp), std::invalid_argument);
+        BOOST_REQUIRE_THROW(optimizer_type(start_temp, min_temp), std::invalid_argument);
     }
 
     BOOST_AUTO_TEST_CASE(start_temperature_exception_test)
     {
-        using config_type = int;
         double start_temp{5}, min_temp{10};
-        BOOST_REQUIRE_THROW(trading::simulated_annealing::optimizer<config_type>(start_temp, min_temp), std::invalid_argument);
+        BOOST_REQUIRE_THROW(optimizer_type(start_temp, min_temp), std::invalid_argument);
     }
 BOOST_AUTO_TEST_SUITE_END()
 

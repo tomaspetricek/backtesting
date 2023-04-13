@@ -55,13 +55,14 @@ BOOST_AUTO_TEST_SUITE(genetic_algorithm_optimizer_test)
         }
     };
 
+    using config_type = int;
+    using state_type = trading::state<config_type>;
+    using optimizer_type = trading::genetic_algorithm::optimizer<state_type>;
+    auto objective = [](const auto& config) { return state_type{config, static_cast<double>(config)}; };
+
     BOOST_AUTO_TEST_CASE(usage_test)
     {
-        using config_type = int;
-        using optimizer_type = trading::genetic_algorithm::optimizer<config_type>;
-        using state_type = optimizer_type::state_type;
         auto generator = trading::random::int_range_generator{1, 100, 1};
-
         std::size_t population_size{100};
         std::vector<config_type> init_population;
         init_population.reserve(population_size);
@@ -69,9 +70,8 @@ BOOST_AUTO_TEST_SUITE(genetic_algorithm_optimizer_test)
             init_population.emplace_back(generator());
 
         auto termination = trading::iteration_based_termination(100);
-        auto objective = [](const auto& config) { return static_cast<double>(config); };
         int init{generator()};
-        trading::constructive_result result{state_type{init, objective(init)},
+        trading::constructive_result result{objective(init),
                                             [&](const state_type& lhs, const state_type& rhs) {
                                                 return lhs.value>rhs.value;
         }};

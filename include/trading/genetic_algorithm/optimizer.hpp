@@ -46,31 +46,32 @@ namespace trading::genetic_algorithm {
     concept PopulationSizer = std::invocable<ConcreteSizer, std::size_t> &&
             std::same_as<std::size_t, std::invoke_result_t<ConcreteSizer, std::size_t>>;
 
-    template<class Genes>
+    template<class State>
     class optimizer {
+        using state_type = State;
+        using config_type = typename State::config_type;
         std::size_t it_{0};
-        std::vector<state<Genes>> population_;
+        std::vector<state_type> population_;
 
     public:
-        using state_type = state<Genes>;
 
         template<class Result, class... Observer>
-        std::vector<state<Genes>> operator()(const std::vector<Genes>& init_genes,
+        std::vector<state_type> operator()(const std::vector<config_type>& init_genes,
                 Result& result,
                 Constraints<state_type> auto&& constraints,
-                ObjectiveFunction<Genes> auto&& fitness,
+                ObjectiveFunction<state_type> auto&& fitness,
                 PopulationSizer auto&& size,
                 Selection<state_type> auto&& select,
                 Matchmaker<state_type> auto&& match,
-                Crossover<Genes> auto&& crossover,
-                Mutation<Genes> auto&& mutate,
+                Crossover<config_type> auto&& crossover,
+                Mutation<config_type> auto&& mutate,
                 Replacement<state_type> auto&& replace,
-                TerminationCriteria<optimizer<Genes>> auto&& terminate,
+                TerminationCriteria<optimizer<state_type>> auto&& terminate,
                 Observer& ... observers)
         {
             population_.clear(), population_.reserve(init_genes.size());
             for (const auto& genes: init_genes)
-                population_.template emplace_back(state_type{genes, fitness(genes)});
+                population_.template emplace_back(fitness(genes));
 
             std::vector<state_type> parents, children;
             (observers.started(*this), ...);
@@ -83,8 +84,7 @@ namespace trading::genetic_algorithm {
                 for (const auto& mates: match(parents))
                     for (auto&& genes: crossover(mates)) {
                         genes = mutate(std::move(genes));
-                        auto child = state_type{genes, fitness(genes)};
-                        children.template emplace_back(std::move(child));
+                        children.template emplace_back(fitness(genes));
                     }
 
                 // replace
@@ -106,7 +106,7 @@ namespace trading::genetic_algorithm {
             return it_;
         }
 
-        const std::vector<state<Genes>>& population() const
+        const auto& population() const
         {
             return population_;
         }

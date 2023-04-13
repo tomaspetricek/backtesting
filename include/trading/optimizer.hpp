@@ -10,9 +10,9 @@ namespace trading {
     concept Constraints = std::invocable<ConcreteConstraints, const State&> &&
             std::same_as<bool, std::invoke_result_t<ConcreteConstraints, const State&>>;
 
-    template<class ConcreteFunction, class Config>
-    concept ObjectiveFunction = std::invocable<ConcreteFunction, const Config&> &&
-            std::same_as<double, std::invoke_result_t<ConcreteFunction, const Config&>>;
+    template<class ConcreteFunction, class State>
+    concept ObjectiveFunction = std::invocable<ConcreteFunction, const typename State::config_type&> &&
+            std::same_as<State, std::invoke_result_t<ConcreteFunction, const typename State::config_type&>>;
 
     template<class ConcreteTerminationCriteria, class Optimizer>
     concept TerminationCriteria = std::invocable<ConcreteTerminationCriteria, const Optimizer&> &&

@@ -10,6 +10,7 @@
 #include <trading/bazooka/strategy.hpp>
 #include <trading/bazooka/memory.hpp>
 #include <trading/bazooka/neighbor.hpp>
+#include <trading/bazooka/state.hpp>
 #include <trading/bazooka/statistics.hpp>
 #include <trading/brute_force/parallel/optimizer.hpp>
 #include <trading/genetic_algorithm/matchmaker.hpp>

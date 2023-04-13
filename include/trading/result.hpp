@@ -54,14 +54,14 @@ namespace trading {
     template<class Type, class Comparator>
     class enumerative_result : public result<Type, Comparator>{
         static const std::size_t padding_{2};
-        const std::size_t n_best_{};
+        const std::size_t best_count_{};
         std::vector<Type> best_;
 
     public:
         explicit enumerative_result(const size_t n_best, const Comparator& comp)
-                :n_best_(n_best), result<Type, Comparator>{comp}
+                :result<Type, Comparator>{comp}, best_count_(n_best)
         {
-            best_.reserve(n_best_+padding_);
+            best_.reserve(best_count_+padding_);
         }
 
         void update(const Type& candidate)
@@ -84,7 +84,7 @@ namespace trading {
         {
             std::vector<Type> res{best_};
             std::sort_heap(res.begin(), res.end(), this->comp_);
-            int n_remove{static_cast<int>(res.size()-n_best_)};
+            int n_remove{static_cast<int>(res.size()-best_count_)};
             if (n_remove>0) res.erase(res.end()-n_remove, res.end());
             return res;
         }

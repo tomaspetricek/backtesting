@@ -17,7 +17,7 @@ namespace trading::systematic {
     public:
         using value_type = typename trading::levels_generator<n_levels>::value_type;
 
-        explicit levels_generator(size_t unique_count = n_levels, fraction_t lower_bound = base_type::default_lower_bound)
+        levels_generator(size_t unique_count = n_levels, fraction_t lower_bound = base_type::default_lower_bound)
                 :base_type(unique_count, lower_bound) { }
 
         cppcoro::recursive_generator<value_type> operator()()
@@ -45,8 +45,10 @@ namespace trading::systematic {
     template<std::size_t n_sizes>
     class sizes_generator : public trading::sizes_generator<n_sizes> {
     public:
-        explicit sizes_generator(size_t n_unique)
-                :trading::sizes_generator<n_sizes>(n_unique) { }
+        using base_type = trading::sizes_generator<n_sizes>;
+
+        sizes_generator(size_t unique_count = base_type::default_unique_count)
+                :trading::sizes_generator<n_sizes>(unique_count) { }
 
         using value_type = typename trading::sizes_generator<n_sizes>::value_type;
 

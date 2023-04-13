@@ -4,7 +4,10 @@ src/__pycache__/widgets.cpython-310.pyc
 cmake-build-debug/
 cmake-build-debug-coverage/
 src/data/in/ohlcv-eth-usdt-1-min_.csv
+src/data/in/ohlcv-eth-usdt-1-lower_bound.csv
+src/data/in/ohlcv-ltc-usdt-1-lower_bound.csv
+src/data/in/ohlcv-xrp-usdt-1-lower_bound.csv
+include/trading/Doxyfile
 src/data/in/ohlcv-eth-usdt-1-min.csv
 src/data/in/ohlcv-ltc-usdt-1-min.csv
 src/data/in/ohlcv-xrp-usdt-1-min.csv
-include/trading/Doxyfile
