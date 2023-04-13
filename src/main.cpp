@@ -131,9 +131,9 @@ void to_csv(chart_series<n_levels>&& series, const std::filesystem::path& out_di
     std::array<std::string, n_levels+1> entry_header;
     entry_header[0] = "time";
     for (std::size_t i{1}; i<entry_header.size(); i++)
-        entry_header[i] = fmt::format("level {}", i);
+        entry_header[i] = fmt::format("entry level {}", i);
     write_csv({out_dir/"entry-indic-series.csv"}, entry_header, series.entry);
-    write_csv({out_dir/"exit-indic-series.csv"}, std::array<std::string, 2>{"time", "exit indicator"}, series.exit);
+    write_csv({out_dir/"exit-indic-series.csv"}, std::array<std::string, 2>{"time", "exit"}, series.exit);
     write_csv({out_dir/"open-order-series.csv"}, std::array<std::string, 2>{"time", "open order"}, series.open_order);
     write_csv({out_dir/"close-order-series.csv"}, std::array<std::string, 2>{"time", "close order"},
             series.close_order);
@@ -197,9 +197,11 @@ int main()
     std::filesystem::create_directory(optim_dir);
     std::filesystem::path experiment_dir{try_create_experiment_directory(optim_dir)};
 
+    // create logger
     std::ofstream log_file{experiment_dir/"log.txt"};
     auto logger = std::make_shared<logger_t>(tee_type{std::cout, log_file});
 
+    // read candles
     std::string base{"eth"}, quote{"usdt"};
     std::filesystem::path candles_path{in_dir/fmt::format("ohlcv-{}-{}-1-min.csv", base, quote)};
 
@@ -228,7 +230,8 @@ int main()
             }},
     }});
 
-    std::size_t levels_unique_count{10}, sizes_unique_count{8};
+    // specify search space
+    std::size_t levels_unique_count{n_levels}, sizes_unique_count{8};
     int period_from{2}, period_to{60}, period_step{2};
     etl::vector<bazooka::indicator_tag, 2> tags{bazooka::indicator_tag::sma};
     trading::fraction_t levels_lower_bound{13, 20};
@@ -240,7 +243,6 @@ int main()
         tags_doc.template emplace_back(os.str());
         os.clear();
     }
-
     settings.emplace(json{"search space", {
             {"levels", {
                     {"count", n_levels},
@@ -271,7 +273,7 @@ int main()
 
     // create result
     enumerative_result<state_type, maximization> result{30, maximization()};
-    auto constraints = [](const state_type& curr) { return curr.stats.net_profit()>0.0;};
+    auto constraints = [](const state_type& curr) { return curr.stats.net_profit()>0.0; };
     auto optim_criterion = prom_criterion{};
 
     // create objective
@@ -283,6 +285,9 @@ int main()
     };
 
     if (optimizer_name=="brute force") {
+        brute_force::parallel::optimizer<state_type> optimizer{};
+
+        // create generators
         systematic::levels_generator<n_levels> sys_levels{levels_unique_count, levels_lower_bound};
         systematic::sizes_generator<n_levels> sys_sizes{sizes_unique_count};
         systematic::int_range_generator sys_periods{period_from, period_to, period_step};
@@ -308,9 +313,7 @@ int main()
                   << "sizes count: " << sizes_count << std::endl
                   << "total count: " << period_count*tag_count*levels_count*sizes_count << std::endl;
 
-        // use brute force optimizer
-        brute_force::parallel::optimizer<state_type> optimizer{};
-
+        // optimize
         *logger << "began: " << boost::posix_time::second_clock::local_time() << std::endl;
         duration = measure_duration(to_function([&] {
             optimizer(result, constraints, objective, search_space);
@@ -321,8 +324,6 @@ int main()
     else if (optimizer_name=="simulated annealing") {
         double start_temp{128}, min_temp{26};
         std::size_t n_tries{256};
-        float decay{50};
-
         simulated_annealing::optimizer<state_type> optimizer{start_temp, min_temp};
         auto cooler = simulated_annealing::basic_cooler{};
         auto equilibrium = simulated_annealing::fixed_equilibrium{n_tries};
@@ -339,31 +340,36 @@ int main()
 //                {"decay", cooler.decay()}
         }});
 
+        // create generators
         random::levels_generator<n_levels> rand_levels{levels_unique_count, levels_lower_bound};
         random::sizes_generator<n_levels> rand_sizes{sizes_unique_count};
         random::int_range_generator rand_period{period_from, period_to, period_to};
-        bazooka::neighbor<n_levels> neighbor{rand_levels, rand_sizes, rand_period};
-        bazooka::configuration<n_levels> init_config{tags[0], static_cast<std::size_t>(rand_period()), rand_levels(),
-                                                     rand_sizes()};
 
-        using progress_observer_type = simulated_annealing::progress_collector;
-        progress_observer_type progress_observer;
+        bazooka::neighbor<n_levels> neighbor{rand_levels, rand_sizes, rand_period};
+        bazooka::configuration<n_levels> init{tags[0], static_cast<std::size_t>(rand_period()), rand_levels(),
+                                              rand_sizes()};
+        auto appraise = [](const state_type& current, const state_type& candidate) -> double {
+            return current.value-candidate.value;
+        };
+
+        simulated_annealing::progress_collector progress_observer;
         simulated_annealing::progress_reporter reporter{logger};
         config_type next;
 
+        // optimize
+        *logger << "began: " << boost::posix_time::second_clock::local_time() << std::endl;
         duration = measure_duration([&]() {
-            optimizer(init_config, result, constraints, objective, cooler,
+            optimizer(init, result, constraints, objective, cooler,
                     [&](const config_type& genes) {
                         std::tie(next, std::ignore) = neighbor(genes);
                         return next;
                     },
-                    [](const state_type& current, const state_type& candidate) -> double {
-                        return current.value-candidate.value;
-                    },
-                    equilibrium, progress_observer, reporter);
+                    appraise, equilibrium, progress_observer, reporter);
         });
-        *logger << "duration: " << duration << std::endl;
+        *logger << "ended: " << boost::posix_time::second_clock::local_time() << std::endl
+                << "duration: " << duration << std::endl;
 
+        // save progress
         io::csv::writer<3> writer(experiment_dir/"progress.csv");
         writer.write_header({"curr state value", "temperature", "mean threshold worse acceptance"});
         for (const auto& progress: progress_observer.get())
@@ -408,20 +414,23 @@ int main()
         genetic_algorithm::progress_observers observers{progress_collector, reporter};
 
         auto neighbor = bazooka::neighbor<n_levels>{rand_levels, rand_sizes, rand_period};
-        config_type next;
+        auto mutation = [&](const config_type& genes) {
+            config_type next;
+            std::tie(next, std::ignore) = neighbor(genes);
+            return next;
+        };
+
         genetic_algorithm::optimizer<state_type> optimizer;
 
-        auto duration = measure_duration([&]() {
-            optimizer(init_genes, result, constraints, objective,
-                    sizer, selection, matchmaker, crossover_type{},
-                    [&](const config_type& genes) {
-                        std::tie(next, std::ignore) = neighbor(genes);
-                        return next;
-                    },
-                    replacement, termination, observers);
+        *logger << "began: " << boost::posix_time::second_clock::local_time() << std::endl;
+        duration = measure_duration([&]() {
+            optimizer(init_genes, result, constraints, objective, sizer, selection, matchmaker, crossover_type{},
+                    mutation, replacement, termination, observers);
         });
-        *logger << "duration: " << duration << std::endl;
+        *logger << "ended: " << boost::posix_time::second_clock::local_time() << std::endl
+                << "duration: " << duration << std::endl;
 
+        // save progress
         io::csv::writer<3> writer(experiment_dir/"progress.csv");
         writer.write_header({"mean fitness", "best fitness", "population size"});
         for (const auto& progress: progress_collector.get())
@@ -437,7 +446,7 @@ int main()
 
         bazooka::neighbor<n_levels> neighbor{rand_levels, rand_sizes, rand_period};
         bazooka::configuration<n_levels> init{tags[0], static_cast<std::size_t>(rand_period()),
-                                                     rand_levels(), rand_sizes()};
+                                              rand_levels(), rand_sizes()};
 
         auto tenure = tabu_search::fixed_tenure{tenure_it_count};
         bazooka::configuration_memory memory{
@@ -478,18 +487,19 @@ int main()
         tabu_search::progress_collector collector;
         tabu_search::progress_reporter reporter{logger};
         tabu_search::optimizer<state_type> optimizer{};
+        auto aspiration = [&](const auto& candidate, const auto& optimizer) -> bool {
+            return result.compare(candidate, optimizer.best_state());
+        };
 
+        *logger << "began: " << boost::posix_time::second_clock::local_time() << std::endl;
         duration = measure_duration([&]() {
-            optimizer(init, result, constraints, objective, memory,
-                    neighbor, neighborhood_sizer, termination,
-                    [&](const auto& candidate, const auto& optimizer) -> bool {
-                        return result.compare(candidate, optimizer.best_state());
-                    },
-                    collector, reporter
-            );
+            optimizer(init, result, constraints, objective, memory, neighbor, neighborhood_sizer, termination,
+                    aspiration, collector, reporter);
         });
-        *logger << "duration: " << duration << std::endl;
+        *logger << "ended: " << boost::posix_time::second_clock::local_time() << std::endl
+                << "duration: " << duration << std::endl;
 
+        // save progress
         io::csv::writer<3> writer(experiment_dir/"progress.csv");
         writer.write_header({"best fitness", "curr fitness", "tabu list size"});
         for (const auto& progress: collector.get())
@@ -515,7 +525,7 @@ int main()
     if (top.size()) {
         chart_series<n_levels>::collector series_collector;
         simulator(create_trader(top[0].config), series_collector);
-        std::filesystem::path best_dir{out_dir/"best-series"};
+        std::filesystem::path best_dir{experiment_dir/"best-series"};
         std::filesystem::create_directory(best_dir);
         to_csv(series_collector.get(), best_dir);
     }

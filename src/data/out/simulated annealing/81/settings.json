@@ -1,0 +1,45 @@
+{
+    "candles": {
+        "count": 2526055,
+        "currency pair": {
+            "base": "ltc",
+            "quote": "usdt"
+        },
+        "from": 1515024000,
+        "to": 1667066400
+    },
+    "cooler": {
+        "type": "basic cooler"
+    },
+    "optimizer": {
+        "equilibrium": {
+            "tries count": 128
+        },
+        "minimum temperature": 26.0,
+        "start temperature": 128.0
+    },
+    "resampling": {
+        "averaging method": "ohlc4",
+        "period[min]": 30
+    },
+    "search space": {
+        "levels": {
+            "count": 4,
+            "unique count": 15
+        },
+        "moving average": {
+            "period": {
+                "from": 1,
+                "step": 1,
+                "to": 60
+            },
+            "types": [
+                "sma",
+                "ema"
+            ]
+        },
+        "open order sizes": {
+            "unique count": 30
+        }
+    }
+}

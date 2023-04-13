@@ -1,0 +1,37 @@
+{
+    "candles": {
+        "count": 2524282,
+        "currency pair": {
+            "base": "eth",
+            "quote": "usdt"
+        },
+        "from": 1515024000,
+        "to": 1666960020
+    },
+    "duration[ns]": 1401000323550,
+    "initial genes count": 1000,
+    "resampling": {
+        "averaging method": "ohlc4",
+        "period[min]": 30
+    },
+    "search space": {
+        "levels": {
+            "count": 4,
+            "unique count": 30
+        },
+        "moving average": {
+            "period": {
+                "from": 1,
+                "step": 1,
+                "to": 60
+            },
+            "types": [
+                "sma",
+                "ema"
+            ]
+        },
+        "open order sizes": {
+            "unique count": 30
+        }
+    }
+}

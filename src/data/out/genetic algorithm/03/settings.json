@@ -1,0 +1,17 @@
+{
+    "candles": {
+        "count": 2524282,
+        "currency pair": {
+            "base": "eth",
+            "quote": "usdt"
+        },
+        "from": 1515024000,
+        "to": 1666960020
+    },
+    "duration[ns]": 596574450727,
+    "initial genes count": 100,
+    "resampling": {
+        "averaging method": "ohlc4",
+        "period[min]": 30
+    }
+}

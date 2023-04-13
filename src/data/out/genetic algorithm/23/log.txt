@@ -1,0 +1,32 @@
+candles read:
+from: 2018-Jan-04 00:00:00
+to: 2022-Oct-29 18:00:00
+difference: 1759d 18:00:00.000000
+count: 2524282
+duration: 4.768142s
+it: 0, population size: 506, mean fitness: 198.823, best fitness: 814.271
+it: 1, population size: 500, mean fitness: 282.124, best fitness: 988.784
+it: 2, population size: 496, mean fitness: 372.871, best fitness: 998.46
+it: 3, population size: 492, mean fitness: 465.26, best fitness: 998.46
+it: 4, population size: 488, mean fitness: 507.526, best fitness: 1023.3
+it: 5, population size: 484, mean fitness: 529.332, best fitness: 1033.25
+it: 6, population size: 480, mean fitness: 608.449, best fitness: 1033.25
+it: 7, population size: 476, mean fitness: 628.858, best fitness: 1036.94
+it: 8, population size: 472, mean fitness: 663.134, best fitness: 1036.94
+it: 9, population size: 468, mean fitness: 694.718, best fitness: 1045.3
+it: 10, population size: 464, mean fitness: 666.762, best fitness: 1052.67
+it: 11, population size: 460, mean fitness: 697.786, best fitness: 1069.49
+it: 12, population size: 456, mean fitness: 723.075, best fitness: 1069.49
+it: 13, population size: 452, mean fitness: 731.787, best fitness: 1084.18
+it: 14, population size: 448, mean fitness: 729.565, best fitness: 1084.18
+it: 15, population size: 444, mean fitness: 746.656, best fitness: 1089.99
+it: 16, population size: 440, mean fitness: 766.37, best fitness: 1096.74
+it: 17, population size: 436, mean fitness: 780.82, best fitness: 1120.11
+it: 18, population size: 432, mean fitness: 753.043, best fitness: 1120.11
+it: 19, population size: 428, mean fitness: 781.098, best fitness: 1120.11
+it: 20, population size: 424, mean fitness: 790.52, best fitness: 1120.11
+it: 21, population size: 420, mean fitness: 803.86, best fitness: 1120.11
+it: 22, population size: 416, mean fitness: 772.154, best fitness: 1120.11
+it: 23, population size: 412, mean fitness: 778.903, best fitness: 1126.81
+it: 24, population size: 408, mean fitness: 813.709, best fitness: 1126.81
+duration: 4:01.893822

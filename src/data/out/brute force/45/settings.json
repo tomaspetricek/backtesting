@@ -1,0 +1,35 @@
+{
+    "candles": {
+        "count": 2725146,
+        "currency pair": {
+            "base": "eth",
+            "quote": "usdt"
+        },
+        "from": 1502942400,
+        "to": 1666960020
+    },
+    "resampling": {
+        "averaging method": "ohlc4",
+        "period[min]": 30
+    },
+    "search space": {
+        "levels": {
+            "count": 3,
+            "lower bound": "16/20",
+            "unique count": 15
+        },
+        "moving average": {
+            "period": {
+                "from": 30,
+                "step": 2,
+                "to": 60
+            },
+            "types": [
+                "sma"
+            ]
+        },
+        "open order sizes": {
+            "unique count": 15
+        }
+    }
+}
