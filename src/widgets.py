@@ -39,10 +39,11 @@ class CandlestickWidget:
 
     def _create_labels(self):
         self._labels = [
-            'candlestick wick', 'candlestick body',
+            'Knot svíčky', 'Tělo svíčky',
             *list(self._entry_indic_series),
             *list(self._exit_indic_series),
-            "open order", "close order"
+            self._open_order_series.columns[0],
+            self._close_order_series.columns[0]
         ]
 
     def _create_slider(self):
@@ -52,7 +53,7 @@ class CandlestickWidget:
         slider_max_index = len(self._candle_series.index) - self._n_points_visible - 1
         slider_max_time = self._candle_series.index[slider_max_index]
         slider_max_val = date2num(slider_max_time)
-        self._time_slider = Slider(slider_ax, "time", slider_min_val, slider_max_val)
+        self._time_slider = Slider(slider_ax, "Čas", slider_min_val, slider_max_val)
 
         # add time ticks
         slider_ax.add_artist(slider_ax.xaxis)
@@ -73,20 +74,20 @@ class CandlestickWidget:
                              type='scatter', markersize=1, marker='*'),
             mpf.make_addplot(self._exit_indic_series.loc[min_time:max_time], ax=self._ax,
                              type='scatter', markersize=1, marker='*'),
-            mpf.make_addplot(self._close_order_series.loc[min_time:max_time], ax=self._ax,
-                             type='scatter', markersize=200, marker='v'),
             mpf.make_addplot(self._open_order_series.loc[min_time:max_time], ax=self._ax,
                              type='scatter', markersize=200, marker='^'),
+            mpf.make_addplot(self._close_order_series.loc[min_time:max_time], ax=self._ax,
+                             type='scatter', markersize=200, marker='v'),
         ]
         mpf.plot(self._candle_series.loc[min_time:max_time], ax=self._ax,
-                 addplot=addons, type='candle', style='binance')
+                 addplot=addons, type='candle', style='binance', ylabel="Cena")
         self._ax.legend(self._labels, loc='center left', bbox_to_anchor=(1, 0.5))
 
     def _update(self, min_pos):
         min_time = num2date(min_pos)
         max_time = num2date(min_pos) + self._delta_time
         self._plot_data_points(min_time, max_time)
-        self._time_slider.valtext.set_text(min_time.strftime("%m/%d/%Y, %H:%M:%S"))
+        self._time_slider.valtext.set_text(min_time.strftime("Od %d. %m. %Y, %H:%M:%S"))
         self._fig.canvas.draw_idle()
 
     def show(self):

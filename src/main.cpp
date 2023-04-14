@@ -231,10 +231,10 @@ int main()
     }});
 
     // specify search space
-    std::size_t levels_unique_count{n_levels}, sizes_unique_count{8};
-    int period_from{2}, period_to{60}, period_step{2};
+    std::size_t levels_unique_count{15}, sizes_unique_count{10};
+    int period_from{3}, period_to{120}, period_step{3};
     etl::vector<bazooka::indicator_tag, 2> tags{bazooka::indicator_tag::sma};
-    trading::fraction_t levels_lower_bound{13, 20};
+    trading::fraction_t levels_lower_bound{15, 20};
 
     json tags_doc;
     std::ostringstream os;
@@ -262,12 +262,12 @@ int main()
             }}});
 
     // create simulator
-    std::size_t resampling_period{std::chrono::minutes(15).count()};
+    std::size_t resampling_period{std::chrono::minutes(60).count()};
     auto averager = candle::ohlc4{};
     trading::simulator simulator{candles, static_cast<std::size_t>(resampling_period), averager, 100};
 
     settings.emplace(json{"resampling", {
-            {"period[lower_bound]", resampling_period},
+            {"period[min]", resampling_period},
             {"averaging method", decltype(averager)::name}
     }});
 
@@ -275,6 +275,7 @@ int main()
     enumerative_result<state_type, maximization> result{30, maximization()};
     auto constraints = [](const state_type& curr) { return curr.stats.net_profit()>0.0; };
     auto optim_criterion = prom_criterion{};
+    settings.emplace(json{"optimization criterion", decltype(optim_criterion)::name()});
 
     // create objective
     auto objective = [&](const config_type& curr) {

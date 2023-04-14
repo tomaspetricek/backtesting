@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <cassert>
+#include <string>
 
 namespace trading {
     struct prom_criterion {
@@ -27,6 +28,11 @@ namespace trading {
             }
 
             return ((adjusted_gross_profit-adjusted_gross_loss)/stats.init_balance())*100;
+        }
+
+        static std::string name()
+        {
+            return "prom";
         }
     };
 }
