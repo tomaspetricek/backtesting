@@ -11,3 +11,5 @@ include/trading/Doxyfile
 src/data/in/ohlcv-eth-usdt-1-min.csv
 src/data/in/ohlcv-ltc-usdt-1-min.csv
 src/data/in/ohlcv-xrp-usdt-1-min.csv
+src/data/in/ADAUSDT.csv
+*.csv
