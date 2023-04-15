@@ -1,0 +1,9 @@
+candles read:
+from: 2020-Aug-11 06:00:00
+to: 2023-Apr-11 15:55:00
+difference: 973d 09:55:00.000000
+count: 1400292
+duration: 1.606254s
+began: 2023-Apr-15 05:38:57
+ended: 2023-Apr-15 06:29:06
+duration: 50:08.991792

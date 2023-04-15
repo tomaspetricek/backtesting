@@ -1,0 +1,9 @@
+candles read:
+from: 2017-Dec-13 03:32:00
+to: 2023-Apr-12 08:53:00
+difference: 1946d 05:21:00.000000
+count: 2794419
+duration: 3.233617s
+began: 2023-Apr-15 04:08:22
+ended: 2023-Apr-15 05:38:55
+duration: 01:30:33.266529

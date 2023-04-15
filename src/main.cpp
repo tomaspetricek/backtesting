@@ -236,9 +236,9 @@ int main()
         }});
 
         // specify search space
-        std::size_t levels_unique_count{15}, sizes_unique_count{6};
-        int period_from{3}, period_to{60}, period_step{3};
-        etl::vector<bazooka::indicator_tag, 2> tags{bazooka::indicator_tag::sma, bazooka::indicator_tag::ema};
+        std::size_t levels_unique_count{20}, sizes_unique_count{6};
+        int period_from{3}, period_to{120}, period_step{3};
+        etl::vector<bazooka::indicator_tag, 2> tags{bazooka::indicator_tag::sma};
         trading::fraction_t levels_lower_bound{15, 20};
 
         json tags_doc;
