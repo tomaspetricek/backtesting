@@ -1709,36 +1709,37 @@ Obsahují informace o historických datech, převzorkování a vyhledávacím pr
 \begin{lstlisting}[caption={~Společné části nastavení},label={lst:common:settings},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 {
     "candles": {
-        "count": 2725146,
+        "count": 2160979,
         "currency pair": {
-            "base": "eth",
-            "quote": "usdt"
+            "base": "ZRX",
+            "quote": "USDT"
         },
-        "from": 1502942400,
-        "to": 1666960020
+        "from": 1551326400,
+        "to": 1681230420
     },
+    "optimization criterion": "prom",
     "resampling": {
         "averaging method": "ohlc4",
-        "period[min]": 30
+        "period[min]": 15
     },
     "search space": {
-        "levels": {
-            "count": 3,
-            "unique count": 5
-        },
-        "moving average": {
+        "indicator": {
             "period": {
                 "from": 3,
                 "step": 3,
-                "to": 36
+                "to": 105
             },
             "types": [
-                "sma",
-                "ema"
+                "sma"
             ]
         },
+        "levels": {
+            "count": 3,
+            "lower bound": "12/20",
+            "unique count": 15
+        },
         "open order sizes": {
-            "unique count": 5
+            "unique count": 11
         }
     }
 }
@@ -1879,6 +1880,27 @@ duration: 15:42.121436
 
 \subsection{Experimenty}
 
+\begin{table}[]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Sada}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Období\\ převzorkování\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Úrovně nákupu\\ počet jedinečných hodnot\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Úrovně nákupu\\ spodní hranice (\%) \end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Velikosti nákupu\\ počet jedinečných hodnot\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Období\\ od\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Období\\ do\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Období\\ krok\end{tabular}} &
+  \textbf{Ukazatelé} \\ \hline
+1 & 45 & 15 & -25,0 & 6  & 3 & 60  & 3 & \([\begin{array}{cc} SMA & EMA \end{array}]\) \\ \hline
+2 & 45 & 20 & -25,0 & 6  & 3 & 120 & 3 & \([\begin{array}{c} SMA \end{array}]\)        \\ \hline
+3 & 15 & 15 & -40,0 & 11 & 3 & 105 & 3 & \([\begin{array}{c} SMA \end{array}]\)        \\ \hline
+\end{tabular}%
+}
+\end{table}
+
 % Please add the following required packages to your document preamble:
 % \usepackage{graphicx}
 \begin{table}[!htbp]
@@ -1902,32 +1924,29 @@ ZRX  & SMA & 15 & \([\begin{array}{ccc} -14,1 & -15,6 & -21,9 \end{array}]\) & \
 }
 \end{table}
 
-% Please add the following required packages to your document preamble:
-% \usepackage{graphicx}
 \begin{table}[!htbp]
 \centering
 \caption[Přehled vybraných statistik z 1. sady experimentů]{~Přehled vybraných statistik z 1. sady experimentů}
 \label{tab:brute:force:optimization}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{|l|c|c|c|c|c|c|}
+\begin{tabular}{|l|c|c|c|c|c|}
 \hline
 \multicolumn{1}{|c|}{\textbf{Měna}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Zisk\\ (USDT)\end{tabular}} &
+  \textbf{PROM} &
+  \textbf{Zisk (\%)} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Ziskový\\ faktor\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Počet\\ ziskových\\ pozic\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Počet\\ ztrátových\\ pozic\end{tabular}} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Největší sestupný pohyb\\ zůstatku po uzavření pozice (\%)\end{tabular}} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Největší sestupný pohyb\\ čisté hodnoty (\%)\end{tabular}} \\ \hline
-ADA  & 91 343,8  & 65,9  & 38 & 3  & -6,4  & -26,4 \\ \hline
-BTC  & 51 281,2  & 5,3   & 56 & 10 & -26,7 & -46,7 \\ \hline
-DASH & 18 533,5  & 13,4  & 27 & 3  & -9,8  & -40,0 \\ \hline
-DOGE & 154 174,1 & 35,5  & 57 & 4  & -4,7  & -22,2 \\ \hline
-ETH  & 94 053,5  & 5,1   & 38 & 7  & -8,5  & -47,4 \\ \hline
-LTC  & 88 561,4  & 14,9  & 57 & 10 & -6,2  & -38,5 \\ \hline
-SOL  & 26 279,3  & 3,5   & 95 & 23 & -16,7 & -33,2 \\ \hline
-XLM  & 67 448,1  & 947,8 & 53 & 3  & -0,3  & -42,5 \\ \hline
-XRP  & 29 239,1  & 5,9   & 58 & 8  & -18,3 & -24,9 \\ \hline
-ZRX  & 32 671,4  & 165,5 & 33 & 3  & -0,3  & -36,7 \\ \hline
+ADA  & 754,8   & 913,4   & 65,9  & -6,4  & -26,4 \\ \hline
+BTC  & 391,0   & 512,8   & 5,3   & -26,7 & -46,7 \\ \hline
+DASH & 138,1   & 185,3   & 13,4  & -9,8  & -40,0 \\ \hline
+DOGE & 1 309,3 & 1 541,7 & 35,5  & -4,7  & -22,2 \\ \hline
+ETH  & 664,5   & 940,5   & 5,1   & -8,5  & -47,4 \\ \hline
+LTC  & 739,8   & 885,6   & 14,9  & -6,2  & -38,5 \\ \hline
+SOL  & 202,5   & 262,8   & 3,5   & -16,7 & -33,2 \\ \hline
+XLM  & 581,3   & 674,5   & 947,8 & -0,3  & -42,5 \\ \hline
+XRP  & 225,2   & 292,4   & 5,9   & -18,3 & -24,9 \\ \hline
+ZRX  & 268,3   & 326,7   & 165,5 & -0,3  & -36,7 \\ \hline
 \end{tabular}%
 }
 \end{table}
@@ -1958,32 +1977,29 @@ ZRX  & SMA & 15 & \([\begin{array}{ccc} -15,5 & -17,9 & -22,6 \end{array}]\) & \
 }
 \end{table}
 
-% Please add the following required packages to your document preamble:
-% \usepackage{graphicx}
 \begin{table}[!htbp]
 \centering
 \caption[Přehled vybraných statistik z 2. sady experimentů]{~Přehled vybraných statistik z 2. sady experimentů}
 \label{tab:brute:force:optimization}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{|l|c|c|c|c|c|c|}
+\begin{tabular}{|l|c|c|c|c|c|}
 \hline
 \multicolumn{1}{|c|}{\textbf{Měna}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Zisk\\ (USDT)\end{tabular}} &
+  \textbf{PROM} &
+  \textbf{Zisk (\%)} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Ziskový\\ faktor\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Počet\\ ziskových\\ pozic\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Počet\\ ztrátových\\ pozic\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Největší sestupný pohyb zůstatku\\ po uzavření pozice (\%)\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Největší sestupný pohyb\\ zůstatku po uzavření pozice (\%)\end{tabular}} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Největší sestupný pohyb\\ čisté hodnoty (\%)\end{tabular}} \\ \hline
-ADA  & 80 175,2  & 28,8  & 26 & 3  & -17,1 & -26,4 \\ \hline
-BTC  & 48 372,2  & 4,7   & 67 & 16 & -28,1 & -47,5 \\ \hline
-DASH & 19 288,5  & 20,1  & 23 & 4  & -8,9  & -40,0 \\ \hline
-DOGE & 147 337,4 & 86,2  & 59 & 6  & -2,0  & -22,2 \\ \hline
-ETH  & 80 965,8  & 22,8  & 46 & 4  & -8,6  & -29,3 \\ \hline
-LTC  & 85 502,4  & 5,7   & 64 & 13 & -9,6  & -38,5 \\ \hline
-SOL  & 17 851,9  & 4,8   & 74 & 18 & -11,1 & -20,2 \\ \hline
-XLM  & 78 155,0  & 139,3 & 52 & 10 & -0,3  & -42,5 \\ \hline
-XRP  & 32 632,7  & 3,8   & 59 & 10 & -22,5 & -33,4 \\ \hline
-ZRX  & 35 283,2  & inf   & 28 & 0  & 0,0   & -33,0 \\ \hline
+ADA  & 622,2   & 801,8   & 28,8  & -17,1 & -26,4 \\ \hline
+BTC  & 375,7   & 483,7   & 4,7   & -28,1 & -47,5 \\ \hline
+DASH & 145,5   & 192,9   & 20,1  & -8,9  & -40,0 \\ \hline
+DOGE & 1 272,2 & 1 473,4 & 86,2  & -2,0  & -22,2 \\ \hline
+ETH  & 666,3   & 809,7   & 22,8  & -8,6  & -29,3 \\ \hline
+LTC  & 674,8   & 855,0   & 5,7   & -9,6  & -38,5 \\ \hline
+SOL  & 141,3   & 178,5   & 4,8   & -11,1 & -20,2 \\ \hline
+XLM  & 670,6   & 781,6   & 139,3 & -0,3  & -42,5 \\ \hline
+XRP  & 230,9   & 326,3   & 3,8   & -22,5 & -33,4 \\ \hline
+ZRX  & 286,2   & 352,8   & inf   & 0,0   & -33,0 \\ \hline
 \end{tabular}%
 }
 \end{table}
@@ -2025,25 +2041,24 @@ ZRX  & SMA & 54  & \([\begin{array}{ccc} -10,0 & -15,0 & -22,5 \end{array}]\) & 
 \caption[Přehled vybraných statistik z 3. sady experimentů]{~Přehled vybraných statistik z 3. sady experimentů}
 \label{tab:brute:force:optimization}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{|l|c|c|c|c|c|c|}
+\begin{tabular}{|l|c|c|c|c|c|}
 \hline
 \multicolumn{1}{|c|}{\textbf{Měna}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Zisk\\ (USDT)\end{tabular}} &
+  \textbf{PROM} &
+  \textbf{Zisk (\%)} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Ziskový\\ faktor\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Počet\\ ziskových\\ pozic\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Počet\\ ztrátových\\ pozic\end{tabular}} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Největší sestupný pohyb\\ zůstatku po uzavření pozice (\%)\end{tabular}} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Největší sestupný pohyb\\ čisté hodnoty (\%)\end{tabular}} \\ \hline
-ADA  & 48 393,8  & 14,2 & 50  & 6  & -3,0  & -26,4 \\ \hline
-BTC  & 54 068,4  & 5,2  & 81  & 23 & -24,8 & -49,3 \\ \hline
-DASH & 18 931,0  & 60,3 & 22  & 2  & -3,0  & -33,6 \\ \hline
-DOGE & 143 833,9 & 11,2 & 37  & 3  & -7,5  & -43,3 \\ \hline
-ETH  & 90 585,8  & 3,7  & 126 & 49 & -22,6 & -35,5 \\ \hline
-LTC  & 72 082,8  & 3,5  & 76  & 15 & -15,1 & -38,5 \\ \hline
-SOL  & 25 367,1  & 2,3  & 102 & 36 & -31,2 & -41,9 \\ \hline
-XLM  & 48 755,6  & 13,4 & 49  & 10 & -4,7  & -42,5 \\ \hline
-XRP  & 28 346,7  & 7,6  & 71  & 14 & -17,8 & -33,4 \\ \hline
-ZRX  & 32 686,3  & 4,0  & 68  & 21 & -19,8 & -37,7 \\ \hline
+ADA  & 395,3   & 483,9   & 14,2 & -3,0  & -26,4 \\ \hline
+BTC  & 439,0   & 540,7   & 5,2  & -24,8 & -49,3 \\ \hline
+DASH & 146,0   & 189,3   & 60,3 & -3,0  & -33,6 \\ \hline
+DOGE & 1 097,5 & 1 438,3 & 11,2 & -7,5  & -43,3 \\ \hline
+ETH  & 746,3   & 905,9   & 3,7  & -22,6 & -35,5 \\ \hline
+LTC  & 528,5   & 720,8   & 3,5  & -15,1 & -38,5 \\ \hline
+SOL  & 177,4   & 253,7   & 2,3  & -31,2 & -41,9 \\ \hline
+XLM  & 399,8   & 487,6   & 13,4 & -4,7  & -42,5 \\ \hline
+XRP  & 233,2   & 283,5   & 7,6  & -17,8 & -33,4 \\ \hline
+ZRX  & 250,2   & 326,9   & 4,0  & -19,8 & -37,7 \\ \hline
 \end{tabular}%
 }
 \end{table}
