@@ -1,12 +1,12 @@
 {
     "candles": {
-        "count": 2591038,
+        "count": 2616803,
         "currency pair": {
-            "base": "XRP",
+            "base": "ADA",
             "quote": "USDT"
         },
-        "from": 1525421460,
-        "to": 1681236540
+        "from": 1523937720,
+        "to": 1681298760
     },
     "optimization criterion": "prom",
     "resampling": {

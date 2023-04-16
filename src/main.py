@@ -17,7 +17,7 @@ def get_series(csv_path, sep=',', time_col="time"):
 
 
 def main():
-    out_dir = "data/out/brute force/56-doge"
+    out_dir = "data/out/brute force/72/56-doge"
     series_dir = os.path.join(out_dir, "best-series")
     in_dir = "./data/in"
     candles_path = os.path.join(in_dir, "ohlcv-eth-usdt-1-min.csv")

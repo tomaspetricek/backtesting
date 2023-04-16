@@ -1,24 +1,24 @@
 {
     "candles": {
-        "count": 2591038,
+        "count": 2963250,
         "currency pair": {
-            "base": "XRP",
+            "base": "BTC",
             "quote": "USDT"
         },
-        "from": 1525421460,
-        "to": 1681236540
+        "from": 1502942400,
+        "to": 1681251000
     },
     "optimization criterion": "prom",
     "resampling": {
         "averaging method": "ohlc4",
-        "period[min]": 15
+        "period[min]": 45
     },
     "search space": {
         "indicator": {
             "period": {
                 "from": 3,
                 "step": 3,
-                "to": 105
+                "to": 120
             },
             "types": [
                 "sma"
@@ -26,11 +26,11 @@
         },
         "levels": {
             "count": 3,
-            "lower bound": "12/20",
-            "unique count": 15
+            "lower bound": "15/20",
+            "unique count": 20
         },
         "open order sizes": {
-            "unique count": 11
+            "unique count": 6
         }
     }
 }

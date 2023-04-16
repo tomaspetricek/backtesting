@@ -13,33 +13,24 @@
         "averaging method": "ohlc4",
         "period[min]": 15
     },
-    "search space": [
-        [
-            "levels",
-            {
-                "count": 3,
-                "lower bound": "12/20",
-                "unique count": 15
+    "search space": {
+        "indicator": {
+            "period": {
+                "from": 3,
+                "step": 3,
+                "to": 105
             },
-            [
-                "open order sizes",
-                {
-                    "unique count": 11
-                }
-            ],
-            [
-                "indicator",
-                {
-                    "period": {
-                        "from": 3,
-                        "step": 3,
-                        "to": 105
-                    },
-                    "types": [
-                        "sma"
-                    ]
-                }
+            "types": [
+                "sma"
             ]
-        ]
-    ]
+        },
+        "levels": {
+            "count": 3,
+            "lower bound": "12/20",
+            "unique count": 15
+        },
+        "open order sizes": {
+            "unique count": 11
+        }
+    }
 }
