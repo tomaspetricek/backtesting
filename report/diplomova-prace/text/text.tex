@@ -1745,7 +1745,6 @@ Obsahují informace o historických datech, převzorkování a vyhledávacím pr
 \end{lstlisting}
 
 Nejlepší stavy jsou uloženy jako seznam konfigurací a statistik v souboru best-states.json.
-Při optimalizaci je jako optimalizační hodnota použit pouze jeden parametr, takže jsou statistiky po dokončení optimalizace spočteny znovu.
 K dispozici jsou různé statistiky, které mohou pomoci lépe porozumět chování optimalizované strategie \ref{lst:best-state}.
 
 \begin{lstlisting}[caption={~Informace uložené o nejlepším stavu},label={lst:best-state},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount]
@@ -1795,18 +1794,28 @@ K dispozici jsou různé statistiky, které mohou pomoci lépe porozumět chová
 },
 \end{lstlisting}
 
+Python skripty byly následně použity k vytvoření souhrnných tabulek a grafů z dat generovaných optimalizací.
+Tímto způsobem bylo následné zpracování automatizováno, což snížilo možnost udělat chybu a výrazně zkrátilo čas potřebný k vytvoření přehledových tabulek.
+
 Experimenty byly prováděny na notebooku MacBook Pro s 2,3 GHz Intel 4jádrovým procesorem s 32 GB RAM pamětí.
 Procesor podporuje hyper-trading, který umožňuje současný běh 2 vláken na každém jádru.
 Což ovlivňuje framework OpenMP, který díky tomu může používat 8 vláken.
 
 \section{Historická data}
+Data pro experimenty byla získána ze stránky CryptoArchive (www.cryptoarchive.com.au).
+Data pocházejí z Binance kryptoměnové burzy a jsou aktualizována denně.
+Mezi hlavní důvody, proč byl web upřednostněn před ostatními dostupnými poskytovateli, patřilo to, že data byla zdarma, snadno dostupná a v požadované granularitě.
 
-% Please add the following required packages to your document preamble:
-% \usepackage{graphicx}
+Bylo vybráno 10 různých kryptoměn včetně některých známějších jako Bitcoin (BTC), Ethereum (ETH) a Litecoin (LTC) a také novějších jako Solana (SOL).
+Pokrývají 2,7--5,7 let historie, což stačí k zachycení různých tržních trendů.
+Například v případě Bitcoinu pokrývá nárůst ceny na konci roku 2017 a 2022, jakož i její pokles na začátku roku 2019 a 2023.
+Hodnoty kryptoměn jsou uvedeny v USDT, což je stablecoin, jehož hodnota se blíží americkému dolaru.
+Přehled informací o vybraných historických datech je uveden v tabulce \ref{tab:historical:market:data}.
+
 \begin{table}[!htbp]
 \centering
 \centering
-\caption[Přehled historických dat]{~Přehled historických dat}\label{tab:brute:force:optimization}
+\caption[Přehled historických dat]{~Přehled historických dat}\label{tab:historical:market:data}
 {%
 \begin{tabular}{|l|c|c|c|c|}
 \hline
@@ -1835,9 +1844,6 @@ Dopad těchto optimalizací byl znatelný, protože sekvenční implementace se 
 Použitím paralelismu byl algoritmus ještě \textbf{3,6krát} rychlejší s 8 vlákny.
 Porovnání výsledků experimentu s vyhledávacím prostorem skládajícím se z 3600 stavů a simulací běžící na 2,5 milionu minutových svíček si lze prohlédnout v tabulce \ref{tab:brute:force:optimization}.
 
-Průměrná doba výpočtu objektivní funkce je přibližně 0,006 sekundy, což znamená, že prohledání 1 milionu různých stavů by trvalo přibližně 1,5 hodiny.
-Výpočet byl proveden na mnohem větším vyhledávacím prostoru pro získání přesnějších výsledků.
-
 \begin{table}[!htbp]
 \centering
 \caption[Vliv použití optimalizace]{~Vliv použití optimalizace}\label{tab:brute:force:optimization}
@@ -1849,6 +1855,9 @@ optimalizace kompilátoru                & 88                       & 11,2      
 optimalizace kompilátoru a paralelismus & 24                       & 41,1                                                   \\ \hline
 \end{tabular}
 \end{table}
+
+Průměrná doba výpočtu objektivní funkce je přibližně 0,006 sekundy, což znamená, že prohledání 1 milionu různých stavů by trvalo přibližně 1,5 hodiny.
+Výpočet byl proveden na mnohem větším vyhledávacím prostoru pro získání přesnějších výsledků.
 
 \section{Hrubá síla}
 Hlavním účelem algoritmu hrubé síly bylo vyzkoušet použití různých optimalizačních kritérií a omezení.
@@ -1868,7 +1877,7 @@ ended: 2023-Apr-08 16:43:55
 duration: 15:42.121436
 \end{lstlisting}
 
-\subsection{1. sada experimentů}
+\subsection{Experimenty}
 
 % Please add the following required packages to your document preamble:
 % \usepackage{graphicx}
@@ -1923,7 +1932,7 @@ ZRX  & 32 671,4  & 165,5 & 33 & 3  & -0,3  & -36,7 \\ \hline
 }
 \end{table}
 
-\subsection{2. sada experimentů}
+% \subsection{2. sada experimentů}
 
 % Please add the following required packages to your document preamble:
 % \usepackage{graphicx}
@@ -1979,7 +1988,7 @@ ZRX  & 35 283,2  & inf   & 28 & 0  & 0,0   & -33,0 \\ \hline
 }
 \end{table}
 
-\subsection{3. sada experimentů}
+% \subsection{3. sada experimentů}
 
 \begin{table}[!htbp]
 \centering
