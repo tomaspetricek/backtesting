@@ -1,0 +1,45 @@
+{
+    "candles": {
+        "count": 2963365,
+        "currency pair": {
+            "base": "ETH",
+            "quote": "USDT"
+        },
+        "from": 1502942400,
+        "to": 1681257960
+    },
+    "optimization criterion": "prom",
+    "resampling": {
+        "averaging method": "ohlc4",
+        "period[min]": 30
+    },
+    "search space": [
+        [
+            "levels",
+            {
+                "count": 3,
+                "lower bound": "12/20",
+                "unique count": 15
+            },
+            [
+                "open order sizes",
+                {
+                    "unique count": 12
+                }
+            ],
+            [
+                "indicator",
+                {
+                    "period": {
+                        "from": 5,
+                        "step": 5,
+                        "to": 110
+                    },
+                    "types": [
+                        "sma"
+                    ]
+                }
+            ]
+        ]
+    ]
+}

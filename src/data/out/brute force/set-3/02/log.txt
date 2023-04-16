@@ -1,0 +1,14 @@
+candles read:
+from: 2017-Aug-17 04:00:00
+to: 2023-Apr-11 22:10:00
+difference: 2063d 18:10:00.000000
+count: 2963250
+duration: 3.817031s
+periods count: 35
+tag count: 1
+levels count: 455
+sizes count: 66
+total count: 1051050
+began: 2023-Apr-15 19:58:52
+ended: 2023-Apr-15 21:28:34
+duration: 01:29:41.654701

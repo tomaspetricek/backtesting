@@ -1,0 +1,45 @@
+{
+    "candles": {
+        "count": 2552037,
+        "currency pair": {
+            "base": "XLM",
+            "quote": "USDT"
+        },
+        "from": 1527759000,
+        "to": 1681234020
+    },
+    "optimization criterion": "prom",
+    "resampling": {
+        "averaging method": "ohlc4",
+        "period[min]": 15
+    },
+    "search space": [
+        [
+            "levels",
+            {
+                "count": 3,
+                "lower bound": "12/20",
+                "unique count": 15
+            },
+            [
+                "open order sizes",
+                {
+                    "unique count": 11
+                }
+            ],
+            [
+                "indicator",
+                {
+                    "period": {
+                        "from": 3,
+                        "step": 3,
+                        "to": 105
+                    },
+                    "types": [
+                        "sma"
+                    ]
+                }
+            ]
+        ]
+    ]
+}

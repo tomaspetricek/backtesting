@@ -77,19 +77,6 @@ void set_up()
     std::cout << std::fixed;
 }
 
-template<typename Generator>
-void use_generator(Generator&& gen)
-{
-    std::size_t it{0};
-    for (auto seq: gen()) {
-        for (std::size_t i{0}; i<seq.size(); i++)
-            std::cout << seq[i] << ", ";
-        std::cout << std::endl;
-        it++;
-    }
-    std::cout << std::endl << "n iterations: " << it << std::endl;
-}
-
 template<class Writer, class Data, std::size_t N, std::size_t... Is>
 void write_series_impl(Writer&& writer, const std::vector<data_point<std::array<Data, N>>
 >& series,
@@ -236,10 +223,10 @@ int main()
         }});
 
         // specify search space
-        std::size_t levels_unique_count{20}, sizes_unique_count{6};
-        int period_from{3}, period_to{120}, period_step{3};
+        std::size_t levels_unique_count{15}, sizes_unique_count{11};
+        int period_from{3}, period_to{105}, period_step{3};
         etl::vector<bazooka::indicator_tag, 2> tags{bazooka::indicator_tag::sma};
-        trading::fraction_t levels_lower_bound{15, 20};
+        trading::fraction_t levels_lower_bound{12, 20};
 
         json tags_doc;
         std::ostringstream os;
@@ -267,9 +254,9 @@ int main()
                 }}});
 
         // create simulator
-        std::size_t resampling_period{std::chrono::minutes(45).count()};
+        std::size_t resampling_period{std::chrono::minutes(15).count()};
         auto averager = candle::ohlc4{};
-        trading::simulator simulator{candles, static_cast<std::size_t>(resampling_period), averager, 100};
+        trading::simulator simulator{candles, static_cast<std::size_t>(resampling_period), averager, 5'000};
 
         settings.emplace(json{"resampling", {
                 {"period[min]", resampling_period},
@@ -313,7 +300,7 @@ int main()
             for (const auto& t: tags) tag_count++;
             for (const auto& l: sys_levels()) levels_count++;
             for (const auto& s: sys_sizes()) sizes_count++;
-            std::cout << "periods count: " << period_count << std::endl
+            *logger << "periods count: " << period_count << std::endl
                       << "tag count: " << tag_count << std::endl
                       << "levels count: " << levels_count << std::endl
                       << "sizes count: " << sizes_count << std::endl
