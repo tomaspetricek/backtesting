@@ -1902,7 +1902,18 @@ optimalizace kompilátoru a paralelismus & 24                       & 41,1      
 \end{table}
 
 \subsection{Experimenty}
+Na začátku bylo provedeno několik experimentů k nalezení vhodného vyhledávacího prostoru.
+Hodnoty úrovně nákupu se ukázaly být nejdůležitějším konfiguračním parametrem, který musel mít širokou škálu možných hodnot.
+Ke generátorům úrovně nákupu byl přidán parametr spodní hranice, čímž se snížil počet jedinečných hodnot potřebných k nalezení přijatelných výsledků, a tím se zmenšil vyhledávací prostor.
 
+PROM byl zvolen jako optimální kritérium, jelikož poskytuje rozumné výsledky s vyváženým poměrem rizika a zisku.
+Byla také vyzkoušena jiná jednodušší optimalizační kritéria, jako maximalizace ziskového faktoru, což vedlo k nalezení konfigurací, které byly velmi bezpečné, avšak přinášely nízké zisky.
+
+Výsledky byly primárně porovnávány pomocí statistik, nicméně byla použita i vizualizace.
+Na grafu \ref{fig:btc-historical-simulation} lze vidět, že strategie obchoduje, když dochází k rychlým poklesům ceny.
+Při vhodném nastavení přináší zisky, ale může se stát, že strategie otevře pozici příliš brzy, což vede k nižším ziskům nebo dokonce ztrátám.
+Stalo by se to například na začátku roku 2020, kdy začala pandemie COVID, následky jsou vidět na grafu s čistou hodnotou.
+Je také vidět, že většina obchodů byla provedena na začátku kolem roku 2018 a počet obchodů s postupem času klesá.
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[scale=0.6]{img/btc-historical-simulation.png}}
