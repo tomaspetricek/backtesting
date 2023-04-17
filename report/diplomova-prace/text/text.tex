@@ -1855,7 +1855,31 @@ ZRX  & 2 160 979 & 28. 02. 2019 & 11. 04. 2023 & 4,1 \\ \hline
 }
 \end{table}
 
-\section{Použití optimalizací}
+Průměrná doba výpočtu objektivní funkce je přibližně 0,006 sekundy, což znamená, že prohledání 1 milionu různých stavů by trvalo přibližně 1,5 hodiny.
+Výpočet byl proveden na mnohem větším vyhledávacím prostoru pro získání přesnějších výsledků.
+
+\section{Hrubá síla}
+Hlavním účelem algoritmu hrubé síly bylo vyzkoušet použití různých optimalizačních kritérií a omezení.
+Je to také dobrý způsob měření vlivu optimalizace.
+Může to být jednoduché a dostatečně efektivní řešení pro optimalizaci na malém vyhledávacím prostoru pro jednodušší strategie.
+Nebylo potřeba provádět white-box ani black-box vyhodnocení, protože optimalizátor nemá žádné nastavitelné parametry.
+
+Log byl doplněn o informace o celkovém počtu stavů prohledávaného stavového prostoru a čase zahájení a ukončení optimalizace (viz \ref{lst:brute:force:log}).
+Časy byly získány a naformátovány pomocí funkce z knihovny Boost.DateTime.
+Celkový počet stavů byl vypočten procházením vyhledávacího prostoru, což u malých vyhledávacích prostorů nezabere ve srovnání s dobou optimalizace významné množství času.
+
+\begin{lstlisting}[caption={~Rozšíření logu pro algoritmus hrubé síly},label={lst:brute:force:log},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount]
+periods count: 35
+tag count: 1
+levels count: 455
+sizes count: 66
+total count: 1051050
+began: 2023-Apr-16 05:16:06
+ended: 2023-Apr-16 06:20:26
+duration: 01:04:20.000111
+\end{lstlisting}
+
+\subsection{Optimalizace}
 První experimenty, které byly provedeny byly zaměřeny na měření účinků optimalizací.
 Byly použity 2 typy optimalizací: optimalizace kompilátoru a paralelismus.
 Hlavní použitá optimalizace kompilátoru byla \texttt{O3}, která nastavuje nejvyšší úroveň optimalizací.
@@ -1877,31 +1901,19 @@ optimalizace kompilátoru a paralelismus & 24                       & 41,1      
 \end{tabular}
 \end{table}
 
-Průměrná doba výpočtu objektivní funkce je přibližně 0,006 sekundy, což znamená, že prohledání 1 milionu různých stavů by trvalo přibližně 1,5 hodiny.
-Výpočet byl proveden na mnohem větším vyhledávacím prostoru pro získání přesnějších výsledků.
-
-\section{Hrubá síla}
-Hlavním účelem algoritmu hrubé síly bylo vyzkoušet použití různých optimalizačních kritérií a omezení.
-Je to také dobrý způsob měření vlivu optimalizace.
-Může to být jednoduché a dostatečně efektivní řešení pro optimalizaci na malém vyhledávacím prostoru pro jednodušší strategie.
-Nebylo potřeba provádět white-box ani black-box vyhodnocení, protože optimalizátor nemá žádné nastavitelné parametry.
-
-Log byl doplněn o informace o celkovém počtu stavů prohledávaného stavového prostoru a čase zahájení a ukončení optimalizace (viz \ref{lst:brute:force:log}).
-Časy byly získány a naformátovány pomocí funkce z knihovny Boost.DateTime.
-Celkový počet stavů byl vypočten procházením vyhledávacího prostoru, což u malých vyhledávacích prostorů nezabere ve srovnání s dobou optimalizace významné množství času.
-
-\begin{lstlisting}[caption={~Rozšíření logu pro algoritmus hrubé síly},label={lst:brute:force:log},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount]
-search space:
-n states: 158400
-began: 2023-Apr-08 16:28:13
-ended: 2023-Apr-08 16:43:55
-duration: 15:42.121436
-\end{lstlisting}
-
 \subsection{Experimenty}
 
-\begin{table}[]
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale=0.6]{img/btc-historical-simulation.png}}
+\caption{Průběh historické simulace BTC}
+\label{fig:btc-historical-simulation}
+\end{figure}
+
+\begin{table}[!htbp]
 \centering
+\caption[Přehled hodnot parametrů vyhledávacího prostoru pro sady experimentů]{~Přehled hodnot parametrů vyhledávacího prostoru pro sady experimentů}
+\label{tab:brute:force:optimization}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
 \hline
