@@ -389,8 +389,6 @@ Pro dosažení větší přesnosti lze také použít nabídkové tiky (quote ti
 \section{Platformy poskytující zpětné testování}
 V dnešní době existuje mnoho platforem nabízejících zpětné testování, liší se především druhem a množstvím dostupných historických dat, propracovaností, s jakou lze strategii implementovat, a částkou, kterou si účtují za používání jejich produktu \cite{bowman}.
 
-
-
 \subsection{TradingView}
 TradingView je oblíbená obchodní platforma, která umožňuje provádět technickou analýzu, vývoj a zpětné testování obchodní strategie.
 Je přístupná jako webová, mobilní i desktopová aplikace. 
@@ -1400,6 +1398,28 @@ Jakmile je program spuštěn, lze přistupovat ke všem hodnotám proměnných, 
 Hodnoty lze zobrazit do prostoru pod buňkami.
 Vizuální vzhled notebooku je zachován i po zastavení běhu jádra, což zahrnuje i vykreslené grafy.
 
+\section{Svíčkový graf}
+Během historické simulace lze shromažďovat časové řady pomocí \texttt{chart\_series::collector} třídy, která sleduje čistou hodnotu, zůstatek po uzavření pozice, otevírací a uzavírací ceny a hodnoty vstupního a výstupního indikátoru.
+Po uložení dat do CSV souboru je lze zpracovat pomocí výše popsaných nástrojů a zobrazit pomocí třídy \texttt{CandlestickWidget} spolu s historickými svíčkami.
+
+Vlastní widget byl vyvinut, jelikož se graf obvykle nevejde na šíři obrazovky, takže bylo nutné přidat posuvník.
+Graf je vykreslen pomocí knihovny \texttt{mplfinance}, což je větev (branch) \texttt{Matplotlib}, která se specializuje na vykreslování finančních dat a musí být instalována samostatně.
+Nabízí způsob, jak snadno vykreslit svíčková data a také dobře integruje použití třídy \texttt{Pandas.DataFrame} pro předání dat.
+
+Widget se skládá ze 2 částí: samotného grafu a posuvníku pro určení počátečního časového bodu (viz \ref{fig:historical-simulation-widget}).
+Na graf jsou nejprve vynesena svíčková data, na které jsou bodově umístěny zbývající časové řady.
+Vedle něj je umístěna legenda.
+Posuvník je popsán pomocí časových značek, aby se dal snadněji používat.
+
+Počet viditelných časových bodů a název grafu lze specifikovat při inicializaci třídy.
+Jelikož je vykreslováno mnoho časových bodů najednou, může aktualizace počátečního časového bodu chvíli trvat.
+Nástroj může být užitečný pro získání lepší představy o tom, jak strategie funguje.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale=0.3]{img/historical-simulation-widget-2.png}}
+\caption{Widget pro vykreslování svíček}
+\label{fig:historical-simulation-widget}
+\end{figure}
 
 \chapter{Testování}
 K zajištění správnosti kódu byly použity 2 nástroje, a to tvrzení (assertions) a unit testování.
