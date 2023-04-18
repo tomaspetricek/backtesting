@@ -16,4 +16,4 @@ it: 7, population size: 825, mean fitness: 111.437, best fitness: 197.298
 it: 8, population size: 1044, mean fitness: 110.162, best fitness: 197.298
 it: 9, population size: 1320, mean fitness: 111.873, best fitness: 197.298
 ended: 2023-Apr-18 15:44:05
-duration: 50.069072s
+duration: 50.069072

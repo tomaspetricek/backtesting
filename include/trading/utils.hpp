@@ -73,8 +73,6 @@ namespace trading {
         os << std::setw(d.count() || h.count() || m.count() ? 2 : 1) << s.count();
         if (fs_count.has_value())
             os << "." << std::setw(os.precision()) << fs_count.value();
-        if (!d.count() && !h.count() && !m.count())
-            os << "s";
 
         os.fill(fill);
         return os;

@@ -128,7 +128,7 @@ Na každé teplotě musí zůstat dostatečně dlouho, aby bylo dosaženo ustál
 Algoritmus lze ukončit několika způsoby: dosažením maximálního počtu iterací, přestane se zlepšovat nebo dosáhne minimální teploty.
 Pro použití heuristiky je třeba poskytnout celkem 4 komponenty: konfiguraci představující nastavení systému, náhodný generátor sousedních konfigurací, objektivní funkci a rozvrh ochlazování \cite{kirkpatrik}.
 
-\subsubsection{Vybrané rozvrhy ochlazování}
+% \subsubsection{Vybrané rozvrhy ochlazování}
 
 \subsection{Genetický algoritmus}
 Genetický algoritmus je populační metaheuristika, která je inspirována přirozenou evolucí.
@@ -267,6 +267,7 @@ V této fázi musí být rozhodnuto o typu objednávky a burze, na kterou má b�
 Mezi nejdůležitější aspekty, které je třeba vzít v úvahu při výběru správné burzy, patří: nabídka aktiv, mechanismus obchodování, cena provedení, likvidita a stupeň anonymity obchodníka.
 Burzy s vyšší likviditou mají tendenci provádět objednávky rychleji a účtovat si nižší poplatky \cite{nuti}.
 
+% Popsat PROM
 \chapter{Zpětné testování}
 Základní myšlenkou zpětného testování (backtesting) je zjistit, jak by fungovala obchodní strategie, kdyby byla nasazena v minulosti.
 Vychází z předpokladu, že pokud strategie fungovala dobře v minulosti, měla by fungovat dobře i v budoucnu.
@@ -356,6 +357,7 @@ Data získaná ze simulace lze dále vizualizovat pomocí grafu, což také pom�
 Historická data jsou vykreslena pomocí svíčkového grafu, do kterého lze dále vykreslit hodnoty indikátorů, vstupní a výstupní body.
 Čistá hodnota v každém okamžiku je často vykreslena na samostatném grafu pod svíčkovým grafem \cite{pardo}.
 
+% doplnit o schéma
 \subsection{Svíčkový graf}
 Svíčkový graf umožňuje vizualizaci a analýzu historických dat.
 Koncept vyvinul v 18. století japonský obchodník s rýží Munehisa Homma.
@@ -386,6 +388,7 @@ Nejběžněji dostupná data jsou ve formátu OHLCV, což jsou OHLC a objem (vol
 Dále jsou ukládány samotné obchody ve formě obchodních tiků (trade ticks).
 Pro dosažení větší přesnosti lze také použít nabídkové tiky (quote ticks), které ukládají údaje o nejlepší nabídce (bid) a poptávce (ask) z knihy objednávek v daném okamžiku \cite{polygon}.
 
+% Doplnit o MultiChart
 \section{Platformy poskytující zpětné testování}
 V dnešní době existuje mnoho platforem nabízejících zpětné testování, liší se především druhem a množstvím dostupných historických dat, propracovaností, s jakou lze strategii implementovat, a částkou, kterou si účtují za používání jejich produktu \cite{bowman}.
 
@@ -1921,15 +1924,20 @@ Je také vidět, že většina obchodů byla provedena na začátku kolem roku 2
 \label{fig:btc-historical-simulation}
 \end{figure}
 
-Po dokončení počátečních testů byla dokončena sada 3 hlavních testů.
-Parametry vyhledávacího prostoru byly zvoleny na základě získaných výsledků.
+Po dokončení počátečních testů byly provedeny 2 sady testů na všech historických datech.
+Hodnoty parametrů generátorů vyhledávacího prostoru byly zvoleny na základě získaných výsledků.
 I při použití optimalizace byl čas stále limitujícím faktorem.
-Rozumná velikost vyhledávacího prostoru se pohybuje od 0,5--1 milion možných konfigurací, což trvá asi 1--1,5 hodiny, než se dokončí jeden běh optimalizace, a protože bylo zvoleno 10 aktiv, trvala 1 sada experimentů 10--15 hodin.
+Rozumná velikost vyhledávacího prostoru se pohybuje 0,5--1 milion možných konfigurací, což trvá přibližně 1--1,5 hodiny, než se dokončí jeden běh optimalizace, a protože bylo zvoleno 10 aktiv, trvala 1 sada experimentů 10--15 hodin.
+
+Sady experimentů měly přibližně 1 milion možných konfigurací.
+Hodnoty parametrů generátorů stavového prostoru a perioda převzorkování jsou uvedeny v tabulce \ref{tab:brute:force:sets:search:space}.
+Změny provedené po 1. sadě experimentů spočívaly v tom, že počet jedinečných hodnot úrovní nákupu byl zvýšen z 15 na 20 a v seznamu možných typů ukazatelů byl ponechán pouze SMA.
+Během poslední sady experimentů byla doba převzorkování zkrácena ze 45 minut na 15, počet jedinečných hodnot úrovní nákupu byl vrácen na zpět 15, byl zvýšen počet jedinečných hodnot velikostí nákupu z 6 na 11 a spodní hranice úrovní nákupu byla snížena z \(-20 \%\) na \(-40 \%\).
 
 \begin{table}[!htbp]
 \centering
 \caption[Přehled hodnot parametrů vyhledávacího prostoru pro sady experimentů]{~Přehled hodnot parametrů vyhledávacího prostoru pro sady experimentů}
-\label{tab:brute:force:optimization}
+\label{tab:brute:force:sets:search:space}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
 \hline
@@ -1942,19 +1950,28 @@ Rozumná velikost vyhledávacího prostoru se pohybuje od 0,5--1 milion možnýc
   \textbf{\begin{tabular}[c]{@{}c@{}}Období\\ do\end{tabular}} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Období\\ krok\end{tabular}} &
   \textbf{Ukazatelé} \\ \hline
-1 & 45 & 15 & -25,0 & 6  & 3 & 60  & 3 & \([\begin{array}{cc} SMA & EMA \end{array}]\) \\ \hline
-2 & 45 & 20 & -25,0 & 6  & 3 & 120 & 3 & \([\begin{array}{c} SMA \end{array}]\)        \\ \hline
-3 & 15 & 15 & -40,0 & 11 & 3 & 105 & 3 & \([\begin{array}{c} SMA \end{array}]\)        \\ \hline
+1 & 45 & 15 & \(-25,0\) & 6  & 3 & 60  & 3 & \([\begin{array}{cc} SMA & EMA \end{array}]\) \\ \hline
+2 & 15 & 15 & \(-40,0\) & 11 & 3 & 105 & 3 & \([\begin{array}{c} SMA \end{array}]\)        \\ \hline
 \end{tabular}%
 }
 \end{table}
+
+Hodnoty úrovně nákupu a velikosti nákupu byly převedeny ze zlomků do čitelnějšího formátu.
+Obě jsou uvedeny v procentech, úrovně jsou záporné a udávají, o kolik je úroveň snížena od hodnoty vstupního indikátoru, a velikosti označují část zůstatku na účtu, která je použita k nákupu na dané úrovni.
+
+Z přehledu nejlepších konfigurací z 1. sady experimentů (viz \ref{tab:brute:force:set:1:best:configs}) lze vidět, že 8 z 10 distribucí úrovně nákupu klade důraz na jednu úroveň nákupu tím, že na ni vloží 75 \% zůstatku a minimum možné na zbytek.
+Na základě toho by se měl zvýšit počet jedinečných velikostí, aby byla dostupná větší rozmanitost distribucí.
+Medián první úrovně nákupu je \(-12.5 \% \) a poslední úrovně \( -19.6 \% \). 
+Poslední úroveň je velmi blízko spodní hranici úrovně nákupu, což naznačuje, že může být výhodné ji snížit ještě více.
+SMA je přítomen v 7 z 10 nejlepších konfigurací, takže indikátor EMA lze v dalších experimentech vynechat.
+V případě měny XLM dosáhlo maximální hodnoty období, což naznačuje, že by měla být maximální hodnota zvýšena.
 
 % Please add the following required packages to your document preamble:
 % \usepackage{graphicx}
 \begin{table}[!htbp]
 \centering
-\caption[Přehled nejlepších konfigurací z 1. sady experimentů]{~Přehled nejlepších konfigurací z 1. sady experimentů}\label{tab:brute:force:optimization}
-{!}{%
+\caption[Přehled nejlepších konfigurací z 1. sady experimentů]{~Přehled nejlepších konfigurací z 1. sady experimentů}\label{tab:brute:force:set:1:best:configs}
+{%
 \begin{tabular}{|l|c|c|c|c|}
 \hline
 \multicolumn{1}{|c|}{\textbf{Měna}} & \textbf{Ukazatel} & \textbf{Období} & \textbf{Nákupní úrovně (\%)} & \textbf{Nákupní velikosti (\%)} \\ \hline
@@ -1972,10 +1989,13 @@ ZRX  & SMA & 15 & \([\begin{array}{ccc} -14,1 & -15,6 & -21,9 \end{array}]\) & \
 }
 \end{table}
 
+Z přehledu statistik z 1. sady experimentu (viz \ref{tab:brute:force:set:1:best:stats}) lze vidět, že nejnižší ziskový faktor je 3,5, což znamená, že hrubý zisk byl alespoň 3,5krát vyšší než hrubá ztráta.
+Nejvyššího ziskového faktoru 947,8 dosáhla měna XLM a zároveň nejnižšího sestupného pohybu zůstatku po uzavření pozice \(-0,3\) \%.
+
 \begin{table}[!htbp]
 \centering
 \caption[Přehled vybraných statistik z 1. sady experimentů]{~Přehled vybraných statistik z 1. sady experimentů}
-\label{tab:brute:force:optimization}
+\label{tab:brute:force:set:1:best:stats}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{|l|c|c|c|c|c|}
 \hline
@@ -1985,79 +2005,31 @@ ZRX  & SMA & 15 & \([\begin{array}{ccc} -14,1 & -15,6 & -21,9 \end{array}]\) & \
   \textbf{\begin{tabular}[c]{@{}c@{}}Ziskový\\ faktor\end{tabular}} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Největší sestupný pohyb\\ zůstatku po uzavření pozice (\%)\end{tabular}} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Největší sestupný pohyb\\ čisté hodnoty (\%)\end{tabular}} \\ \hline
-ADA  & 754,8   & 913,4   & 65,9  & -6,4  & -26,4 \\ \hline
-BTC  & 391,0   & 512,8   & 5,3   & -26,7 & -46,7 \\ \hline
-DASH & 138,1   & 185,3   & 13,4  & -9,8  & -40,0 \\ \hline
-DOGE & 1 309,3 & 1 541,7 & 35,5  & -4,7  & -22,2 \\ \hline
-ETH  & 664,5   & 940,5   & 5,1   & -8,5  & -47,4 \\ \hline
-LTC  & 739,8   & 885,6   & 14,9  & -6,2  & -38,5 \\ \hline
-SOL  & 202,5   & 262,8   & 3,5   & -16,7 & -33,2 \\ \hline
-XLM  & 581,3   & 674,5   & 947,8 & -0,3  & -42,5 \\ \hline
-XRP  & 225,2   & 292,4   & 5,9   & -18,3 & -24,9 \\ \hline
-ZRX  & 268,3   & 326,7   & 165,5 & -0,3  & -36,7 \\ \hline
+ADA  & 754,8   & 913,4   & 65,9  & \(-6,4\)  & \(-26,4\) \\ \hline
+BTC  & 391,0   & 512,8   & 5,3   & \(-26,7\) & \(-46,7\) \\ \hline
+DASH & 138,1   & 185,3   & 13,4  & \(-9,8\)  & \(-40,0\) \\ \hline
+DOGE & 1 309,3 & 1 541,7 & 35,5  & \(-4,7\)  & \(-22,2\) \\ \hline
+ETH  & 664,5   & 940,5   & 5,1   & \(-8,5\)  & \(-47,4\) \\ \hline
+LTC  & 739,8   & 885,6   & 14,9  & \(-6,2\)  & \(-38,5\) \\ \hline
+SOL  & 202,5   & 262,8   & 3,5   & \(-16,7\) & \(-33,2\) \\ \hline
+XLM  & 581,3   & 674,5   & 947,8 & \(-0,3\)  & \(-42,5\) \\ \hline
+XRP  & 225,2   & 292,4   & 5,9   & \(-18,3\) & \(-24,9\) \\ \hline
+ZRX  & 268,3   & 326,7   & 165,5 & \(-0,3\)  & \(-36,7\) \\ \hline
 \end{tabular}%
 }
 \end{table}
 
-% \subsection{2. sada experimentů}
+Z přehledu nejlepších konfigurací z 2. sady experimentů (viz \ref{tab:brute:force:set:2:best:configs}) lze vidět, že zvýšení počtu jedinečných velikostí nákupu způsobilo zvýšení částky zůstatku vloženého na jedenou úroveň, ze 75 \% na 84,6 \%.
+Minimální část nákupu 7,7 \%, kterou bylo možné vložit na obchod, byla nejčastěji se vyskytující hodnotou.
+Období převzorkování bylo 3krát zkráceno ze 45 minut na 15 minut, což například způsobilo ztrojnásobení hodnoty období u BTC, úrovně nákupu se v podstatě nezměnily a ještě větší část zůstatku byla soustředěna na 2. nákupní úroveň.
+Převzorkování také způsobilo, že ADA dosáhla nejvyšší hodnoty období, což bránilo nalezení lepšího řešení.
+Všechna období indikátoru se zvýšila 2--3krát kromě XLM, kde se snížila na polovinu z 60 na 27.
+Medián poslední nákupní úrovně se snížil na \(-18,75\) \%, což je stále velmi blízko \(-19\) \%, avšak zvýšení spodní hranice umožnilo DASH snížit hodnotu poslední úrovně na \(-32\) \%.
 
-% Please add the following required packages to your document preamble:
-% \usepackage{graphicx}
 \begin{table}[!htbp]
 \centering
 \caption[Přehled nejlepších konfigurací z 2. sady experimentů]{~Přehled nejlepších konfigurací z 2. sady experimentů}
-\label{tab:brute:force:optimization}
-{%
-\begin{tabular}{|l|c|c|c|c|}
-\hline
-\multicolumn{1}{|c|}{\textbf{Měna}} & \textbf{Ukazatel} & \textbf{Období} & \textbf{Nákupní úrovně (\%)} & \textbf{Nákupní velikosti (\%)} \\ \hline
-ADA  & SMA & 84 & \([\begin{array}{ccc} -17,9 & -20,2 & -21,4 \end{array}]\) & \([\begin{array}{ccc} 12,5 & 12,5 & 75,0 \end{array}]\) \\ \hline
-BTC  & SMA & 15 & \([\begin{array}{ccc} -8,3 & -9,5 & -10,7 \end{array}]\)   & \([\begin{array}{ccc} 12,5 & 12,5 & 75,0 \end{array}]\) \\ \hline
-DASH & SMA & 15 & \([\begin{array}{ccc} -14,3 & -17,9 & -19,0 \end{array}]\) & \([\begin{array}{ccc} 12,5 & 75,0 & 12,5 \end{array}]\) \\ \hline
-DOGE & SMA & 15 & \([\begin{array}{ccc} -11,9 & -20,2 & -22,6 \end{array}]\) & \([\begin{array}{ccc} 12,5 & 12,5 & 75,0 \end{array}]\) \\ \hline
-ETH  & SMA & 9  & \([\begin{array}{ccc} -11,9 & -13,1 & -16,7 \end{array}]\) & \([\begin{array}{ccc} 75,0 & 12,5 & 12,5 \end{array}]\) \\ \hline
-LTC  & SMA & 12 & \([\begin{array}{ccc} -10,7 & -13,1 & -14,3 \end{array}]\) & \([\begin{array}{ccc} 12,5 & 12,5 & 75,0 \end{array}]\) \\ \hline
-SOL  & SMA & 3  & \([\begin{array}{ccc} -8,3 & -13,1 & -20,2 \end{array}]\)  & \([\begin{array}{ccc} 12,5 & 62,5 & 25,0 \end{array}]\) \\ \hline
-XLM  & SMA & 60 & \([\begin{array}{ccc} -11,9 & -22,6 & -23,8 \end{array}]\) & \([\begin{array}{ccc} 12,5 & 12,5 & 75,0 \end{array}]\) \\ \hline
-XRP  & SMA & 9  & \([\begin{array}{ccc} -10,7 & -11,9 & -21,4 \end{array}]\) & \([\begin{array}{ccc} 12,5 & 50,0 & 37,5 \end{array}]\) \\ \hline
-ZRX  & SMA & 15 & \([\begin{array}{ccc} -15,5 & -17,9 & -22,6 \end{array}]\) & \([\begin{array}{ccc} 12,5 & 75,0 & 12,5 \end{array}]\) \\ \hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[!htbp]
-\centering
-\caption[Přehled vybraných statistik z 2. sady experimentů]{~Přehled vybraných statistik z 2. sady experimentů}
-\label{tab:brute:force:optimization}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{|l|c|c|c|c|c|}
-\hline
-\multicolumn{1}{|c|}{\textbf{Měna}} &
-  \textbf{PROM} &
-  \textbf{Zisk (\%)} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Ziskový\\ faktor\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Největší sestupný pohyb\\ zůstatku po uzavření pozice (\%)\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Největší sestupný pohyb\\ čisté hodnoty (\%)\end{tabular}} \\ \hline
-ADA  & 622,2   & 801,8   & 28,8  & -17,1 & -26,4 \\ \hline
-BTC  & 375,7   & 483,7   & 4,7   & -28,1 & -47,5 \\ \hline
-DASH & 145,5   & 192,9   & 20,1  & -8,9  & -40,0 \\ \hline
-DOGE & 1 272,2 & 1 473,4 & 86,2  & -2,0  & -22,2 \\ \hline
-ETH  & 666,3   & 809,7   & 22,8  & -8,6  & -29,3 \\ \hline
-LTC  & 674,8   & 855,0   & 5,7   & -9,6  & -38,5 \\ \hline
-SOL  & 141,3   & 178,5   & 4,8   & -11,1 & -20,2 \\ \hline
-XLM  & 670,6   & 781,6   & 139,3 & -0,3  & -42,5 \\ \hline
-XRP  & 230,9   & 326,3   & 3,8   & -22,5 & -33,4 \\ \hline
-ZRX  & 286,2   & 352,8   & inf   & 0,0   & -33,0 \\ \hline
-\end{tabular}%
-}
-\end{table}
-
-% \subsection{3. sada experimentů}
-
-\begin{table}[!htbp]
-\centering
-\caption[Přehled nejlepších konfigurací z 3. sady experimentů]{~Přehled nejlepších konfigurací z 3. sady experimentů}
-\label{tab:brute:force:optimization}
+\label{tab:brute:force:set:2:best:configs}
 {%
 \begin{tabular}{|l|c|c|c|c|}
 \hline
@@ -2084,10 +2056,16 @@ ZRX  & SMA & 54  & \([\begin{array}{ccc} -10,0 & -15,0 & -22,5 \end{array}]\) & 
 }
 \end{table}
 
+Na základě poznatků z 1. sady experimentů byla sestavena 2. sada experimentů.
+Z přehledu statistik (viz \ref{tab:brute:force:set:2:best:stats}) lze vypozorovat, že hodnoty zisku jsou řádově stejné u všech měn kromě ADA, LTC a XLM, kde se snížily o \(-47\) \%, \(-18.6\) \% a \mbox{\(-27.7\) \%}.
+Největší celkové zlepšení lze zaznamenat u měny DASH, jejíž ziskový faktor vzrostl 4,5krát a sestupné pohyby se zmenšily, na výsledný zisk to však mělo minimální dopad.
+Výsledky 1. sady experimentů byly tedy celkově lepší.
+Hlavním důvodem zhoršení bylo nejspíš snížení doby převzorkování.
+
 \begin{table}[!htbp]
 \centering
-\caption[Přehled vybraných statistik z 3. sady experimentů]{~Přehled vybraných statistik z 3. sady experimentů}
-\label{tab:brute:force:optimization}
+\caption[Přehled vybraných statistik z 2. sady experimentů]{~Přehled vybraných statistik z 2. sady experimentů}
+\label{tab:brute:force:set:2:best:stats}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{|l|c|c|c|c|c|}
 \hline
@@ -2097,16 +2075,60 @@ ZRX  & SMA & 54  & \([\begin{array}{ccc} -10,0 & -15,0 & -22,5 \end{array}]\) & 
   \textbf{\begin{tabular}[c]{@{}c@{}}Ziskový\\ faktor\end{tabular}} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Největší sestupný pohyb\\ zůstatku po uzavření pozice (\%)\end{tabular}} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Největší sestupný pohyb\\ čisté hodnoty (\%)\end{tabular}} \\ \hline
-ADA  & 395,3   & 483,9   & 14,2 & -3,0  & -26,4 \\ \hline
-BTC  & 439,0   & 540,7   & 5,2  & -24,8 & -49,3 \\ \hline
-DASH & 146,0   & 189,3   & 60,3 & -3,0  & -33,6 \\ \hline
-DOGE & 1 097,5 & 1 438,3 & 11,2 & -7,5  & -43,3 \\ \hline
-ETH  & 746,3   & 905,9   & 3,7  & -22,6 & -35,5 \\ \hline
-LTC  & 528,5   & 720,8   & 3,5  & -15,1 & -38,5 \\ \hline
-SOL  & 177,4   & 253,7   & 2,3  & -31,2 & -41,9 \\ \hline
-XLM  & 399,8   & 487,6   & 13,4 & -4,7  & -42,5 \\ \hline
-XRP  & 233,2   & 283,5   & 7,6  & -17,8 & -33,4 \\ \hline
-ZRX  & 250,2   & 326,9   & 4,0  & -19,8 & -37,7 \\ \hline
+ADA  & 395,3   & 483,9   & 14,2 & \(-3,0\)  & \(-26,4\) \\ \hline
+BTC  & 439,0   & 540,7   & 5,2  & \(-24,8\) & \(-49,3\) \\ \hline
+DASH & 146,0   & 189,3   & 60,3 & \(-3,0\)  & \(-33,6\) \\ \hline
+DOGE & 1 097,5 & 1 438,3 & 11,2 & \(-7,5\)  & \(-43,3\) \\ \hline
+ETH  & 746,3   & 905,9   & 3,7  & \(-22,6\) & \(-35,5\) \\ \hline
+LTC  & 528,5   & 720,8   & 3,5  & \(-15,1\) & \(-38,5\) \\ \hline
+SOL  & 177,4   & 253,7   & 2,3  & \(-31,2\) & \(-41,9\) \\ \hline
+XLM  & 399,8   & 487,6   & 13,4 & \(-4,7\)  & \(-42,5\) \\ \hline
+XRP  & 233,2   & 283,5   & 7,6  & \(-17,8\) & \(-33,4\) \\ \hline
+ZRX  & 250,2   & 326,9   & 4,0  & \(-19,8\) & \(-37,7\) \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+% Celkově experimenty poskytly zajímavé a netriviální výsledky.
+
+\section{Genetický algoritmus}
+
+% Please add the following required packages to your document preamble:
+% \usepackage{graphicx}
+\begin{table}[]
+\centering
+{%
+\begin{tabular}{|l|c|c|c|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Měna}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Rozdíl hodnot\\ optimalizačního kritéria (\%)\end{tabular}} &
+  \textbf{Doba trvání (s)} &
+  \textbf{Zrychlení} \\ \hline
+ADA  & 0,0 & 95,1  & 25,1 \\ \hline
+BTC  & 0,0 & 121,1 & 20,4 \\ \hline
+DASH & 0,0 & 75,9  & 22,1 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+% Please add the following required packages to your document preamble:
+% \usepackage{graphicx}
+\begin{table}[]
+\centering
+{%
+\begin{tabular}{|l|c|c|c|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Měna}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Rozdíl hodnot\\ optimalizačního kritéria (\%)\end{tabular}} &
+  \textbf{Doba trvání (s)} &
+  \textbf{Zrychlení} \\ \hline
+DOGE & 0,0  & 72,5  & 22,1 \\ \hline
+ETH  & \(-4,4\) & 104,6 & 22,9 \\ \hline
+LTC  & 0,0  & 98,4  & 21,5 \\ \hline
+SOL  & \(-0,8\) & 50,1  & 24,3 \\ \hline
+XLM  & 0,0  & 90,0  & 22,0 \\ \hline
+XRP  & \(-0,3\) & 89,9  & 22,8 \\ \hline
+ZRX  & 0,0  & 79,3  & 21,6 \\ \hline
 \end{tabular}%
 }
 \end{table}
