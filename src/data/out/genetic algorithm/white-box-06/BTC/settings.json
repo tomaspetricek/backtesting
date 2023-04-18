@@ -1,0 +1,62 @@
+{
+    "candles": {
+        "count": 2963250,
+        "currency pair": {
+            "base": "BTC",
+            "quote": "USDT"
+        },
+        "from": 1502942400,
+        "to": 1681251000
+    },
+    "initial genes count": 128,
+    "optimization criterion": "prom",
+    "optimizer": {
+        "crossover": {
+            "children count": 2
+        },
+        "matchmaker": {
+            "name": "random matchmaker",
+            "parents count": 2
+        },
+        "replacement": {
+            "elite ratio": "10/100",
+            "name": "elitism replacement"
+        },
+        "selection": {
+            "name": "roulette selection"
+        },
+        "sizer": {
+            "growth factor": "100/100",
+            "name": "basic sizer"
+        },
+        "termination": {
+            "max it": 10,
+            "name": "iteration based termination"
+        }
+    },
+    "resampling": {
+        "averaging method": "ohlc4",
+        "period[min]": 45
+    },
+    "search space": {
+        "indicator": {
+            "period": {
+                "from": 3,
+                "step": 3,
+                "to": 60
+            },
+            "types": [
+                "sma",
+                "ema"
+            ]
+        },
+        "levels": {
+            "count": 3,
+            "lower bound": "15/20",
+            "unique count": 15
+        },
+        "open order sizes": {
+            "unique count": 6
+        }
+    }
+}

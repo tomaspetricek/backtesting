@@ -1,0 +1,8 @@
+candles read:
+from: 2019-Mar-28 04:00:00
+to: 2023-Apr-12 09:28:00
+difference: 1476d 05:28:00.000000
+count: 2122039
+duration: 2.658748s
+began: 2023-Apr-18 15:09:29
+it: 0, population size: 189, mean fitness: 38.1225, best fitness: 114.417

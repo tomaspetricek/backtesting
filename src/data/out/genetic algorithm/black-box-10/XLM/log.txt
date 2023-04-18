@@ -1,0 +1,19 @@
+candles read:
+from: 2018-May-31 09:30:00
+to: 2023-Apr-11 17:27:00
+difference: 1776d 07:57:00.000000
+count: 2552037
+duration: 2.953431s
+began: 2023-Apr-18 15:44:08
+it: 0, population size: 161, mean fitness: 168.008, best fitness: 413.041
+it: 1, population size: 204, mean fitness: 193.986, best fitness: 413.041
+it: 2, population size: 257, mean fitness: 224.505, best fitness: 485.351
+it: 3, population size: 324, mean fitness: 245.6, best fitness: 472.291
+it: 4, population size: 409, mean fitness: 267.461, best fitness: 472.291
+it: 5, population size: 517, mean fitness: 281.887, best fitness: 539.689
+it: 6, population size: 653, mean fitness: 294.706, best fitness: 539.689
+it: 7, population size: 825, mean fitness: 300.632, best fitness: 557.919
+it: 8, population size: 1044, mean fitness: 318.141, best fitness: 561.833
+it: 9, population size: 1320, mean fitness: 320.085, best fitness: 581.325
+ended: 2023-Apr-18 15:45:38
+duration: 1:29.980196

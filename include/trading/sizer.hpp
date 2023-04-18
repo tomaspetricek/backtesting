@@ -6,21 +6,22 @@
 #define BACKTESTING_SIZER_HPP
 
 #include <cstddef>
+#include <trading/types.hpp>
 
 namespace trading {
     class basic_sizer {
-        float growth_factor_{1.0};
+        fraction_t growth_factor_{1, 1};
 
     public:
-        explicit basic_sizer(float growth_factor)
+        explicit basic_sizer(const fraction_t growth_factor)
                 :growth_factor_{growth_factor} { }
 
         std::size_t operator()(std::size_t size) const
         {
-            return static_cast<std::size_t>(growth_factor_*static_cast<float>(size));
+            return static_cast<std::size_t>(trading::fraction_cast<float>(growth_factor_)*static_cast<float>(size));
         }
 
-        float growth_factor() const
+        fraction_t growth_factor() const
         {
             return growth_factor_;
         }

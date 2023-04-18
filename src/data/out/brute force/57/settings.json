@@ -1,0 +1,36 @@
+{
+    "candles": {
+        "count": 2616803,
+        "currency pair": {
+            "base": "ADA",
+            "quote": "USDT"
+        },
+        "from": 1523937720,
+        "to": 1681298760
+    },
+    "optimization criterion": "prom",
+    "resampling": {
+        "averaging method": "ohlc4",
+        "period[min]": 15
+    },
+    "search space": {
+        "indicator": {
+            "period": {
+                "from": 3,
+                "step": 3,
+                "to": 120
+            },
+            "types": [
+                "sma"
+            ]
+        },
+        "levels": {
+            "count": 3,
+            "lower bound": "15/20",
+            "unique count": 20
+        },
+        "open order sizes": {
+            "unique count": 6
+        }
+    }
+}
