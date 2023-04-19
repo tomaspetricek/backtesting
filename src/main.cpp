@@ -398,9 +398,8 @@ int main()
         }
         else if (optim_tag==optimizer_tag::genetic_algorithm) {
             constexpr std::size_t n_children{2};
-            std::size_t init_genes_count = 128;
             using crossover_type = bazooka::configuration_crossover<n_levels, n_children>;
-
+            std::size_t init_genes_count = 128;
             auto sizer = basic_sizer{{110, 100}};
             auto selection = genetic_algorithm::roulette_selection{};
             auto matchmaker = genetic_algorithm::random_matchmaker<crossover_type::n_parents>{};
@@ -410,6 +409,7 @@ int main()
             random::levels_generator<n_levels> rand_levels{levels_unique_count, levels_lower_bound};
             random::sizes_generator<n_levels> rand_sizes{sizes_unique_count};
             random::int_range_generator rand_period{period_from, period_to, period_step};
+            auto rand_genes = random::configuration_generator<n_levels>{rand_sizes, rand_levels, rand_period};
 
             settings.emplace(json{"initial genes count", init_genes_count});
             settings.emplace(json{"optimizer", {
@@ -426,7 +426,6 @@ int main()
             // generate init population
             std::vector<config_type> init_genes;
             init_genes.reserve(init_genes_count);
-            auto rand_genes = random::configuration_generator<n_levels>{rand_sizes, rand_levels, rand_period};
             for (std::size_t i{0}; i<init_genes_count; i++)
                 init_genes.emplace_back(rand_genes());
 

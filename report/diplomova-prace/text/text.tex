@@ -2093,10 +2093,72 @@ ZRX  & 250,2   & 326,9   & 4,0  & \(-19,8\) & \(-37,7\) \\ \hline
 
 \section{Genetický algoritmus}
 
-% Please add the following required packages to your document preamble:
-% \usepackage{graphicx}
-\begin{table}[]
+
+\begin{lstlisting}[caption={~Rozšíření logu pro genetický algoritmus},label={lst:genetic:algorithm:log},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount]
+it: 0, population size: 161, mean fitness: 248.451, best fitness: 598.148
+it: 1, population size: 204, mean fitness: 289.648, best fitness: 622.364
+it: 2, population size: 257, mean fitness: 323.594, best fitness: 651.961
+\end{lstlisting}
+
+\subsection{Experimenty}
+Experimentální vyhodnocení bylo provedeno na stejném vyhledávacím prostoru jako 1. sada experimentů algoritmu hrubé síly.
+Je to menší vyhledávací prostor se přibližně 0,4 miliony různých konfigurací.
+Byl vybrán především proto, že pro něj byly známy nejlepší stavy a mohly být tedy porovnány s výsledky vyhledávání genetického algoritmu.
+
+Historická data byla rozdělena na data použitá pro white-box a black-box testování.
+Menší část sady zahrnující měny ADA, BTC a DASH byla použita pro testování white-box a zbytek pro black-box.
+Cílem vytvoření white-box sady bylo vybrat měny, které se při optimalizaci chovají dostatečně odlišně na to, aby bylo možné najít nastavení, které bude vyhovovat nejen konkrétní sadě, ale ideálně i jakékoli jiné měně pro daný vyhledávací prostor.
+
+Bylo provedeno několik počátečních testů na jednom členu sady white-box, jakmile se pro něj našlo vhodné nastavení, bylo to vyzkoušeno na zbytku.
+Bylo provedeno několik sad testů s cílem spolehlivě najít nejlepší konfigurace pro všechny měny v co nejkratším čase.
+Počet rodičů a potomků byl stanoven na 2.
+Už od začátku se zdálo, že k nalezení nejlepších stavů bude stačit 10 iterací.
+
+Ukázalo se, že 3 nejdůležitější parametry jsou ty, které kontrolují velikost populace.
+Prvním parametrem je velikost počáteční populace, pokud je příliš velká, zpomaluje optimalizaci a pokud je příliš malá, populace postrádá diverzitu.
+Dalším parametrem je elitní poměr, který udává počet elitních rodičů, kteří přejdou spolu s dětmi do další generace.
+Posledním parametrem je růstový faktor, který udává počet jedinců, kteří jsou vybráni jako rodiče.
+Nejlepší nalezenou kombinaci těchto parametrů lze vidět v tabulce \ref{tab:genetic:algorithm:setting}.
+
+\begin{table}[!htbp]
 \centering
+\caption[Nastavení použité pro optimalizaci]{~Nastavení použité pro optimalizaci}
+\label{tab:genetic:algorithm:setting}
+{%
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{\begin{tabular}[c]{@{}c@{}}Velikost\\ počáteční populace\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Počet\\ rodičů\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Počet\\ dětí\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Elitní\\ poměr (\%)\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Růstový\\ faktor (\%)\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Počet\\ iterací\end{tabular}} \\ \hline
+128 &
+  2 &
+  2 &
+  15 &
+  10 &
+  10 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+Průběh optimalizace white-box testování lze vidět na \ref{fig:genetic:algorithm:white:box:optimization:progress}.
+Nejlepší konfigurace pro ADA a BTC byly nalezeny v 1. polovině iterací a pro DASH během poslední, což může naznačovat, že počet iterací mohl být trochu zvýšen.
+Průměrná zdatnost má u všech rostoucí tendenci.
+Průměrné zrychlení ve srovnání s algoritmem hrubé síly je \textbf{22,5} a optimalizace trvá \textbf{1,3--2 minuty}, takže je hledání výrazně méně časově náročné.
+Výsledky lze nalézt v tabulce \ref{tab:genetic:algorithm:white:box:results}.
+
+\begin{figure}[!htbp]
+\centerline{\includegraphics[scale=0.55]{img/genetic-algorithm-white-box-progress.png}}
+\caption{Průběh optimalizace white-box testování genetického algoritmu}
+\label{fig:genetic:algorithm:white:box:optimization:progress}
+\end{figure}
+
+\begin{table}[!htbp]
+\centering
+\caption[Výsledky white-box testování]{~Výsledky white-box testování}
+\label{tab:genetic:algorithm:white:box:results}
 {%
 \begin{tabular}{|l|c|c|c|}
 \hline
@@ -2111,10 +2173,16 @@ DASH & 0,0 & 75,9  & 22,1 \\ \hline
 }
 \end{table}
 
-% Please add the following required packages to your document preamble:
-% \usepackage{graphicx}
-\begin{table}[]
+Nakonec bylo provedeno black-box testování.
+Výsledky jsou vidět v tabulce \ref{tab:genetic:algorithm:black:box:results}.
+Optimální stav byl nalezen pro 4 ze 7 měn.
+V případě SOL a XRP byly nalezené stavy o méně než \(-1\) \% horší než nejlepší a pro ETH o \mbox{\(-4,4\) \%}.
+Celkově byly nalezeny velmi dobré konfigurace v přiměřeně krátkém čase.
+
+\begin{table}[!htbp]
 \centering
+\caption[Výsledky black-box testování]{~Výsledky black-box testování}
+\label{tab:genetic:algorithm:black:box:results}
 {%
 \begin{tabular}{|l|c|c|c|}
 \hline
