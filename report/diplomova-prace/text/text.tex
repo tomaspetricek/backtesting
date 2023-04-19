@@ -2092,7 +2092,9 @@ ZRX  & 250,2   & 326,9   & 4,0  & \(-19,8\) & \(-37,7\) \\ \hline
 % Celkově experimenty poskytly zajímavé a netriviální výsledky.
 
 \section{Genetický algoritmus}
-
+Do souboru \texttt{settings.json} byly přidány informace o nastavení heuristiky, jako je počáteční velikost populace, typ metody nahrazení populace, typ výběru a ukončovací kritérium.
+Průběh optimalizace byl uložen do souboru \texttt{progress.csv}, aby mohl být později použit pro tvorbu grafů.
+Logy byly doplněny o informace o průběhu optimalizace (viz \ref{lst:genetic:algorithm:log}) zahrnující velikost populace, průměrnou a nejlepší zdatnost.
 
 \begin{lstlisting}[caption={~Rozšíření logu pro genetický algoritmus},label={lst:genetic:algorithm:log},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount]
 it: 0, population size: 161, mean fitness: 248.451, best fitness: 598.148
@@ -2110,8 +2112,9 @@ Menší část sady zahrnující měny ADA, BTC a DASH byla použita pro testov�
 Cílem vytvoření white-box sady bylo vybrat měny, které se při optimalizaci chovají dostatečně odlišně na to, aby bylo možné najít nastavení, které bude vyhovovat nejen konkrétní sadě, ale ideálně i jakékoli jiné měně pro daný vyhledávací prostor.
 
 Bylo provedeno několik počátečních testů na jednom členu sady white-box, jakmile se pro něj našlo vhodné nastavení, bylo to vyzkoušeno na zbytku.
-Bylo provedeno několik sad testů s cílem spolehlivě najít nejlepší konfigurace pro všechny měny v co nejkratším čase.
-Počet rodičů a potomků byl stanoven na 2.
+Pro výběr rodičů byla použit ruletový výběr a pro nahrazení populace bylo použit elitismus, jelikož se ukázalo, že je lepší volbou než en-block nahrazování.
+Dále bylo provedeno několik sad testů s cílem spolehlivě najít nejlepší konfigurace pro všechny měny v co nejkratším čase.
+Počet rodičů a potomků byl nastaven na 2.
 Už od začátku se zdálo, že k nalezení nejlepších stavů bude stačit 10 iterací.
 
 Ukázalo se, že 3 nejdůležitější parametry jsou ty, které kontrolují velikost populace.
@@ -2176,7 +2179,7 @@ DASH & 0,0 & 75,9  & 22,1 \\ \hline
 Nakonec bylo provedeno black-box testování.
 Výsledky jsou vidět v tabulce \ref{tab:genetic:algorithm:black:box:results}.
 Optimální stav byl nalezen pro 4 ze 7 měn.
-V případě SOL a XRP byly nalezené stavy o méně než \(-1\) \% horší než nejlepší a pro ETH o \mbox{\(-4,4\) \%}.
+V případě SOL a XRP byly nalezené stavy o méně než \mbox{\(-1\) \%} horší než nejlepší a pro ETH o \mbox{\(-4,4\) \%}.
 Celkově byly nalezeny velmi dobré konfigurace v přiměřeně krátkém čase.
 
 \begin{table}[!htbp]
