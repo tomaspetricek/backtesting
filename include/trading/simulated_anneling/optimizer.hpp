@@ -10,7 +10,6 @@
 #include <trading/random/generators.hpp>
 #include <trading/optimizer.hpp>
 
-
 namespace trading::simulated_annealing {
     // https://youtu.be/l6Y9PqyK1Mc
     template<class ConcreteCooler, class SimulatedAnnealing>
@@ -21,9 +20,9 @@ namespace trading::simulated_annealing {
     concept Appraiser = std::invocable<ConcreteAppraiser, const State&, const State&> &&
             std::same_as<double, std::invoke_result_t<ConcreteAppraiser, const State&, const State&>>;
 
-    template<class ConcreteEquilibrium>
-    concept Equilibrium = std::invocable<ConcreteEquilibrium> &&
-            std::same_as<bool, std::invoke_result_t<ConcreteEquilibrium>>;
+    template<class ConcreteEquilibrium, class SimulatedAnnealing>
+    concept Equilibrium = std::invocable<ConcreteEquilibrium, const SimulatedAnnealing&> &&
+            std::same_as<std::size_t, std::invoke_result_t<ConcreteEquilibrium, const SimulatedAnnealing&>>;
 
     template<class ConcreteNeighbor, class Config>
     concept Neighbor = std::invocable<ConcreteNeighbor, const Config&> &&
@@ -36,7 +35,7 @@ namespace trading::simulated_annealing {
         std::size_t it_{0};
         using state_type = State;
         using config_type = typename State::config_type;
-        state_type curr_state_;
+        state_type curr_state_, best_state_;
 
         static double validate_min_temp(const double min_temp)
         {
@@ -64,15 +63,15 @@ namespace trading::simulated_annealing {
                 Cooler<optimizer> auto&& cool,
                 Neighbor<config_type> auto&& neighbor,
                 Appraiser<state_type> auto&& appraise,
-                Equilibrium auto&& equilibrium,
+                Equilibrium<optimizer> auto&& equilibrium,
                 Observer& ... observers)
         {
-            curr_state_ = objective(init_config);
+            curr_state_ = best_state_ = objective(init_config);
             (observers.started(*this), ...);
 
             // frozen
             for (; curr_temp_>min_temp_; it_++) {
-                while (equilibrium()) {
+                for (std::size_t e{0}; e<equilibrium(*this); e++) {
                     auto candidate = objective(neighbor(curr_state_.config));
 
                     if (result.compare(candidate, curr_state_)) {
@@ -80,7 +79,10 @@ namespace trading::simulated_annealing {
                         (observers.better_accepted(*this), ...);
 
                         if (constraints(curr_state_))
-                            result.update(curr_state_);
+                            if (result.compare(curr_state_, best_state_)) {
+                                best_state_ = curr_state_;
+                                result.update(best_state_);
+                            }
                     }
                     else {
                         double diff = appraise(curr_state_, candidate);
@@ -124,8 +126,14 @@ namespace trading::simulated_annealing {
             return min_temp_;
         }
 
-        const state_type& current_state() const {
+        const state_type& current_state() const
+        {
             return curr_state_;
+        }
+
+        const state_type& best_state() const
+        {
+            return best_state_;
         }
     };
 }

@@ -12,7 +12,7 @@
 namespace trading::simulated_annealing {
     class progress_collector {
         struct progress {
-            amount_t curr_state_value;
+            amount_t curr_state_value, best_state_value;
             double temperature, worse_acceptance_mean_threshold;
             std::size_t better_accepted_count, worse_accepted_count;
         };
@@ -53,6 +53,7 @@ namespace trading::simulated_annealing {
         void cooled(const Optimizer& optimizer)
         {
             progress_.back().curr_state_value = optimizer.current_state().value;
+            progress_.back().best_state_value = optimizer.best_state().value;
             progress_.back().temperature = optimizer.current_temperature();
             auto mean_threshold = (threshold_sum_==0.0) ? 0.0 : threshold_sum_/threshold_count_;
             progress_.back().worse_acceptance_mean_threshold = mean_threshold;

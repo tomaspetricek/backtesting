@@ -1,0 +1,86 @@
+candles read:
+from: 2019-Mar-28 04:00:00
+to: 2023-Apr-12 09:28:00
+difference: 1476d 05:28:00.000000
+count: 2122039
+duration: 3.592637
+began: 2023-Apr-19 20:37:47
+it: 0, temperature: 64, curr value: -39.909, best value: 40.203
+it: 1, temperature: 37.7994, curr value: -14.9697, best value: 45.5391
+it: 2, temperature: 30.4963, curr value: -26.8165, best value: 74.72
+it: 3, temperature: 26.8198, curr value: -19.4419, best value: 74.72
+it: 4, temperature: 24.5264, curr value: -24.3661, best value: 74.72
+it: 5, temperature: 22.9246, curr value: 38.527, best value: 74.72
+it: 6, temperature: 21.725, curr value: 103.796, best value: 120.75
+it: 7, temperature: 20.783, curr value: 19.5695, best value: 120.75
+it: 8, temperature: 20.0174, curr value: 73.1226, best value: 120.75
+it: 9, temperature: 19.3788, curr value: 68.7257, best value: 120.75
+it: 10, temperature: 18.8352, curr value: -15.9214, best value: 120.75
+it: 11, temperature: 18.3649, curr value: 69.5726, best value: 120.75
+it: 12, temperature: 17.9526, curr value: 63.2915, best value: 120.75
+it: 13, temperature: 17.587, curr value: 88.6652, best value: 124.53
+it: 14, temperature: 17.2597, curr value: 76.9653, best value: 124.53
+it: 15, temperature: 16.9645, curr value: 77.2934, best value: 124.53
+it: 16, temperature: 16.6962, curr value: 46.1048, best value: 124.53
+it: 17, temperature: 16.4509, curr value: 45.5173, best value: 124.53
+it: 18, temperature: 16.2254, curr value: 42.1319, best value: 124.53
+it: 19, temperature: 16.0171, curr value: 111.903, best value: 124.53
+it: 20, temperature: 15.8239, curr value: 99.9411, best value: 124.53
+it: 21, temperature: 15.6439, curr value: 89.8453, best value: 136.116
+it: 22, temperature: 15.4758, curr value: 124.53, best value: 136.116
+it: 23, temperature: 15.3181, curr value: 64.8109, best value: 136.116
+it: 24, temperature: 15.1699, curr value: 113.445, best value: 136.116
+it: 25, temperature: 15.0302, curr value: 86.8603, best value: 136.116
+it: 26, temperature: 14.8981, curr value: 30.9349, best value: 136.116
+it: 27, temperature: 14.7731, curr value: 128.908, best value: 136.116
+it: 28, temperature: 14.6544, curr value: 58.0247, best value: 136.116
+it: 29, temperature: 14.5415, curr value: 61.4887, best value: 136.116
+it: 30, temperature: 14.434, curr value: 86.8478, best value: 136.116
+it: 31, temperature: 14.3313, curr value: 93.4038, best value: 136.116
+it: 32, temperature: 14.2333, curr value: 28.8729, best value: 136.116
+it: 33, temperature: 14.1394, curr value: 80.7767, best value: 136.116
+it: 34, temperature: 14.0494, curr value: 67.0285, best value: 136.116
+it: 35, temperature: 13.9631, curr value: 44.9891, best value: 136.116
+it: 36, temperature: 13.8801, curr value: 53.3831, best value: 136.116
+it: 37, temperature: 13.8003, curr value: 68.2965, best value: 136.116
+it: 38, temperature: 13.7234, curr value: 49.79, best value: 136.116
+it: 39, temperature: 13.6493, curr value: 88.7551, best value: 136.116
+it: 40, temperature: 13.5778, curr value: 102.581, best value: 136.116
+it: 41, temperature: 13.5088, curr value: 121.818, best value: 136.116
+it: 42, temperature: 13.442, curr value: 77.9704, best value: 136.116
+it: 43, temperature: 13.3774, curr value: 130.695, best value: 138.123
+it: 44, temperature: 13.3149, curr value: 100.405, best value: 138.123
+it: 45, temperature: 13.2542, curr value: 91.3137, best value: 138.123
+it: 46, temperature: 13.1955, curr value: 123.419, best value: 138.123
+it: 47, temperature: 13.1384, curr value: 103.259, best value: 138.123
+it: 48, temperature: 13.0831, curr value: 120.75, best value: 138.123
+it: 49, temperature: 13.0293, curr value: 31.6603, best value: 138.123
+it: 50, temperature: 12.9769, curr value: 34.6766, best value: 138.123
+it: 51, temperature: 12.926, curr value: 41.2755, best value: 138.123
+it: 52, temperature: 12.8765, curr value: 98.1342, best value: 138.123
+it: 53, temperature: 12.8283, curr value: 60.9078, best value: 138.123
+it: 54, temperature: 12.7813, curr value: 62.6, best value: 138.123
+it: 55, temperature: 12.7354, curr value: 72.0766, best value: 138.123
+it: 56, temperature: 12.6907, curr value: 11.5731, best value: 138.123
+it: 57, temperature: 12.6471, curr value: 127.004, best value: 138.123
+it: 58, temperature: 12.6045, curr value: 124.848, best value: 138.123
+it: 59, temperature: 12.563, curr value: 94.2041, best value: 138.123
+it: 60, temperature: 12.5223, curr value: 116.833, best value: 138.123
+it: 61, temperature: 12.4826, curr value: 93.1939, best value: 138.123
+it: 62, temperature: 12.4438, curr value: 54.5801, best value: 138.123
+it: 63, temperature: 12.4058, curr value: 91.7923, best value: 138.123
+it: 64, temperature: 12.3686, curr value: 91.6108, best value: 138.123
+it: 65, temperature: 12.3322, curr value: 123.378, best value: 138.123
+it: 66, temperature: 12.2966, curr value: 81.9144, best value: 138.123
+it: 67, temperature: 12.2617, curr value: 121.496, best value: 138.123
+it: 68, temperature: 12.2275, curr value: 89.7151, best value: 138.123
+it: 69, temperature: 12.194, curr value: 119.602, best value: 138.123
+it: 70, temperature: 12.1611, curr value: 115.23, best value: 138.123
+it: 71, temperature: 12.1289, curr value: 95.3124, best value: 138.123
+it: 72, temperature: 12.0972, curr value: 123.999, best value: 138.123
+it: 73, temperature: 12.0662, curr value: 126.424, best value: 138.123
+it: 74, temperature: 12.0358, curr value: 116.269, best value: 138.123
+it: 75, temperature: 12.0059, curr value: 88.7902, best value: 138.123
+it: 76, temperature: 11.9765, curr value: 119.144, best value: 138.123
+ended: 2023-Apr-19 20:40:38
+duration: 2:51.003704

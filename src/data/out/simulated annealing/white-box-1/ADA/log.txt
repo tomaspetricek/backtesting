@@ -1,0 +1,24 @@
+candles read:
+from: 2018-Apr-17 04:02:00
+to: 2023-Apr-12 11:26:00
+difference: 1821d 07:24:00.000000
+count: 2616803
+duration: 3.234500
+began: 2023-Apr-19 17:49:41
+it: 0, temperature: 96, curr value: 0, best value: 0
+it: 1, temperature: 56.6991, curr value: 494.644, best value: 494.644
+it: 2, temperature: 45.7445, curr value: 558.663, best value: 607.549
+it: 3, temperature: 40.2297, curr value: 681.249, best value: 681.249
+it: 4, temperature: 36.7895, curr value: 653.524, best value: 703.288
+it: 5, temperature: 34.3869, curr value: 667.786, best value: 703.288
+it: 6, temperature: 32.5876, curr value: 622.364, best value: 703.288
+it: 7, temperature: 31.1745, curr value: 730.81, best value: 730.81
+it: 8, temperature: 30.026, curr value: 749.789, best value: 749.789
+it: 9, temperature: 29.0681, curr value: 686.592, best value: 751.215
+it: 10, temperature: 28.2528, curr value: 749.789, best value: 751.215
+it: 11, temperature: 27.5474, curr value: 668.426, best value: 754.849
+it: 12, temperature: 26.9289, curr value: 746.227, best value: 754.849
+it: 13, temperature: 26.3805, curr value: 746.227, best value: 754.849
+it: 14, temperature: 25.8896, curr value: 749.789, best value: 754.849
+ended: 2023-Apr-19 17:49:50
+duration: 8.629473

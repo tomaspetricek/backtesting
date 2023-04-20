@@ -29,8 +29,9 @@ namespace trading::simulated_annealing {
         template<class Optimizer>
         void cooled(const Optimizer& optimizer)
         {
-            *logger_ << "temperature: " << optimizer.current_temperature() <<
-                     ", current state value: " << optimizer.current_state().value << std::endl;
+            *logger_ << "it: " << optimizer.it() << ", temperature: " << optimizer.current_temperature()
+                     << ", curr value: " << optimizer.current_state().value << ", best value: "
+                     << optimizer.best_state().value << std::endl;
         }
 
         template<class Optimizer>

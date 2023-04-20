@@ -1,0 +1,35 @@
+candles read:
+from: 2017-Aug-17 04:00:00
+to: 2023-Apr-11 22:10:00
+difference: 2063d 18:10:00.000000
+count: 2963250
+duration: 4.121275
+began: 2023-Apr-19 19:52:43
+it: 0, temperature: 110, curr value: 151.196, best value: 203.731
+it: 1, temperature: 64.9678, curr value: 65.251, best value: 248.506
+it: 2, temperature: 52.4156, curr value: 72.6701, best value: 248.506
+it: 3, temperature: 46.0966, curr value: 7.19418, best value: 248.506
+it: 4, temperature: 42.1547, curr value: 247.66, best value: 301.947
+it: 5, temperature: 39.4017, curr value: 252.785, best value: 301.947
+it: 6, temperature: 37.3399, curr value: 243.147, best value: 301.947
+it: 7, temperature: 35.7208, curr value: 248.578, best value: 301.947
+it: 8, temperature: 34.4048, curr value: 275.598, best value: 301.947
+it: 9, temperature: 33.3072, curr value: 242.892, best value: 301.947
+it: 10, temperature: 32.373, curr value: 286.233, best value: 301.947
+it: 11, temperature: 31.5647, curr value: 267.423, best value: 301.947
+it: 12, temperature: 30.856, curr value: 275.598, best value: 301.947
+it: 13, temperature: 30.2276, curr value: 270.172, best value: 301.947
+it: 14, temperature: 29.6652, curr value: 272.64, best value: 301.947
+it: 15, temperature: 29.1577, curr value: 186.322, best value: 301.947
+it: 16, temperature: 28.6966, curr value: 246.522, best value: 301.947
+it: 17, temperature: 28.2749, curr value: 224.38, best value: 301.947
+it: 18, temperature: 27.8874, curr value: 246.089, best value: 301.947
+it: 19, temperature: 27.5294, curr value: 277.782, best value: 301.947
+it: 20, temperature: 27.1973, curr value: 311.916, best value: 311.916
+it: 21, temperature: 26.888, curr value: 293.357, best value: 323.448
+it: 22, temperature: 26.599, curr value: 241.297, best value: 323.448
+it: 23, temperature: 26.328, curr value: 323.448, best value: 323.448
+it: 24, temperature: 26.0733, curr value: 311.916, best value: 323.448
+it: 25, temperature: 25.8331, curr value: 275.727, best value: 323.448
+ended: 2023-Apr-19 19:53:00
+duration: 17.735509

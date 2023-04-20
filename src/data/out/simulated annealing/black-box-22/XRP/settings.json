@@ -1,0 +1,51 @@
+{
+    "candles": {
+        "count": 2591038,
+        "currency pair": {
+            "base": "XRP",
+            "quote": "USDT"
+        },
+        "from": 1525421460,
+        "to": 1681236540
+    },
+    "optimization criterion": "prom",
+    "optimizer": {
+        "cooler": {
+            "name": "basic cooler"
+        },
+        "equilibrium": {
+            "multiplier": "75/100",
+            "name": "temperature based equilibrium"
+        },
+        "minimum temperature": 12.0,
+        "start temperature": 94.0
+    },
+    "resampling": {
+        "averaging method": "ohlc4",
+        "period[min]": 45
+    },
+    "search space": {
+        "indicator": {
+            "period": {
+                "change span": 10,
+                "from": 3,
+                "step": 3,
+                "to": 60
+            },
+            "types": [
+                "sma",
+                "ema"
+            ]
+        },
+        "levels": {
+            "change count": 1,
+            "count": 3,
+            "lower bound": "15/20",
+            "unique count": 15
+        },
+        "open order sizes": {
+            "change count": 2,
+            "unique count": 6
+        }
+    }
+}

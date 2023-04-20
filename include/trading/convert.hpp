@@ -121,6 +121,36 @@ namespace nlohmann {
         }
     };
 
+    template<>
+    struct adl_serializer<trading::simulated_annealing::fixed_equilibrium> {
+        static void to_json(nlohmann::json& j, const trading::simulated_annealing::fixed_equilibrium& equilibrium)
+        {
+            j = {
+                    {"name", trading::simulated_annealing::fixed_equilibrium::name},
+                    {"tries count", equilibrium.tries_count()}
+            };
+        }
+    };
+
+    template<>
+    struct adl_serializer<trading::simulated_annealing::temperature_based_equilibrium> {
+        static void to_json(nlohmann::json& j, const trading::simulated_annealing::temperature_based_equilibrium& equilibrium)
+        {
+            j = {
+                    {"name", trading::simulated_annealing::temperature_based_equilibrium::name},
+                    {"multiplier", equilibrium.multiplier()},
+            };
+        }
+    };
+
+    template<>
+    struct adl_serializer<trading::simulated_annealing::basic_cooler> {
+        static void to_json(nlohmann::json& j, const trading::simulated_annealing::basic_cooler& cooler)
+        {
+            j = {{"name", trading::simulated_annealing::basic_cooler::name}};
+        }
+    };
+
     template<std::size_t n_parents>
     struct adl_serializer<trading::genetic_algorithm::random_matchmaker<n_parents>> {
         static void

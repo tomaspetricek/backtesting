@@ -21,7 +21,7 @@ namespace trading::random {
         std::mt19937 gen_;
         std::vector<fraction_t> all_options_;
         std::array<std::size_t, n_levels> indices_;
-        std::size_t change_n_;
+        std::size_t change_count_;
 
         std::size_t validate_change_count(std::size_t change_n)
         {
@@ -35,7 +35,7 @@ namespace trading::random {
 
         explicit levels_generator(size_t unique_count = n_levels,
                 fraction_t lower_bound = base_type::default_lower_bound, std::size_t change_count = 1)
-                :base_type(unique_count, lower_bound), gen_{std::random_device{}()}, change_n_{
+                :base_type(unique_count, lower_bound), gen_{std::random_device{}()}, change_count_{
                 validate_change_count(change_count)}
         {
             all_options_.reserve(unique_count);
@@ -56,7 +56,7 @@ namespace trading::random {
 
         const value_type& operator()(const value_type& origin)
         {
-            std::size_t keep_n{n_levels-change_n_};
+            std::size_t keep_n{n_levels-change_count_};
             std::shuffle(indices_.begin(), indices_.end(), gen_);
             std::sort(indices_.begin(), indices_.begin()+static_cast<int>(keep_n));
             etl::flat_set<fraction_t, n_levels, std::greater<>> unique;
@@ -73,6 +73,11 @@ namespace trading::random {
             std::copy(unique.begin(), unique.end(), this->levels_.begin());
             return this->levels_;
         }
+
+        size_t change_count() const
+        {
+            return change_count_;
+        }
     };
 
     template<std::size_t n_sizes>
@@ -80,14 +85,14 @@ namespace trading::random {
         std::mt19937 gen_;
         std::uniform_int_distribution<std::size_t> distrib_;
         std::array<std::size_t, n_sizes> indices_;
-        std::size_t change_n_;
-        static constexpr std::size_t min_change_n = 2;
+        std::size_t change_count_;
+        static constexpr std::size_t min_change_count_ = 2;
 
         std::size_t validate_change_count(std::size_t change_count)
         {
-            if (!(change_count>=min_change_n && change_count<=n_sizes))
+            if (!(change_count>=min_change_count_ && change_count<=n_sizes))
                 throw std::invalid_argument(
-                        fmt::format("Change n has to be in interval [{},{}]", min_change_n, change_count));
+                        fmt::format("Change n has to be in interval [{},{}]", min_change_count_, change_count));
             return change_count;
         }
 
@@ -109,9 +114,9 @@ namespace trading::random {
         using base_type = trading::sizes_generator<n_sizes>;
 
         explicit sizes_generator(size_t unique_count = base_type::default_unique_count,
-                std::size_t change_n = min_change_n)
+                std::size_t change_n = min_change_count_)
                 :base_type(unique_count), gen_(std::random_device{}()),
-                 distrib_(1, this->max_num_), change_n_{validate_change_count(change_n)}
+                 distrib_(1, this->max_num_), change_count_{validate_change_count(change_n)}
         {
             for (std::size_t i{0}; i<indices_.size(); i++)
                 indices_[i] = i;
@@ -126,7 +131,7 @@ namespace trading::random {
 
         const value_type& operator()(const value_type& origin)
         {
-            std::size_t i, keep_n{n_sizes-change_n_}, rest_num_sum{this->denom_};
+            std::size_t i, keep_n{n_sizes-change_count_}, rest_num_sum{this->denom_};
             std::shuffle(indices_.begin(), indices_.end(), gen_);
 
             for (i = 0; i<keep_n; i++) {
@@ -135,9 +140,14 @@ namespace trading::random {
                 this->sizes_[idx] = size;
                 rest_num_sum -= size.numerator();
             }
-            std::size_t curr_max_num{rest_num_sum-change_n_+1};
+            std::size_t curr_max_num{rest_num_sum-change_count_+1};
             fill_rest(rest_num_sum, curr_max_num, i);
             return this->sizes_;
+        }
+
+        size_t change_count() const
+        {
+            return change_count_;
         }
     };
 
@@ -206,6 +216,11 @@ namespace trading::random {
             if (val>max_) val -= static_cast<int>(n_vals_*positive_step);
             assert(val>=min_ && val<=max_);
             return val;
+        }
+
+        size_t change_span() const
+        {
+            return change_span_;
         }
     };
 
