@@ -186,23 +186,23 @@ int main()
     using state_type = trading::bazooka::state<n_levels>;
     using config_type = state_type::config_type;
 
-    std::string experiment_set_name = "black-box-22";
+    std::string experiment_set_name = "black-box-23";
     auto optim_tag = optimizer_tag::simulated_annealing;
     auto optimizer_name = optimizer_names[trading::to_underlying(optim_tag)];
 
     std::vector<currency_pair> pairs{
 // white box
-//            {"ADA",  "USDT"},
-//            {"BTC",  "USDT"},
-//            {"DASH", "USDT"},
+            {"ADA",  "USDT"},
+            {"BTC",  "USDT"},
+            {"DASH", "USDT"},
 // black box
-            {"DOGE", "USDT"},
-            {"ETH",  "USDT"},
-            {"LTC",  "USDT"},
-            {"SOL",  "USDT"},
-            {"XLM",  "USDT"},
-            {"XRP",  "USDT"},
-            {"ZRX",  "USDT"},
+//            {"DOGE", "USDT"},
+//            {"ETH",  "USDT"},
+//            {"LTC",  "USDT"},
+//            {"SOL",  "USDT"},
+//            {"XLM",  "USDT"},
+//            {"XRP",  "USDT"},
+//            {"ZRX",  "USDT"},
     };
     std::filesystem::path data_dir{"../../src/data"}, in_dir{data_dir/"in"}, out_dir{data_dir/"out"};
     std::filesystem::path optim_dir{out_dir/optimizer_name};
@@ -353,9 +353,9 @@ int main()
 
             if (optim_tag==optimizer_tag::simulated_annealing) {
                 double start_temp{94}, min_temp{12};
-                simulated_annealing::optimizer<state_type> optimizer{start_temp, min_temp};
-                auto cooler = simulated_annealing::basic_cooler{};
-                auto equilibrium = simulated_annealing::temperature_based_equilibrium{{75, 100}};
+                trading::simulated_annealing::optimizer<state_type> optimizer{start_temp, min_temp};
+                auto cooler = trading::simulated_annealing::basic_cooler{};
+                auto equilibrium = trading::simulated_annealing::temperature_based_equilibrium{{75, 100}};
 
                 settings.emplace(json{"optimizer", {
                         {"start temperature", optimizer.start_temperature()},

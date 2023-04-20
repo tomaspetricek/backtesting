@@ -2125,7 +2125,7 @@ Nejlepší nalezenou kombinaci těchto parametrů lze vidět v tabulce \ref{tab:
 
 \begin{table}[!htbp]
 \centering
-\caption[Nastavení použité pro optimalizaci]{~Nastavení použité pro optimalizaci}
+\caption[Nastavení použité pro testování]{~Nastavení použité pro optimalizaci}
 \label{tab:genetic:algorithm:setting}
 {%
 \begin{tabular}{|c|c|c|c|c|c|}
@@ -2204,7 +2204,72 @@ ZRX  & 0,0  & 79,3  & 21,6 \\ \hline
 }
 \end{table}
 
-\subsection{Simulované ochlazování}
+\section{Simulované ochlazování}
+Soubor \texttt{settings.json} byl rozšířen o informace o optimalizátoru jako je počáteční a minimalní teplota, použitý rozvrh ochlazování a equilibrium.
+Průběh optimalizace byl uložen do souboru \texttt{progress.csv}.
+Obsahuje informace o hodnotě aktuální teploty, aktuálního stavu, nejlepšího stavu a průměrného prahu přijetí horšího stavu.
+Při přijetí horšího stavu se zaznamená prahová hodnota, na základě které bylo rozhodnuto o jeho přijetí, pro každou iteraci je vypočten jejich průměr.
+Měl by klesat s teplotou a je to další údaj, který může pomoci při ladění parametrů algoritmu.
+Ukázku rozšíření logu lze vidět \ref{lst:simulated:annealing:log}.
+
+\begin{lstlisting}[caption={~Rozšíření logu pro simulované ochlazování},label={lst:simulated:annealing:log},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount]
+it: 0, temperature: 94, curr value: 230.451, best value: 592.883
+it: 1, temperature: 55.5179, curr value: 312.835, best value: 592.883
+it: 2, temperature: 44.7915, curr value: 206.282, best value: 592.883
+\end{lstlisting}
+
+\subsection{Experimenty}
+Sady měn pro white-box a black-box testování zůstaly stejné jako u předchozích experimentů.
+Nejprve byly provedeny experimenty ke zjištění vhodného rozvrhu ochlazování, z nichž vynikla implementace třídy \texttt{basic\_cooler}.
+Nepřebírá žádný parametr rozkladu a je závislá pouze na počáteční teplotě a aktuální iteraci.
+
+% Začít s 2 skupinami vhodných nastavení
+Pro výpočet počtu pokusů o změnu aktuálního stavu byla použita třída \texttt{fixed\_equilibrium}.
+Po několika počátečních experimentech se sada rozdělila do 2 skupin, pro které dobře fungovala 2 různá nastavení.
+Pro 1. skupinu skládající se z měn ADA a BTC byly hodnoty parametrů: počáteční teplota 128, minimální teplota 26 a počet pokusů 64 a pro 2. skupinu, která zahrnovala pouze DASH, bylo nastavení: počáteční teplota 54, minimální teplota 8 a počet pokusů 16.
+Při použití nastavení 1. skupiny pro 2. DASH nedosáhl intenzifikační fáze a při opačném použití nastala intenzifikační fáze u 1. skupiny příliš brzy.
+
+Jelikož byly rozsahy vhodných hodnot parametrů příliš daleko od sebe, byla navržena nová dynamičtější implementace equilibria  \texttt{temperature\_based\_equilibrium} založená na aktuální teplotě.
+Počet pokusů vypočítá vynásobením aktuální teploty koeficientem.
+Implementace umožnila snížení počtu pokusů s teplotou a tím spojení obou nastavení parametrů.
+
+Nejlepší nalezené nastavení parametrů pro sadu white-box je uvedeno v tabulce \ref{tab:simulated:annealing:setting}.
+Hodnota počáteční teploty je velmi blízká hodnotě vhodné pro 1. skupinu a hodnota minimální teploty zase hodnotě teploty vhodné pro 2. skupinu.
+Počet pokusů je o 20 \% nižší než aktuální teplota, začíná tedy na 75 pokusech a končí na 10.
+Rozsah změn generátoru náhodných období byl nastaven na 10 z výchozí hodnoty 1, jinak byl počet velikostí a úrovní, které lze změnit, ponechán na výchozí minimum.
+
+\begin{table}[!htbp]
+\centering
+\caption[Nastavení použité pro testování]{~Nastavení použité pro optimalizaci}
+\label{tab:simulated:annealing:setting}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{\begin{tabular}[c]{@{}c@{}}Počáteční\\ teplota\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Minimální\\ teplota\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Koeficient equilibria\\ založeném na teplotě (\%)\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Rozsah změny\\ období\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Počet změn\\ nákupních úrovní\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Počet změn\\ nákupních velikostí\end{tabular}} \\ \hline
+94 &
+  12 &
+  \(-20\) &
+  10 &
+  2 &
+  1 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+Průběh optimalizace white-box testování je vidět na grafu \ref{fig:simulated:annealing:white:box:optimization:progress}.
+V případě ADA dochází ke krátkému období diverzifikace, které rychle přechází do fáze intenzifikace.
+U BTC je přechod pomalejší a u DASH lze vypozorovat, že dochází k výraznější diverzifikační fázi.
+Individuálně lze tedy nalézt lepší hodnoty parametrů, ale i přesto se podařilo konvergovat ke globálním optimům, což lze vidět v tabulce \ref{tab:simulated:annealing:white:box:results}.
+Počet iterací je řádově vyšší než u genetického algoritmu, ale trvají mnohem kratší dobu.
+Průměrné zrychlení je \textbf{11,4} oproti hrubé síle a čas optimalizace se pohybuje mezi \textbf{2,5--3,9} minut.
+Je tedy asi \textbf{2krát} pomalejší než genetický algoritmus.
+Nicméně ve výsledcích testování black-box byl genetický algoritmus překonán, protože byly nalezeny optimální konfigurace pro všechny měny v sadě (viz \ref{tab:simulated:annealing:black:box:results}).
+
 
 \begin{figure}[!htbp]
 \centerline{\includegraphics[scale=0.55]{img/simulated-annealing-white-box-progress.png}}

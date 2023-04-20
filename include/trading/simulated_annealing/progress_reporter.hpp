@@ -5,7 +5,7 @@
 #ifndef BACKTESTING_SIMULATED_ANNEALING_PROGRESS_REPORTER_HPP
 #define BACKTESTING_SIMULATED_ANNEALING_PROGRESS_REPORTER_HPP
 
-#include <trading/simulated_anneling/optimizer.hpp>
+#include <trading/simulated_annealing/optimizer.hpp>
 
 namespace trading::simulated_annealing {
 

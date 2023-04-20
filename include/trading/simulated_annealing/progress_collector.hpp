@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <trading/types.hpp>
-#include <trading/simulated_anneling/optimizer.hpp>
+#include <trading/simulated_annealing/optimizer.hpp>
 
 namespace trading::simulated_annealing {
     class progress_collector {
