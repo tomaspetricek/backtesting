@@ -2160,7 +2160,7 @@ Výsledky lze nalézt v tabulce \ref{tab:genetic:algorithm:white:box:results}.
 
 \begin{table}[!htbp]
 \centering
-\caption[Výsledky white-box testování]{~Výsledky white-box testování}
+\caption[Výsledky white-box testování genetického algoritmu]{~Výsledky white-box testování genetického algoritmu}
 \label{tab:genetic:algorithm:white:box:results}
 {%
 \begin{tabular}{|l|c|c|c|}
@@ -2184,7 +2184,7 @@ Celkově byly nalezeny velmi dobré konfigurace v přiměřeně krátkém čase.
 
 \begin{table}[!htbp]
 \centering
-\caption[Výsledky black-box testování]{~Výsledky black-box testování}
+\caption[Výsledky black-box testování genetického algoritmu]{~Výsledky black-box testování genetického algoritmu}
 \label{tab:genetic:algorithm:black:box:results}
 {%
 \begin{tabular}{|l|c|c|c|}
@@ -2204,3 +2204,52 @@ ZRX  & 0,0  & 79,3  & 21,6 \\ \hline
 }
 \end{table}
 
+\subsection{Simulované ochlazování}
+
+\begin{figure}[!htbp]
+\centerline{\includegraphics[scale=0.55]{img/simulated-annealing-white-box-progress.png}}
+\caption{Průběh optimalizace white-box testování simulovaného ochlazování}
+\label{fig:simulated:annealing:white:box:optimization:progress}
+\end{figure}
+
+% Please add the following required packages to your document preamble:
+% \usepackage{graphicx}
+\begin{table}[!htbp]
+\centering
+\caption[Výsledky white-box testování simulovaného ochlazování]{~Výsledky white-box testování simulovaného ochlazování}
+\label{tab:simulated:annealing:white:box:results}
+{%
+\begin{tabular}{|l|c|c|c|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Měna}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Rozdíl hodnot\\ optimalizačního kritéria (\%)\end{tabular}} &
+  \textbf{Doba trvání (s)} &
+  \textbf{Zrychlení} \\ \hline
+ADA  & 0,0 & 191,5 & 12,4 \\ \hline
+BTC  & 0,0 & 233,3 & 10,6 \\ \hline
+DASH & 0,0 & 151,2 & 11,1 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption[Výsledky black-box testování simulovaného ochlazování]{~Výsledky black-box testování simulovaného ochlazování}
+\label{tab:simulated:annealing:black:box:results}
+{%
+\begin{tabular}{|l|c|c|c|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Měna}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Rozdíl hodnot\\ optimalizačního kritéria (\%)\end{tabular}} &
+  \textbf{Doba trvání (s)} &
+  \textbf{Zrychlení} \\ \hline
+DOGE & 0,0 & 159,7 & 10,0 \\ \hline
+ETH  & 0,0 & 192,5 & 12,5 \\ \hline
+LTC  & 0,0 & 177,2 & 12,0 \\ \hline
+SOL  & 0,0 & 86,9  & 14,0 \\ \hline
+XLM  & 0,0 & 163,8 & 12,1 \\ \hline
+XRP  & 0,0 & 161,2 & 12,7 \\ \hline
+ZRX  & 0,0 & 133,8 & 12,8 \\ \hline
+\end{tabular}%
+}
+\end{table}
