@@ -13,13 +13,11 @@
 #include <trading/tabu_search/memory.hpp>
 
 namespace trading::bazooka {
-    template<class Tenure>
     class indicator_tag_memory {
-        Tenure tenure_;
-        std::size_t mem_{0};
+        std::size_t tenure_, mem_{0};
 
     public:
-        explicit indicator_tag_memory(const Tenure& tenure)
+        explicit indicator_tag_memory(std::size_t tenure)
                 :tenure_(tenure) { }
 
         bool contains(const bazooka::indicator_tag&) const
@@ -29,7 +27,7 @@ namespace trading::bazooka {
 
         void remember(const bazooka::indicator_tag&)
         {
-            mem_ = tenure_();
+            mem_ = tenure_;
         }
 
         void forget()
@@ -42,26 +40,26 @@ namespace trading::bazooka {
             return bool(mem_);
         }
 
-        const Tenure& tenure() const
+        std::size_t tenure() const
         {
             return tenure_;
         }
     };
 
-    template<std::size_t n_levels, class TagTenure, class PeriodTenure, class LevelsTenure, class SizesTenure>
+    template<std::size_t n_levels>
     class configuration_memory {
-        indicator_tag_memory<TagTenure> indic_mem_;
-        tabu_search::int_range_memory<PeriodTenure> period_mem_;
-        tabu_search::array_memory<fraction_t, n_levels, LevelsTenure> levels_mem_;
-        tabu_search::array_memory<fraction_t, n_levels, SizesTenure> sizes_mem_;
+        indicator_tag_memory indic_mem_;
+        tabu_search::int_range_memory period_mem_;
+        tabu_search::array_memory<fraction_t, n_levels> levels_mem_;
+        tabu_search::array_memory<fraction_t, n_levels> sizes_mem_;
 
     public:
         using move_type = movement<n_levels>;
 
-        configuration_memory(const indicator_tag_memory<TagTenure>& ma_mem,
-                const tabu_search::int_range_memory<PeriodTenure>& period_mem,
-                const tabu_search::array_memory<fraction_t, n_levels, LevelsTenure>& levels_mem,
-                const tabu_search::array_memory<fraction_t, n_levels, SizesTenure>& sizes_mem)
+        configuration_memory(const indicator_tag_memory& ma_mem,
+                const tabu_search::int_range_memory& period_mem,
+                const tabu_search::array_memory<fraction_t, n_levels>& levels_mem,
+                const tabu_search::array_memory<fraction_t, n_levels>& sizes_mem)
                 :indic_mem_(ma_mem), period_mem_(period_mem), levels_mem_(levels_mem), sizes_mem_(sizes_mem) { }
 
         bool contains(const move_type& move) const
@@ -106,26 +104,6 @@ namespace trading::bazooka {
         std::size_t size() const
         {
             return indic_mem_.size()+period_mem_.size()+levels_mem_.size()+sizes_mem_.size();
-        }
-
-        const indicator_tag_memory<TagTenure>& indicator_memory() const
-        {
-            return indic_mem_;
-        }
-
-        const tabu_search::int_range_memory<PeriodTenure>& period_memory() const
-        {
-            return period_mem_;
-        }
-
-        const auto& levels_memory() const
-        {
-            return levels_mem_;
-        }
-
-        const auto& sizes_memory() const
-        {
-            return sizes_mem_;
         }
     };
 }

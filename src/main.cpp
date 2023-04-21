@@ -186,8 +186,8 @@ int main()
     using state_type = trading::bazooka::state<n_levels>;
     using config_type = state_type::config_type;
 
-    std::string experiment_set_name = "black-box-23";
-    auto optim_tag = optimizer_tag::simulated_annealing;
+    std::string experiment_set_name = "white-box-17";
+    auto optim_tag = optimizer_tag::tabu_search;
     auto optimizer_name = optimizer_names[trading::to_underlying(optim_tag)];
 
     std::vector<currency_pair> pairs{
@@ -453,45 +453,23 @@ int main()
                     writer.write_row(progress.mean_fitness, progress.best_fitness, progress.population_size);
             }
             else if (optim_tag==optimizer_tag::tabu_search) {
-                auto termination = iteration_based_termination{512};
-                std::size_t neighborhood{128}, tenure_it_count{42};
+                auto termination = iteration_based_termination{128};
+                std::size_t neighborhood{256}, tenure{32};
                 bazooka::neighbor<n_levels> neighbor{rand_levels, rand_sizes, rand_period};
                 bazooka::configuration<n_levels> init{tags[0], static_cast<std::size_t>(rand_period()),
                                                       rand_levels(), rand_sizes()};
 
-                auto tenure = tabu_search::fixed_tenure{tenure_it_count};
                 bazooka::configuration_memory memory{
                         bazooka::indicator_tag_memory{tenure},
                         tabu_search::int_range_memory{rand_period.from(), rand_period.to(), rand_period.step(), tenure},
-                        tabu_search::array_memory<trading::fraction_t, n_levels, tabu_search::fixed_tenure>{tenure},
-                        tabu_search::array_memory<trading::fraction_t, n_levels, tabu_search::fixed_tenure>{tenure}
+                        tabu_search::array_memory<trading::fraction_t, n_levels>{tenure},
+                        tabu_search::array_memory<trading::fraction_t, n_levels>{tenure}
                 };
                 auto neighborhood_sizer = fixed_sizer{neighborhood};
 
                 settings.emplace(json{"optimizer", {
                         {"neighborhood size", neighborhood},
-                        {"memory", {
-                                {"indicator memory", {
-                                        {"tenure", {
-                                                {"iteration count", tenure_it_count}
-                                        }},
-                                }},
-                                {"period memory", {
-                                        {"tenure", {
-                                                {"iteration count", tenure_it_count}
-                                        }},
-                                }},
-                                {"levels memory", {
-                                        {"tenure", {
-                                                {"iteration count", tenure_it_count}
-                                        }},
-                                }},
-                                {"sizes memory", {
-                                        {"tenure", {
-                                                {"iteration count", tenure_it_count}
-                                        }},
-                                }},
-                        }},
+                        {"tenure", tenure},
                         {"termination", termination},
                 }});
 
@@ -512,7 +490,7 @@ int main()
 
                 // save progress
                 io::csv::writer<3> writer(experiment_dir/"progress.csv");
-                writer.write_header({"best fitness", "curr fitness", "tabu list size"});
+                writer.write_header({"best value", "curr value", "tabu list size"});
                 for (const auto& progress: collector.get())
                     writer.write_row(progress.best_state_value, progress.curr_state_value, progress.tabu_list_size);
             }

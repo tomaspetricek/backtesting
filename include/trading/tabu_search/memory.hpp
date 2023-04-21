@@ -10,15 +10,15 @@
 #include <trading/int_range.hpp>
 
 namespace trading::tabu_search {
-    template<class Type, std::size_t n, class Tenure>
+    template<class Type, std::size_t n>
     class array_memory {
-        Tenure tenure_;
+        std::size_t tenure_;
         std::map<std::array<Type, n>, std::size_t> mem_;
 
     public:
         using value_type = std::array<Type, n>;
 
-        explicit array_memory(const Tenure& tenure)
+        explicit array_memory(std::size_t tenure)
                 :tenure_(tenure) { }
 
         bool contains(const value_type& arr) const
@@ -28,7 +28,7 @@ namespace trading::tabu_search {
 
         void remember(const value_type& arr)
         {
-            mem_.insert({arr, tenure_()});
+            mem_.insert({arr, tenure_});
         }
 
         void forget()
@@ -45,16 +45,15 @@ namespace trading::tabu_search {
             return mem_.size();
         }
 
-        const Tenure& tenure() const
+        std::size_t tenure() const
         {
             return tenure_;
         }
     };
 
-    template<class Tenure>
     class int_range_memory : public int_range {
         using base_type = int_range;
-        Tenure tenure_;
+        std::size_t tenure_;
         std::vector<int> mem_;
         std::size_t size_{0};
 
@@ -69,7 +68,7 @@ namespace trading::tabu_search {
     public:
         using move_type = int;
 
-        explicit int_range_memory(int from, int to, int step, Tenure tenure)
+        explicit int_range_memory(int from, int to, int step, std::size_t tenure)
                 :base_type(from, to, step), tenure_(tenure)
         {
             mem_.resize(n_vals_);
@@ -84,7 +83,7 @@ namespace trading::tabu_search {
         void remember(int value)
         {
             if (!mem_[index(value)]) size_++;
-            mem_[index(value)] = tenure_();
+            mem_[index(value)] = tenure_;
         }
 
         void forget()
@@ -100,7 +99,7 @@ namespace trading::tabu_search {
             return size_;
         }
 
-        Tenure tenure() const
+        std::size_t tenure() const
         {
             return tenure_;
         }

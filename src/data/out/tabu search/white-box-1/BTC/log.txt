@@ -1,0 +1,51 @@
+candles read:
+from: 2017-Aug-17 04:00:00
+to: 2023-Apr-11 22:10:00
+difference: 2063d 18:10:00.000000
+count: 2963250
+duration: 4.029041
+began: 2023-Apr-20 19:11:10
+it: 0, best value: -55.0471, curr value: -55.0471, tabu list size: 1
+it: 1, best value: -49.0833, curr value: -49.0833, tabu list size: 2
+it: 2, best value: 83.1145, curr value: 83.1145, tabu list size: 3
+it: 3, best value: 90.1629, curr value: 90.1629, tabu list size: 4
+it: 4, best value: 136.388, curr value: 136.388, tabu list size: 5
+it: 5, best value: 136.388, curr value: 136.388, tabu list size: 6
+it: 6, best value: 169.711, curr value: 169.711, tabu list size: 7
+it: 7, best value: 182.027, curr value: 182.027, tabu list size: 8
+it: 8, best value: 192.993, curr value: 192.993, tabu list size: 9
+it: 9, best value: 193.758, curr value: 193.758, tabu list size: 10
+it: 10, best value: 200.003, curr value: 200.003, tabu list size: 11
+it: 11, best value: 230.034, curr value: 230.034, tabu list size: 12
+it: 12, best value: 230.234, curr value: 230.234, tabu list size: 13
+it: 13, best value: 230.234, curr value: 230.234, tabu list size: 14
+it: 14, best value: 246.665, curr value: 246.665, tabu list size: 15
+it: 15, best value: 255.515, curr value: 255.515, tabu list size: 16
+it: 16, best value: 262.638, curr value: 262.638, tabu list size: 17
+it: 17, best value: 331.143, curr value: 331.143, tabu list size: 18
+it: 18, best value: 391.015, curr value: 391.015, tabu list size: 19
+it: 19, best value: 391.015, curr value: 391.015, tabu list size: 19
+it: 20, best value: 391.015, curr value: 378.745, tabu list size: 20
+it: 21, best value: 391.015, curr value: 391.015, tabu list size: 21
+it: 22, best value: 391.015, curr value: 362.688, tabu list size: 22
+it: 23, best value: 391.015, curr value: 372.285, tabu list size: 23
+it: 24, best value: 391.015, curr value: 385.28, tabu list size: 23
+it: 25, best value: 391.015, curr value: 364.669, tabu list size: 24
+it: 26, best value: 391.015, curr value: 385.28, tabu list size: 25
+it: 27, best value: 391.015, curr value: 354.202, tabu list size: 26
+it: 28, best value: 391.015, curr value: 341.727, tabu list size: 27
+it: 29, best value: 391.015, curr value: 362.688, tabu list size: 28
+it: 30, best value: 391.015, curr value: 351.074, tabu list size: 29
+it: 31, best value: 391.015, curr value: 372.285, tabu list size: 30
+it: 32, best value: 391.015, curr value: 358.275, tabu list size: 31
+it: 33, best value: 391.015, curr value: 378.745, tabu list size: 32
+it: 34, best value: 391.015, curr value: 358.275, tabu list size: 33
+it: 35, best value: 391.015, curr value: 372.285, tabu list size: 34
+it: 36, best value: 391.015, curr value: 351.074, tabu list size: 35
+it: 37, best value: 391.015, curr value: 370.297, tabu list size: 36
+it: 38, best value: 391.015, curr value: 385.28, tabu list size: 37
+it: 39, best value: 391.015, curr value: 353.456, tabu list size: 38
+it: 40, best value: 391.015, curr value: 334.575, tabu list size: 39
+it: 41, best value: 391.015, curr value: 348.822, tabu list size: 40
+ended: 2023-Apr-20 19:12:55
+duration: 1:45.247422

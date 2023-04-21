@@ -1,0 +1,48 @@
+{
+    "candles": {
+        "count": 2616803,
+        "currency pair": {
+            "base": "ADA",
+            "quote": "USDT"
+        },
+        "from": 1523937720,
+        "to": 1681298760
+    },
+    "optimization criterion": "prom",
+    "optimizer": {
+        "neighborhood size": 64,
+        "tenure": 42,
+        "termination": {
+            "max it": 128,
+            "name": "iteration based termination"
+        }
+    },
+    "resampling": {
+        "averaging method": "ohlc4",
+        "period[min]": 45
+    },
+    "search space": {
+        "indicator": {
+            "period": {
+                "change span": 10,
+                "from": 3,
+                "step": 3,
+                "to": 60
+            },
+            "types": [
+                "sma",
+                "ema"
+            ]
+        },
+        "levels": {
+            "change count": 1,
+            "count": 3,
+            "lower bound": "15/20",
+            "unique count": 15
+        },
+        "open order sizes": {
+            "change count": 2,
+            "unique count": 6
+        }
+    }
+}
