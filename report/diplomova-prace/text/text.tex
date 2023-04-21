@@ -2125,7 +2125,7 @@ Nejlepší nalezenou kombinaci těchto parametrů lze vidět v tabulce \ref{tab:
 
 \begin{table}[!htbp]
 \centering
-\caption[Nastavení použité pro testování]{~Nastavení použité pro optimalizaci}
+\caption[Nejlepší nalezené nastavení pro sadu white-box pro genetický algoritmus]{~Nejlepší nalezené nastavení pro sadu white-box pro genetický algoritmus}
 \label{tab:genetic:algorithm:setting}
 {%
 \begin{tabular}{|c|c|c|c|c|c|}
@@ -2240,7 +2240,7 @@ Rozsah změn generátoru náhodných období byl nastaven na 10 z výchozí hodn
 
 \begin{table}[!htbp]
 \centering
-\caption[Nastavení použité pro testování]{~Nastavení použité pro optimalizaci}
+\caption[Nejlepší nalezené nastavení pro sadu white-box pro simulované ochlazování]{~Nejlepší nalezené nastavení pro sadu white-box pro simulované ochlazování}
 \label{tab:simulated:annealing:setting}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{|c|c|c|c|c|c|}
@@ -2269,7 +2269,6 @@ Počet iterací je řádově vyšší než u genetického algoritmu, ale trvají
 Průměrné zrychlení je \textbf{11,4} oproti hrubé síle a čas optimalizace se pohybuje mezi \textbf{2,5--3,9} minut.
 Je tedy asi \textbf{2krát} pomalejší než genetický algoritmus.
 Nicméně ve výsledcích testování black-box byl genetický algoritmus překonán, protože byly nalezeny optimální konfigurace pro všechny měny v sadě (viz \ref{tab:simulated:annealing:black:box:results}).
-
 
 \begin{figure}[!htbp]
 \centerline{\includegraphics[scale=0.55]{img/simulated-annealing-white-box-progress.png}}
@@ -2315,6 +2314,114 @@ SOL  & 0,0 & 86,9  & 14,0 \\ \hline
 XLM  & 0,0 & 163,8 & 12,1 \\ \hline
 XRP  & 0,0 & 161,2 & 12,7 \\ \hline
 ZRX  & 0,0 & 133,8 & 12,8 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\section{Tabu prohledávání}
+Do souboru \texttt{settings.json} byly přidány informace o nastavení optimalizátoru: počet iterací tabu lhůty, velikost sousedství a kritérium ukončení.
+Průběh optimalizace byl uložen do souboru \texttt{progress.csv} a obsahoval informace o hodnotě optimalizačního kritéria aktuálního a nejlepšího stavu a velikosti krátkodobé paměti.
+Log byl také náležitě doplněn (viz \ref{lst:tabu:search:log}).
+
+\begin{lstlisting}[caption={~Rozšíření logu pro tabu prohledávání},label={lst:tabu:search:log},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount]
+it: 10, best value: 27.2462, curr value: 27.2462, tabu list size: 11
+it: 11, best value: 37.0617, curr value: 37.0617, tabu list size: 12
+it: 12, best value: 52.0412, curr value: 52.0412, tabu list size: 13
+\end{lstlisting}
+
+\subsection{Experimenty}
+Při hledání vhodného nastavení byly nejdůlžitější hodnoty 2 parametrů, tabu lhůty, která udává počet iterací, během kterých je atribut označen jako tabu, a velikost sousedství, který udává počet sousedů, kteří jsou prohledáni během jedné iterace.
+Posledním parametrem bylo kritérium ukončení, které bylo implementováno pomocí \texttt{itation\_based\_termination}.
+Všechny hodnoty parametrů byly pevně dané, takže se během optimalizace neměnily.
+
+Pokud je hodnota tabu lhůty příliš nízká, dostane se do lokálního optima, z kterého se ji nepodaří uniknout a zůstane ve fázi vytěžování.
+Na druhou stranu, pokud je příliš vysoká, heuristika se nemůže vrátit do slibné oblasti a převažuje fáze průzkumu.
+Když je velikost sousedství příliš malé, pohybuje se heuristika rychleji skrze stavový prostor a okolí aktuálního stavu zůstává neprozkoumané.
+Naopak pokud je příliš velké, prozkoumává podobné konfigurace, pohybuje se pomalu a zůstává ve stejné oblasti stavového prostoru.
+Jinými slovy, tabu lhůta pomáhá držet směr a velikost sousedství udává velikost kroku.
+
+Nejlepší parametry nalezené pro sadu white-box jsou uvedeny v tabulce \ref{tab:tabu:search:setting}.
+Nastavení náhodných generátorů stavového prostoru bylo ponecháno stejné jako u předchozí heuristiky.
+Z grafu \ref{fig:tabu:search:white:box:optimization:progress} je vidět, že v prvních 20 iteracích došlo k rychlé konvergenci.
+Dále si lze všimnout, že když se heuristika začne přesouvat z fáze vytěžování do fáze průzkumu, tak se hodnota optimalizačního kritéria aktuálního stavu začne vzdalovat tomu nejlepšímu.
+Například v případě BTC se začne vzdalovat od nejlepšího stavu kolem 20. iterace a vrací se až v 50. iteraci, kdy najde lepší konfiguraci.
+
+\begin{table}[!htbp]
+\centering
+\caption[Nejlepší nalezené nastavení pro sadu white-box pro tabu prohledávání]{~Nejlepší nalezené nastavení pro sadu white-box pro tabu prohledávání}
+\label{tab:tabu:search:setting}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\textbf{Tabu lhůta} &
+  \textbf{Velikost sousedství} &
+  \textbf{Počet iterací} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Rozsah změny\\ období\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Počet změn\\ nákupních úrovní\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Počet změn\\ nákupních velikostí\end{tabular}} \\ \hline
+32 &
+  128 &
+  128 &
+  10 &
+  2 &
+  1 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+Velikost paměti téměř vždy dosáhne hodnotě blízké své maximální kapacitě, která je rovna tabu lhůtě.
+Pokud je stejný atribut zapamatován vícekrát po sobě, velikost paměti se sníží.
+Tah aktuálního stavu může být tabu, jelikož se musí aktuální stav každou iteraci změnit.
+
+Průměrné zrychlení oproti hrubé síle pro sadu white-box je \textbf{9,5}, což je o trochu pomalejší než simulované ochlazování.
+Doba výpočtu se pohybuje v rozmezí \textbf{3,1-4,4} minuty.
+Opět bylo dosaženo globálního optima pro všechny měny.
+Při použití na vzorky ze sady black-box bylo dosaženo 3 ze 7 globálních optim.
+Rozdíl mezi globálním optimem byl nižší než \(-2\) \% ve 3 případech.
+Nejvýznamnější rozdíl byl \(-9,8\) \%, což je 2krát horší výsledek než nejhorší výsledek při použití genetického algoritmu.
+
+\begin{figure}[!htbp]
+\centerline{\includegraphics[scale=0.55]{img/tabu-search-white-box-progress.png}}
+\caption{Průběh optimalizace white-box testování tabu prohledávání}
+\label{fig:tabu:search:white:box:optimization:progress}
+\end{figure}
+
+\begin{table}[!htbp]
+\centering
+\caption[Výsledky white-box testování simulovaného ochlazování]{~Výsledky white-box testování simulovaného ochlazování}
+\label{tab:tabu:search:white:box:results}
+{%
+\begin{tabular}{|l|c|c|c|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Měna}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Rozdíl hodnot\\ optimalizačního kritéria (\%)\end{tabular}} &
+  \textbf{Doba trvání (s)} &
+  \textbf{Zrychlení} \\ \hline
+ADA  & 0,0 & 241,1 & 9,9 \\ \hline
+BTC  & 0,0 & 260,8 & 9,5 \\ \hline
+DASH & 0,0 & 184,3 & 9,1 \\ \hline
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\caption[Výsledky black-box testování tabu prohledávání]{~Výsledky black-box testování tabu prohledávání}
+\label{tab:tabu:search:black:box:results}
+{%
+\begin{tabular}{|l|c|c|c|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Měna}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Rozdíl hodnot\\ optimalizačního kritéria (\%)\end{tabular}} &
+  \textbf{Doba trvání (s)} &
+  \textbf{Zrychlení} \\ \hline
+DOGE & 0,0  & 158,8 & 10,1 \\ \hline
+ETH  & 0,0  & 272,4 & 8,8  \\ \hline
+LTC  & 0,0  & 249,4 & 8,5  \\ \hline
+SOL  & -0,8 & 91,2  & 13,4 \\ \hline
+XLM  & -9,8 & 207,1 & 9,6  \\ \hline
+XRP  & -1,7 & 227,5 & 9,0  \\ \hline
+ZRX  & -1,4 & 227,9 & 7,5  \\ \hline
 \end{tabular}%
 }
 \end{table}
