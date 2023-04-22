@@ -2,7 +2,7 @@
 %---------------------------------------------------------------
 % \chapter{Introduction}
 % uncomment the following line to create an unnumbered chapter
-\chapter*{Introduction}\addcontentsline{toc}{chapter}{Introduction}\markboth{Introduction}{Introduction}
+\chapter*{Úvod}\addcontentsline{toc}{chapter}{Úvod}\markboth{Úvod}{Úvod}
 %---------------------------------------------------------------
 \setcounter{page}{1}
 S tím, jak se obchodování za poslední desetiletí stalo dostupnější, vyrostl i zájem o něj.
@@ -914,9 +914,8 @@ Hodnoty jsou aktualizovány voláním metody \texttt{update}.
 K vytvoření haldy používá funkci \texttt{std::push\_heap} a jakmile je plná, použije po vložení nového prvku funkci \texttt{std::pop\_back} k odstranění nejhoršího prvku \cite{push-heap}.
 K získání výsledku lze zavolat metodu \texttt{get}, která používá funkci \texttt{std::sort\_heap} k seřazení prvků v požadovaném pořadí.
 
-\chapter{Optimalizace}
+\chapter{Generátory stavového prostoru}
 
-\section{Návrh a generování stavového prostoru}
 % Stavový prostor je vázán na konkrétní strategii.
 Pro optimalizaci byly vybrány 4 konfigurační proměnné: typ indikátoru, perioda indikátoru, úrovně a velikosti nákupů.
 Hodnoty proměnných lze generovat buď systematicky, nebo náhodně.
@@ -934,20 +933,20 @@ Byly představeny ve standardu \texttt{C++20}.
 Při volání funkce umožňují její provádění pozastavit a později obnovit \cite{coroutines}.
 Existuje knihovna \textit{CppCoro}, která poskytuje implementace generátorů \texttt{cppcoro::generator} a \texttt{cppcoro::recursive\_generator} \cite{cppcoro}.
 
-\subsection{Typ indikátoru}
+\section{Typ indikátoru}
 Typ indikátoru je reprezentován enumerační třídou \texttt{indicator\_tag} se dvěma možnými hodnotami: \texttt{indicator\_tag::ema} a \texttt{indicator\_tag::sma}.
 Jediný způsob, jak parametrizovat tuto proměnnou, je použít buď jednu z hodnot, nebo obě.
 Hodnoty jsou stejného typu, takže je lze uložit do pole.
 Jelikož je jeho velikost malá a maximální velikost je známa v době kompilace, tak lze použít \texttt{etl::vector} k uložení hodnot pro generování.
 Hodnoty lze náhodně rovnoměrně generovat pomocí instance třídy \tttext{std::uniform\_int\_distribution}.
 
-\subsection{Perioda indikátoru}
+\section{Perioda indikátoru}
 SMA i EMA mají parametr perioda $p>1$.
 Oba generátory generují hodnoty v intervalu $[f, t]$ s krokem $s$, kde $((f>t\implies((f-t) \mod s)=0 \land s<0) \land (t<f\implies((t-f) \mod s)=0 \land s>0)) \land s\neq0 \land t\neq f$.
 Počet možných výstupních hodnot je roven $n=\frac{|t-f|}{s}+1$.
-Pro systematické generování period byl použit generátor \texttt{systematic::int\_range}.
+Pro systematické generování period byl použit generátor \texttt{systematic::int\_range\_generator}.
 
-\subsubsection{Náhodné generování}
+\subsection{Náhodné generování}
 Při generování bez počáteční periody je nejprve pomocí \tttext{std::uniform\_int\_distribution} vygenerována hodnota $ v \in [\frac{p_{min}}{s}, = \frac{p_{max}}{s}$], kde $p_{min}=min(f, t) \land p_{max}=max(f, t)$, která je následně přeškálována $p_o=v\cdot s \land p_o \in [p_{min}, p_{max}]$.
 
 Při generování hodnoty z počátku $o$ používá generátor navíc parametr $k\in[1,n/2]$.
@@ -956,14 +955,14 @@ Například, když $f=1$, $t=5$, $s=1$, $o=3$ a $k=1$, pak jsou všechny možné
 Na okrajích intervalu, kdy mohou být hodnoty generovány z 2 podintervalů. Například, když $f=1$, $t=5$, $s=1$ a $k=1$, pak jsou všechny možné výstupní periody $p_o \in [1, 2] \cup [5, 5]$.
 Jelikož jsou periody generovány pomocí datového typu integer, který může nabývat i záporných hodnot, lze nejprve vygenerovat hodnotu $ w \in [o-(k\cdot s), o+(k\cdot s)]$, výslednou periodu získat $(w<p_{min}\implies(p_o=w+(n*|s|))) \land (w>p_{max}\implies(p_o=w-(n*|s|))) \land (w \in [p_{min}, p_{max}]\implies p_o=w)$.
 
-\subsection{Úrovně nákupu}
+\section{Úrovně nákupu}
 Pro úrovně nákupu platí, že $\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap [0, 1] \land n>0 \land [\forall i \in \{0,\dots,n-1\} : l_i > l_{i+1}]$.
 Příkladem takové sekvence racionálních čísel může být $\{\frac{1}{2}, \frac{1}{3}, \frac{1}{4}\}$.
 Generátory jsou parametrizovány pomocí parametru $u\geq n$, který označuje počet jedinečných zlomků, které se mohou v sekvenci objevit.
 Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}\} \in [0, 1] \land d=u+1$.
 Pro $n=3$, $u=4$ jsou všechny možné platné sekvence: $\{\frac{4}{5}, \frac{3}{5}, \frac{2}{5}\}, \{\frac{4}{5}, \frac{3}{5}, \frac{1}{5}\}, \{\frac{4}{5}, \frac{2}{5}, \frac{1}{5}\}, \{\frac{3}{5}, \frac{2}{5}, \frac{1}{5}\}$.
 
-\subsubsection{Systematické generování}
+\subsection{Systematické generování}
 Sekvence jsou generovány rekurzivně (viz \ref{lst:systematic:levels_generator}), protože se počet smyček \texttt{for} liší v závislosti na velikosti sekvence $n$.
 Smyčky jsou na sobě závislé, následující (hlubší) smyčka musí znát předchozí hodnotu čitatele.
 Nejvnitřnější smyčka vrací výslednou sekvenci.
@@ -990,8 +989,8 @@ private:
     }
 \end{lstlisting}
 
-\subsubsection{Náhodné generování}
-Instance třídy \texttt{trading::random::levels\_generator} má mezi svými atributy pole se všemi možnými hodnotami výstupní sekvence.
+\subsection{Náhodné generování}
+Instance třídy \texttt{random::levels\_generator} má mezi svými atributy pole se všemi možnými hodnotami výstupní sekvence.
 Při generování náhodné sekvence bez počátku nejprve tyto hodnoty zamíchá, seřadí prvních $n$ prvků v sestupném pořadí a nakonec je zkopíruje do výstupního pole.
 
 Náhodné generování na základě počáteční sekvence je složitější.
@@ -1002,15 +1001,15 @@ Dále je zamícháno pole se všemi možnými hodnotami.
 Ve smyčce \texttt{while} jsou hodnoty vkládány do setu až do jeho naplnění.
 Nakonec jsou hodnoty překopírovány ze setu do výstupního pole.
 
-\subsection{Velikosti nákupu}
+\section{Velikosti nákupu}
 Pro velikosti nákupu platí, že $ (s_0, s_1,\dots,s_n) \in \mathbb{Q} \cap [0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $.
 Příkladem takové sekvence může být $ (\frac{1}{4}, \frac{2}{4}, \frac{1}{4})\ $.
 Generátory jsou parametrizovány pomocí parametru $u\geq 1$, který označuje počet jedinečných zlomků, které se mohou v sekvenci objevit.
 Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}\} \in [0, 1] \land d=n+u-1$.
 Pro $n=3$, $u=3$ jsou všechny možné platné sekvence: $(\frac{1}{5}, \frac{1}{5}, \frac{3}{5}), (\frac{1}{5}, \frac{2}{5}, \frac{2}{5}), (\frac{1}{5}, \frac{3}{5}, \frac{1}{5}), (\frac{2}{5}, \frac{1}{5}, \frac{2}{5}), (\frac{2}{5}, \frac{2}{5}, \frac{1}{5}), (\frac{3}{5}, \frac{1}{5}, \frac{1}{5})$.
 
-\subsubsection{Systematické generování}
-Velikosti nákupů \ref{lst:systematic:sizes_generator} jsou systematicky generovány podobně jako úrovně nákupů.
+\subsection{Systematické generování}
+Velikosti nákupů jsou systematicky generovány podobně jako úrovně nákupů (viz \ref{lst:systematic:sizes_generator}).
 Používá se také rekurze, každá smyčka \texttt{for} předává součet zbývajících čitatelů následující smyčce.
 Maximální lokální čitatel má buď hodnotu globálního maximálního čitatele, nebo součet zbývajících čitatelů snížený o jedna.
 
@@ -1042,9 +1041,9 @@ private:
     }
 \end{lstlisting}
 
-\subsubsection{Náhodné generování}
+\subsection{Náhodné generování}
 
-\section{Optimalizátory}
+\chapter{Optimalizátory}
 Při vytváření optimalizátorů byly brány v úvahu 2 hlavní cíle: za prvé, aby byly co nejobecnější a za druhé, aby bylo možné snadno sledovat a později analyzovaly průběh optimalizace.
 Samotné optimalizátory mají pouze několik atributů, které by měly být společné pro všechny možné problémy, které lze optimalizovat.
 Další části algoritmu jsou dodány při samotném volání algoritmu.
@@ -1071,7 +1070,7 @@ Tímto způsobem lze přijmout víc než jeden pozorovatel nebo žádný.
 
 % Byly implementovány 2 lokální heauristika a jedna ... Také byla implemntována hrubá síla pro ujasnění si optimalizačního kritéria a porovnání.
 
-\subsection{Hrubá síla}
+\section{Hrubá síla}
 Algoritmus je implementován třídou \texttt{brute\_force::parallel::optimizer}.
 Prochází všechny stavy prohledávacího prostoru a zajišťuje nalezení optimálního řešení.
 Je vhodný pro relativně malé vyhledávací prostory a může pomoci lépe porozumět vlastnostem cenové funkce.
@@ -1124,7 +1123,7 @@ void operator()(Result& result,
                     }}}}}}
 \end{lstlisting}
 
-\subsection{Simulované ochlazování}
+\section{Simulované ochlazování}
 Algoritmus simulovaného ochlazování je implementován třídou \texttt{simulated\_annealing::optimizer}.
 Třída má pouze několik členských atributů: současnou, počáteční a minimální teplotu, počet iterací a současný stav.
 Jiné části algoritmu jako chlazení, ohodnocení horšího stavu a nalezení sousedního stavu jsou specifické pro řešený problém, proto jsou předány jako argumenty při volání instance objektu.
@@ -1199,7 +1198,7 @@ void operator()(const Config& init_config, Result& result,
 }
 \end{lstlisting}
 
-\subsection{Genetický algoritmus}
+\section{Genetický algoritmus}
 Genetický algoritmus je implementován třídou \texttt{genetic\_algorithm::optimizer}.
 Má pouze 2 třídní atributy, počet iterací a populaci.
 Další části algoritmu jsou poskytovány při jeho volání.
@@ -1290,7 +1289,7 @@ std::vector<state<Genes>> operator()(const std::vector<Genes>& init_genes,
 }
 \end{lstlisting}
 
-\subsection{Tabu prohledávání}
+\section{Tabu prohledávání}
 Tabu prohledávání je implementováno třídou \texttt{tabu\_search::optimizer}.
 Má 3 třídní atributy: počet iterací, aktuální a nejlepší stav.
 Pro ukládání zakázaných tahů byla implementována třída \texttt{bazooka::moves\_memory}.
@@ -1831,7 +1830,7 @@ Data pocházejí z Binance kryptoměnové burzy a jsou aktualizována denně.
 Mezi hlavní důvody, proč byl web upřednostněn před ostatními dostupnými poskytovateli, patřilo to, že data byla zdarma, snadno dostupná a v požadované granularitě.
 
 Bylo vybráno 10 různých kryptoměn včetně některých známějších jako Bitcoin (BTC), Ethereum (ETH) a Litecoin (LTC) a také novějších jako Solana (SOL).
-Pokrývají 2,7--5,7 let historie, což stačí k zachycení různých tržních trendů.
+Pokrývají \textbf{2,7--5,7 let} historie, což stačí k zachycení různých tržních trendů.
 Například v případě Bitcoinu pokrývá nárůst ceny na konci roku 2017 a 2022, jakož i její pokles na začátku roku 2019 a 2023.
 Hodnoty kryptoměn jsou uvedeny v USDT, což je stablecoin, jehož hodnota se blíží americkému dolaru.
 Přehled informací o vybraných historických datech je uveden v tabulce \ref{tab:historical:market:data}.
@@ -2425,3 +2424,80 @@ ZRX  & -1,4 & 227,9 & 7,5  \\ \hline
 \end{tabular}%
 }
 \end{table}
+
+\chapter*{Závěr}\addcontentsline{toc}{chapter}{Závěr}\markboth{Závěr}{Závěr}
+
+Nejprve byly představeny třídy složitosti a teorie kombinatorické optimalizace.
+Hlavním účelem bylo zavést koncepty a přístupy, které byly zásadní pro pochopení procesu optimalizace.
+Dále byly popsány 3 vybrané metaheuristiky použité v praktické části: simulované ochlazování, genetický algoritmus a tabu prohledávání.
+
+V další části bylo představeno algoritmické obchodování.
+Nejprve byl popsán samotný proces obchodování, který zahrnuje vytváření a plnění objednávek.
+Poté byly představeny různé automatizovatelné fáze obchodování včetně 3 hlavních typů analýz, které se používají ke generování obchodních signálů.
+
+Následně bylo popsáno zpětné testování, jehož účelem je vyhodnocení obchodní strategie na historických tržních datech.
+Byly uvedeny vzorce výkonových statistik používané v praktické části.
+Představeny byly také prostředky pro vizualizaci historických dat včetně jejich zdrojů.
+Dále byla popsána obchodní strategie Bazooka, jejíž parametry byly optimalizovány, a platforma TradingView, která byla použita pro její vývoj.
+
+Aplikace byla napsána v C++20.
+Jazyk byl použit, jelikož nabízí prostředky k efektivnějšímu využívání počítačových zdrojů a použití optimalizací.
+Kód je organizován do frameworku, který se skládá ze 2 hlavních částí, z nichž jedna se zaměřuje na historickou simulaci a druhá na optimalizaci.
+Výstupy optimalizace se ukládají do souborů ve formátu CSV a JSON, které lze následně zpracovat pomocí vědeckých balíčků jazyka Python.
+
+Návrh a konvence pojmenování frameworku byly inspirovány knihovnami Boost.
+Kód byl napsán objektově především proto, že umožňuje zapouzdření, snadnější unit testování a použití návrhových vzorů.
+Pro zjednodušení kódu a snížení závislostí byly použity návrhové vzory Strategy a Observer.
+Z důvodů vyšší efektivity byl preferován statický polymorfismus před dynamickým.
+Minimalizována byla také nutnost použití dynamické alokace.
+
+Zpětné testování bylo inspirováno platformou TradingView a proces vytváření a plnění objednávek burzou Binance.
+Byla vytvořena sada tříd, které byly použity pro simulaci obchodování.
+Důvodem, proč jich bylo více, bylo rozdělení odpovědností, takže existuje třída, která má za úkol pouze rozhodovat, další, která vytváří objednávky a poslední je plní.
+Celá historická simulace se pak provádí voláním jediné metody, která přijímá objekt obchodníka a sadu pozorovatelů.
+
+Konfigurace se skládá ze 4 atributů: typu a období ukazatele, velikostí a úrovní nákupu.
+Byly navrženy a implementovány systematické generátory stavového prostoru používané algoritmem hrubé síly a náhodné generátory používané heuristikami.
+Byly formálně popsány.
+K systematickému generování konfigurací byly použity korutiny zavedené standardem C++20.
+Náhodné generátory používaly rovnoměrné rozdělení.
+
+Pro zapouzdření optimalizačních algoritmů byly vytvořeny třídy.
+Jelikož intenzivně využívají šablony k vytvoření vyšší abstrakce, byly použity koncepty zavedené v C++20, aby bylo zajištěno, že parametry předávané optimalizátorům splňují požadované rozhraní.
+Průběh optimalizace lze pozorovat a zaznamenávat pomocí tříd pozorovatelů, které jsou předány při volání optimalizátoru.
+Algoritmus hrubé síly byl implementován paralelně pomocí knihovny OpenMP.
+
+Framework byl nejprve řádně otestován než došlo k finálnímu vyhodnocení.
+Pro testování jednotlivých tříd byly vytvořeny unit testy.
+Byly použito mockování i fuzzing.
+Největší pozornost byla věnována generátorům vyhledávacího prostoru.
+Bylo zajištěno, že systematické generátory generují jedinečné a validní výstupy.
+Poté byly přidány k testování náhodných generátorů, pro které byl přidán test dosažitelnosti, aby bylo zajištěno, že každý stav ve vyhledávacím prostoru je dosažitelný.
+
+Nakonec bylo provedeno experimentální vyhodnocení.
+Jako zdroj historických dat byly zvoleny minutové svíčky 10 kryptoměn s \textbf{1,4--2,9 miliony} záznamy, což odpovídá 2,7--5,7 letům historie.
+Jako optimalizační kritérium byla použita statistika PROM, což je pesimističtější zisk, díky kterému bylo možné získat použitelnější výsledky.
+
+První experimenty byly provedeny pomocí algoritmu hrubé síly.
+Při aplikaci optimalizací kompilátoru a použití více vláken byl algoritmus \textbf{44,1krát} zrychlen oproti jeho neoptimalizované verzi.
+Na základě provedených sad experimentů byl vymezen vyhledávací prostor pro experimentální vyhodnocení heuristických přístupů.
+Skládal se z 0,4 milionu konfigurací a algoritmu hrubé síly se všemi zapnutými optimalizacemi trvalo nalezení optimálního stavu v průměru \textbf{0,5 hodiny} pro jednu měnu.
+
+Při vyhodnocování heuristických optimalizátorů byla data rozdělena do dvou sad white-box a black-box.
+Parametry optimalizátoru byly nejprve vyladěny na sadě white-box a poté, když byly připraveny, byly jednou spuštěny na sadě black-box.
+Nejlepších celkových výsledků dosáhlo simulované ochlazování, které našlo všechna globální optima v průměru za \textbf{2,6 minuty} a průměrného zrychlení oproti hrubé síle \textbf{11,4} pro sadu black-box.
+Genetický algoritmus dosáhl nejvyššího zrychlení \textbf{22,5krát} o proti hrubé síle, ale u některých vzorků nenašel globální optimum.
+
+Celkově se genetický algoritmus zdál nejsnáze laditelný a nejrobustnější.
+Nalezení vhodných parametrů pro simulované ochlazování zabralo nejvíce času a pro dosažení rozumných výsledků bylo nutné vytvořit vlastní equilibrium založené na hodnotě aktuální teploty.
+Nejméně konzistentní z hlediska dosažených výsledků se jevilo tabu prohledávání.
+
+Jako každý optimalizační problém je aplikace náchylná na overfitting.
+Výsledky optimalizace jsou nejlepší nalezenou konfigurací pro daná historická data z poskytnutého vyhledávacího prostoru, to však neznamená, že by na nově poskytnutých datech dosáhly stejných výsledků.
+Z hlediska strojového učení je nyní strategie optimalizována na trénovací sadě, ale výsledky nejsou porovnány s validační či testovací sadou.
+Stejná historická data by musela být alespoň rozdělena na 2, kdy by 1. část byla použita pro ladění parametrů a 2. pro validaci.
+Strategie by pak mohla být optimalizována na základě kritéria, které zohledňuje rozdíl mezi statistikami použitými k vyhodnocení výkonnosti strategie.
+
+Dalším způsobem, jak zlepšit aplikaci, by bylo použití databází k ukládání a manipulaci s daty.
+InfluxDB by se hodila, pokud by se zvýšil objem historických dat a tím i potřeba je lépe organizovat a vytvářet složitější dotazy.
+MongoDB lze použít k lepší organizaci a manipulaci s výstupními daty, jako jsou nejlepší stavy a nastavení, která jsou aktuálně uložena ve formátu JSON.
