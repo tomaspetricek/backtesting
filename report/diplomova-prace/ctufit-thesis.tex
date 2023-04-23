@@ -40,13 +40,40 @@ l%% This is the ctufit-thesis example file. It is used to produce theses
 \ctufitauthorgivennames{Tomáš} % replace with your first name(s) / given name(s)
 \ctufitsupervisor{Ing.\,Michal Šoch,\,Ph.D.} % replace with name of your supervisor/advisor (include academic degrees)
 \ctufitdepartment{Katedra softwarového inženýrství} % replace with the department of your defence
-\ctufityear{2021} % replace with the year of your defence
+\ctufityear{2023} % replace with the year of your defence
 \ctufitdeclarationplace{Praze} % replace with the place where you sign the declaration
 \ctufitdeclarationdate{\today} % replace with the date of signature of the declaration
-\ctufitabstractCZE{Fill in abstract of this thesis in Czech language. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Cras pede libero, dapibus nec, pretium sit amet, tempor quis. Sed vel lectus. Donec odio tempus molestie, porttitor ut, iaculis quis, sem. Suspendisse sagittis ultrices augue.}
-\ctufitabstractENG{Fill in abstract of this thesis in English language. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Cras pede libero, dapibus nec, pretium sit amet, tempor quis. Sed vel lectus. Donec odio tempus molestie, porttitor ut, iaculis quis, sem. Suspendisse sagittis ultrices augue.}
-\ctufitkeywordsCZE{enter, commma, separated, list, of, keywords, in, CZECH}
-\ctufitkeywordsENG{enter, commma, separated, list, of, keywords, in, ENGLISH}
+\ctufitabstractCZE{}
+\ctufitabstractENG{
+The aim of the thesis is to find a near optimal configuration for an algorithmic trading strategy using heuristics for the provided historical data.
+The reader is firstly introduced to complexity classes and heuristic methods, including those used in the practical part: simulated annealing, genetic algorithm and tabu search.
+It is followed by the description of algorithmic trading and the stages that can be automated.
+
+Knowledge from both of these fields is combined in the backtesting section.
+The goal of backtesting is to test a trading strategy against historical data to make adjustments and find appropriate configuration before deciding whether or not to use it in real-time trading.
+Finding these configurations is an NP-hard problem, and heuristics can be used to find the optimal ones in a reasonable time.
+
+There are a variety of trading strategies and most platforms offer tools to implement and use them.
+Some platforms, such as TradingView, even offer ways to perform backtests to evaluate strategy performance, but do not offer ways to optimize parameters.
+The platform that offers the functionality closest to the desired one is MultiCharts, which provides the use of brute force and genetic algorithms.
+
+However, to achieve greater flexibility and speed, a custom framework written in C++20 was created.
+The historical simulation was inspired by the TradingView platform and the trading process by the Binance exchange.
+Modern C++ features such as concepts and coroutines were used and the emphasis was also placed on the effective use of the language and computer resources.
+
+In addition to heuristics, a brute force algorithm was also implemented.
+It was parallelized using OpenMP to achieve higher speed.
+Heuristics were implemented to be flexible and easy to use, thus design patterns such as Observer and Strategy were used.
+The progress and results collected during the optimization were saved in JSON and CSV files, so that they can later be examined using scientific Python packages.
+
+The framework was unit tested before the experimental evolution was performed.
+Years of one-minute candlestick data of 10 different cryptocurrencies were used for the evaluation.
+First, a search space with reasonable configurations and size was selected, and the best configurations were found using a brute force algorithm.
+White-box tests and black-box tests were then performed using heuristic approaches, and the results were compared with the optimal ones.
+Overall, heuristic approaches are able to find near-optimal configurations in minutes instead of hours or even days using a brute-force algorithm.
+}
+\ctufitkeywordsCZE{zpětné testování, optimalizace, metaheuristiky, algoritmické obchodování}
+\ctufitkeywordsENG{backtesting, optimalization, metaheuristics, algorithmic trading}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % END FILL IN
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
