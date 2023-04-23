@@ -820,100 +820,6 @@ Hodnoty lze opět vyjádřit v procentech nebo částkách.
 Do třídy \texttt{bazooka::statistics} byl přidán čítač otevíracích objednávek pro jednotlivé nákupní úrovně.
 Nese informace o tom, kolikrát bylo dosaženo jednotlivých úrovní nákupu, a může tak pomoci lépe porozumět tomu, jak se strategie chová.
 
-\chapter{Další}
-\section{Čtení a zápis do souborů}
-Byly vytvořeny vlastní třídy pro čtení a zápis do souborů \textit{CSV}.
-Jsou užitečné při čtení historických svíčkových dat a při ukládání časových řad pro vykreslování grafů.
-Pro uložení nastavení a výsledků experimentu byl zvolen formát \textit{JSON} (\textit{JavaScript Object Notation}), který je standardizovaný a čitelný.
-V tomto případě nebylo nutné vytvářet vlastní implementaci, protože existuje dobře známá, používaná a udržovaná knihovna \texttt{nlohmann/json} \cite{lohmann}.
-
-% popsat JSON a vlatsní třídy
-
-\subsection{Formát CSV}
-Pro čtení a zápis do souborů \textit{CSV} (\textit{Comma-Separated Values}) byly vytvořeny třídy \texttt{csv::reader} a \texttt{csv::writer}.
-Hodnoty jsou uloženy v tabulce, kde sloupce jsou hodnoty stejného typu odděleny oddělovačem, obvykle čárkou.
-První řádek může obsahovat názvy sloupců, ale nemusí.
-
-Obě třídy mají jeden třídní šablonový udávající počet sloupců.
-Při inicializaci přebírají jako parametr cestu k souboru uloženému v instanci \texttt{std::filesystem::path} a oddělovač.
-Soubor je otevřen při konstrukci třídy, pokud jej nelze otevřít, je vyhozena výjimka \texttt{std::runtime\_error}.
-Soubor je uzavřen při destrukci objektu.
-
-Třída \texttt{csv::reader} nabízí dvě metody pro čtení řádků: \texttt{read\_header} a \texttt{read\_row}.
-Je přirozenější číst názvy sloupců do instance \texttt{std::array} než přímo do proměnných.
-Čtení přímo do proměnných je dosaženo použitím sady šablonových parametrů \ref{lst:csv:read:row}.
-Třída vrací booleovský příznak s informací o tom, zda byl řádek přečten nebo ne.
-Hodnoty pak lze snadno číst v cyklu \texttt{while} (viz \ref{lst:read:candles}).
-Třída \texttt{io::parser} je používána k parsování jednotlivých hodnot.
-
-\begin{lstlisting}[caption={~Implementace čtení řádky třídy \texttt{io::csv::reader}},label={lst:csv:read:row},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-template<class ...Types>
-bool read_row(Types& ...inputs)
-{
-    static_assert(sizeof...(Types)==n_cols);
-    if (!std::getline(file_, line_))
-        return false;
-
-    line_.erase(std::remove(line_.begin(),line_.end(),'\r'),line_.end());
-    std::stringstream ss(line_);
-    ss.exceptions(std::ios::failbit);
-
-    auto parse_line = [&](auto& in) {
-        read_value(ss, in);
-    };
-
-    (parse_line(inputs), ...);
-    return true;
-}
-\end{lstlisting}
-
-Třída \texttt{csv::reader} je používána velice podobně.
-Má metodu pro zápis sloupců \texttt{write\_header} a pro zápis hodnot \texttt{write\_row}.
-K převodu hodnot na textové řetězce používá třídu \texttt{io::stringifier}.
-
-\begin{lstlisting}[caption={~Ukázka čtení svíček pomocí \texttt{io::csv::reader}},label={lst:read:candles},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-io::csv::reader<5> reader{path, sep};
-std::time_t opened;
-price_t open, high, low, close;
-std::vector<candle> candles;
-
-while (reader.read_row(opened, open, high, low, close))
-    candles.emplace_back(candle{opened, open, high, low, close});
-\end{lstlisting}
-
-\subsection{Formát JSON}
-Samotný formát se skládá ze dvou struktur: kolekce párů klíč-hodnota a pole.
-Je založen na programovacím jazyce \textit{JavaScript}, ale protože je postaven ze základních datových struktur, je implementován v mnoha programovacích jazycích \cite{json}.
-
-Pro \texttt{C++} je k dispozici několik \textit{JSON} knihoven, ale zdá se, že \texttt{nlohmann/json} mezi nimi vyniká nejvíc.
-Na příslušné \textit{GitHub} stránce je uvedeno, že jde o knihovnu \textit{JSON} pro moderní \textit{C++}, má 34 tisíc hvězdiček, je důkladně testována a pečlivě zdokumentována \cite{lohmann}.
-
-Podporuje vytvoření specifikace pro serializaci a deserializaci vlastních typů.
-Pro daný typ je vytvořena specializace struktury \texttt{adl\_serializer}, která může mít dvě metody \texttt{from\_json} pro deserializaci a \texttt{to\_json} pro serializaci.
-Implementaci pro třídu \texttt{bazooka::indicator} lze vidět ve výpise \ref{lst:json:serialize}.
-
-\begin{lstlisting}[caption={~Implementace deserializace pro vlastní datový typ},label={lst:json:serialize},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-template<>
-struct adl_serializer<trading::bazooka::indicator> {
-    static void to_json(json& j, const bazooka::indicator& indic)
-    {
-        j = {{"period", indic.period()},
-             {"name",   indic.name()}};
-    }
-};
-\end{lstlisting}
-
-\section{Shromažďování výsledků}
-
-\subsection{Enumerační výsledek}
-Třída \texttt{enumeration\_result} slouží ke shromažďování $n$ nejlepších výsledků.
-Má 2 třídní šablonové parametry: typ výsledku a funkci pro jejich porovnávání.
-Interně používá datovou strukturu \textit{halda}, jelikož má složitost $\mathcal{O}(log{}n)$ pro vložení nového prvku a odstranění prvního.
-K ukládání výsledků používá kontejner \texttt{std::vector}.
-Hodnoty jsou aktualizovány voláním metody \texttt{update}.
-K vytvoření haldy používá funkci \texttt{std::push\_heap} a jakmile je plná, použije po vložení nového prvku funkci \texttt{std::pop\_back} k odstranění nejhoršího prvku \cite{push-heap}.
-K získání výsledku lze zavolat metodu \texttt{get}, která používá funkci \texttt{std::sort\_heap} k seřazení prvků v požadovaném pořadí.
-
 \chapter{Generátory stavového prostoru}
 
 % Stavový prostor je vázán na konkrétní strategii.
@@ -1046,7 +952,7 @@ private:
 
 \subsection{Náhodné generování}
 
-\chapter{Optimalizátory}
+\chapter{Optimalizace}
 Při vytváření optimalizátorů byly brány v úvahu 2 hlavní cíle: za prvé, aby byly co nejobecnější a za druhé, aby bylo možné snadno sledovat a později analyzovaly průběh optimalizace.
 Samotné optimalizátory mají pouze několik atributů, které by měly být společné pro všechny možné problémy, které lze optimalizovat.
 Další části algoritmu jsou dodány při samotném volání algoritmu.
@@ -1388,6 +1294,95 @@ void operator()(const config_t& init,
 }
 \end{lstlisting}
 
+\subsection{Shromažďování výsledků}
+Třída \texttt{enumeration\_result} slouží ke shromažďování $n$ nejlepších výsledků.
+Má 2 třídní šablonové parametry: typ výsledku a funkci pro jejich porovnávání.
+Interně používá datovou strukturu \textit{halda}, jelikož má složitost $\mathcal{O}(log{}n)$ pro vložení nového prvku a odstranění prvního.
+K ukládání výsledků používá kontejner \texttt{std::vector}.
+Hodnoty jsou aktualizovány voláním metody \texttt{update}.
+K vytvoření haldy používá funkci \texttt{std::push\_heap} a jakmile je plná, použije po vložení nového prvku funkci \texttt{std::pop\_back} k odstranění nejhoršího prvku \cite{push-heap}.
+K získání výsledku lze zavolat metodu \texttt{get}, která používá funkci \texttt{std::sort\_heap} k seřazení prvků v požadovaném pořadí.
+
+\chapter{Čtení a zápis do souborů}
+Byly vytvořeny vlastní třídy pro čtení a zápis do souborů \textit{CSV}.
+Jsou užitečné při čtení historických svíčkových dat a při ukládání časových řad pro vykreslování grafů.
+Pro uložení nastavení a výsledků experimentu byl zvolen formát \textit{JSON} (\textit{JavaScript Object Notation}), který je standardizovaný a čitelný.
+V tomto případě nebylo nutné vytvářet vlastní implementaci, protože existuje dobře známá, používaná a udržovaná knihovna \texttt{nlohmann/json} \cite{lohmann}.
+
+\section{Formát CSV}
+Pro čtení a zápis do souborů \textit{CSV} (\textit{Comma-Separated Values}) byly vytvořeny třídy \texttt{csv::reader} a \texttt{csv::writer}.
+Hodnoty jsou uloženy v tabulce, kde sloupce jsou hodnoty stejného typu odděleny oddělovačem, obvykle čárkou.
+První řádek může obsahovat názvy sloupců, ale nemusí.
+
+Obě třídy mají jeden třídní šablonový udávající počet sloupců.
+Při inicializaci přebírají jako parametr cestu k souboru uloženému v instanci \texttt{std::filesystem::path} a oddělovač.
+Soubor je otevřen při konstrukci třídy, pokud jej nelze otevřít, je vyhozena výjimka \texttt{std::runtime\_error}.
+Soubor je uzavřen při destrukci objektu.
+
+Třída \texttt{csv::reader} nabízí dvě metody pro čtení řádků: \texttt{read\_header} a \texttt{read\_row}.
+Je přirozenější číst názvy sloupců do instance \texttt{std::array} než přímo do proměnných.
+Čtení přímo do proměnných je dosaženo použitím sady šablonových parametrů \ref{lst:csv:read:row}.
+Třída vrací booleovský příznak s informací o tom, zda byl řádek přečten nebo ne.
+Hodnoty pak lze snadno číst v cyklu \texttt{while} (viz \ref{lst:read:candles}).
+Třída \texttt{io::parser} je používána k parsování jednotlivých hodnot.
+
+\begin{lstlisting}[caption={~Implementace čtení řádky třídy \texttt{io::csv::reader}},label={lst:csv:read:row},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+template<class ...Types>
+bool read_row(Types& ...inputs)
+{
+    static_assert(sizeof...(Types)==n_cols);
+    if (!std::getline(file_, line_))
+        return false;
+
+    line_.erase(std::remove(line_.begin(),line_.end(),'\r'),line_.end());
+    std::stringstream ss(line_);
+    ss.exceptions(std::ios::failbit);
+
+    auto parse_line = [&](auto& in) {
+        read_value(ss, in);
+    };
+
+    (parse_line(inputs), ...);
+    return true;
+}
+\end{lstlisting}
+
+Třída \texttt{csv::reader} je používána velice podobně.
+Má metodu pro zápis sloupců \texttt{write\_header} a pro zápis hodnot \texttt{write\_row}.
+K převodu hodnot na textové řetězce používá třídu \texttt{io::stringifier}.
+
+\begin{lstlisting}[caption={~Ukázka čtení svíček pomocí \texttt{io::csv::reader}},label={lst:read:candles},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+io::csv::reader<5> reader{path, sep};
+std::time_t opened;
+price_t open, high, low, close;
+std::vector<candle> candles;
+
+while (reader.read_row(opened, open, high, low, close))
+    candles.emplace_back(candle{opened, open, high, low, close});
+\end{lstlisting}
+
+\section{Formát JSON}
+Samotný formát se skládá ze dvou struktur: kolekce párů klíč-hodnota a pole.
+Je založen na programovacím jazyce \textit{JavaScript}, ale protože je postaven ze základních datových struktur, je implementován v mnoha programovacích jazycích \cite{json}.
+
+Pro \texttt{C++} je k dispozici několik \textit{JSON} knihoven, ale zdá se, že \texttt{nlohmann/json} mezi nimi vyniká nejvíc.
+Na příslušné \textit{GitHub} stránce je uvedeno, že jde o knihovnu \textit{JSON} pro moderní \textit{C++}, má 34 tisíc hvězdiček, je důkladně testována a pečlivě zdokumentována \cite{lohmann}.
+
+Podporuje vytvoření specifikace pro serializaci a deserializaci vlastních typů.
+Pro daný typ je vytvořena specializace struktury \texttt{adl\_serializer}, která může mít dvě metody \texttt{from\_json} pro deserializaci a \texttt{to\_json} pro serializaci.
+Implementaci pro třídu \texttt{bazooka::indicator} lze vidět ve výpise \ref{lst:json:serialize}.
+
+\begin{lstlisting}[caption={~Implementace deserializace pro vlastní datový typ},label={lst:json:serialize},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+template<>
+struct adl_serializer<trading::bazooka::indicator> {
+    static void to_json(json& j, const bazooka::indicator& indic)
+    {
+        j = {{"period", indic.period()},
+             {"name",   indic.name()}};
+    }
+};
+\end{lstlisting}
+
 \chapter{Vizualizace}
 V současnosti Python nabízí jednu z nejrozšířenějších a nejrozvinutějších sad nástrojů pro vizualizaci a datovou vědu jako takovou, a proto byl v této části práce upřednostněn před C++.
 Grafy jsou potřebné k vizualizaci průběhu optimalizačního procesu, aby bylo možné činit rozhodnutí ve fázi ladění.
@@ -1710,14 +1705,13 @@ Třída čtení byla použita k testování třídy zápisu, aby se ověřilo, �
 
 \chapter{Experimentální vyhodnocení}
 Cílem experimentálního vyhodnocení bylo najít vhodná nastavení pro optimalizátory a mít možnost je vzájemně porovnat.
-Experimenty byly prováděny systematicky tak, že nejprve bylo nalezeno nejlepší nastavení pro jednu sadu historických dat a poté několik málo dalších.
-Tímto způsobem byla provedena fáze hodnocení white-box následovaná fází black-box, během které byla pro hodnocení použita historická data, která byla dříve neznámá.
+Pomocí algoritmu hrubé síly byly nalezeny optimální stavy pro vyhledávací prostor použitý pro vyhodnocení heuristik.
+Při vyhodnocování heuristiky byly nejprve nalezeny vhodné parametry na sadě historických dat white-box a následně testovány na sadě black-box.
 Výsledky experimentů byly pečlivě a systematicky uchovávány, aby bylo co nejjednodušší rozhodování, co upravit pro další experiment.
 
-Výsledky experimentů jsou umístěny v systematicky uspořádané hierarchii složek.
+Jsou umístěny v systematicky uspořádané hierarchii složek.
 Všechny mají společný adresář výstupních dat, který obsahuje 4 složky s názvy odpovídajícími jednotlivým optimalizátorům, do nichž patří složky s výsledky jednotlivých experimentů.
-Názvy složek s výsledky jsou čísla podle pořadí, ve kterém byl daný experiment proveden.
-Například výsledky 1. experimentu genetického algoritmu lze nalézt ve složce \textit{data/out/genetic-algorithm/01}.
+Například výsledky experimentu s názvem white-box-1 genetického algoritmu by bylo možné najít ve složce data/out/genetic-algorithm/white-box-1.
 
 Výsledky všech experimentů se skládají z minimálně 3 souborů: log.txt, best-states.json a settings.json.
 Soubor log.txt obsahuje zprávy, které byly během procesu optimalizace zobrazeny do konzole.
@@ -1733,7 +1727,7 @@ count: 2725146
 duration: 3.664928s
 \end{lstlisting}
 
-Nastavení experimentu jsou uložena do souboru JSON.
+Nastavení experimentu jsou ukládána do souboru ve formátu JSON.
 Díky tomu je experiment opakovatelný, i když výsledky nemusí být stejné, alespoň to platí pro všechny heuristické optimalizátory, protože spoléhají na randomizaci.
 Všechny optimalizátory mají společné sekce nastavení.
 Obsahují informace o historických datech, převzorkování a vyhledávacím prostoru \ref{lst:common:settings}.
@@ -1836,7 +1830,7 @@ Což ovlivňuje framework OpenMP, který díky tomu může používat 8 vláken.
 
 \section{Historická data}
 Data pro experimenty byla získána ze stránky CryptoArchive (www.cryptoarchive.com.au).
-Data pocházejí z Binance kryptoměnové burzy a jsou aktualizována denně.
+Svíčky pocházejí z Binance kryptoměnové burzy a jsou aktualizována denně.
 Mezi hlavní důvody, proč byl web upřednostněn před ostatními dostupnými poskytovateli, patřilo to, že data byla zdarma, snadno dostupná a v požadované granularitě.
 
 Bylo vybráno 10 různých kryptoměn včetně některých známějších jako Bitcoin (BTC), Ethereum (ETH) a Litecoin (LTC) a také novějších jako Solana (SOL).
@@ -1848,7 +1842,7 @@ Přehled informací o vybraných historických datech je uveden v tabulce \ref{t
 \begin{table}[!htbp]
 \centering
 \centering
-\caption[Přehled historických dat]{~Přehled historických dat}\label{tab:historical:market:data}
+\caption[Přehled vybraných historických dat]{~Přehled historických dat}\label{tab:historical:market:data}
 {%
 \begin{tabular}{|l|c|c|c|c|}
 \hline
@@ -1873,7 +1867,7 @@ Výpočet byl proveden na mnohem větším vyhledávacím prostoru pro získán�
 \section{Hrubá síla}
 Hlavním účelem algoritmu hrubé síly bylo vyzkoušet použití různých optimalizačních kritérií a omezení.
 Je to také dobrý způsob měření vlivu optimalizace.
-Může to být jednoduché a dostatečně efektivní řešení pro optimalizaci na malém vyhledávacím prostoru pro jednodušší strategie.
+Zároveň to může být jednoduché a dostatečně efektivní řešení pro optimalizaci na malém vyhledávacím prostoru pro jednodušší strategie.
 Nebylo potřeba provádět white-box ani black-box vyhodnocení, protože optimalizátor nemá žádné nastavitelné parametry.
 
 Log byl doplněn o informace o celkovém počtu stavů prohledávaného stavového prostoru a čase zahájení a ukončení optimalizace (viz \ref{lst:brute:force:log}).
@@ -1892,14 +1886,14 @@ duration: 01:04:20.000111
 \end{lstlisting}
 
 \subsection{Optimalizace}
-První experimenty, které byly provedeny byly zaměřeny na měření účinků optimalizací.
+Nejprve byly provedeny experimenty zaměřené na měření účinků optimalizací.
 Byly použity 2 typy optimalizací: optimalizace kompilátoru a paralelismus.
 Hlavní použitá optimalizace kompilátoru byla \texttt{O3}, která nastavuje nejvyšší úroveň optimalizací.
 Druhou je \texttt{march=native}, která říká kompilátoru, aby provedl optimalizaci pro konkrétní CPU na daném počítači.
 
 Dopad těchto optimalizací byl znatelný, protože sekvenční implementace se zapnutými optimalizacemi byla \textbf{11krát} rychlejší než ta bez nich.
-Použitím paralelismu byl algoritmus ještě \textbf{3,6krát} rychlejší s 8 vlákny.
-Porovnání výsledků experimentu s vyhledávacím prostorem skládajícím se z 3600 stavů a simulací běžící na 2,5 milionu minutových svíček si lze prohlédnout v tabulce \ref{tab:brute:force:optimization}.
+Použitím paralelismu s 8 vlákny byl algoritmus ještě \textbf{3,6krát} rychlejší.
+Porovnání výsledků experimentu s vyhledávacím prostorem skládajícím se z 3600 stavů a simulací běžící na 2,5 milionu minutových svíček lze vidět v tabulce \ref{tab:brute:force:optimization}.
 
 \begin{table}[!htbp]
 \centering
@@ -1925,23 +1919,23 @@ Výsledky byly primárně porovnávány pomocí statistik, nicméně byla použi
 Na grafu \ref{fig:btc-historical-simulation} lze vidět, že strategie obchoduje, když dochází k rychlým poklesům ceny.
 Při vhodném nastavení přináší zisky, ale může se stát, že strategie otevře pozici příliš brzy, což vede k nižším ziskům nebo dokonce ztrátám.
 Stalo by se to například na začátku roku 2020, kdy začala pandemie COVID, následky jsou vidět na grafu s čistou hodnotou.
-Je také vidět, že většina obchodů byla provedena na začátku kolem roku 2018 a počet obchodů s postupem času klesá, což může naznačovat, že strategie byla optimalizována na příliš velkém množství dat nebo není vhodná pro obchodování daného aktiva.
+Je také vidět, že většina obchodů byla provedena na začátku kolem roku 2018 a počet obchodů s postupem času klesá, což může naznačovat, že strategie byla optimalizována na příliš velkém množství dat.
 
 \begin{figure}[htbp]
 \centerline{\includegraphics[scale=0.6]{img/btc-historical-simulation.png}}
-\caption{Průběh historické simulace BTC}
+\caption{Průběh historické simulace}
 \label{fig:btc-historical-simulation}
 \end{figure}
 
 Po dokončení počátečních testů byly provedeny 2 sady testů na všech historických datech.
-Hodnoty parametrů generátorů vyhledávacího prostoru byly zvoleny na základě získaných výsledků.
+Hodnoty parametrů vyhledávacího prostoru byly zvoleny na základě získaných výsledků.
 I při použití optimalizace byl čas stále limitujícím faktorem.
-Rozumná velikost vyhledávacího prostoru se pohybuje 0,5--1 milion možných konfigurací, což trvá přibližně 1--1,5 hodiny, než se dokončí jeden běh optimalizace, a protože bylo zvoleno 10 aktiv, trvala 1 sada experimentů 10--15 hodin.
+Rozumná velikost vyhledávacího prostoru se pohybuje 0,5--1 milion možných konfigurací, což trvá přibližně 0,75--1,5 hodiny, než se dokončí jeden běh optimalizace.
 
-Sady experimentů měly přibližně 1 milion možných konfigurací.
+Stavový prostor pro 1. sadu experimentů měl přibližně 0,4 milionu konfigurací a pro 2. sadu přibližně 1 milion.
 Hodnoty parametrů generátorů stavového prostoru a perioda převzorkování jsou uvedeny v tabulce \ref{tab:brute:force:sets:search:space}.
 Změny provedené po 1. sadě experimentů spočívaly v tom, že počet jedinečných hodnot úrovní nákupu byl zvýšen z 15 na 20 a v seznamu možných typů ukazatelů byl ponechán pouze SMA.
-Během poslední sady experimentů byla doba převzorkování zkrácena ze 45 minut na 15, počet jedinečných hodnot úrovní nákupu byl vrácen na zpět 15, byl zvýšen počet jedinečných hodnot velikostí nákupu z 6 na 11 a spodní hranice úrovní nákupu byla snížena z \(-20 \%\) na \(-40 \%\).
+Během poslední sady experimentů byla doba převzorkování zkrácena ze 45 minut na 15, počet jedinečných hodnot úrovní nákupu byl vrácen zpět na 15, byl zvýšen počet jedinečných hodnot velikostí nákupu z 6 na 11 a spodní hranice úrovní nákupu byla snížena z \(-20 \%\) na \(-40 \%\).
 
 \begin{table}[!htbp]
 \centering
@@ -1969,7 +1963,7 @@ Hodnoty úrovně nákupu a velikosti nákupu byly převedeny ze zlomků do čite
 Obě jsou uvedeny v procentech, úrovně jsou záporné a udávají, o kolik je úroveň snížena od hodnoty vstupního indikátoru, a velikosti označují část zůstatku na účtu, která je použita k nákupu na dané úrovni.
 
 Z přehledu nejlepších konfigurací z 1. sady experimentů (viz \ref{tab:brute:force:set:1:best:configs}) lze vidět, že 8 z 10 distribucí úrovně nákupu klade důraz na jednu úroveň nákupu tím, že na ni vloží 75 \% zůstatku a minimum možné na zbytek.
-Na základě toho by se měl zvýšit počet jedinečných velikostí, aby byla dostupná větší rozmanitost distribucí.
+Na základě toho by se měl zvýšit počet jedinečných velikostí, aby byla dostupná větší rozmanitost velikostí nákupu.
 Medián první úrovně nákupu je \(-12.5 \% \) a poslední úrovně \( -19.6 \% \). 
 Poslední úroveň je velmi blízko spodní hranici úrovně nákupu, což naznačuje, že může být výhodné ji snížit ještě více.
 SMA je přítomen v 7 z 10 nejlepších konfigurací, takže indikátor EMA lze v dalších experimentech vynechat.
@@ -2028,6 +2022,7 @@ ZRX  & 268,3   & 326,7   & 165,5 & \(-0,3\)  & \(-36,7\) \\ \hline
 }
 \end{table}
 
+Na základě poznatků z 1. sady experimentů byla sestavena 2. sada experimentů.
 Z přehledu nejlepších konfigurací z 2. sady experimentů (viz \ref{tab:brute:force:set:2:best:configs}) lze vidět, že zvýšení počtu jedinečných velikostí nákupu způsobilo zvýšení částky zůstatku vloženého na jedenou úroveň, ze 75 \% na 84,6 \%.
 Minimální část nákupu 7,7 \%, kterou bylo možné vložit na obchod, byla nejčastěji se vyskytující hodnotou.
 Období převzorkování bylo 3krát zkráceno ze 45 minut na 15 minut, což například způsobilo ztrojnásobení hodnoty období u BTC, úrovně nákupu se v podstatě nezměnily a ještě větší část zůstatku byla soustředěna na 2. nákupní úroveň.
@@ -2065,7 +2060,6 @@ ZRX  & SMA & 54  & \([\begin{array}{ccc} -10,0 & -15,0 & -22,5 \end{array}]\) & 
 }
 \end{table}
 
-Na základě poznatků z 1. sady experimentů byla sestavena 2. sada experimentů.
 Z přehledu statistik (viz \ref{tab:brute:force:set:2:best:stats}) lze vypozorovat, že hodnoty zisku jsou řádově stejné u všech měn kromě ADA, LTC a XLM, kde se snížily o \(-47\) \%, \(-18.6\) \% a \mbox{\(-27.7\) \%}.
 Největší celkové zlepšení lze zaznamenat u měny DASH, jejíž ziskový faktor vzrostl 4,5krát a sestupné pohyby se zmenšily, na výsledný zisk to však mělo minimální dopad.
 Výsledky 1. sady experimentů byly tedy celkově lepší.
@@ -2101,7 +2095,7 @@ ZRX  & 250,2   & 326,9   & 4,0  & \(-19,8\) & \(-37,7\) \\ \hline
 % Celkově experimenty poskytly zajímavé a netriviální výsledky.
 
 \section{Genetický algoritmus}
-Do souboru \texttt{settings.json} byly přidány informace o nastavení heuristiky, jako je počáteční velikost populace, typ metody nahrazení populace, typ výběru a ukončovací kritérium.
+Do souboru \texttt{settings.json} byly přidány informace o nastavení heuristiky, jako je počáteční velikost populace, způsob nahrazení populace, selekce a ukončovací kritérium.
 Průběh optimalizace byl uložen do souboru \texttt{progress.csv}, aby mohl být později použit pro tvorbu grafů.
 Logy byly doplněny o informace o průběhu optimalizace (viz \ref{lst:genetic:algorithm:log}) zahrnující velikost populace, průměrnou a nejlepší zdatnost.
 
@@ -2113,7 +2107,7 @@ it: 2, population size: 257, mean fitness: 323.594, best fitness: 651.961
 
 \subsection{Experimenty}
 Experimentální vyhodnocení bylo provedeno na stejném vyhledávacím prostoru jako 1. sada experimentů algoritmu hrubé síly.
-Je to menší vyhledávací prostor se přibližně 0,4 miliony různých konfigurací.
+Vyhledávací prostor se skládá z přibližně 0,4 milionu různých konfigurací.
 Byl vybrán především proto, že pro něj byly známy nejlepší stavy a mohly být tedy porovnány s výsledky vyhledávání genetického algoritmu.
 
 Historická data byla rozdělena na data použitá pro white-box a black-box testování.
@@ -2121,7 +2115,7 @@ Menší část sady zahrnující měny ADA, BTC a DASH byla použita pro testov�
 Cílem vytvoření white-box sady bylo vybrat měny, které se při optimalizaci chovají dostatečně odlišně na to, aby bylo možné najít nastavení, které bude vyhovovat nejen konkrétní sadě, ale ideálně i jakékoli jiné měně pro daný vyhledávací prostor.
 
 Bylo provedeno několik počátečních testů na jednom členu sady white-box, jakmile se pro něj našlo vhodné nastavení, bylo to vyzkoušeno na zbytku.
-Pro výběr rodičů byla použit ruletový výběr a pro nahrazení populace bylo použit elitismus, jelikož se ukázalo, že je lepší volbou než en-block nahrazování.
+Pro výběr rodičů byl použit ruletový výběr a pro nahrazení populace bylo použit elitismus, jelikož se ukázalo, že je lepší volbou než en-block nahrazování.
 Dále bylo provedeno několik sad testů s cílem spolehlivě najít nejlepší konfigurace pro všechny měny v co nejkratším čase.
 Počet rodičů a potomků byl nastaven na 2.
 Už od začátku se zdálo, že k nalezení nejlepších stavů bude stačit 10 iterací.
@@ -2149,7 +2143,7 @@ Nejlepší nalezenou kombinaci těchto parametrů lze vidět v tabulce \ref{tab:
   2 &
   2 &
   15 &
-  10 &
+  110 &
   10 \\ \hline
 \end{tabular}%
 }
@@ -2216,7 +2210,7 @@ ZRX  & 0,0  & 79,3  & 21,6 \\ \hline
 \section{Simulované ochlazování}
 Soubor \texttt{settings.json} byl rozšířen o informace o optimalizátoru jako je počáteční a minimalní teplota, použitý rozvrh ochlazování a equilibrium.
 Průběh optimalizace byl uložen do souboru \texttt{progress.csv}.
-Obsahuje informace o hodnotě aktuální teploty, aktuálního stavu, nejlepšího stavu.
+Obsahuje informace o hodnotě aktuální teploty, aktuálního stavu a nejlepšího stavu.
 Ukázku rozšíření logu lze vidět \ref{lst:simulated:annealing:log}.
 
 \begin{lstlisting}[caption={~Rozšíření logu pro simulované ochlazování},label={lst:simulated:annealing:log},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount]
@@ -2272,8 +2266,9 @@ Průběh optimalizace white-box testování je vidět na grafu \ref{fig:simulate
 V případě ADA dochází ke krátkému období diverzifikace, které rychle přechází do fáze intenzifikace.
 U BTC je přechod pomalejší a u DASH lze vypozorovat, že dochází k výraznější diverzifikační fázi.
 Individuálně lze tedy nalézt lepší hodnoty parametrů, ale i přesto se podařilo konvergovat ke globálním optimům, což lze vidět v tabulce \ref{tab:simulated:annealing:white:box:results}.
+
 Počet iterací je řádově vyšší než u genetického algoritmu, ale trvají mnohem kratší dobu.
-Průměrné zrychlení je \textbf{11,4} oproti hrubé síle a čas optimalizace se pohybuje mezi \textbf{2,5--3,9} minut.
+Průměrné zrychlení je \textbf{11,4} oproti hrubé síle a čas optimalizace se pohybuje mezi \textbf{2,5--3,9 minut}.
 Je tedy asi \textbf{2krát} pomalejší než genetický algoritmus.
 Nicméně ve výsledcích testování black-box byl genetický algoritmus překonán, protože byly nalezeny optimální konfigurace pro všechny měny v sadě (viz \ref{tab:simulated:annealing:black:box:results}).
 
@@ -2381,7 +2376,7 @@ Pokud je stejný atribut zapamatován vícekrát po sobě, velikost paměti se s
 Tah aktuálního stavu může být tabu, jelikož se musí aktuální stav každou iteraci změnit.
 
 Průměrné zrychlení oproti hrubé síle pro sadu white-box je \textbf{9,5}, což je o trochu pomalejší než simulované ochlazování.
-Doba výpočtu se pohybuje v rozmezí \textbf{3,1-4,4} minuty.
+Doba výpočtu se pohybuje v rozmezí \textbf{3,1-4,4 minuty}.
 Opět bylo dosaženo globálního optima pro všechny měny.
 Při použití na vzorky ze sady black-box bylo dosaženo 3 ze 7 globálních optim.
 Rozdíl mezi globálním optimem byl nižší než \(-2\) \% ve 3 případech.
@@ -2450,7 +2445,7 @@ Dále byla popsána obchodní strategie Bazooka, jejíž parametry byly optimali
 
 Aplikace byla napsána v C++20.
 Jazyk byl použit, jelikož nabízí prostředky k efektivnějšímu využívání počítačových zdrojů a použití optimalizací.
-Kód je organizován do frameworku, který se skládá ze 2 hlavních částí, z nichž jedna se zaměřuje na historickou simulaci a druhá na optimalizaci.
+Kód je organizován do frameworku, který se skládá ze 2 hlavních částí, z nichž 1. se zaměřuje na historickou simulaci a 2. na optimalizaci.
 Výstupy optimalizace se ukládají do souborů ve formátu CSV a JSON, které lze následně zpracovat pomocí vědeckých balíčků jazyka Python.
 
 Návrh a konvence pojmenování frameworku byly inspirovány knihovnami Boost.
@@ -2462,7 +2457,7 @@ Minimalizována byla také nutnost použití dynamické alokace.
 Zpětné testování bylo inspirováno platformou TradingView a proces vytváření a plnění objednávek burzou Binance.
 Byla vytvořena sada tříd, které byly použity pro simulaci obchodování.
 Důvodem, proč jich bylo více, bylo rozdělení odpovědností, takže existuje třída, která má za úkol pouze rozhodovat, další, která vytváří objednávky a poslední je plní.
-Celá historická simulace se pak provádí voláním jediné metody, která přijímá objekt obchodníka a sadu pozorovatelů.
+Celá historická simulace se pak provádí voláním jediné metody.
 
 Konfigurace se skládá ze 4 atributů: typu a období ukazatele, velikostí a úrovní nákupu.
 Byly navrženy a implementovány systematické generátory stavového prostoru používané algoritmem hrubé síly a náhodné generátory používané heuristikami.
@@ -2470,12 +2465,12 @@ Byly formálně popsány.
 K systematickému generování konfigurací byly použity korutiny zavedené standardem C++20.
 Náhodné generátory používaly rovnoměrné rozdělení.
 
-Pro zapouzdření optimalizačních algoritmů byly vytvořeny třídy.
-Jelikož intenzivně využívají šablony k vytvoření vyšší abstrakce, byly použity koncepty zavedené v C++20, aby bylo zajištěno, že parametry předávané optimalizátorům splňují požadované rozhraní.
+Při navrhování optimalizátorů bylo cílem, aby byly co nejjednodušší a nejflexibilnější.
+Rozhraní parametrů předávaných optimalizátorům je kontrolováno pomocí konceptů zavedených ve standardu C++20.
 Průběh optimalizace lze pozorovat a zaznamenávat pomocí tříd pozorovatelů, které jsou předány při volání optimalizátoru.
-Algoritmus hrubé síly byl implementován paralelně pomocí knihovny OpenMP.
+Algoritmus hrubé síly byl paralelizován pomocí knihovny OpenMP.
 
-Framework byl nejprve řádně otestován než došlo k finálnímu vyhodnocení.
+Framework byl nejprve otestován než došlo k finálnímu vyhodnocení.
 Pro testování jednotlivých tříd byly vytvořeny unit testy.
 Byly použito mockování i fuzzing.
 Největší pozornost byla věnována generátorům vyhledávacího prostoru.
@@ -2483,18 +2478,18 @@ Bylo zajištěno, že systematické generátory generují jedinečné a validní
 Poté byly přidány k testování náhodných generátorů, pro které byl přidán test dosažitelnosti, aby bylo zajištěno, že každý stav ve vyhledávacím prostoru je dosažitelný.
 
 Nakonec bylo provedeno experimentální vyhodnocení.
-Jako zdroj historických dat byly zvoleny minutové svíčky 10 kryptoměn s \textbf{1,4--2,9 miliony} záznamy, což odpovídá 2,7--5,7 letům historie.
+Jako zdroj historických dat byly zvoleny minutové svíčky 10 kryptoměn s 1,4--2,9 miliony záznamy, což odpovídá 2,7--5,7 letům historie.
 Jako optimalizační kritérium byla použita statistika PROM, což je pesimističtější zisk, díky kterému bylo možné získat použitelnější výsledky.
 
 První experimenty byly provedeny pomocí algoritmu hrubé síly.
-Při aplikaci optimalizací kompilátoru a použití více vláken byl algoritmus \textbf{44,1krát} zrychlen oproti jeho neoptimalizované verzi.
+Při aplikaci optimalizací kompilátoru a použití více vláken byl algoritmus 44,1krát zrychlen oproti jeho neoptimalizované verzi.
 Na základě provedených sad experimentů byl vymezen vyhledávací prostor pro experimentální vyhodnocení heuristických přístupů.
-Skládal se z 0,4 milionu konfigurací a algoritmu hrubé síly se všemi zapnutými optimalizacemi trvalo nalezení optimálního stavu v průměru \textbf{0,5 hodiny} pro jednu měnu.
+Skládal se z 0,4 milionu konfigurací a algoritmu hrubé síly se všemi zapnutými optimalizacemi trvalo nalezení optimálního stavu v průměru 0,5 hodiny pro jednu měnu.
 
-Při vyhodnocování heuristických optimalizátorů byla data rozdělena do dvou sad white-box a black-box.
-Parametry optimalizátoru byly nejprve vyladěny na sadě white-box a poté, když byly připraveny, byly jednou spuštěny na sadě black-box.
-Nejlepších celkových výsledků dosáhlo simulované ochlazování, které našlo všechna globální optima v průměru za \textbf{2,6 minuty} a průměrného zrychlení oproti hrubé síle \textbf{11,4} pro sadu black-box.
-Genetický algoritmus dosáhl nejvyššího zrychlení \textbf{22,5krát} o proti hrubé síle, ale u některých vzorků nenašel globální optimum.
+Při vyhodnocování heuristických optimalizátorů byla data rozdělena do 2 sad white-box a black-box.
+Parametry optimalizátoru byly nejprve vyladěny na sadě white-box a poté otestovány na sadě black-box.
+Nejlepších celkových výsledků dosáhlo simulované ochlazování, které našlo všechna globální optima v průměru za 2,6 minuty a průměrného zrychlení oproti hrubé síle 11,4 pro sadu black-box.
+Genetický algoritmus dosáhl nejvyššího zrychlení 22,5krát o proti hrubé síle, ale u některých vzorků nenašel globální optimum.
 
 Celkově se genetický algoritmus zdál nejsnáze laditelný a nejrobustnější.
 Nalezení vhodných parametrů pro simulované ochlazování zabralo nejvíce času a pro dosažení rozumných výsledků bylo nutné vytvořit vlastní equilibrium založené na hodnotě aktuální teploty.
