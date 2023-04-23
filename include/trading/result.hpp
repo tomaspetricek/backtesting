@@ -8,13 +8,12 @@
 #include <vector>
 #include <optional>
 #include <functional>
+#include <trading/interface.hpp>
 
 namespace trading {
-    template<class ConcreteComparator, class Type>
-    concept Comparator = std::invocable<ConcreteComparator, const Type&, const Type&> &&
-            std::same_as<bool, std::invoke_result_t<ConcreteComparator, const Type&, const Type&>>;
 
-    template<class Type, Comparator<Type> Comp>
+
+    template<class Type, IComparator<Type> Comp>
     class result {
     protected:
         Comp comp_;
@@ -89,6 +88,8 @@ namespace trading {
             return res;
         }
     };
+
+    static_assert(IResult<enumerative_result<int, std::greater<>>, int>);
 }
 
 #endif //BACKTESTING_RESULT_HPP

@@ -25,11 +25,11 @@ namespace trading::tabu_search {
             progress_.clear();
         }
 
-        template<class Optimizer, class TabuList>
-        void iteration_passed(const Optimizer& optimizer, const TabuList& tabu_list)
+        template<class Optimizer>
+        void iteration_passed(const Optimizer& optimizer)
         {
             progress_.emplace_back(progress{optimizer.best_state().value, optimizer.current_state().value,
-                    tabu_list.size()});
+                    optimizer.tabu_list().size()});
         }
 
         template<class Optimizer>

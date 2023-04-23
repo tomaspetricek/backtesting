@@ -32,9 +32,9 @@
 #include <trading/io/parser.hpp>
 #include <trading/io/stringifier.hpp>
 #include <trading/random/generators.hpp>
+#include <trading/simulated_annealing/optimizer.hpp>
 #include <trading/simulated_annealing/cooler.hpp>
 #include <trading/simulated_annealing/equilibrium.hpp>
-#include <trading/simulated_annealing/optimizer.hpp>
 #include <trading/simulated_annealing/progress_collector.hpp>
 #include <trading/simulated_annealing/progress_reporter.hpp>
 #include <trading/systematic/generators.hpp>

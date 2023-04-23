@@ -24,7 +24,7 @@ namespace trading::simulated_annealing {
         void better_accepted(const Optimizer&) { }
 
         template<class Optimizer>
-        void worse_accepted(const Optimizer&, double) { }
+        void worse_accepted(const Optimizer&) { }
 
         template<class Optimizer>
         void cooled(const Optimizer& optimizer)

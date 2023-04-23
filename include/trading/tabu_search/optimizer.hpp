@@ -6,93 +6,87 @@
 #define BACKTESTING_TABU_SEARCH_OPTIMIZER_HPP
 
 #include <unordered_map>
-#include <trading/optimizer.hpp>
+#include <trading/state.hpp>
+#include <trading/interface.hpp>
 
 namespace trading::tabu_search {
-    template<class ConcreteTabuTenure>
-    concept TabuTenure = std::invocable<ConcreteTabuTenure> &&
-            std::same_as<std::size_t, std::invoke_result_t<ConcreteTabuTenure>>;
-
-    template<class ConcreteNeighborhoodSizer, class Optimizer>
-    concept NeighborhoodSizer = std::invocable<ConcreteNeighborhoodSizer, const Optimizer&> &&
-            std::same_as<std::size_t, std::invoke_result_t<ConcreteNeighborhoodSizer, const Optimizer&>>;
-
-    template<class ConcreteNeighbor, class Config, class Movement>
-    concept Neighbor = std::invocable<ConcreteNeighbor, const Config&> &&
-            std::same_as<std::tuple<Config, Movement>, std::invoke_result_t<ConcreteNeighbor, const Config&>>;
-
-    template<class ConcreteAspirationCriteria, class State, class Optimizer>
-    concept AspirationCriteria = std::invocable<ConcreteAspirationCriteria, const State&, const Optimizer&> &&
-            std::same_as<bool, std::invoke_result_t<ConcreteAspirationCriteria, const State&, const Optimizer&>>;
-
-    template<class State>
+    template<class State, class Move, ITabuList<Move> TabuList>
     class optimizer {
-        State best_, curr_;
+        TabuList tabu_list_;
+        State best_state_, curr_state_;
+        Move curr_move_, candidate_move_;
         std::size_t it_{0};
-        using state_type = State;
-        using config_type = typename state_type::config_type;
+        using state_t = State;
+        using config_t = typename state_t::config_type;
+        using move_t = Move;
 
     public:
-        template<class Result, class TabuList, class... Observer>
-        void operator()(const config_type& init, Result& result,
-                const Constraints<state_type> auto& constraints,
-                ObjectiveFunction<state_type> auto&& objective,
-                TabuList tabu_list,
-                Neighbor<config_type, typename TabuList::move_type> auto&& neighbor,
-                NeighborhoodSizer<optimizer> auto&& neighborhood_size,
-                TerminationCriteria<optimizer> auto&& terminate,
-                AspirationCriteria<state_type, optimizer> auto&& aspire,
-                Observer& ... observers)
+        explicit optimizer(TabuList tabu_list)
+                :tabu_list_(tabu_list) { }
+
+        void operator()(const config_t& init,
+                IResult<state_t> auto& result,
+                IConstraints<state_t> auto&& constraints,
+                IObjectiveFunction<state_t> auto&& objective,
+                INeighbor<config_t, move_t> auto&& neighbor,
+                INeighborhoodSizer<optimizer> auto&& neighborhood_size,
+                ITerminationCriteria<optimizer> auto&& terminate,
+                IAspirationCriteria<state_t, optimizer> auto&& aspire,
+                IObserver<optimizer> auto& ... observers)
         {
-            best_ = curr_ = objective(init);
-            state_type candidate, origin;
-            typename TabuList::move_type curr_move, candidate_move;
+            best_state_ = curr_state_ = objective(init);
+            state_t candidate, origin;
             std::size_t neighborhood;
 
             (observers.started(*this), ...);
-            for (; !terminate(*this); it_++) {
+            for (it_ = 0; !terminate(*this); it_++) {
                 // explore neighborhood
-                origin = curr_;
-                std::tie(curr_.config, curr_move) = neighbor(origin.config);
-                curr_ = objective(curr_.config);
+                origin = curr_state_;
+                std::tie(curr_state_.config, curr_move_) = neighbor(origin.config);
+                curr_state_ = objective(curr_state_.config);
 
                 neighborhood = neighborhood_size(*this);
                 assert(neighborhood>=1);
                 for (std::size_t i{0}; i<neighborhood-1; i++) {
-                    std::tie(candidate.config, candidate_move) = neighbor(origin.config);
+                    std::tie(candidate.config, candidate_move_) = neighbor(origin.config);
 
-                    if (!tabu_list.contains(candidate_move)) {
+                    if (!tabu_list_.contains(candidate_move_)) {
                         candidate = objective(candidate.config);
 
-                        if (result.compare(candidate, curr_) || aspire(candidate, *this)) {
-                            curr_ = candidate;
-                            curr_move = candidate_move;
+                        if (result.compare(candidate, curr_state_) || aspire(candidate, *this)) {
+                            curr_state_ = candidate;
+                            curr_move_ = candidate_move_;
                         }
                     }
                 }
 
                 // try update best state
-                if (result.compare(curr_, best_)) {
-                    best_ = curr_;
-                    if (constraints(best_))
-                        result.update(best_);
+                if (result.compare(curr_state_, best_state_)) {
+                    best_state_ = curr_state_;
+                    if (constraints(best_state_))
+                        result.update(best_state_);
                 }
 
-                tabu_list.forget();
-                tabu_list.remember(curr_move);
-                (observers.iteration_passed(*this, tabu_list), ...);
+                tabu_list_.forget();
+                tabu_list_.remember(curr_move_);
+                (observers.iteration_passed(*this), ...);
             }
             (observers.finished(*this), ...);
         }
 
-        const state_type& best_state() const
+        const state_t& best_state() const
         {
-            return best_;
+            return best_state_;
         }
 
-        const state_type& current_state() const
+        const state_t& current_state() const
         {
-            return curr_;
+            return curr_state_;
+        }
+
+        const TabuList& tabu_list() const
+        {
+            return tabu_list_;
         }
 
         std::size_t it() const

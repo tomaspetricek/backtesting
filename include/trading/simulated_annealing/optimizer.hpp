@@ -8,34 +8,17 @@
 #include <functional>
 #include <cmath>
 #include <trading/random/generators.hpp>
-#include <trading/optimizer.hpp>
+#include <trading/interface.hpp>
 
 namespace trading::simulated_annealing {
-    // https://youtu.be/l6Y9PqyK1Mc
-    template<class ConcreteCooler, class SimulatedAnnealing>
-    concept Cooler = std::invocable<ConcreteCooler, SimulatedAnnealing&> &&
-            std::same_as<void, std::invoke_result_t<ConcreteCooler, SimulatedAnnealing&>>;
-
-    template<class ConcreteAppraiser, class State>
-    concept Appraiser = std::invocable<ConcreteAppraiser, const State&, const State&> &&
-            std::same_as<double, std::invoke_result_t<ConcreteAppraiser, const State&, const State&>>;
-
-    template<class ConcreteEquilibrium, class SimulatedAnnealing>
-    concept Equilibrium = std::invocable<ConcreteEquilibrium, const SimulatedAnnealing&> &&
-            std::same_as<std::size_t, std::invoke_result_t<ConcreteEquilibrium, const SimulatedAnnealing&>>;
-
-    template<class ConcreteNeighbor, class Config>
-    concept Neighbor = std::invocable<ConcreteNeighbor, const Config&> &&
-            std::same_as<Config, std::invoke_result_t<ConcreteNeighbor, const Config&>>;
-
     template<class State>
     class optimizer {
         double start_temp_, min_temp_, curr_temp_;
         random::real_interval_generator<double> rand_prob_{0.0, 1.0};
         std::size_t it_{0};
-        using state_type = State;
-        using config_type = typename State::config_type;
-        state_type curr_state_, best_state_;
+        using state_t = State;
+        using config_t = typename state_t::config_type;
+        state_t curr_state_, best_state_;
 
         static double validate_min_temp(const double min_temp)
         {
@@ -56,21 +39,21 @@ namespace trading::simulated_annealing {
                 :start_temp_(validate_start_temp(min_temp, start_temp)), min_temp_(validate_min_temp(min_temp)),
                  curr_temp_(start_temp) { }
 
-        template<class Result, class... Observer>
-        void operator()(const config_type& init_config, Result& result,
-                Constraints<state_type> auto&& constraints,
-                ObjectiveFunction<state_type> auto&& objective,
-                Cooler<optimizer> auto&& cool,
-                Neighbor<config_type> auto&& neighbor,
-                Appraiser<state_type> auto&& appraise,
-                Equilibrium<optimizer> auto&& equilibrium,
-                Observer& ... observers)
+        void operator()(const config_t& init_config,
+                IResult<state_t> auto& result,
+                IConstraints<state_t> auto&& constraints,
+                IObjectiveFunction<state_t> auto&& objective,
+                ICooler<optimizer> auto&& cool,
+                INeighbor<config_t> auto&& neighbor,
+                IAppraiser<state_t> auto&& appraise,
+                IEquilibrium<optimizer> auto&& equilibrium,
+                IObserver<optimizer> auto& ... observers)
         {
             curr_state_ = best_state_ = objective(init_config);
             (observers.started(*this), ...);
 
             // frozen
-            for (; curr_temp_>min_temp_; it_++) {
+            for (it_ = 0; curr_temp_>min_temp_; it_++) {
                 for (std::size_t e{0}; e<equilibrium(*this); e++) {
                     auto candidate = objective(neighbor(curr_state_.config));
 
@@ -91,7 +74,7 @@ namespace trading::simulated_annealing {
 
                         if (rand_prob_()<threshold) {
                             curr_state_ = candidate;
-                            (observers.worse_accepted(*this, threshold), ...);
+                            (observers.worse_accepted(*this), ...);
                         }
                     }
                 }
@@ -126,12 +109,12 @@ namespace trading::simulated_annealing {
             return min_temp_;
         }
 
-        const state_type& current_state() const
+        const state_t& current_state() const
         {
             return curr_state_;
         }
 
-        const state_type& best_state() const
+        const state_t& best_state() const
         {
             return best_state_;
         }

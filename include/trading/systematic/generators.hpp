@@ -50,7 +50,7 @@ namespace trading::systematic {
         sizes_generator(size_t unique_count = base_type::default_unique_count)
                 :trading::sizes_generator<n_sizes>(unique_count) { }
 
-        using value_type = typename trading::sizes_generator<n_sizes>::value_type;
+        using value_type = typename base_type::value_type;
 
         cppcoro::recursive_generator<value_type> operator()()
         {

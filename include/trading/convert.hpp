@@ -15,6 +15,8 @@
 #include <trading/genetic_algorithm/replacement.hpp>
 #include <trading/genetic_algorithm/matchmaker.hpp>
 #include <trading/genetic_algorithm/selection.hpp>
+#include <trading/simulated_annealing/equilibrium.hpp>
+#include <trading/simulated_annealing/cooler.hpp>
 #include <trading/sizer.hpp>
 #include <trading/io/parser.hpp>
 

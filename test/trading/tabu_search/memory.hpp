@@ -12,27 +12,24 @@
 #include "../fixtures.hpp"
 
 BOOST_AUTO_TEST_SUITE(tabu_search_int_range_memory_test)
-    using tenure_type = trading::tabu_search::fixed_tenure;
-    using memory_type = trading::tabu_search::int_range_memory<tenure_type>;
+    using memory_t = trading::tabu_search::int_range_memory;
 
     BOOST_AUTO_TEST_CASE(constructor_exception_test)
     {
-        tenure_type tenure{5};
         for (const auto& set: int_range::invalid)
-            BOOST_REQUIRE_THROW(memory_type(set.from, set.to, set.step, tenure), std::invalid_argument);
+            BOOST_REQUIRE_THROW(memory_t(set.from, set.to, set.step, 5), std::invalid_argument);
     }
 
     BOOST_AUTO_TEST_CASE(constructor_no_exception_test)
     {
-        tenure_type tenure{5};
         for (const auto& set: int_range::valid)
-            BOOST_REQUIRE_NO_THROW(memory_type(set.from, set.to, set.step, tenure));
+            BOOST_REQUIRE_NO_THROW(memory_t(set.from, set.to, set.step, 5));
     }
 
     BOOST_AUTO_TEST_CASE(constructor_test)
     {
         for (const auto set: int_range::valid) {
-            memory_type memory{set.from, set.to, set.step, tenure_type{5}};
+            memory_t memory{set.from, set.to, set.step, 5};
             auto gen = trading::systematic::int_range_generator(set.from, set.to, set.step);
 
             for (const auto& val: gen())
@@ -43,7 +40,7 @@ BOOST_AUTO_TEST_SUITE(tabu_search_int_range_memory_test)
     BOOST_AUTO_TEST_CASE(usage_test)
     {
         for (const auto set: int_range::valid) {
-            memory_type memory{set.from, set.to, set.step, tenure_type{1}};
+            memory_t memory{set.from, set.to, set.step, 1};
             auto gen = trading::systematic::int_range_generator(set.from, set.to, set.step);
 
             for (const auto& val: gen()) {
@@ -61,7 +58,7 @@ BOOST_AUTO_TEST_SUITE(tabu_search_int_range_memory_test)
         std::size_t expect_size;
         for (const auto set: int_range::valid) {
             expect_size = 0;
-            memory_type memory{set.from, set.to, set.step, tenure_type{1}};
+            memory_t memory{set.from, set.to, set.step, 1};
             auto gen = trading::systematic::int_range_generator(set.from, set.to, set.step);
 
             for (const auto& val: gen()) {
@@ -78,20 +75,20 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(tabu_search_array_memory_test)
     using tenure_t = trading::tabu_search::fixed_tenure;
-    using memory_t = trading::tabu_search::array_memory<int, 2, tenure_t>;
+    using memory_t = trading::tabu_search::array_memory<int, 2>;
     using value_t = memory_t::value_type;
 
     BOOST_AUTO_TEST_CASE(constructor_test)
     {
-        auto tenure = tenure_t{1};
-        memory_t memory{tenure};
+        std::size_t tenure{1};
+        memory_t memory{1};
         BOOST_REQUIRE_EQUAL(memory.size(), 0);
-        BOOST_REQUIRE(memory.tenure().it_count()==tenure.it_count());
+        BOOST_REQUIRE(memory.tenure()==tenure);
     }
 
     BOOST_AUTO_TEST_CASE(usage_test)
     {
-        auto tenure = tenure_t{2};
+        std::size_t tenure{2};
         memory_t memory{tenure};
         value_t a{1, 2}, b{3, 4}, c{10, 20};
 

@@ -968,22 +968,25 @@ Smyčky jsou na sobě závislé, následující (hlubší) smyčka musí znát p
 Nejvnitřnější smyčka vrací výslednou sekvenci.
 
 \begin{lstlisting}[caption={~Metody pro systematické generování úrovní nákupu},label={lst:systematic:levels_generator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-    value_type operator()()
+    cppcoro::recursive_generator<value_type> operator()()
     {
-        co_yield generate<0>(this->denom_);
+        co_yield generate<0>(this->unscaled_denom());
     }
 
 private:
     template<std::size_t depth = n_levels>
     requires (depth==n_levels)
-    value_type generate(std::size_t) { co_yield this->levels_; }
-    
+    cppcoro::recursive_generator<value_type> generate(std::size_t)
+    {
+        co_yield this->levels_;
+    }
+
     template<std::size_t depth = 0>
     requires (depth<n_levels)
-    value_type generate(std::size_t prev_num)
+    cppcoro::recursive_generator<value_type> generate(std::size_t prev_num)
     {
         for (std::size_t num{--prev_num}; num>n_levels-depth-1; num--) {
-            this->levels_[depth] = fraction_t{num, this->denom_};
+            this->levels_[depth] = this->rescale(num);
             co_yield generate<depth+1>(num);
         }
     }
@@ -1014,7 +1017,7 @@ Používá se také rekurze, každá smyčka \texttt{for} předává součet zb�
 Maximální lokální čitatel má buď hodnotu globálního maximálního čitatele, nebo součet zbývajících čitatelů snížený o jedna.
 
 \begin{lstlisting}[caption={~Metody pro systematické generování velikostí nákupu},label={lst:systematic:sizes_generator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-    value_type operator()()
+    cppcoro::recursive_generator<value_type> operator()()
     {
         co_yield generate<0>(this->denom_);
     }
@@ -1022,7 +1025,7 @@ Maximální lokální čitatel má buď hodnotu globálního maximálního čita
 private:
     template<std::size_t depth = n_sizes>
     requires (depth+1==n_sizes)
-    value_type generate(std::size_t remaining)
+    cppcoro::recursive_generator<value_type> generate(std::size_t remaining)
     {
         this->sizes_[depth] = fraction_t{remaining, this->denom_};
         co_yield this->sizes_;
@@ -1030,10 +1033,10 @@ private:
 
     template<std::size_t depth = 0>
     requires (depth+1<n_sizes)
-    value_type generate(std::size_t remaining)
+    cppcoro::recursive_generator<value_type> generate(std::size_t remaining)
     {
-        std::size_t max = (remaining>this->max_num_)
-            ? this->max_num_ : remaining-1;
+        std::size_t max = (remaining>this->max_num_) ?
+            this->max_num_ : remaining-1;
         for (std::size_t num{1}; num<=max; num++) {
             this->sizes_[depth] = fraction_t{num, this->denom_};
             co_yield generate<depth+1>(remaining-num);
@@ -1055,9 +1058,9 @@ Ukázku použití konceptů pro definování algoritmu chlazení pro třídu \te
 Chyby generované kompilátorem při použití objektu se špatným rozhraním jsou často čitelnější a přímější při použití konceptů než samotných šablon.
 
 \begin{lstlisting}[caption={~Koncept pro kontrolu chladícího algoritmu},label={lst:cooling:concept},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-template<class ConcreteCooler, class SimulatedAnnealing>
-concept Cooler = std::invocable<ConcreteCooler, SimulatedAnnealing&> &&
-std::same_as<void,std::invoke_result_t<ConcreteCooler,SimulatedAnnealing&>>;
+template<class Cooler, class SimulatedAnnealing>
+concept ICooler = std::invocable<Cooler, SimulatedAnnealing&> &&
+    std::same_as<void, std::invoke_result_t<Cooler, SimulatedAnnealing&>>;
 \end{lstlisting}
 
 
@@ -1080,12 +1083,12 @@ Nejvnitřnější cyklus vrací konfiguraci jako korutinu typu \texttt{cppcoro::
 Vytvoření vyhledávacího prostoru tímto způsobem je jednodušší než navrhování vlastního iterátoru, jelikož na sobě mohou být jednotlivého hodnoty závislé.
 
 \begin{lstlisting}[caption={~Ukázka generování systematického stavového prostoru},label={lst:systematic:states_generator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-auto search_space = [&]() -> cppcoro::generator<config_type> {
+auto search_space = [&]() -> cppcoro::generator<config_t> {
     for (std::size_t period: periods_gen())
         for (const auto& tag: tags)
             for (const auto& levels: levels_gen())
-                for (const auto& open_sizes: sizes_gen())
-                    co_yield config_type{tag, period, levels, open_sizes};
+                for (const auto& sizes: sizes_gen())
+                    co_yield config_t{tag, period, levels, sizes};
 };
 \end{lstlisting}
 
@@ -1103,20 +1106,19 @@ Pokud stav splňuje omezující podmínky, je v kritické sekci aktualizován v�
 Je nutné použít synchronizaci, protože může být výsledek modifikován více vlákny najednou.
 
 \begin{lstlisting}[caption={~Optimalizace pomocí algoritmu hrubé síly},label={lst:brute-force},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-template<class Result>
-void operator()(Result& result,
-    Constraints<state_type> auto&& constraints,
-    ObjectiveFunction<Config> auto&& objective,
-    SearchSpace<Config> auto&& search_space) const
+void operator()(IResult<state_t> auto& result,
+    IConstraints<state_t> auto&& constraints,
+    IObjectiveFunction<state_t> auto&& objective,
+    ISearchSpace<config_t> auto&& search_space) const
 {
     #pragma omp parallel
     {
         #pragma omp single
         {
-            for (const Config& config: search_space()) {
+            for (const config_t& config: search_space()) {
                 #pragma omp task
                 {
-                    auto state = state_type{config, objective(config)};
+                    auto state = objective(config);
                     if (constraints(state)) {
                         #pragma omp critical
                         result.update(state);
@@ -1156,38 +1158,42 @@ Pro sběr dat o průběhu optimalizace byla implementována třída \texttt{simu
 Za účelem logování byla vytvořena třída \texttt{simulated\_annealing::progress\_reporter}.
 
 \begin{lstlisting}[caption={~Implementace simulovaného ochlazování},label={lst:simulated:annealing},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-template<class Result, class... Observer>
-void operator()(const Config& init_config, Result& result,
-    Constraints<state_type> auto&& constraints,
-    ObjectiveFunction<Config> auto&& objective,
-    Cooler<optimizer> auto&& cool,
-    Neighbor<Config> auto&& neighbor,
-    Appraiser<state_type> auto&& appraise,
-    Equilibrium auto&& equilibrium,
-    Observer& ... observers)
+void operator()(const config_t& init_config,
+    IResult<state_t> auto& result,
+    IConstraints<state_t> auto&& constraints,
+    IObjectiveFunction<state_t> auto&& objective,
+    ICooler<optimizer> auto&& cool,
+    INeighbor<config_t> auto&& neighbor,
+    IAppraiser<state_t> auto&& appraise,
+    IEquilibrium<optimizer> auto&& equilibrium,
+    IObserver<optimizer> auto& ... observers)
 {
-    curr_state_ = state_type{init_config, objective(init_config)};
+    curr_state_ = best_state_ = objective(init_config);
     (observers.started(*this), ...);
 
-    for (; curr_temp_>min_temp_; it_++) {
-        while (equilibrium()) {
-            Config config = neighbor(curr_state_.config);
-            auto candidate = state_type{config, objective(config)};
+    // frozen
+    for (it_ = 0; curr_temp_>min_temp_; it_++) {
+        for (std::size_t e{0}; e<equilibrium(*this); e++) {
+            auto candidate = objective(neighbor(curr_state_.config));
 
             if (result.compare(candidate, curr_state_)) {
                 curr_state_ = candidate;
                 (observers.better_accepted(*this), ...);
 
                 if (constraints(curr_state_))
-                    result.update(curr_state_);
+                    if (result.compare(curr_state_, best_state_)) {
+                        best_state_ = curr_state_;
+                        result.update(best_state_);
+                    }
             }
             else {
                 double diff = appraise(curr_state_, candidate);
                 double threshold = std::exp(-diff/curr_temp_);
+                assert(threshold>=0.0 && threshold<=1.0);
 
                 if (rand_prob_()<threshold) {
                     curr_state_ = candidate;
-                    (observers.worse_accepted(*this, threshold), ...);
+                    (observers.worse_accepted(*this), ...);
                 }
             }
         }
@@ -1244,48 +1250,49 @@ Implementaci algoritmu lze vidět ve výpise \ref{lst:genetic:algorithm}.
 Data o průběhu optimalizace lze shromažďovat pomocí \texttt{progress\_collector} a zaznamenávat pomocí \texttt{progress\_reporter}.
 
 \begin{lstlisting}[caption={~Implementace genetického algoritmu},label={lst:genetic:algorithm},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-template<class Result, class... Observer>
-std::vector<state<Genes>> operator()(const std::vector<Genes>& init_genes,
-    Result& result,
-    Constraints<state_type> auto&& constraints,
-    ObjectiveFunction<Genes> auto&& fitness,
-    PopulationSizer auto&& size,
-    Selection<state_type> auto&& select,
-    Matchmaker<state_type> auto&& match,
-    Crossover<Genes> auto&& crossover,
-    Mutation<Genes> auto&& mutate,
-    Replacement<state_type> auto&& replace,
-    TerminationCriteria<optimizer<Genes>> auto&& terminate,
-    Observer& ... observers)
+void operator()(const std::vector<config_t>& init_genes,
+    IResult<state_t> auto& result,
+    IConstraints<state_t> auto&& constraints,
+    IObjectiveFunction<state_t> auto&& fitness,
+    IPopulationSizer auto&& size,
+    ISelection<state_t> auto&& select,
+    IMatchmaker<state_t> auto&& match,
+    ICrossover<config_t> auto&& crossover,
+    IMutation<config_t> auto&& mutate,
+    IReplacement<state_t> auto&& replace,
+    ITerminationCriteria<optimizer> auto&& terminate,
+    IObserver<optimizer> auto& ... observers)
 {
     population_.clear(), population_.reserve(init_genes.size());
     for (const auto& genes: init_genes)
-        population_.emplace_back(state_type{genes, fitness(genes)});
+        population_.template emplace_back(fitness(genes));
 
-    std::vector<state_type> parents, children;
+    std::vector<state_t> parents, children;
     (observers.started(*this), ...);
     for (; population_.size() && !terminate(*this); it_++) {
         parents.clear();
         select(size(population_.size()), population_, parents);
 
+        // mate
         children.clear();
         for (const auto& mates: match(parents))
             for (auto&& genes: crossover(mates)) {
                 genes = mutate(std::move(genes));
-                auto child = state_type{genes, fitness(genes)};
-                children.template emplace_back(std::move(child));
+                children.template emplace_back(fitness(genes));
             }
 
+        // replace
         population_.clear();
         replace(parents, children, population_);
 
+        // update results
         for (const auto& individual: population_)
             if (constraints(individual))
                 result.update(individual);
+
         (observers.population_updated(*this), ...);
     };
     (observers.finished(*this), ...);
-    return population_;
 }
 \end{lstlisting}
 
@@ -1305,14 +1312,14 @@ Lze ji použít ve výrazech \texttt{switch} \ref{lst:movement:usage}.
 Tah lze uložit a zpřístupnit pomocí setrů a getrů.
 
 \begin{lstlisting}[caption={~Použití třídy \texttt{bazooka::movement}},label={lst:movement:usage},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-bool contains(const move_type& move) const
+bool contains(const move_t& move) const
 {
     switch (move.indices()) {
-    case move_type::indices::tag:
+    case move_t::indices::tag:
         return indic_mem_.contains(move.tag);
-    case move_type::indices::period:
+    case move_t::indices::period:
         return period_mem_.contains(move.period());
-    case move_type::indices::levels:
+    case move_t::indices::levels:
         return levels_mem_.contains(move.levels());
     default:
         return sizes_mem_.contains(move.open_sizes());
@@ -1329,50 +1336,53 @@ Velikost sousedství říká, kolik sousedních konfigurací je prohledáno běh
 Celý algoritmus lze vidět ve výpise \ref{lst:tabu:search}.
 
 \begin{lstlisting}[caption={~Implementace genetického algoritmu},label={lst:tabu:search},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-template<class Result, class TabuList, class... Observer>
-void operator()(const Config& init, Result& result,
-    const Constraints<state_type> auto& constraints,
-    ObjectiveFunction<Config> auto&& objective,
-    TabuList tabu_list,
-    Neighbor<Config, typename TabuList::move_type> auto&& neighbor,
-    NeighborhoodSizer<optimizer> auto&& neighborhood_size,
-    TerminationCriteria<optimizer> auto&& terminate,
-    AspirationCriteria<state_type, optimizer> auto&& aspire,
-    Observer& ... observers)
+void operator()(const config_t& init,
+    IResult<state_t> auto& result,
+    IConstraints<state_t> auto&& constraints,
+    IObjectiveFunction<state_t> auto&& objective,
+    INeighbor<config_t, move_t> auto&& neighbor,
+    INeighborhoodSizer<optimizer> auto&& neighborhood_size,
+    ITerminationCriteria<optimizer> auto&& terminate,
+    IAspirationCriteria<state_t, optimizer> auto&& aspire,
+    IObserver<optimizer> auto& ... observers)
 {
-    best_ = curr_ = state_type{init, objective(init)};
-    state_type candidate, origin;
-    typename TabuList::move_type curr_move, candidate_move;
+    best_state_ = curr_state_ = objective(init);
+    state_t candidate, origin;
     std::size_t neighborhood;
 
     (observers.started(*this), ...);
-    for (; !terminate(*this); it_++) {
-        origin = curr_;
-        std::tie(curr_.config, curr_move) = neighbor(origin.config);
-        curr_.value = objective(curr_.config);
-        
-        for (std::size_t i{0}; i<neighborhood_size(*this)-1; i++) {
-            std::tie(candidate.config, candidate_move) = neighbor(origin.config);
+    for (it_ = 0; !terminate(*this); it_++) {
+        // explore neighborhood
+        origin = curr_state_;
+        std::tie(curr_state_.config, curr_move_) = neighbor(origin.config);
+        curr_state_ = objective(curr_state_.config);
 
-            if (!tabu_list.contains(candidate_move)) {
-                candidate.value = objective(candidate.config);
+        neighborhood = neighborhood_size(*this);
+        assert(neighborhood>=1);
+        for (std::size_t i{0}; i<neighborhood-1; i++) {
+            std::tie(candidate.config, candidate_move_) = neighbor(origin.config);
 
-                if (result.compare(candidate, curr_) || aspire(candidate, *this)) {
-                    curr_ = candidate;
-                    curr_move = candidate_move;
+            if (!tabu_list_.contains(candidate_move_)) {
+                candidate = objective(candidate.config);
+
+                if (result.compare(candidate, curr_state_)
+                    || aspire(candidate, *this)) {
+                    curr_state_ = candidate;
+                    curr_move_ = candidate_move_;
                 }
             }
         }
 
-        if (result.compare(curr_, best_)) {
-            best_ = curr_;
-            if (constraints(best_))
-                result.update(best_);
+        // try update best state
+        if (result.compare(curr_state_, best_state_)) {
+            best_state_ = curr_state_;
+            if (constraints(best_state_))
+                result.update(best_state_);
         }
 
-        tabu_list.forget();
-        tabu_list.remember(curr_move);
-        (observers.iteration_passed(*this, tabu_list), ...);
+        tabu_list_.forget();
+        tabu_list_.remember(curr_move_);
+        (observers.iteration_passed(*this), ...);
     }
     (observers.finished(*this), ...);
 }
@@ -2206,9 +2216,7 @@ ZRX  & 0,0  & 79,3  & 21,6 \\ \hline
 \section{Simulované ochlazování}
 Soubor \texttt{settings.json} byl rozšířen o informace o optimalizátoru jako je počáteční a minimalní teplota, použitý rozvrh ochlazování a equilibrium.
 Průběh optimalizace byl uložen do souboru \texttt{progress.csv}.
-Obsahuje informace o hodnotě aktuální teploty, aktuálního stavu, nejlepšího stavu a průměrného prahu přijetí horšího stavu.
-Při přijetí horšího stavu se zaznamená prahová hodnota, na základě které bylo rozhodnuto o jeho přijetí, pro každou iteraci je vypočten jejich průměr.
-Měl by klesat s teplotou a je to další údaj, který může pomoci při ladění parametrů algoritmu.
+Obsahuje informace o hodnotě aktuální teploty, aktuálního stavu, nejlepšího stavu.
 Ukázku rozšíření logu lze vidět \ref{lst:simulated:annealing:log}.
 
 \begin{lstlisting}[caption={~Rozšíření logu pro simulované ochlazování},label={lst:simulated:annealing:log},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount]

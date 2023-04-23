@@ -7,7 +7,7 @@
 
 #include <trading/bazooka/configuration.hpp>
 #include <trading/bazooka/statistics.hpp>
-#include <trading/optimizer.hpp>
+#include <trading/state.hpp>
 
 namespace trading::bazooka {
     template<std::size_t n_levels>

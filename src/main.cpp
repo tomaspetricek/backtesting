@@ -186,8 +186,8 @@ int main()
     using state_type = trading::bazooka::state<n_levels>;
     using config_type = state_type::config_type;
 
-    std::string experiment_set_name = "white-box-17";
-    auto optim_tag = optimizer_tag::tabu_search;
+    std::string experiment_set_name = "remove";
+    auto optim_tag = optimizer_tag::brute_force;
     auto optimizer_name = optimizer_names[trading::to_underlying(optim_tag)];
 
     std::vector<currency_pair> pairs{
@@ -389,11 +389,10 @@ int main()
                         << "duration: " << duration << std::endl;
 
                 // save progress
-                io::csv::writer<4> writer(experiment_dir/"progress.csv");
-                writer.write_header({"temperature", "curr value", "best value", "mean threshold worse acceptance"});
+                io::csv::writer<3> writer(experiment_dir/"progress.csv");
+                writer.write_header({"temperature", "curr value", "best value"});
                 for (const auto& progress: progress_observer.get())
-                    writer.write_row(progress.temperature, progress.curr_state_value, progress.best_state_value,
-                            progress.worse_acceptance_mean_threshold);
+                    writer.write_row(progress.temperature, progress.curr_state_value, progress.best_state_value);
             }
             else if (optim_tag==optimizer_tag::genetic_algorithm) {
                 constexpr std::size_t n_children{2};
@@ -453,13 +452,16 @@ int main()
                     writer.write_row(progress.mean_fitness, progress.best_fitness, progress.population_size);
             }
             else if (optim_tag==optimizer_tag::tabu_search) {
+                using move_t = trading::bazooka::movement<n_levels>;
+                using memory_t = bazooka::configuration_memory<n_levels>;
+
                 auto termination = iteration_based_termination{128};
                 std::size_t neighborhood{256}, tenure{32};
                 bazooka::neighbor<n_levels> neighbor{rand_levels, rand_sizes, rand_period};
                 bazooka::configuration<n_levels> init{tags[0], static_cast<std::size_t>(rand_period()),
                                                       rand_levels(), rand_sizes()};
 
-                bazooka::configuration_memory memory{
+                memory_t memory{
                         bazooka::indicator_tag_memory{tenure},
                         tabu_search::int_range_memory{rand_period.from(), rand_period.to(), rand_period.step(), tenure},
                         tabu_search::array_memory<trading::fraction_t, n_levels>{tenure},
@@ -475,14 +477,14 @@ int main()
 
                 tabu_search::progress_collector collector;
                 tabu_search::progress_reporter reporter{logger};
-                tabu_search::optimizer<state_type> optimizer{};
+                tabu_search::optimizer<state_type, move_t, memory_t> optimizer{memory};
                 auto aspiration = [&](const auto& candidate, const auto& optimizer) -> bool {
                     return result.compare(candidate, optimizer.best_state());
                 };
 
                 *logger << "began: " << boost::posix_time::second_clock::local_time() << std::endl;
                 duration = measure_duration([&]() {
-                    optimizer(init, result, constraints, objective, memory, neighbor, neighborhood_sizer, termination,
+                    optimizer(init, result, constraints, objective, neighbor, neighborhood_sizer, termination,
                             aspiration, collector, reporter);
                 });
                 *logger << "ended: " << boost::posix_time::second_clock::local_time() << std::endl

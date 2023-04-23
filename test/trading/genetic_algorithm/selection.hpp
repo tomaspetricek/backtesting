@@ -9,7 +9,7 @@
 #include <vector>
 #include <trading/genetic_algorithm/selection.hpp>
 #include <trading/random/generators.hpp>
-#include <trading/optimizer.hpp>
+#include <trading/state.hpp>
 
 BOOST_AUTO_TEST_SUITE(genetic_algorithm_roulette_selection_test)
     void test_usage(std::size_t select_n, std::size_t population_size)

@@ -20,12 +20,12 @@ namespace trading::tabu_search {
         template<class Optimizer>
         void started(const Optimizer&) { }
 
-        template<class Optimizer, class TabuList>
-        void iteration_passed(const Optimizer& optimizer, const TabuList& tabu_list)
+        template<class Optimizer>
+        void iteration_passed(const Optimizer& optimizer)
         {
             *logger_ << "it: " << optimizer.it() << ", best value: " << optimizer.best_state().value
                      << ", curr value: " << optimizer.current_state().value
-                     << ", tabu list size: " << tabu_list.size() << std::endl;
+                     << ", tabu list size: " << optimizer.tabu_list().size() << std::endl;
         }
 
         template<class Optimizer>
