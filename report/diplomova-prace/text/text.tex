@@ -335,9 +335,9 @@ Mohou zahrnovat statistiky jako: celkový počet obchodů, počet vítězných a
     Může být také vyjádřena v procentech $rp_p=\frac{rp}{ti}\cdot 100$.
     Pokud $rp\leq0$, tak se označuje jako ztráta, jinak jako zisk.
     \item[hrubý zisk (gross profit)] $gp\geq0$ je částka, která se spočítá jako součet realizovaných zisků všech ziskových uzavřených pozic $gp=\sum_{i=0}^{n} max(rp_i, 0)$, kde $n$ je počet uzavřených pozic.
-    \item[hrubá ztráta (gross loss)] $gl\leq0$ je částka, která se spočítá jako součet realizovaných ztrát všech ztrátových uzavřených pozic $gl=\sum_{i=0}^{n} min(rp_i, 0)$, kde $n$ je počet uzavřených pozic.
-    \item[celkový zisk (net profit)] $np$ lze vypočítat buď součtem realizovaných zisků všech uzavřených pozic $np=\sum_{i=0}^{n} rp_i$, kde $n$ je počet uzavřených pozic nebo $np=gp+gl$.
-    \item [ziskový faktor (profit factor)] $pf$ lze spočítat $pf=\frac{gp}{|gl|}$.
+    \item[hrubá ztráta (gross loss)] $gl\geq0$ je částka, která se spočítá jako součet realizovaných ztrát všech ztrátových uzavřených pozic $gl=-\sum_{i=0}^{n} min(rp_i, 0)$, kde $n$ je počet uzavřených pozic.
+    \item[celkový zisk (net profit)] $np$ lze vypočítat buď součtem realizovaných zisků všech uzavřených pozic $np=\sum_{i=0}^{n} rp_i$, kde $n$ je počet uzavřených pozic nebo $np=gp-gl$.
+    \item [ziskový faktor (profit factor)] $pf$ lze spočítat $pf=\frac{gp}{gl}$.
     Pokud platí $pf>0$, tak byla strategie zisková, jelikož celkové zisky převyšují celkové ztráty.
     \item[zůstatek (balance)] $bn\geq0$ částka uložená na účtu.
     \item[současná hodnota] $cv$ je hodnota otevřené pozice, kdyby byla uzavřena za současnou tržní cenu $mp$.
@@ -388,6 +388,17 @@ Nejběžněji dostupná data jsou ve formátu OHLCV, což jsou OHLC a objem (vol
 Dále jsou ukládány samotné obchody ve formě obchodních tiků (trade ticks).
 Pro dosažení větší přesnosti lze také použít nabídkové tiky (quote ticks), které ukládají údaje o nejlepší nabídce (bid) a poptávce (ask) z knihy objednávek v daném okamžiku \cite{polygon}.
 
+\section{PROM}
+PROM (Pessimistic Return On Margin) je robustní míra používaná k vyhodnocení obchodní strategie.
+Pesimistická je v tom smyslu, že předpokládá, že při reálném obchodování by byly zisky menší a ztráty větší než hodnoty získané z historické simulace.
+Lze jej vypočíst pomocí:
+
+\[ PROM = \frac{agp-agl}{ibn} \cdot 100,\]
+
+kde $agp$ je přizpůsobený hrubý zisk $((gp>0)\implies(agp=\frac{gp}{wc}\cdot(wc-\sqrt{wc}))) \land ((gp=0)\implies(agp=0))$, kde $wc$ je počet ziskových obchodů a $gp$ je hrubý zisk.
+Výraz $agl$ je přizpůsobená hrubá ztráta $((gl>0)\implies(agl=\frac{gl}{lc}\cdot(lc+\sqrt{lc}))) \land ((gl=0)\implies(agl=0))$, kde $lc$ je počet ztrátových obchodů a $gl$ je hrubá ztráta.
+Poslední člen $ibn$ je počáteční zůstatek \cite{pardo}.
+
 % Doplnit o MultiChart
 \section{Platformy poskytující zpětné testování}
 V dnešní době existuje mnoho platforem nabízejících zpětné testování, liší se především druhem a množstvím dostupných historických dat, propracovaností, s jakou lze strategii implementovat, a částkou, kterou si účtují za používání jejich produktu \cite{bowman}.
@@ -414,22 +425,22 @@ Strategie byla implementována na základě osobních setkání a ukázkové imp
 
 K vyvolání otevíracího nebo uzavíracího signálu se používají klouzavé průměry, které mohou být typu EMA nebo SMA.
 Obecně mohou být různé, například vstupní indikátor může být typu EMA s periodou 30 a výstupní indikátor může být typu SMA s periodou 20.
-Indikátory jsou aktualizovány pomocí historických svíček v daném intervalu.
+Indikátory jsou aktualizovány pomocí průměrné ceny historických svíček v daném intervalu.
 Pokud by byly například použity 30minutové svíčky, znamenalo by to, že by se indikátory aktualizovaly každých 30 minut s cenou získanou průměrem právě uzavřené 30minutové svíčky.
 
 Strategie využívá více úrovní nákupu, které se získávají posunutím hodnoty vstupního ukazatele směrem dolů.
-Hodnota každé úrovně $lv$ se získá pomocí $lv=env \cdot l$, kde $env$ je hodnota vstupního indikátoru a $l$ je zlomek určující posunutí.
+Hodnota každé nákupní úrovně $lv_i$ se získá pomocí $lv_i=env \cdot l_i$, kde $env$ je hodnota vstupního indikátoru a $l_i$ je zlomek určující posunutí.
 Pro úrovně nákupu platí, že $\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap [0, 1] \land n>0 \land [\forall i \in \{0,\dots,n-1\} : l_i > l_{i+1}]$, kde $n$ je počet nákupních úrovní.
-Nákupní signál je vyvolán, pokud nastane  $mp\leq lv_c$, kde $mp$ je současná nákupní cena a $lv_c$ je hodnota současné nákupní úrovně.
+Nákupní signál je vyvolán, pokud nastane $mp\leq lv_c$, kde $mp$ je současná tržní cena aktiva a $lv_c$ je hodnota současné nákupní úrovně.
 Nákup na každé úrovni lze provést pouze jednou.
 
-Velikost nákupu $ps$ na každé úrovni je určena $ps=ibn \cdot s$, kde $ibn$ je počáteční zůstatek a $s$ je zlomek určující část, za kterou bude nákup proveden.
+Velikost nákupu $ps_i$ pro nákupní úroveň $i$ je určena $ps_i=bn \cdot s_i$, kde $bn$ je zůstatek na účtu před otevřením pozice a $s_i$ je zlomek určující část, za kterou bude nákup proveden.
 Pro velikosti nákupu platí, že $ (s_0, s_1,\dots,s_n) \in \mathbb{Q} \cap [0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $, kde $n$ je počet nákupních úrovní.
-Pokud například $(ibn=100 \land s = (\frac{2}{10}, \frac{5}{10}, \frac{3}{10}))\implies ps=(20, 50, 30)$.
+Pokud například $(bn=100 \land s = (\frac{2}{10}, \frac{5}{10}, \frac{3}{10}))\implies ps=(20, 50, 30)$.
 
 Prodejní signál je vyvolán, pokud platí $mv\geq exv$, kde $exv$ je hodnota výstupního indikátoru a byla otevřena pozice.
 Na rozdíl od vstupní strategie, která zvětšuje velikost pozice po částech, výstupní strategie prodává celou pozici najednou.
-Strategie obchoduje, dokud není dosaženo minimálního vlastního kapitálu nebo je ručně vypnuta.
+Strategie obchoduje, dokud není dosaženo minimální čisté ceny nebo je ručně vypnuta.
 
 \section{Klouzavé průměry}
 Klouzavé průměry jsou technické indikátory, jejichž cílem je určit trend daného aktiva výpočtem průměru jeho cen.
@@ -441,7 +452,7 @@ Křížení indikátorů lze použít k identifikaci změny trendu  \cite{ma-alg
 
 \subsection{Jednoduchý klouzavý průměr}
 Jednoduchý klouzavý průměr (SMA) je nejběžněji používaným ukazatelem klouzavého průměru a jak název napovídá, nejsnáze se počítá.
-Průměrnou hodnotu posledních $k$ cen lze vypočítat pomocí $SMA_k = \frac{1}{k}\sum_{i=n-k+1}^{n} p_i$, kde $n$ je celkový počet cen a $p$ jsou samotné ceny.
+Průměrnou hodnotu posledních $k$ cen lze vypočítat pomocí $SMA_k = \frac{1}{k}\sum_{i=n-k+1}^{n} p_i \land n\ge k$, kde $n$ je celkový počet cen a $p$ jsou samotné ceny.
 Pro výpočet následující hodnoty lze využít $SMA_{k,next}=SMA_{k,prev}+\frac{1}{k}(p_{n+1}-p_{n-k+1})$, kde $p_{n+1}$ je nejnovější a $p_{n-k+1}$ nejstarší cena.
 Lze jej efektivně implementovat pomocí datové struktury kruhový buffer.
 Nejčastěji používané SMA jsou období 50, 100 a 200 dnů \cite{ma-algorithms, sma-wiki}.
@@ -457,7 +468,7 @@ Počáteční hodnota se vypočítá pomocí SMA se stejnou periodou.
 Následující hodnoty lze získat použitím
 $EMA_{k, next} = p_c \cdot wf + EMA_{k, prev} \cdot (1-wf) \land wf=\frac{sf}{k+1} \land sf\geq2$, kde $p_c$ je současná cena, $wf$ je vážený faktor a $sf$ je vyhlazovací faktor.
 Vážený faktor se používá k určení množství váhy, která je přiřazena nejnovější hodnotě.
-Například pokud $k=10 \land sf=2 \implies wf = 0,1818$, což znamená, že 18,18 \% celkové hmotnosti je přiřazeno nejnovější hodnotě \cite{ma-stockcharts}.
+Například pokud $k=10 \land sf=2 \implies wf = 0,1818$, což znamená, že 18,18 \% celkové váhy je přiřazeno nejnovější hodnotě \cite{ma-stockcharts}.
 
 \chapter{Volba technologie}
 \section{Programovací jazyky}
@@ -525,7 +536,7 @@ Existují balíčky, jako je NumPy, které jsou napsány částečně v C progra
 Obecně je však z hlediska výkonu lepší použít jiný jazyk.
 Co však Python ztrácí na výkonu, to vynahradí vysokou flexibilitou, rozsáhlou komunitou programátorů a velkým množstvím užitečných balíčků.
 
-\chapter{Design}
+\chapter{Návrh}
 
 \section{Jmenné konvence}
 Konvence pojmenování jsou převzaty převážně z \textit{STL} a \textit{Boost} knihoven.
