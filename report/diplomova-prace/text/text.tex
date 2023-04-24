@@ -400,8 +400,18 @@ Výraz $agl$ je přizpůsobená hrubá ztráta $((gl>0)\implies(agl=\frac{gl}{lc
 Poslední člen $ibn$ je počáteční zůstatek \cite{pardo}.
 
 % Doplnit o MultiChart
-\section{Platformy poskytující zpětné testování}
+\section{Obchodní platformy}
 V dnešní době existuje mnoho platforem nabízejících zpětné testování, liší se především druhem a množstvím dostupných historických dat, propracovaností, s jakou lze strategii implementovat, a částkou, kterou si účtují za používání jejich produktu \cite{bowman}.
+Podrobněji jsou popsány 2 platformy, které byly vybrány z různých důvodů.
+
+TradingView je platforma, kde byla vyvinuta strategie optimalizovaná v praktické části a kde aktuálně probíhá zpětné testování.
+Nabízí převážně možnosti práce s grafy, zpětné testování je velmi jednoduché a neposkytuje způsoby, jak optimalizovat parametry strategie.
+Je to převážně webová aplikace a pokud by nad ní mělo být postaveno vlastní řešení, postrádalo by rychlost k dosažení rozumných výsledků.
+
+MultiCharts je řešení, které nabízí mnoho funkcí používaných pro automatizaci obchodování.
+Je zdarma po omezenou dobu a je k dispozici jako desktopová aplikace.
+Nabízí požadovanou funkcionalitu ve formě genetického algoritmu, ale není tak flexibilní.
+Oproti TradingView je však mnohem více zaměřen na efektivitu.
 
 \subsection{TradingView}
 TradingView je oblíbená obchodní platforma, která umožňuje provádět technickou analýzu, vývoj a zpětné testování obchodní strategie.
@@ -436,8 +446,7 @@ Platforma nabízí 2 druhy optimalizace, hrubou sílu a genetický algoritmus.
 Algoritmy jsou napsány vícevláknově a výsledek optimalizace lze zobrazit jako zprávu.
 Podporují použití různých optimalizačních kritérií.
 Dále je možné využít walk forward testování, jehož hlavním účelem je předcházet overfittingu.
-Při testování jsou data rozdělena do více segmentů, které jsou dále rozděleny na 2 části, vzorky použité pro optimalizaci a vzorky použité pro validaci.
-Po dokončení testu jsou výsledky prezentovány ve formě zprávy \cite{multicharts}.
+Při testování jsou data rozdělena do více segmentů, které jsou dále rozděleny na 2 části, vzorky použité pro optimalizaci a vzorky použité pro validaci \cite{multicharts}.
 
 \section{Bazooka obchodní strategie}
 Pro optimalizaci v praktické části práce byla vybrána obchodní strategie s názvem \textit{Bazooka}, která byla vytvořena a poskytnuta externím subjektem.
@@ -479,7 +488,6 @@ Pro výpočet následující hodnoty lze využít $SMA_{k,next}=SMA_{k,prev}+\fr
 Lze jej efektivně implementovat pomocí datové struktury kruhový buffer.
 Nejčastěji používané SMA jsou období 50, 100 a 200 dnů \cite{ma-algorithms, sma-wiki}.
 
-
 \subsection{Exponenciální klouzavý průměr}
 Na rozdíl od SMA, kde má každá hodnota při výpočtu průměru stejnou váhu, tak exponenciální klouzavý průměr (EMA) přiřazuje cenám váhy.
 Hodnoty vah klesají exponenciálně, takže novější hodnoty mají větší váhu a tím i větší vliv na výslednou průměrnou hodnotu.
@@ -493,13 +501,15 @@ Vážený faktor se používá k určení množství váhy, která je přiřazen
 Například pokud $k=10 \land sf=2 \implies wf = 0,1818$, což znamená, že 18,18 \% celkové váhy je přiřazeno nejnovější hodnotě \cite{ma-stockcharts}.
 
 \chapter{Volba technologie}
-\section{Programovací jazyky}
-Pro hlavní část aplikace, kde byla požadována rychlost, bylo použito C++ a pro účely vizualizace výsledků Python.
-Oba jazyky nabízejí vysokou úroveň abstrakce, ale liší se v prioritách.
-Python je jednoduchý jazyk, který umožňuje soustředit se více na řešení problému než na správu počítačových prostředků.
-C++ se naproti tomu zaměřuje na efektivitu za cenu vyšší komplexnosti.
+Pro dosažení větší flexibility, rychlosti a hlubšího porozumění procesu zpětného testování a optimalizace byl vytvořen vlastní framework.
+Je napsán ve standardu C++20, což je nejnovější dostupný standard jazyka C++.
+Jazyk byl zvolen především proto, že nabízí vysokou úroveň abstrakce a prostředky pro efektivnější práci se systémovými zdroji.
 
-\subsection{C++}
+Výstupy aplikace jsou zpracovávány skripty v jazyce Python, který je řádově jednodušší než C++ a snáze se používá.
+Poskytuje přístup k mnoha vynikajícím vědeckým balíkům, které se snadno instalují a jsou dobře zdokumentované.
+Byl především použit pro automatizaci vytváření přehledových tabulek a grafů.
+
+\section{C++}
 C++ je programovací jazyk na vysoké úrovni vyvinutý v roce 1983 \textit{Bjarnem Stroustrupem} v Bell Labs jako rozšíření programovacího jazyka \textit{C}.
 Jedná se o multiparadigmatický programovací jazyk, který podporuje datovou abstrakci, objektově orientované programování, procedurální programování a generické programování \cite{cpp}.
 
@@ -521,7 +531,7 @@ Má ale jednu věc, kterou Python postrádá, a tou je rychlost.
 C++ nabízí generické programování, k čemuž jsou používány šablony.
 Existují pouze během kompilace.
 Umožňují použití statického polymorfismu, který za běhu stojí méně prostředků než známější dynamický polymorfismus využívající virtuální funkce.
-V nejnovějších standardech byly zavedeny některé funkce, které se vyhýbají použití dynamického polymorfismu, jako například: \texttt{std::optional} a \texttt{std::variant}.
+V nejnovějších standardech byly zavedeny třídy, které se vyhýbají použití dynamického polymorfismu, jako jsou: \texttt{std::optional} a \texttt{std::variant}.
 
 Další věcí, kterou nabízí ke zrychlení kódu, jsou optimalizace, které lze nastavit během kompilace.
 Pracují s konceptem pozorovatelného chování, které umožňuje produkci jiného byte kódu, který dělá stejnou věc rychleji.
@@ -537,7 +547,7 @@ Například v Pythonu existuje koncept vláken, nicméně v jednom procesu můž
 Kromě standardní knihovny je k dispozici mnoho open-source, dobře navržených a testovaných knihoven.
 Existují knihovny Boost, které nabízejí knihovny pro síťování (Asio), unit testování (Test), paralelní zpracování (MPI) a mnoho dalších, jako je POCO, JSON pro moderní C++, Google Test a OpenCV.
 
-\subsection{Python}
+\section{Python}
 Programování v Pythonu je dynamicky typovaný, interpretovaný programovací jazyk, který vytvořil Guido van Rossum v roce 1991.
 Podporuje objektově orientované i funkční programování.
 Je vyvinut a spravován Python Software Foundation.
