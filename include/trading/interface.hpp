@@ -73,9 +73,9 @@ namespace trading {
     }
 
     namespace tabu_search {
-        template<class ConcreteTabuTenure>
-        concept ITabuTenure = std::invocable<ConcreteTabuTenure> &&
-                std::same_as<std::size_t, std::invoke_result_t<ConcreteTabuTenure>>;
+        template<class Tenure>
+        concept ITenure = std::invocable<Tenure> &&
+                std::same_as<std::size_t, std::invoke_result_t<Tenure>>;
 
         template<class ConcreteNeighborhoodSizer, class Optimizer>
         concept INeighborhoodSizer = std::invocable<ConcreteNeighborhoodSizer, const Optimizer&> &&

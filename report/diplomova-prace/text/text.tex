@@ -569,6 +569,43 @@ Obecně je však z hlediska výkonu lepší použít jiný jazyk.
 Co však Python ztrácí na výkonu, to vynahradí vysokou flexibilitou, rozsáhlou komunitou programátorů a velkým množstvím užitečných balíčků.
 
 \chapter{Návrh}
+Vzhledem k tomu, že projekt vznikl od nuly, byl zde obrovský prostor pro využití moderních funkcí programovacího jazyka C++, dodržování programovacích principů a použití návrhových vzorů.
+Byly také použity známé a osvědčené knihovny jako Boost.Test, OpenMP a CppCoro.
+Z moderních funkcí C++ používaných v projektu nejvíce vynikají korutiny a koncepty.
+
+Pro dosažení vyšší efektivity za cenu nižší flexibility byl preferován statický polymorfismus před dynamickým.
+Statický polymorfismus je realizován pomocí šablon, a protože existují jenom v době kompilace, nezpůsobují při běhu programu režii navíc.
+Na druhou stranu dynamický polymorfismus vyžaduje dynamickou alokaci a volání (dispatch).
+
+Požadavky na šablonové argumenty lze specifikovat pomocí konceptů.
+Současné použití a vzhled byl inspirován videem z konference CppCon 2022 o dependency injection, kde bylo představeno použití konceptů pro specifikaci rozhraní šablonových argumentů \cite{zoffoli}.
+Rozhraní jsou psána 2 způsoby, pro kontrolu chování volatelného objektu a svazku více metod.
+Implementaci pro kontrolu třídy pozorovatele a tabu lhůty lze vidět \ref{lst:concepts:example}.
+
+\begin{lstlisting}[caption={~Specifikace rozhraní pomocí konceptů},label={lst:concepts:example},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+// concept used to check behaviour
+template<class Tenure>
+concept ITenure = std::invocable<Tenure> &&
+    std::same_as<std::size_t, std::invoke_result_t<Tenure>>;
+
+// concept used to check a bundle
+template<class Observer, class Optimizer>
+concept IObserver = requires(Observer& observer,
+    const Optimizer& optimizer) {
+    { observer.started(optimizer) } -> std::same_as<void>;
+    { observer.better_accepted(optimizer) } -> std::same_as<void>;
+    { observer.worse_accepted(optimizer) } -> std::same_as<void>;
+    { observer.cooled(optimizer) } -> std::same_as<void>;
+    { observer.finished(optimizer) } -> std::same_as<void>;
+};
+\end{lstlisting}
+
+Korutiny byly představeny ve standardu C++20.
+Při volání funkce umožňují její provádění pozastavit a později obnovit \cite{coroutines}.
+Byly použity k systematickému generování vyhledávacího prostoru.
+Nejsou zatím široce používány, ale existuje knihovna CppCoro, která poskytuje implementace generátorů \texttt{cppcoro::generator} a \texttt{cppcoro::recursive\_generator} \cite{cppcoro}.
+
+
 
 \section{Jmenné konvence}
 Konvence pojmenování jsou převzaty převážně z \textit{STL} a \textit{Boost} knihoven.
@@ -582,7 +619,7 @@ Projekt je rozdělen do 3 hlavních adresářů: \textit{include}, \textit{src} 
 Adresář \textit{include} obsahuje obchodovací framework a vybrané hlavičkové soubory z knihovny CppCoro.
 Organizace frameworku je inspirovaná knihovnou \textit{Boost.Asio}.
 Definice a deklarace tříd jsou uloženy společně v jednom souboru s příponou \textit{.hpp}.
-Hierarchie složek se řídí jmennými prostory, například třídu \texttt{trading::bazooka::long\_strategy} lze nalézt v souboru \textit{/include/trading/bazooka/long\_strategy}.
+Hierarchie složek se řídí jmennými prostory, například třídu \texttt{trading::bazooka::strategy} lze nalézt v souboru \textit{/include/trading/bazooka/strategy}.
 Framework lze zahrnout jako celek pomocí \textit{trading.hpp} nebo jednotlivě po souborech.
 
 Adresář \textit{src} se skládá ze souboru \textit{main.cpp}, Jypiter Notebooků používaných pro vizualizaci, vstupních a výstupních dat.
@@ -875,12 +912,8 @@ Náhodné generátory mají volací operátor přetížen.
 Specializace přebírá argument představující původní hodnotu, která je používaná při generování následující.
 Generátory vracejí přímo datové typy představující konfigurační proměnné.
 V ideálním případě by měly generovat stejné hodnoty se stejnou pravděpodobností.
-
 Systematické generátory vracejí stejné hodnoty pouze jednou.
 Nevrací hodnotu přímo, ale místo toho vrací korutinu.
-Byly představeny ve standardu \texttt{C++20}.
-Při volání funkce umožňují její provádění pozastavit a později obnovit \cite{coroutines}.
-Existuje knihovna \textit{CppCoro}, která poskytuje implementace generátorů \texttt{cppcoro::generator} a \texttt{cppcoro::recursive\_generator} \cite{cppcoro}.
 
 \section{Typ indikátoru}
 Typ indikátoru je reprezentován enumerační třídou \texttt{indicator\_tag} se dvěma možnými hodnotami: \texttt{indicator\_tag::ema} a \texttt{indicator\_tag::sma}.
@@ -1337,7 +1370,7 @@ void operator()(const config_t& init,
 }
 \end{lstlisting}
 
-\subsection{Shromažďování výsledků}
+\section{Shromažďování výsledků}
 Třída \texttt{enumeration\_result} slouží ke shromažďování $n$ nejlepších výsledků.
 Má 2 třídní šablonové parametry: typ výsledku a funkci pro jejich porovnávání.
 Interně používá datovou strukturu \textit{halda}, jelikož má složitost $\mathcal{O}(log{}n)$ pro vložení nového prvku a odstranění prvního.
