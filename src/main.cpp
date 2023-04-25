@@ -182,17 +182,6 @@ std::array<std::string, 4> optimizer_names{
 
 int main()
 {
-    {
-        auto levels = systematic::levels_generator<2>(2, {1, 2});
-
-        for (const auto& l : levels()) {
-            for (const auto val : l)
-                std::cout << val.numerator() << "/" << val.denominator() << ", ";
-            std::cout << std::endl;
-        }
-    }
-    return EXIT_SUCCESS;
-
     constexpr std::size_t n_levels{3};
     using state_type = trading::bazooka::state<n_levels>;
     using config_type = state_type::config_type;

@@ -19,7 +19,7 @@ namespace trading::random {
     class levels_generator : public trading::levels_generator<n_levels> {
         using base_type = trading::levels_generator<n_levels>;
         std::mt19937 gen_;
-        std::vector<fraction_t> all_options_;
+        std::vector<fraction_t> options_;
         std::array<std::size_t, n_levels> indices_;
         std::size_t change_count_;
 
@@ -38,9 +38,9 @@ namespace trading::random {
                 :base_type(unique_count, lower_bound), gen_{std::random_device{}()}, change_count_{
                 validate_change_count(change_count)}
         {
-            all_options_.reserve(unique_count);
+            options_.reserve(unique_count);
             for (std::size_t i{0}; i<unique_count; i++)
-                all_options_.emplace_back(this->rescale(i+1));
+                options_.emplace_back(this->rescale(i+1));
 
             for (std::size_t i{0}; i<n_levels; i++)
                 indices_[i] = i;
@@ -48,24 +48,24 @@ namespace trading::random {
 
         const value_type& operator()()
         {
-            std::shuffle(all_options_.begin(), all_options_.end(), gen_);
-            std::sort(all_options_.begin(), all_options_.begin()+static_cast<int>(n_levels), std::greater<>());
-            std::copy(all_options_.begin(), all_options_.begin()+static_cast<int>(n_levels), this->levels_.begin());
+            std::shuffle(options_.begin(), options_.end(), gen_);
+            std::sort(options_.begin(), options_.begin()+static_cast<int>(n_levels), std::greater<>());
+            std::copy(options_.begin(), options_.begin()+static_cast<int>(n_levels), this->levels_.begin());
             return this->levels_;
         }
 
         const value_type& operator()(const value_type& origin)
         {
-            std::size_t keep_n{n_levels-change_count_};
+            std::size_t keep_count{n_levels-change_count_};
             std::shuffle(indices_.begin(), indices_.end(), gen_);
-            std::sort(indices_.begin(), indices_.begin()+static_cast<int>(keep_n));
+            std::sort(indices_.begin(), indices_.begin()+static_cast<int>(keep_count));
             etl::flat_set<fraction_t, n_levels, std::greater<>> unique;
 
-            for (std::size_t i{0}; i<keep_n; i++)
+            for (std::size_t i{0}; i<keep_count; i++)
                 unique.emplace(origin[indices_[i]]);
 
-            std::shuffle(all_options_.begin(), all_options_.end(), gen_);
-            auto options_it = all_options_.begin();
+            std::shuffle(options_.begin(), options_.end(), gen_);
+            auto options_it = options_.begin();
 
             while (!unique.full())
                 unique.insert(*options_it++);
@@ -87,6 +87,7 @@ namespace trading::random {
         std::array<std::size_t, n_sizes> indices_;
         std::size_t change_count_;
         static constexpr std::size_t min_change_count_ = 2;
+        static constexpr std::size_t min_num_ = 1;
 
         std::size_t validate_change_count(std::size_t change_count)
         {
@@ -98,13 +99,14 @@ namespace trading::random {
 
         void fill_rest(std::size_t rest_num_sum, std::size_t curr_max_num, std::size_t first_index = 0)
         {
+            using param_t = std::uniform_int_distribution<std::size_t>::param_type;
             std::size_t num;
             for (std::size_t i{first_index}; i<n_sizes-1; i++) {
-                distrib_.param(std::uniform_int_distribution<std::size_t>::param_type{1, curr_max_num});
+                distrib_.param(param_t{min_num_, curr_max_num});
                 num = distrib_(gen_);
                 this->sizes_[indices_[i]] = fraction_t{num, this->denom_};
                 rest_num_sum -= num;
-                curr_max_num = (curr_max_num==num) ? 1 : curr_max_num-num+1;
+                curr_max_num = (curr_max_num==num) ? min_num_ : curr_max_num-num+1;
             }
             this->sizes_[indices_.back()] = fraction_t{rest_num_sum, this->denom_};
         }
@@ -131,10 +133,10 @@ namespace trading::random {
 
         const value_type& operator()(const value_type& origin)
         {
-            std::size_t i, keep_n{n_sizes-change_count_}, rest_num_sum{this->denom_};
+            std::size_t i, keep_count{n_sizes-change_count_}, rest_num_sum{this->denom_};
             std::shuffle(indices_.begin(), indices_.end(), gen_);
 
-            for (i = 0; i<keep_n; i++) {
+            for (i = 0; i<keep_count; i++) {
                 auto idx = indices_[i];
                 auto size = origin[idx];
                 this->sizes_[idx] = size;
@@ -194,9 +196,9 @@ namespace trading::random {
 
         int operator()()
         {
+            using param_t = std::uniform_int_distribution<int>::param_type;
             int positive_step = std::abs(step_);
-            distrib_.param(
-                    std::uniform_int_distribution<int>::param_type{min_/positive_step, max_/positive_step});
+            distrib_.param(param_t{min_/positive_step, max_/positive_step});
             int val = distrib_(gen_)*positive_step;
             assert(val>=min_ && val<=max_);
             return val;
@@ -204,11 +206,11 @@ namespace trading::random {
 
         int operator()(int origin)
         {
+            using param_t = std::uniform_int_distribution<int>::param_type;
             int positive_step = std::abs(step_);
             int curr_min = origin-static_cast<int>(change_span_*positive_step);
             int curr_max = origin+static_cast<int>(change_span_*positive_step);
-            distrib_.param(
-                    std::uniform_int_distribution<int>::param_type{curr_min/positive_step, curr_max/positive_step});
+            distrib_.param(param_t{curr_min/positive_step, curr_max/positive_step});
             int val = distrib_(gen_)*positive_step;
             assert(val>=curr_min && val<=curr_max);
 

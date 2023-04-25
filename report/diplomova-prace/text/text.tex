@@ -919,7 +919,7 @@ Typ indikátoru je reprezentován enumerační třídou \texttt{indicator\_tag} 
 Jediný způsob, jak parametrizovat tuto proměnnou, je použít buď jednu z hodnot, nebo obě.
 Hodnoty jsou stejného typu, takže je lze uložit do pole.
 Jelikož je jeho velikost malá a maximální velikost je známa v době kompilace, tak lze použít \texttt{etl::vector} k uložení hodnot pro generování.
-Hodnoty lze náhodně rovnoměrně generovat pomocí instance třídy \tttext{std::uniform\_int\_distribution}.
+Hodnoty lze náhodně rovnoměrně generovat pomocí instance třídy \texttt{std::uniform\_int\_distribution}.
 
 \section{Perioda indikátoru}
 SMA i EMA mají parametr perioda $p>1$.
@@ -928,13 +928,42 @@ Počet možných výstupních hodnot je roven $n=\frac{|t-f|}{s}+1$.
 Pro systematické generování period byl použit generátor \texttt{systematic::int\_range\_generator}.
 
 \subsection{Náhodné generování}
-Při generování bez počáteční periody je nejprve pomocí \tttext{std::uniform\_int\_distribution} vygenerována hodnota $ v \in [\frac{p_{min}}{s}, = \frac{p_{max}}{s}$], kde $p_{min}=min(f, t) \land p_{max}=max(f, t)$, která je následně přeškálována $p_o=v\cdot s \land p_o \in [p_{min}, p_{max}]$.
+Při generování bez počáteční periody je nejprve pomocí \texttt{std::uniform\_int\_distribution} vygenerována hodnota $ v \in [\frac{p_{min}}{|s|}, = \frac{p_{max}}{|s|}$], kde $p_{min}=min(f, t) \land p_{max}=max(f, t)$, která je následně přeškálována na výstupní periodu $p_o=v\cdot s \land p_o \in [p_{min}, p_{max}]$ (viz \ref{lst:random:int:range:generator}).
 
-Při generování hodnoty z počátku $o$ používá generátor navíc parametr $k\in[1,n/2]$.
+\begin{lstlisting}[caption={~Metoda pro náhodné generování periody indikátoru},label={lst:random:int:range:generator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+int operator()()
+{
+    using param_t = std::uniform_int_distribution<int>::param_type;
+    int positive_step = std::abs(step_);
+    distrib_.param(param_t{min_/positive_step, max_/positive_step});
+    int val = distrib_(gen_)*positive_step;
+    assert(val>=min_ && val<=max_);
+    return val;
+}
+\end{lstlisting}
+
+Při generování periody z počátku $o$ používá generátor navíc parametr rozpětí změny $k\in[1,\frac{n}{2}]$.
 Například, když $f=1$, $t=5$, $s=1$, $o=3$ a $k=1$, pak jsou všechny možné výstupní hodnoty periody $ p_o \in [o-(k\cdot s), o+(k\cdot s)]=[2, 4]$.
-
 Na okrajích intervalu, kdy mohou být hodnoty generovány z 2 podintervalů. Například, když $f=1$, $t=5$, $s=1$ a $k=1$, pak jsou všechny možné výstupní periody $p_o \in [1, 2] \cup [5, 5]$.
-Jelikož jsou periody generovány pomocí datového typu integer, který může nabývat i záporných hodnot, lze nejprve vygenerovat hodnotu $ w \in [o-(k\cdot s), o+(k\cdot s)]$, výslednou periodu získat $(w<p_{min}\implies(p_o=w+(n*|s|))) \land (w>p_{max}\implies(p_o=w-(n*|s|))) \land (w \in [p_{min}, p_{max}]\implies p_o=w)$.
+Jelikož jsou periody generovány pomocí datového typu integer, který může nabývat i záporných hodnot, lze nejprve vygenerovat hodnotu $ w \in [o-(k\cdot s), o+(k\cdot s)]$, výslednou periodu získat $(w<p_{min}\implies(p_o=w+(n*|s|))) \land (w>p_{max}\implies(p_o=w-(n*|s|))) \land (w \in [p_{min}, p_{max}]\implies p_o=w)$ (viz \ref{lst:random:int:range:generator:origin}).
+
+\begin{lstlisting}[caption={~Metoda pro náhodné generování periody z počátku},label={lst:random:int:range:generator:origin},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+int operator()(int origin)
+{
+    using param_t = std::uniform_int_distribution<int>::param_type;
+    int positive_step = std::abs(step_);
+    int curr_min = origin-change_span_*positive_step;
+    int curr_max = origin+change_span_*positive_step;
+    distrib_.param(param_t{curr_min/positive_step,curr_max/positive_step});
+    int val = distrib_(gen_)*positive_step;
+    assert(val>=curr_min && val<=curr_max);
+
+    if (val<min_) val += n_vals_*positive_step;
+    if (val>max_) val -= n_vals_*positive_step;
+    assert(val>=min_ && val<=max_);
+    return val;
+}
+\end{lstlisting}
 
 \section{Úrovně nákupu}
 Pro úrovně nákupu platí, že $\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap (0, 1) \land n>0 \land [\forall i \in \{0,\dots,n-1\} : l_i > l_{i+1}]$.
@@ -979,15 +1008,45 @@ cppcoro::recursive_generator<value_type> generate(std::size_t prev_num)
 
 \subsection{Náhodné generování}
 Instance třídy \texttt{random::levels\_generator} má mezi svými atributy pole se všemi možnými hodnotami výstupní sekvence.
-Při generování náhodné sekvence bez počátku nejprve tyto hodnoty zamíchá, seřadí prvních $n$ prvků v sestupném pořadí a nakonec je zkopíruje do výstupního pole.
+Při generování náhodné sekvence bez počátku nejprve tyto hodnoty zamíchá, seřadí prvních $n$ prvků v sestupném pořadí a nakonec je zkopíruje do výstupního pole (viz \ref{lst:random:levels:generator}).
+
+\begin{lstlisting}[caption={~Metoda pro náhodné generování úrovní nákupu bez počátku},label={lst:random:levels:generator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+const value_type& operator()()
+{
+    std::shuffle(options_.begin(), options_.end(), gen_);
+    std::sort(options_.begin(),options_.begin()+n_levels,std::greater<>());
+    std::copy(options_.begin(),options_.begin()+n_levels,levels_.begin());
+    return levels_;
+}
+\end{lstlisting}
 
 Náhodné generování na základě počáteční sekvence je složitější.
-Používá parametr $k \in [1, n] $, který je předán instanci při její konstrukci.
-Udává počet prvků počáteční sekvence, které by měly být změněny.
+Používá parametr $k \in [1, n] $, který určuje počet nákupních úrovní, které se mají změnit.
+Je předán instanci generátoru při její konstrukci.
 Při generování je nejprve náhodně vybráno $n-k$ prvků, které budou zachovány z původní sekvence, a jsou uloženy do instance \texttt{etl::flat\_set}, což je kontejner pevné velikosti, který ukládá jedinečné prvky v určeném pořadí.
 Dále je zamícháno pole se všemi možnými hodnotami.
 Ve smyčce \texttt{while} jsou hodnoty vkládány do setu až do jeho naplnění.
-Nakonec jsou hodnoty překopírovány ze setu do výstupního pole.
+Nakonec jsou hodnoty překopírovány do výstupního pole (viz \ref{lst:random:levels:generator:origin}).
+
+\begin{lstlisting}[caption={~Metoda pro náhodné generování úrovní nákupu z počátku},label={lst:random:levels:generator:origin},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+const value_type& operator()(const value_type& origin){
+    std::size_t keep_count{n_levels-change_count_};
+    std::shuffle(indices_.begin(), indices_.end(), gen_);
+    std::sort(indices_.begin(), indices_.begin()+keep_count);
+    etl::flat_set<fraction_t, n_levels, std::greater<>> unique;
+
+    for (std::size_t i{0}; i<keep_count; i++)
+        unique.emplace(origin[indices_[i]]);
+
+    std::shuffle(options_.begin(), options_.end(), gen_);
+    auto options_it = options_.begin();
+
+    while (!unique.full()) unique.insert(*options_it++);
+
+    std::copy(unique.begin(), unique.end(), levels_.begin());
+    return levels_;
+}
+\end{lstlisting}
 
 \section{Velikosti nákupu}
 Pro velikosti nákupu platí, že $ (s_0, s_1,\dots,s_n) \in \mathbb{Q} \cap (0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $.
@@ -997,16 +1056,15 @@ Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d
 Pro $n=3$, $u=3$ jsou všechny možné platné sekvence: $(\frac{1}{5}, \frac{1}{5}, \frac{3}{5}), (\frac{1}{5}, \frac{2}{5}, \frac{2}{5}), (\frac{1}{5}, \frac{3}{5}, \frac{1}{5}), (\frac{2}{5}, \frac{1}{5}, \frac{2}{5}), (\frac{2}{5}, \frac{2}{5}, \frac{1}{5}), (\frac{3}{5}, \frac{1}{5}, \frac{1}{5})$.
 
 \subsection{Systematické generování}
-Velikosti nákupů jsou systematicky generovány podobně jako úrovně nákupů (viz \ref{lst:systematic:sizes_generator}).
-Používá se také rekurze, každá smyčka \texttt{for} předává součet zbývajících čitatelů následující smyčce.
-Maximální lokální čitatel má buď hodnotu globálního maximálního čitatele, nebo součet zbývajících čitatelů snížený o jedna.
+Velikosti nákupů jsou systematicky generovány pomocí třídy \texttt{systematic::sizes\_generator} podobně jako úrovně nákupů (viz \ref{lst:systematic:sizes_generator}).
+Opět je použita rekurze, každá smyčka \texttt{for} předává součet zbývajících čitatelů následující smyčce.
+Maximální lokální čitatel má buď hodnotu globálního maximálního čitatele, nebo součet zbývajících čitatelů snížený o 1.
 
 \begin{lstlisting}[caption={~Metody pro systematické generování velikostí nákupu},label={lst:systematic:sizes_generator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 cppcoro::recursive_generator<value_type> operator()()
 {
     co_yield generate<0>(this->denom_);
 }
-
 template<std::size_t depth = n_sizes>
 requires (depth+1==n_sizes)
 cppcoro::recursive_generator<value_type> generate(std::size_t remaining)
@@ -1014,21 +1072,73 @@ cppcoro::recursive_generator<value_type> generate(std::size_t remaining)
     this->sizes_[depth] = fraction_t{remaining, this->denom_};
     co_yield this->sizes_;
 }
-
 template<std::size_t depth = 0>
 requires (depth+1<n_sizes)
 cppcoro::recursive_generator<value_type> generate(std::size_t remaining)
 {
     std::size_t max = (remaining>this->max_num_) ?
-        this->max_num_ : remaining-1;
+            this->max_num_ : remaining-1;
     for (std::size_t num{1}; num<=max; num++) {
         this->sizes_[depth] = fraction_t{num, this->denom_};
         co_yield generate<depth+1>(remaining-num);
-    }
-}
+    }}
 \end{lstlisting}
 
 \subsection{Náhodné generování}
+Generování náhodných velikostí nákupu je implementováno třídou \texttt{random::sizes\_generator}.
+Bez počátku se provádí nejprve promícháním indexů výstupní sekvence (viz \ref{lst:random:sizes:generator}).
+Následně je zavolána metoda \texttt{fill\_rest}, která doplní chybějící velikosti nákupu, v tomto případě všechny.
+Ve smyčce se nejprve vygeneruje velikost nákupu z intervalu od minimální po aktuální maximální možnou velikost a poté se přiřadí příslušnému indexu.
+Následuje snížení celkové zbývající velikosti nákupu a aktualizace aktuální maximální velikosti nákupu.
+Cyklus končí, když jsou přiřazeny všechny velikosti nákupu kromě poslední, které je přiřazen zbytek.
+
+\begin{lstlisting}[caption={~Metody pro náhodné generování velikostí nákupu bez počátku},label={lst:random:sizes:generator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+void fill_rest(std::size_t rest_num_sum, std::size_t curr_max_num,
+    std::size_t first_index = 0)
+{
+    using param_t=std::uniform_int_distribution<std::size_t>::param_type;
+    std::size_t num;
+    for (std::size_t i{first_index}; i<n_sizes-1; i++) {
+        distrib_.param(param_t{min_num_, curr_max_num});
+        num = distrib_(gen_);
+        sizes_[indices_[i]] = fraction_t{num, this->denom_};
+        rest_num_sum -= num;
+        curr_max_num = (curr_max_num==num) ? min_num_:curr_max_num-num+1;
+    }
+    sizes_[indices_.back()] = fraction_t{rest_num_sum, denom_};
+}
+
+const value_type& operator()()
+{
+    std::shuffle(indices_.begin(), indices_.end(), gen_);
+    fill_rest(denom_, max_num_);
+    return sizes_;
+}
+\end{lstlisting}
+
+Generování nákupních velikostí z počátku začíná stejně zamícháním indexů sekvence (viz \ref{lst:random:sizes:generator:origin}).
+Používá však také parametr $k\in[0, n]$, který určuje počet úrovní nákupu, které se mají změnit vzhledem k počátku.
+Nejprve se tedy výstupní sekvenci přiřadí $n-k$ nákupních velikostí z počátku.
+Celková velikost nákupu zbývajících úrovní se odpovídajícím způsobem sníží.
+Zbytek kódu je podobný jako u předchozí ukázky.
+
+\begin{lstlisting}[caption={~Metody pro náhodné generování velikostí nákupu od počátku},label={lst:random:sizes:generator:origin},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+const value_type& operator()(const value_type& origin)
+{
+    std::size_t i, keep_count{n_sizes-change_count_}, rest_num_sum{denom_};
+    std::shuffle(indices_.begin(), indices_.end(), gen_);
+
+    for (i = 0; i<keep_count; i++) {
+        auto idx = indices_[i];
+        auto size = origin[idx];
+        sizes_[idx] = size;
+        rest_num_sum -= size.numerator();
+    }
+    std::size_t curr_max_num{rest_num_sum-change_count_+1};
+    fill_rest(rest_num_sum, curr_max_num, i);
+    return sizes_;
+}
+\end{lstlisting}
 
 \chapter{Optimalizace}
 Při vytváření optimalizátorů byly brány v úvahu 2 hlavní cíle: za prvé, aby byly co nejobecnější a za druhé, aby bylo možné snadno sledovat a později analyzovaly průběh optimalizace.
