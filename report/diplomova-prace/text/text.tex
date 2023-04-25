@@ -461,12 +461,12 @@ Pokud by byly například použity 30minutové svíčky, znamenalo by to, že by
 
 Strategie využívá více úrovní nákupu, které se získávají posunutím hodnoty vstupního ukazatele směrem dolů.
 Hodnota každé nákupní úrovně $lv_i$ se získá pomocí $lv_i=env \cdot l_i$, kde $env$ je hodnota vstupního indikátoru a $l_i$ je zlomek určující posunutí.
-Pro úrovně nákupu platí, že $\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap [0, 1] \land n>0 \land [\forall i \in \{0,\dots,n-1\} : l_i > l_{i+1}]$, kde $n$ je počet nákupních úrovní.
+Pro úrovně nákupu platí, že $\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap (0, 1) \land n>0 \land [\forall i \in \{0,\dots,n-1\} : l_i > l_{i+1}]$, kde $n$ je počet nákupních úrovní.
 Nákupní signál je vyvolán, pokud nastane $mp\leq lv_c$, kde $mp$ je současná tržní cena aktiva a $lv_c$ je hodnota současné nákupní úrovně.
 Nákup na každé úrovni lze provést pouze jednou.
 
 Velikost nákupu $ps_i$ pro nákupní úroveň $i$ je určena $ps_i=bn \cdot s_i$, kde $bn$ je zůstatek na účtu před otevřením pozice a $s_i$ je zlomek určující část, za kterou bude nákup proveden.
-Pro velikosti nákupu platí, že $ (s_0, s_1,\dots,s_n) \in \mathbb{Q} \cap [0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $, kde $n$ je počet nákupních úrovní.
+Pro velikosti nákupu platí, že $ (s_0, s_1,\dots,s_n) \in \mathbb{Q} \cap (0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $, kde $n$ je počet nákupních úrovní.
 Pokud například $(bn=100 \land s = (\frac{2}{10}, \frac{5}{10}, \frac{3}{10}))\implies ps=(20, 50, 30)$.
 
 Prodejní signál je vyvolán, pokud platí $mv\geq exv$, kde $exv$ je hodnota výstupního indikátoru a byla otevřena pozice.
@@ -608,24 +608,24 @@ Nejsou zatím široce používány, ale existuje knihovna CppCoro, která poskyt
 
 
 \section{Jmenné konvence}
-Konvence pojmenování jsou převzaty převážně z \textit{STL} a \textit{Boost} knihoven.
+Konvence pojmenování jsou převzaty převážně z STL a Boost knihoven.
 Názvy tříd a funkcí používají \texttt{snake\_case}.
-Metody nastavení a čtení atributů třídy nepoužívají \texttt{set} a \texttt{get} ve svém názvu, jsou jednoduše odlišeni tak, že gettery neberou žádný parametr a settery berou více než jeden.
+Metody nastavení a čtení atributů třídy nepoužívají \texttt{set} a \texttt{get} ve svém názvu, jsou jednoduše odlišeni tak, že gettery neberou žádný parametr a setry berou více než jeden.
 Názvy šablon a konceptů používají \texttt{CamelCase}.
 Soukromé atributy třídy končí podtržítkem.
 
 \section{Uspořádání projektu}
-Projekt je rozdělen do 3 hlavních adresářů: \textit{include}, \textit{src} a \textit{test}.
-Adresář \textit{include} obsahuje obchodovací framework a vybrané hlavičkové soubory z knihovny CppCoro.
-Organizace frameworku je inspirovaná knihovnou \textit{Boost.Asio}.
-Definice a deklarace tříd jsou uloženy společně v jednom souboru s příponou \textit{.hpp}.
-Hierarchie složek se řídí jmennými prostory, například třídu \texttt{trading::bazooka::strategy} lze nalézt v souboru \textit{/include/trading/bazooka/strategy}.
-Framework lze zahrnout jako celek pomocí \textit{trading.hpp} nebo jednotlivě po souborech.
+Projekt je rozdělen do 3 hlavních adresářů: include, src a test.
+Adresář include obsahuje obchodovací framework a vybrané hlavičkové soubory z knihovny CppCoro.
+Organizace frameworku je inspirovaná knihovnou Boost.Asio.
+Definice a deklarace tříd jsou uloženy společně v jednom souboru s příponou .hpp.
+Hierarchie složek se řídí jmennými prostory, například třídu \texttt{trading::bazooka::strategy} lze nalézt v souboru /include/trading/bazooka/strategy.
+Framework lze zahrnout jako celek pomocí trading.hpp nebo jednotlivě po souborech.
 
-Adresář \textit{src} se skládá ze souboru \textit{main.cpp}, Jypiter Notebooků používaných pro vizualizaci, vstupních a výstupních dat.
+Adresář src se skládá ze souboru main.cpp, Jypiter Notebooků používaných pro vizualizaci, vstupních a výstupních dat.
 Testy jsou organizovány stejně jako třídy obchodovacího frameworku.
-Projekt je kompilován pomocí souborů \textit{CMakeLists.txt}, které obsahují seznam souborů ke kompilaci, nastavení kompilátoru a informace pro hledání externích knihoven.
-Vytváří 2 spustitelné soubory \textit{backesting} pro použití optimalizátorů a \textit{test\_} pro provádění testů.
+Projekt je kompilován pomocí souborů CMakeLists.txt, které obsahují seznam souborů ke kompilaci, nastavení kompilátoru a informace pro hledání externích knihoven.
+Vytváří 2 spustitelné soubory backesting pro použití optimalizátorů a test\_ pro provádění testů.
 
 \section{Návrhové vzory}
 Účelem návrhových vzorů je snížit složitost kódu a šanci udělat chybu.
@@ -737,13 +737,12 @@ bool ready = std::visit([&value](auto& indic) {
 }, ma);
 \end{lstlisting}
 
-Aby bylo možné objekt zapouzdřit a snadněji spravovat, byla vytvořena třída \texttt{bazooka::indicator}.
+Aby bylo možné objekt zapouzdřit a snadněji spravovat, byla vytvořena třída \texttt{indicator}.
 Třída má pouze jeden členský atribut \texttt{data\_} typu \texttt{std::variant<sma, ema>}, který je používán pro uložení indikátoru.
 Metody používají \texttt{std::visit} pro přístup a změnu hodnoty indikátoru.
 Sdílí stejné rozhraní s třídami \texttt{sma} a \texttt{ema}.
 
-\subsubsection{Indikátory založené na klouzavém průměru}
-Byly implementovány dva indikátory založené na klouzavém průměru \texttt{sma} a \texttt{ema}.
+Byly implementovány 2 indikátory založené na klouzavém průměru \texttt{sma} a \texttt{ema}.
 Sdílejí stejné rozhraní.
 Jsou aktualizovány voláním metody \texttt{update} a jejich hodnotu lze získat voláním metody \texttt{value}.
 Metoda \texttt{update} vrací hodnotu boolean indikující, zda je indikátor připraven.
@@ -756,7 +755,7 @@ Jakmile je buffer plný, tak je indikátor připraven.
 
 \subsection{Manažer}
 Účelem manažera je realizovat akce vytvořené strategií.
-Je implementován pomocí třídy \texttt{bazooka::manager}.
+Je implementován pomocí třídy \texttt{manager}.
 Komunikuje s burzou a zabývá se tvorbou objednávek a řízením rizik.
 Dvě nejdůležitější metody pro vytváření objednávek jsou \texttt{create\_open\_order} a \texttt{create\_close\_all\_order}.
 Objednávky jsou reprezentovány strukturou \texttt{order}, která obsahuje 3 atributy: prodané množství, cenu, za kterou bylo aktivum nakoupeno/prodáno, a čas jejího vytvoření.
@@ -773,15 +772,15 @@ Jakmile je objednávka provedena, je uložena jako poslední otevřená/uzavřen
 Je to cenná informace pro vykreslování grafů a výpočet statistik.
 Může nebo nemusí být použita, takže je lepší ji uložit samostatně a neustále ji přepisovat, než všechny ukládat například do instance \texttt{std::vector}, což by způsobilo zbytečnou režii navíc.
 
-\section{Obchodník}
-Funkcionality tříd \texttt{bazooka::manager} a \texttt{bazooka::strategy} jsou propojeny pomocí \texttt{bazooka::trader}.
+\subsection{Obchodník}
+Funkcionality tříd \texttt{manager} a \texttt{strategy} jsou propojeny pomocí \texttt{trader}.
 Pro zpřístupnění veřejných metod obou tříd je použita vícenásobní veřejná dědičnost.
-Třída poskytuje metodu \texttt{trade} \ref{lst:trade}, která používá metody obou tříd.
+Volací operátor třídy (viz \ref{lst:trade} používá metody obou tříd.
 Strategie činí rozhodnutí, která manažer uskutečňuje.
 Metoda vrací výčet \texttt{action} udávající, která akce byla provedena.
 
-\begin{lstlisting}[caption={~Implementace metody trade třídy \texttt{bazooka::trader}},label={lst:trade},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-action trade(const price_point& curr)
+\begin{lstlisting}[caption={~Implementace volací metody třídy \texttt{bazooka::trader}},label={lst:trade},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+action operator()(const price_point& curr)
 {
     action done{action::none};
     if (!Strategy::is_ready()) return done;
@@ -938,11 +937,16 @@ Na okrajích intervalu, kdy mohou být hodnoty generovány z 2 podintervalů. Na
 Jelikož jsou periody generovány pomocí datového typu integer, který může nabývat i záporných hodnot, lze nejprve vygenerovat hodnotu $ w \in [o-(k\cdot s), o+(k\cdot s)]$, výslednou periodu získat $(w<p_{min}\implies(p_o=w+(n*|s|))) \land (w>p_{max}\implies(p_o=w-(n*|s|))) \land (w \in [p_{min}, p_{max}]\implies p_o=w)$.
 
 \section{Úrovně nákupu}
-Pro úrovně nákupu platí, že $\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap [0, 1] \land n>0 \land [\forall i \in \{0,\dots,n-1\} : l_i > l_{i+1}]$.
+Pro úrovně nákupu platí, že $\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap (0, 1) \land n>0 \land [\forall i \in \{0,\dots,n-1\} : l_i > l_{i+1}]$.
 Příkladem takové sekvence racionálních čísel může být $\{\frac{1}{2}, \frac{1}{3}, \frac{1}{4}\}$.
 Generátory jsou parametrizovány pomocí parametru $u\geq n$, který označuje počet jedinečných zlomků, které se mohou v sekvenci objevit.
-Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}\} \in [0, 1] \land d=u+1$.
+Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}\} \in (0, 1) \land d=u+1$.
 Pro $n=3$, $u=4$ jsou všechny možné platné sekvence: $\{\frac{4}{5}, \frac{3}{5}, \frac{2}{5}\}, \{\frac{4}{5}, \frac{3}{5}, \frac{1}{5}\}, \{\frac{4}{5}, \frac{2}{5}, \frac{1}{5}\}, \{\frac{3}{5}, \frac{2}{5}, \frac{1}{5}\}$.
+
+Později ve vývoji během experimentální fáze byla přidána spodní hranice $lb\in[0, 1)$, takže pro nákupní úrovně navíc platí, že $[\forall i \in \{0,\dots,n-1\} : l_i > lb] $.
+Nákupní úrovně byly vygenerovány výše popsaným způsobem, a poté přeškálovány pomocí upraveného vzorce pro lineární škálování $l_s=l\cdot(1-lb)+lb$, kde $l_s$ je přeškálovaná hodnota a $l$ je vstupní hodnota.
+Pro $n=u=2$ existuje pouze 1 možná platná sekvence $\{\frac{2}{3},\frac{1}{3}\}$ a při použití $lb=\frac{1}{2}$ byla by přeškálována na $\{\frac{5}{6},\frac{4}{6}\}$.
+
 
 \subsection{Systematické generování}
 Sekvence jsou generovány rekurzivně (viz \ref{lst:systematic:levels_generator}), protože se počet smyček \texttt{for} liší v závislosti na velikosti sekvence $n$.
@@ -950,28 +954,27 @@ Smyčky jsou na sobě závislé, následující (hlubší) smyčka musí znát p
 Nejvnitřnější smyčka vrací výslednou sekvenci.
 
 \begin{lstlisting}[caption={~Metody pro systematické generování úrovní nákupu},label={lst:systematic:levels_generator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-    cppcoro::recursive_generator<value_type> operator()()
-    {
-        co_yield generate<0>(this->unscaled_denom());
-    }
+cppcoro::recursive_generator<value_type> operator()()
+{
+    co_yield generate<0>(this->unscaled_denom());
+}
 
-private:
-    template<std::size_t depth = n_levels>
-    requires (depth==n_levels)
-    cppcoro::recursive_generator<value_type> generate(std::size_t)
-    {
-        co_yield this->levels_;
-    }
+template<std::size_t depth = n_levels>
+requires (depth==n_levels)
+cppcoro::recursive_generator<value_type> generate(std::size_t)
+{
+    co_yield this->levels_;
+}
 
-    template<std::size_t depth = 0>
-    requires (depth<n_levels)
-    cppcoro::recursive_generator<value_type> generate(std::size_t prev_num)
-    {
-        for (std::size_t num{--prev_num}; num>n_levels-depth-1; num--) {
-            this->levels_[depth] = this->rescale(num);
-            co_yield generate<depth+1>(num);
-        }
+template<std::size_t depth = 0>
+requires (depth<n_levels)
+cppcoro::recursive_generator<value_type> generate(std::size_t prev_num)
+{
+    for (std::size_t num{--prev_num}; num>n_levels-depth-1; num--) {
+        this->levels_[depth] = this->rescale(num);
+        co_yield generate<depth+1>(num);
     }
+}
 \end{lstlisting}
 
 \subsection{Náhodné generování}
@@ -987,7 +990,7 @@ Ve smyčce \texttt{while} jsou hodnoty vkládány do setu až do jeho naplnění
 Nakonec jsou hodnoty překopírovány ze setu do výstupního pole.
 
 \section{Velikosti nákupu}
-Pro velikosti nákupu platí, že $ (s_0, s_1,\dots,s_n) \in \mathbb{Q} \cap [0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $.
+Pro velikosti nákupu platí, že $ (s_0, s_1,\dots,s_n) \in \mathbb{Q} \cap (0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $.
 Příkladem takové sekvence může být $ (\frac{1}{4}, \frac{2}{4}, \frac{1}{4})\ $.
 Generátory jsou parametrizovány pomocí parametru $u\geq 1$, který označuje počet jedinečných zlomků, které se mohou v sekvenci objevit.
 Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}\} \in [0, 1] \land d=n+u-1$.
@@ -999,31 +1002,30 @@ Používá se také rekurze, každá smyčka \texttt{for} předává součet zb�
 Maximální lokální čitatel má buď hodnotu globálního maximálního čitatele, nebo součet zbývajících čitatelů snížený o jedna.
 
 \begin{lstlisting}[caption={~Metody pro systematické generování velikostí nákupu},label={lst:systematic:sizes_generator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-    cppcoro::recursive_generator<value_type> operator()()
-    {
-        co_yield generate<0>(this->denom_);
-    }
+cppcoro::recursive_generator<value_type> operator()()
+{
+    co_yield generate<0>(this->denom_);
+}
 
-private:
-    template<std::size_t depth = n_sizes>
-    requires (depth+1==n_sizes)
-    cppcoro::recursive_generator<value_type> generate(std::size_t remaining)
-    {
-        this->sizes_[depth] = fraction_t{remaining, this->denom_};
-        co_yield this->sizes_;
-    }
+template<std::size_t depth = n_sizes>
+requires (depth+1==n_sizes)
+cppcoro::recursive_generator<value_type> generate(std::size_t remaining)
+{
+    this->sizes_[depth] = fraction_t{remaining, this->denom_};
+    co_yield this->sizes_;
+}
 
-    template<std::size_t depth = 0>
-    requires (depth+1<n_sizes)
-    cppcoro::recursive_generator<value_type> generate(std::size_t remaining)
-    {
-        std::size_t max = (remaining>this->max_num_) ?
-            this->max_num_ : remaining-1;
-        for (std::size_t num{1}; num<=max; num++) {
-            this->sizes_[depth] = fraction_t{num, this->denom_};
-            co_yield generate<depth+1>(remaining-num);
-        }
+template<std::size_t depth = 0>
+requires (depth+1<n_sizes)
+cppcoro::recursive_generator<value_type> generate(std::size_t remaining)
+{
+    std::size_t max = (remaining>this->max_num_) ?
+        this->max_num_ : remaining-1;
+    for (std::size_t num{1}; num<=max; num++) {
+        this->sizes_[depth] = fraction_t{num, this->denom_};
+        co_yield generate<depth+1>(remaining-num);
     }
+}
 \end{lstlisting}
 
 \subsection{Náhodné generování}
@@ -1379,14 +1381,14 @@ Hodnoty jsou aktualizovány voláním metody \texttt{update}.
 K vytvoření haldy používá funkci \texttt{std::push\_heap} a jakmile je plná, použije po vložení nového prvku funkci \texttt{std::pop\_back} k odstranění nejhoršího prvku \cite{push-heap}.
 K získání výsledku lze zavolat metodu \texttt{get}, která používá funkci \texttt{std::sort\_heap} k seřazení prvků v požadovaném pořadí.
 
-\chapter{Čtení a zápis do souborů}
+\chapter{Zpracování vstupů a výstupů}
 Byly vytvořeny vlastní třídy pro čtení a zápis do souborů \textit{CSV}.
 Jsou užitečné při čtení historických svíčkových dat a při ukládání časových řad pro vykreslování grafů.
 Pro uložení nastavení a výsledků experimentu byl zvolen formát \textit{JSON} (\textit{JavaScript Object Notation}), který je standardizovaný a čitelný.
 V tomto případě nebylo nutné vytvářet vlastní implementaci, protože existuje dobře známá, používaná a udržovaná knihovna \texttt{nlohmann/json} \cite{lohmann}.
 
 \section{Formát CSV}
-Pro čtení a zápis do souborů \textit{CSV} (\textit{Comma-Separated Values}) byly vytvořeny třídy \texttt{csv::reader} a \texttt{csv::writer}.
+Pro čtení a zápis do souborů CSV (Comma-Separated Values) byly vytvořeny třídy \texttt{csv::reader} a \texttt{csv::writer}.
 Hodnoty jsou uloženy v tabulce, kde sloupce jsou hodnoty stejného typu odděleny oddělovačem, obvykle čárkou.
 První řádek může obsahovat názvy sloupců, ale nemusí.
 
@@ -1425,7 +1427,7 @@ bool read_row(Types& ...inputs)
 
 Třída \texttt{csv::reader} je používána velice podobně.
 Má metodu pro zápis sloupců \texttt{write\_header} a pro zápis hodnot \texttt{write\_row}.
-K převodu hodnot na textové řetězce používá třídu \texttt{io::stringifier}.
+K převodu hodnot na textové řetězce používá třídu \texttt{stringifier}.
 
 \begin{lstlisting}[caption={~Ukázka čtení svíček pomocí \texttt{io::csv::reader}},label={lst:read:candles},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 io::csv::reader<5> reader{path, sep};
@@ -1439,10 +1441,10 @@ while (reader.read_row(opened, open, high, low, close))
 
 \section{Formát JSON}
 Samotný formát se skládá ze dvou struktur: kolekce párů klíč-hodnota a pole.
-Je založen na programovacím jazyce \textit{JavaScript}, ale protože je postaven ze základních datových struktur, je implementován v mnoha programovacích jazycích \cite{json}.
+Je založen na programovacím jazyce JavaScript, ale protože je postaven ze základních datových struktur, je implementován v mnoha programovacích jazycích \cite{json}.
 
-Pro \texttt{C++} je k dispozici několik \textit{JSON} knihoven, ale zdá se, že \texttt{nlohmann/json} mezi nimi vyniká nejvíc.
-Na příslušné \textit{GitHub} stránce je uvedeno, že jde o knihovnu \textit{JSON} pro moderní \textit{C++}, má 34 tisíc hvězdiček, je důkladně testována a pečlivě zdokumentována \cite{lohmann}.
+Pro C++ je k dispozici několik JSON knihoven, ale zdá se, že \texttt{nlohmann/json} mezi nimi vyniká nejvíc.
+Na příslušné GitHub stránce je uvedeno, že jde o knihovnu JSON pro moderní C++, má 34 tisíc hvězdiček, je důkladně testována a pečlivě zdokumentována \cite{lohmann}.
 
 Podporuje vytvoření specifikace pro serializaci a deserializaci vlastních typů.
 Pro daný typ je vytvořena specializace struktury \texttt{adl\_serializer}, která může mít dvě metody \texttt{from\_json} pro deserializaci a \texttt{to\_json} pro serializaci.
