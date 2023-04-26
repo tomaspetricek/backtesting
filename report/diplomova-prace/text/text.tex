@@ -440,7 +440,7 @@ Pokud platí $o<c$, svíčka je rostoucí, jinak klesající.
 Zároveň pokud je rostoucí, bývá tělo vybarveno zeleně, v opačném případě červeně (viz \ref{fig:candles:diagram})\cite{candlestick-corporate}.
 
 \begin{figure}[htbp]
-\centerline{\includegraphics[scale=0.75]{img/candles-diagram.pdf}}
+\centerline{\includegraphics[scale=0.72]{img/candles-diagram.pdf}}
 \caption{Schéma rostoucí a klesající svíčky}
 \label{fig:candles:diagram}
 \end{figure}
@@ -521,7 +521,7 @@ Při testování jsou data rozdělena do více segmentů, které jsou dále rozd
 
 \section{Bazooka obchodní strategie}
 Pro optimalizaci v praktické části práce byla vybrána obchodní strategie s názvem \textit{Bazooka}, která byla vytvořena a poskytnuta externím subjektem.
-Jedná se o jednoduchou dobře definovanou a dříve otestovanou strategii, která pro rozhodování používá indikátory klouzavého průměru.
+Jedná se o jednoduchou dobře definovanou a dříve otestovanou strategii, která pro rozhodování používá ukazatele klouzavého průměru.
 Využívá také mechanismus řízení rizik.
 Strategie byla implementována na základě osobních setkání a ukázkové implementace v jazyku \textit{PineScript} pro platformu \textit{TradingView}.
 
@@ -540,11 +540,22 @@ Velikost nákupu $ps_i$ pro nákupní úroveň $i$ je určena $ps_i=bn \cdot s_i
 Pro velikosti nákupu platí, že $ (s_0, s_1,\dots,s_n) \in \mathbb{Q} \cap (0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $, kde $n$ je počet nákupních úrovní.
 Pokud například $(bn=100 \land s = (\frac{2}{10}, \frac{5}{10}, \frac{3}{10}))\implies ps=(20, 50, 30)$.
 
-Prodejní signál je vyvolán, pokud platí $mv\geq exv$, kde $exv$ je hodnota výstupního indikátoru a byla otevřena pozice.
+Prodejní signál je vyvolán, pokud platí $mv\geq exv$, kde $exv$ je hodnota výstupního ukazatele a byla otevřena pozice.
 Na rozdíl od vstupní strategie, která zvětšuje velikost pozice po částech, výstupní strategie prodává celou pozici najednou.
 Strategie obchoduje, dokud není dosaženo minimální čisté ceny nebo je ručně vypnuta.
 
+Použití strategie lze vidět na grafu \ref{fig:bazooka:example}.
+Konfigurace strategie je $n=3, l=\{\frac{55}{64}, \frac{53}{64}, \frac{52}{64}\}$, $s=(\frac{1}{8}, \frac{6}{8}, \frac{1}{8})$, typ vstupního a výstupního ukazatele je SMA s periodou 15.
+Ve výřezu jsou vidět 2 ziskové pozice, kde se 1. pozice skládá ze 2 otevřených objednávek a 2. ze 3.
+Historická data jsou 1 minutové svíčky, které jsou také vyneseny do grafu.
+Perioda převzorkování je 45, což znamená, že 45 minutových svíček se převzorkuje na jednu 45minutovou svíčku, která je nejprve zprůměrována metodou OHLC4 a následně použita k aktualizaci ukazatelů.
+Hodnoty vstupních a výstupních úrovní jsou vyneseny pomocí bodového grafu a odpovídají době aktualizace ukazatelů, což znamená, že jsou body od sebe vzdáleny 45 minut.
 
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale=0.42]{img/bazooka-example.png}}
+\caption{Ukázka použití strategie}
+\label{fig:bazooka:example}
+\end{figure}
 
 \section{Klouzavé průměry}
 Klouzavé průměry jsou technické indikátory, jejichž cílem je určit trend daného aktiva výpočtem průměru jeho cen.
