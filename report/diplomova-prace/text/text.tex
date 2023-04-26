@@ -402,10 +402,10 @@ Mohou zahrnovat statistiky jako: celkový počet obchodů, počet vítězných a
     \item[hrubý zisk (gross profit)] $gp\geq0$ je částka, která se spočítá jako součet realizovaných zisků všech ziskových uzavřených pozic $gp=\sum_{i=0}^{n} max(rp_i, 0)$, kde $n$ je počet uzavřených pozic.
     \item[hrubá ztráta (gross loss)] $gl\geq0$ je částka, která se spočítá jako součet realizovaných ztrát všech ztrátových uzavřených pozic $gl=-\sum_{i=0}^{n} min(rp_i, 0)$, kde $n$ je počet uzavřených pozic.
     \item[celkový zisk (net profit)] $np$ lze vypočítat buď součtem realizovaných zisků všech uzavřených pozic $np=\sum_{i=0}^{n} rp_i$, kde $n$ je počet uzavřených pozic nebo $np=gp-gl$.
-    \item [ziskový faktor (profit factor)] $pf$ lze spočítat $pf=\frac{gp}{gl}$.
-    Pokud platí $pf>0$, tak byla strategie zisková, jelikož celkové zisky převyšují celkové ztráty.
+    \item [ziskový faktor (profit factor)] $pf\geq0$ lze spočítat $pf=\frac{gp}{gl}$.
+    Pokud platí $pf>1$, tak byla strategie zisková, jelikož celkové zisky převyšují celkové ztráty.
     \item[zůstatek (balance)] $bn\geq0$ částka uložená na účtu.
-    \item[současná hodnota] $cv$ je hodnota otevřené pozice, kdyby byla uzavřena za současnou tržní cenu $mp$.
+    \item[současná hodnota] $cv>0$ je hodnota otevřené pozice, kdyby byla uzavřena za současnou tržní cenu $mp$.
     Lze ji vypočítat jako $cv=ps\cdot mp$, kde $ps$ je velikost pozice.
     \item[současný zisk] $cp$ je částka, která byla získána nebo ztracena za dobu po otevření pozice.
     Lze ji spočítat pomocí $cp=cv-ti$ nebo v procentech $cp_p = \frac{cp}{ti}\cdot 100$.
@@ -437,7 +437,13 @@ Horní knot začíná od středu horní strany těla a končí v úrovni $h$.
 Spodní knot vede od středu spodní strany těla a končí na úrovni $l$.
 Horní a spodní strana těla svíčky označují $o$ a $c$.
 Pokud platí $o<c$, svíčka je rostoucí, jinak klesající.
-Zároveň pokud je rostoucí, bývá tělo vybarveno zeleně, v opačném případě červeně \cite{candlestick-corporate}.
+Zároveň pokud je rostoucí, bývá tělo vybarveno zeleně, v opačném případě červeně (viz \ref{fig:candles:diagram})\cite{candlestick-corporate}.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale=0.75]{img/candles-diagram.pdf}}
+\caption{Schéma rostoucí a klesající svíčky}
+\label{fig:candles:diagram}
+\end{figure}
 
 Svíčky jsou většinou dostupné ve formátu OHLC, což je zkratka pro otevírací (open), nejvyšší (high), nejnižší (low) a uzavírací (close) ceny.
 Nejčastěji jsou ukládány do CSV souborů.
@@ -537,6 +543,8 @@ Pokud například $(bn=100 \land s = (\frac{2}{10}, \frac{5}{10}, \frac{3}{10}))
 Prodejní signál je vyvolán, pokud platí $mv\geq exv$, kde $exv$ je hodnota výstupního indikátoru a byla otevřena pozice.
 Na rozdíl od vstupní strategie, která zvětšuje velikost pozice po částech, výstupní strategie prodává celou pozici najednou.
 Strategie obchoduje, dokud není dosaženo minimální čisté ceny nebo je ručně vypnuta.
+
+
 
 \section{Klouzavé průměry}
 Klouzavé průměry jsou technické indikátory, jejichž cílem je určit trend daného aktiva výpočtem průměru jeho cen.
@@ -669,7 +677,6 @@ Korutiny byly představeny ve standardu C++20.
 Při volání funkce umožňují její provádění pozastavit a později obnovit \cite{coroutines}.
 Byly použity k systematickému generování vyhledávacího prostoru.
 Nejsou zatím široce používány, ale existuje knihovna CppCoro, která poskytuje implementace generátorů \texttt{cppcoro::generator} a \texttt{cppcoro::recursive\_generator} \cite{cppcoro}.
-
 
 
 \section{Jmenné konvence}
