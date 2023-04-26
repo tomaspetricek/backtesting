@@ -127,6 +127,30 @@ Na každé teplotě musí zůstat dostatečně dlouho, aby bylo dosaženo ustál
 
 Algoritmus lze ukončit několika způsoby: dosažením maximálního počtu iterací, přestane se zlepšovat nebo dosáhne minimální teploty.
 Pro použití heuristiky je třeba poskytnout celkem 4 komponenty: konfiguraci představující nastavení systému, náhodný generátor sousedních konfigurací, objektivní funkci a rozvrh ochlazování \cite{kirkpatrik}.
+Pseudokód algoritmu lze vidět na \ref{alg:simulated:annealing}, kde $T$ označuje teplotu a $S$ stav.
+
+\begin{algorithm}
+\caption{Simulované ochlazování}\label{alg:simulated:annealing}
+\begin{algorithmic}
+\State $S_{best} \gets S_{curr} \gets S_{init}$
+\While{$T_{curr} > T_{min}$}
+    \State $S_{cand} \gets neighbor(S_{curr})$
+    \If{$is\_better(S_{cand},S_{curr})$} \Comment{Candidate is better}
+        \State $S_{curr} \gets S_{cand}$
+        \If{$is\_better(S_{curr}, S_{best})$}
+            \State $S_{best} \gets S_{curr}$
+        \EndIf
+    \Else \Comment{Candidate is worse}
+        \State $\Delta E \gets appraise(S_{cand}, S_{curr})$
+        \If{$rand\_prob()<exp(\frac{-\Delta E}{T_{curr}})$}
+            \State $S_{curr} \gets S_{cand}$
+        \EndIf
+    \EndIf
+    \State $T_{curr} \gets cool(T_{curr})$
+\EndWhile
+\State \Return {$S_{best}$}
+\end{algorithmic}
+\end{algorithm}
 
 % \subsubsection{Vybrané rozvrhy ochlazování}
 
@@ -167,8 +191,22 @@ Existují dobře známé techniky jako jsou: jednobodové, vícebodové, cyklov�
 Dále může docházet k mutacím, které se vyskytují s určitou nízkou pravděpodobností.
 Slouží k zavedení náhodných změn.
 Simulují chyby, ke kterým dochází při kopírování chromozomů \cite{katoch}.
+Pseudokód algoritmu lze vidět na \ref{alg:genetic:algorithm}, kde $P$ označuje populaci.
 
 % popsat co je to mutace a křížení
+
+\begin{algorithm}
+\caption{Genetický algoritmus}\label{alg:genetic:algorithm}
+\begin{algorithmic}
+\State $P_{whole} \gets P_{init}$
+\While{$\lnot terminate()$}
+    \State $P_{parents} \gets select(P_{whole})$
+    \State $P_{children} \gets crossover(P_{parents})$
+    \State $P_{children} \gets mutate(P_{children})$
+    \State $P_{whole} \gets replace(P_{parents}, P_{children})$
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{Tabu prohledávání}
 Tabu prohledávání patří mezi metaheuristiky založených na jednom řešení.
@@ -200,6 +238,33 @@ Příkladem je nalezení lepší konfigurace, než je nejlepší dosud nalezená
 Pro řešení náročnějších problémů lze přidat \textit{dlouhodobou paměť}, která pomáhá lépe vyvážit proces diverzifikace a intenzifikace.
 Paměť je obvykle založena na frekvenci změn jednotlivých atributů.
 Pomáhá s lepším výběrem dalšího tahu \cite{laguna}.
+Pseudokód algoritmu lze vidět na \ref{alg:tabu:search}, kde $S$ označuje stav, $M$ tah a $N$ velikost sousedství.
+
+\begin{algorithm}
+\caption{Tabu prohledávání}\label{alg:tabu:search}
+\begin{algorithmic}
+\State $S_{best} \gets S_{curr} \gets S_{init}$
+\While{$\lnot terminate()$}
+    \State $S_{origin} \gets S_{curr}$
+    \State $M_{curr}, S_{curr} \gets neighbor(S_{origin})$
+    \For{$n \gets 1$ to $N$} \Comment{Explore neighborhood}
+        \State $M_{cand}, S_{cand} \gets neighbor(S_{origin})$
+        \If{$\lnot is\_tabu(S_{cand})$}
+            \If{$is\_better(S_{cand}, S_{curr}) \lor aspire()$}
+                \State $S_{curr} \gets S_{cand}$
+                \State $M_{curr} \gets M_{cand}$
+            \EndIf
+        \EndIf
+    \EndFor
+    \If{$is\_better(S_{curr},S_{best})$}
+        \State $S_{best} \gets S_{curr}$
+    \EndIf
+    \State $forget()$
+    \State $remember(M_{curr})$
+\EndWhile
+\State \Return {$S_{best}$}
+\end{algorithmic}
+\end{algorithm}
 
 \chapter{Algoritmické obchodování}
 Algoritmické obchodování se používá k automatizaci obchodování pomocí počítačových programů.
@@ -1052,7 +1117,7 @@ const value_type& operator()(const value_type& origin){
 Pro velikosti nákupu platí, že $ (s_0, s_1,\dots,s_n) \in \mathbb{Q} \cap (0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $.
 Příkladem takové sekvence může být $ (\frac{1}{4}, \frac{2}{4}, \frac{1}{4})\ $.
 Generátory jsou parametrizovány pomocí parametru $u\geq 1$, který označuje počet jedinečných zlomků, které se mohou v sekvenci objevit.
-Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}\} \in [0, 1] \land d=n+u-1$.
+Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $(\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}) \in [0, 1] \land d=n+u-1$.
 Pro $n=3$, $u=3$ jsou všechny možné platné sekvence: $(\frac{1}{5}, \frac{1}{5}, \frac{3}{5}), (\frac{1}{5}, \frac{2}{5}, \frac{2}{5}), (\frac{1}{5}, \frac{3}{5}, \frac{1}{5}), (\frac{2}{5}, \frac{1}{5}, \frac{2}{5}), (\frac{2}{5}, \frac{2}{5}, \frac{1}{5}), (\frac{3}{5}, \frac{1}{5}, \frac{1}{5})$.
 
 \subsection{Systematické generování}
@@ -1140,7 +1205,7 @@ const value_type& operator()(const value_type& origin)
 }
 \end{lstlisting}
 
-\chapter{Optimalizace}
+\chapter{Optimalizátory}
 Při vytváření optimalizátorů byly brány v úvahu 2 hlavní cíle: za prvé, aby byly co nejobecnější a za druhé, aby bylo možné snadno sledovat a později analyzovaly průběh optimalizace.
 Samotné optimalizátory mají pouze několik atributů, které by měly být společné pro všechny možné problémy, které lze optimalizovat.
 Další části algoritmu jsou dodány při samotném volání algoritmu.
