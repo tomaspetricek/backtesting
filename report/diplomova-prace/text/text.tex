@@ -73,7 +73,7 @@ Polynomiální algoritmus pro jeden NP-úplný problém by znamenal polynomiáln
 Schéma všech zmíněných tříd složitosti lze vidět na obrázku \ref{fig:complexity-classes}.
 
 \begin{figure}[htbp]
-\centerline{\includegraphics[scale=0.7]{img/complexity-classes.pdf}}
+\centerline{\includegraphics[scale=0.8]{img/complexity-classes.pdf}}
 \caption{Schéma tříd složitosti}
 \label{fig:complexity-classes}
 \end{figure}
@@ -133,26 +133,47 @@ Pseudokód algoritmu lze vidět na \ref{alg:simulated:annealing}, kde $T$ označ
 \caption{Simulované ochlazování}\label{alg:simulated:annealing}
 \begin{algorithmic}
 \State $S_{best} \gets S_{curr} \gets S_{init}$
+\State $T_{curr} \gets T_{init}$
 \While{$T_{curr} > T_{min}$}
-    \State $S_{cand} \gets neighbor(S_{curr})$
-    \If{$is\_better(S_{cand},S_{curr})$} \Comment{Candidate is better}
-        \State $S_{curr} \gets S_{cand}$
-        \If{$is\_better(S_{curr}, S_{best})$}
-            \State $S_{best} \gets S_{curr}$
-        \EndIf
-    \Else \Comment{Candidate is worse}
-        \State $\Delta E \gets appraise(S_{cand}, S_{curr})$
-        \If{$rand\_prob()<exp(\frac{-\Delta E}{T_{curr}})$}
+    \For{$n \gets 1$ to $equilibrium()$} \Comment{Explore neighborhood}
+        \State $S_{cand} \gets neighbor(S_{curr})$
+        \If{$is\_better(S_{cand},S_{curr})$} \Comment{Candidate is better}
             \State $S_{curr} \gets S_{cand}$
+            \If{$is\_better(S_{curr}, S_{best})$}
+                \State $S_{best} \gets S_{curr}$
+            \EndIf
+        \Else \Comment{Candidate is worse}
+            \State $\Delta E \gets appraise(S_{cand}, S_{curr})$
+            \If{$rand\_prob()<exp(\frac{-\Delta E}{T_{curr}})$}
+                \State $S_{curr} \gets S_{cand}$
+            \EndIf
         \EndIf
-    \EndIf
-    \State $T_{curr} \gets cool(T_{curr})$
+        \State $T_{curr} \gets cool(T_{curr})$
+    \EndFor
 \EndWhile
 \State \Return {$S_{best}$}
 \end{algorithmic}
 \end{algorithm}
 
-% \subsubsection{Vybrané rozvrhy ochlazování}
+V tabulce \ref{tab:cooling:schedules} jsou uvedeny rozvrhy chlazení ze srovnávajícího článku \cite{cooling-comparison}, které byly implementovány v praktické části.
+Všechny generují konečnou sekvenci klesajících teplot, liší se však časem potřebným pro jejich výpočet a samotný průběhem.
+Všechny používají počáteční teplotu $T_{init}$ k výpočtu následující aktuální teploty $T_{curr}$ a hodnotu aktuální iterace $i\geq 0$.
+Některé jsou navíc parametrizovány pomocí parametru rozpadu $\alpha$ , jehož rozsah platných hodnot je rovněž uveden.
+
+\def\arraystretch{1.5}
+\begin{table}[!htbp]
+\centering
+\caption[Přehled vybraných rozvrhů chlazení]{~Přehled vybraných rozvrhů chlazení}\label{tab:cooling:schedules}
+{%
+\begin{tabular}{|l|l|}
+\hline
+\multicolumn{1}{|c|}{\textbf{Název}} & \multicolumn{1}{c|}{\textbf{Vzorec}}                 \\ \hline
+Základní chlazení                    & \small\(\displaystyle T_{curr} = \frac{T_{init}}{1+\log(1+i)}\)           \\ \hline
+Exponenciální multiplikativní chlazení & \small\(\displaystyle T_{curr} = T_{init} \cdot \alpha^i, \alpha \in \left(0,8,\;0,9\right)\) \\ \hline
+Logaritmické multiplikativní chlazení  & \small\(\displaystyle T_{curr} = \frac{T_{init}}{1+\alpha \cdot \log(1+i)}, \alpha>1\)        \\ \hline
+\end{tabular}%
+}
+\end{table}
 
 \subsection{Genetický algoritmus}
 Genetický algoritmus je populační metaheuristika, která je inspirována přirozenou evolucí.
@@ -205,6 +226,7 @@ Pseudokód algoritmu lze vidět na \ref{alg:genetic:algorithm}, kde $P$ označuj
     \State $P_{children} \gets mutate(P_{children})$
     \State $P_{whole} \gets replace(P_{parents}, P_{children})$
 \EndWhile
+\State \Return {$P_{whole}$}
 \end{algorithmic}
 \end{algorithm}
 
@@ -2111,7 +2133,6 @@ Hodnoty kryptoměn jsou uvedeny v USDT, což je stablecoin, jehož hodnota se bl
 Přehled informací o vybraných historických datech je uveden v tabulce \ref{tab:historical:market:data}.
 
 \begin{table}[!htbp]
-\centering
 \centering
 \caption[Přehled vybraných historických dat]{~Přehled historických dat}\label{tab:historical:market:data}
 {%

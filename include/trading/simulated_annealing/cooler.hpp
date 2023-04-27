@@ -23,20 +23,6 @@ namespace trading::simulated_annealing {
         }
     };
 
-    class lin_cooler : public decayable_cooler {
-    public:
-        explicit lin_cooler(float decay)
-                :decayable_cooler(decay) { }
-
-        template<class SimulatedAnnealing>
-        void operator()(SimulatedAnnealing& optimizer)
-        {
-            optimizer.current_temperature(optimizer.current_temperature()-this->decay_);
-        }
-
-        static constexpr std::string_view name = "lin cooler";
-    };
-
     class exp_mul_cooler : public decayable_cooler {
         static float validate(const float decay)
         {
