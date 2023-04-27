@@ -5,23 +5,17 @@
 \chapter*{Úvod}\addcontentsline{toc}{chapter}{Úvod}\markboth{Úvod}{Úvod}
 %---------------------------------------------------------------
 \setcounter{page}{1}
-S tím, jak se obchodování za poslední desetiletí stalo dostupnější, vyrostl i zájem o něj.
-Pokud jde o obchodování, existují různé přístupy, někteří lidé nakupují aktiva pouze dlouhodobě, jiní se snaží obchodovat častěji, aby zvýšili své zisky.
-S cílem činit chytrá rozhodnutí bez emocí a s konzistentními zisky, bylo vytvořeno algoritmické obchodování.
+Lze obchodovat různá aktiva, jako jsou akcie, kryptoměny nebo indexy, nicméně hlavní cíl zůstává stejný, využít změny tržních cen k maximalizaci zisku a zároveň minimalizovat riziko ztráty.
+Pro dosažení konzistentních zisků systematickým způsobem bylo vyvinuto algoritmické obchodování, které využívá počítačově naprogramované strategie pro dělání obchodních rozhodnutí na základě jasně definovaných podmínek.
+Nejsou svázáni stejnými omezeními jako lidští obchodníci, necítí únavu a nenechají se svést emocemi.
 
-Algoritmické obchodní strategie jsou počítačové programy, které rozhodují o tom, kdy koupit nebo prodat na základě definovaných podmínek.
-Nejsou svázáni stejnými omezeními jako lidé, necítí únavu a nenechají se svést emocemi.
-Ve srovnání s lidskými obchodníky je lze předem vyhodnotit na historických datech.
-Proces vyhodnocení se nazývá zpětné testování.
-
+Mohou být také zpětně testovány na historických tržních datech, aby bylo možné vyhodnotit jejich výkonnost a najít slabá místa.
 Strategie jsou většinou parametrizované a hledání optimálních parametrů je NP-těžký problém.
-Předpokládá se, že neexistuje žádný účinný deterministický algoritmus, který by problém vyřešil v polynomiálním čase.
-Algoritmus hrubé síly je užitečný pouze pro malou množinu hodnot možných parametrů, ale ve skutečnosti je většinou nepoužitelný, protože nenajde řešení v dostatečně krátkém čase.
+K nalezení nejlepšího nastavení lze použít algoritmus hrubé síly, který je však v praxi většinou nepoužitelný, protože nenajde vhodné nastavení v dostatečně krátkém čase.
 
-Použití heuristiky se zdá být přirozeným přístupem.
-I když se to ví už dlouho, stále to není standardní způsob optimalizace strategií.
-Algoritmus hrubé síly lze zkušeným obchodníkům vysvětlit poměrně jednoduše, avšak pro pochopení heuristiky je zapotřebí mnohem hlubší úrovně porozumění.
-Dalším důležitým aspektem je, že tvorba obecných generátorů vyhledávacího prostoru, které by generovaly platné konfigurace, je poměrně obtížné, jelikož existuje velké množství různých strategií.
+Použití heuristických přístupů se v tomto případě jeví jako přirozené, nicméně existuje pouze pár platforem, které je nabízejí.
+Možným vysvětlením, proč nejsou běžně dostupné, je, že existuje velké množství různých algoritmických strategií, které vyžadují odlišně parametrizované vyhledávací prostory, což implementaci značně ztěžuje.
+Zároveň je těžší je vysvětlit než algoritmus hrubé síly.
 
 Cílem této práce je implementovat vybranou algoritmickou obchodní strategii a pomocí heuristických přístupů spolehlivě a rychle najít její optimální parametry.
 V rámci toho získat lepší porozumění algoritmickému obchodování a více zkušeností s implementací, používáním a laděním heuristik.
@@ -32,15 +26,15 @@ Ideálně vytvořit dobrý základ pro budoucí práci.
 Cílem řešení \textit{optimalizačního problému} je nalézt nejlepší řešení.
 Formálně lze problém zapsat jako $P=(S, f, \Omega)$, kde $P$ je optimalizační problém, $S$ je vyhledávací prostor, $f$ je objektivní funkce a $\Omega$ je sada optimalizačních omezení.
 Objektivní funkce je také označována jako cenová nebo fitness funkce.
-Funkce slouží k hodnocení konfigurace a její hodnota slouží k jejich porovnání \cite{peres}.
+Jejím účelem je ohodnotit konfigurace a její hodnota slouží k jejich porovnání \cite{peres}.
 
 Problémy lze dělit na minimalizační a maximalizační podle toho, zda je cílem maximalizovat nebo minimalizovat hodnotu objektivní funkce.
-Vyhledávací prostor se skládá ze sady proměnných označovaných jako rozhodovací proměnné.
+Vyhledávací prostor se skládá ze sady proměnných označovaných jako konfigurační proměnné.
 Pro získání platných řešení mohou být použita omezení \cite{kirkpatrik, peres}.
 
-\textit{Kombinatorické optimalizační problémy} jsou definované pomocí diskrétních rozhodovacích proměnných.
+\textit{Kombinatorické optimalizační problémy} jsou definované pomocí diskrétních konfiguarčních proměnných.
 Jelikož je množina přeskupení těchto proměnných konečná, je konečná i množina řešení.
-Tyto problémy obvykle spadají do kategorie \textit{NP-těžkých} problémů \cite{peres}.
+Problémy obvykle spadají do kategorie \textit{NP-těžkých} problémů \cite{peres}.
 
 Obecně lze  kombinatorické problémy řešit pomocí \textit{hrubé síly}, která prohledá všechny možné řešení v prohledávacím prostoru \cite{peres}.
 Největší výhodou tohoto přístupu je, že zaručuje nalezení nejlepšího možného řešení, nicméně je v praxi většinou nepoužitelný, jelikož neskončí v dostatečně krátkém čase \cite{efficient-backtesting}.
@@ -109,25 +103,25 @@ Heuristika je založena na procesu žíhání pevné látky.
 Proces spočívá v tom, že je materiál nejprve zahřán, což umožňuje vytvoření mnoha atomových přeskupení, a poté pomalu chlazen.
 Na začátku existuje mnoho atomových uspořádání, ale postupem času při správném chlazení přetrvají jen ty dobré \cite{rutenbar}.
 
-Algoritmus začíná s počáteční konfigurací a snaží se ji postupně vylepšit.
-Aby nedošlo k uvíznutí v lokálním optimu, umožňuje přijmutí horší konfigurace.
-V každé iteraci prohledává okolí aktuální konfigurace.
+Algoritmus začíná s počáteční stavem $S_{init}$ a snaží se jej postupně vylepšit.
+Aby nedošlo k uvíznutí v lokálním optimu, umožňuje přijmutí horšího stavu.
+V každé iteraci prohledává okolí aktuálního stavu $S_{curr}$.
 Každý krok je ohodnocen změnou energie $\Delta E$.
-Je-li zlepšující $\Delta E\leq0$ nahradí aktuální konfiguraci, pokud je horší $\Delta E>0$ může být stále přijat.
-Pravděpodobnost přijetí horší konfigurace je  vypočítána pomocí $p_a = e^{\frac{-\Delta E}{T}}$, kde $T>0$ je současná teplota.
-Konfigurace je přijata, pokud platí $r<p_a$, kde $r$ je náhodné číslo z $ Unif(0, 1)$.
-Pravděpodobnost přijetí horší konfigurace se s snižuje s $T$, nicméně je vždy nenulová \cite{rutenbar, kirkpatrik}.
+Je-li zlepšující $\Delta E\leq0$ nahradí $S_{curr}$, pokud je horší $\Delta E>0$ může být stále přijat.
+Pravděpodobnost přijetí horšího stavu je  vypočítána pomocí $p_a = e^{\frac{-\Delta E}{T_{curr}}}$, kde $T_{curr}>0$ je současná teplota.
+Stav je přijat, pokud platí $r<p_a$, kde $r$ je náhodné číslo z $ Unif(0, 1)$.
+Pravděpodobnost přijetí horšího stavu se s snižuje s $T_{curr}$, nicméně je vždy nenulová \cite{rutenbar, kirkpatrik}.
 
-Na konci každé iterace se aktuální teplota sníží.
+Na konci každé iterace se $T_{curr}$ sníží.
 Její průběh je řízen pomocí \textit{rozvrhu ochlazování}.
 Klesání teploty je obecně nejrychlejší na začátku a ke konci se zpomaluje.
 Zpočátku umožňuje diverzifikaci v podstatě náhodným prohledáváním konfiguračního prostoru.
 Na závěr vede k intenzifikaci připomínající metodu iterativního zlepšování.
 Na každé teplotě musí zůstat dostatečně dlouho, aby bylo dosaženo ustáleného stavu zvaném \textit{equilibrium} \cite{rutenbar, kirkpatrik}.
 
-Algoritmus lze ukončit několika způsoby: dosažením maximálního počtu iterací, přestane se zlepšovat nebo dosáhne minimální teploty.
-Pro použití heuristiky je třeba poskytnout celkem 4 komponenty: konfiguraci představující nastavení systému, náhodný generátor sousedních konfigurací, objektivní funkci a rozvrh ochlazování \cite{kirkpatrik}.
-Pseudokód algoritmu lze vidět na \ref{alg:simulated:annealing}, kde $T$ označuje teplotu a $S$ stav.
+Algoritmus je ukončen, pokud platí $T_{curr}\leq T_{min}$.
+Pro použití heuristiky je třeba implementovat: konfiguraci představující nastavení systému, náhodný generátor sousedních konfigurací, objektivní funkci a rozvrh ochlazování \cite{kirkpatrik}.
+Pseudokód algoritmu lze vidět na \ref{alg:simulated:annealing}, kde $S_{best}$ označuje nejlepší stav a $S_{cand}$ kandidátní stav.
 
 \begin{algorithm}
 \caption{Simulované ochlazování}\label{alg:simulated:annealing}
@@ -157,8 +151,8 @@ Pseudokód algoritmu lze vidět na \ref{alg:simulated:annealing}, kde $T$ označ
 
 V tabulce \ref{tab:cooling:schedules} jsou uvedeny rozvrhy chlazení ze srovnávajícího článku \cite{cooling-comparison}, které byly implementovány v praktické části.
 Všechny generují konečnou sekvenci klesajících teplot, liší se však časem potřebným pro jejich výpočet a samotný průběhem.
-Všechny používají počáteční teplotu $T_{init}$ k výpočtu následující aktuální teploty $T_{curr}$ a hodnotu aktuální iterace $i\geq 0$.
-Některé jsou navíc parametrizovány pomocí parametru rozpadu $\alpha$ , jehož rozsah platných hodnot je rovněž uveden.
+Všechny používají $T_{init}$ a hodnotu aktuální iterace $i\geq 0$ k výpočtu $T_{curr}$.
+Některé jsou navíc parametrizovány pomocí parametru rozpadu $\alpha$, jehož rozsah platných hodnot je rovněž uveden.
 
 \def\arraystretch{1.5}
 \begin{table}[!htbp]
@@ -179,27 +173,27 @@ Logaritmické multiplikativní chlazení  & \small\(\displaystyle T_{curr} = \fr
 Genetický algoritmus je populační metaheuristika, která je inspirována přirozenou evolucí.
 Napodobuje přežití nejzdatnějších jedinců.
 Byla navržena v roce 1992.
-Konfigurace jsou označovány jako jedinci.
-Množina jednotlivců je nazývána populace.
+Stavy jsou označovány jako jedinci.
+Množina jedinců je nazývána populace.
 Objektivní funkce se označuje jako fitness funkce a slouží k přiřazení zdatnosti jednotlivým jedincům.
 Algoritmus používá 3 biologicky inspirované operátory: \textit{selekci}, \textit{křížení} a \textit{mutaci} \cite{katoch}.
 
-Začíná s náhodně inicializovanou populací.
+Začíná s náhodně inicializovanou populací $P_{init}$.
 Nové generace jsou produkovány iterativně aplikací genetických operátorů.
-Na začátku každé iterace jsou vybráni pomocí selekčního operátoru jedinci, kteří přežijí.
+Na začátku každé iterace jsou vybráni pomocí selekčního operátoru rodiče $P_{parents}$.
 Vybraní jedinci jsou pak spárováni a kříženi.
-Na výsledné potomky je s nějakou pravděpodobností aplikován operátor mutace.
-Jako poslední dojde k nahrazení současné populace.
+Na výsledné potomky $P_{children}$ je s nějakou pravděpodobností aplikován operátor mutace.
+Jako poslední dojde k nahrazení současné populace $P_{curr}$.
 Proces se opakuje do splnění ukončovacího kritéria \cite{katoch}.
 
-Kódování jednotlivců je závislé na problému, ale často se provádí pomocí binárního řetězce.
-Hlavní výhodou je, že operátory křížení a mutace lze snadno a rychle implementovat 
+Kódování jedinců je závislé na problému, ale často se provádí pomocí binárního řetězce.
+Hlavní výhodou je, že operátory křížení a mutace lze snadno a rychle implementovat.
 Mezi další typy kódování patří permutační kódování, kódování hodnot a stromové kódování \cite{katoch}.
 
 Selekce se používá k určení jedinců, kteří se budou účastnit reprodukce.
 Je spojena s \textit{selekčním tlakem}, který umožňuje algoritmu konvergovat.
 Určuje pravděpodobnost výběru zdatnějšího jedince.
-Mezi známé algoritmy selekce patří: ruletový, turnajový nebo boltzmannův výběr \cite{katoch}.
+Mezi známé algoritmy selekce patří: \textit{ruletový}, \textit{turnajový} nebo \textit{boltzmannův} výběr \cite{katoch}.
 
 Při použití ruletového výběru jsou nejprve jedinci z dané populace namapováni na kolo rulety.
 Velikost výřezu je úměrná zdatnosti jedince.
@@ -207,60 +201,56 @@ Což znamená, že čím je daný jedinec zdatnější, tím větší je pravdě
 Při každém náhodném roztočení rulety je vybrán jeden jedinec.
 Každý jedinec může být vybrán vícekrát \cite{katoch}.
 
-Křížení se používá s cílem vytvořit nové potomky spojením genů dvou nebo více rodičů.
+Křížení se používá s cílem vytvořit nové potomky spojením genů 2 nebo více rodičů.
 Existují dobře známé techniky jako jsou: jednobodové, vícebodové, cyklové a rovnoměrné křížení.
 Dále může docházet k mutacím, které se vyskytují s určitou nízkou pravděpodobností.
 Slouží k zavedení náhodných změn.
 Simulují chyby, ke kterým dochází při kopírování chromozomů \cite{katoch}.
-Pseudokód algoritmu lze vidět na \ref{alg:genetic:algorithm}, kde $P$ označuje populaci.
-
-% popsat co je to mutace a křížení
+Pseudokód algoritmu lze vidět na \ref{alg:genetic:algorithm}.
 
 \begin{algorithm}
 \caption{Genetický algoritmus}\label{alg:genetic:algorithm}
 \begin{algorithmic}
-\State $P_{whole} \gets P_{init}$
+\State $P_{curr} \gets P_{init}$
 \While{$\lnot terminate()$}
-    \State $P_{parents} \gets select(P_{whole})$
+    \State $P_{parents} \gets select(P_{curr})$
     \State $P_{children} \gets crossover(P_{parents})$
     \State $P_{children} \gets mutate(P_{children})$
-    \State $P_{whole} \gets replace(P_{parents}, P_{children})$
+    \State $P_{curr} \gets replace(P_{parents}, P_{children})$
 \EndWhile
-\State \Return {$P_{whole}$}
+\State \Return {$P_{curr}$}
 \end{algorithmic}
 \end{algorithm}
 
 \subsection{Tabu prohledávání}
 Tabu prohledávání patří mezi metaheuristiky založených na jednom řešení.
 K prohledávání stavového prostoru využívá adaptivní paměť, která umožňuje jeho efektivní prohledávání.
-Prohledávacím prostorem se pohybuje aplikováním změn na aktuální konfiguraci.
-Množina konfigurací dosažitelných z aktuální konfigurace se nazývá sousedství.
-Operaci přesunu je používána k dosažení sousední konfigurace \cite{laguna}.
+Prohledávacím prostorem se pohybuje aplikováním změn na aktuální stav $S_{curr}$.
+Množina stavů dosažitelných z $S_{curr}$ se nazývá sousedství.
+Operaci přesunu je používána k dosažení sousedního stavu $S_{cand}$ \cite{laguna}.
 
-Algoritmus začíná hledat od počáteční konfigurace.
-Během každé iterace je prohledáno sousedství současné konfigurace.
-Nejprve je uplatněna strategie prvého zlepšení.
-Pokud je nalezena lepší konfigurace, prohledávání sousedství je ukončeno a současná konfigurace nahrazena.
-Pokud není nalezen žádný lepší tah, je současná konfigurace nahrazena nejlepším nezlepšujícím se sousedem.
+Algoritmus začíná hledat z počátečního stavu $S_{init}$.
+Během každé iterace je prohledáno sousedství $S_{curr}$.
+Pokud je nalezen lepší $S_{cand}$, je $S_{curr}$ nahrazen.
+Pokud není nalezen žádný lepší tah, je $S_{curr}$ nahrazena nejlepším nezlepšujícím se sousedem.
 Algoritmus je ukončen, jakmile je splněno ukončovací kritérium \cite{laguna}.
 
 Dalším mechanismem, který pomáhá algoritmu překročit lokální optima, je \textit{krátkodobá paměť}.
 Algoritmus si ukládá nedávnou historii tahů, které byly provedeny, a označuje je jako zakázané (tabu).
-Tahy lze ukládat jako celé konfigurace.
-Tento typ paměti se nazývá explicitní paměť.
-Pokud jsou uloženy pouze vybrané atributy tahu, pak se paměť nazývá atributivní paměť.
+Tahy lze ukládat jako celé konfigurace, tento typ paměti se nazývá \textit{explicitní paměť}.
+Pokud jsou uloženy pouze vybrané atributy tahu, pak se paměť nazývá \textit{atributivní paměť}.
 Explicitní paměť obecně spotřebovává méně místa než atributivní paměť.
-Pokud sousední konfigurace obsahuje nějaké tabu aktivní atributy, nelze ji přijmout jako současnou konfiguraci \cite{laguna}.
+Pokud $S_{cand}$ obsahuje nějaké tabu aktivní atributy, nelze ji přijmout jako $S_{curr}$ \cite{laguna}.
 
-\textit{Tabu lhůta} (tenure) se používá k určení počtu iteracích, po které je daný atribut zakázaný.
+\textit{Tabu lhůta} (tenure) $T$ se používá k určení počtu iteracích, po které je daný atribut zakázaný.
 Může být statická nebo dynamická.
-K překonání tabu klasifikace lze použít \textit{aspirační kritérium}, které umožňuje při splnění určité podmínky přijmout zakázaného kandidáta.
-Příkladem je nalezení lepší konfigurace, než je nejlepší dosud nalezená \cite{laguna}.
+K překonání tabu klasifikace lze použít \textit{aspirační kritérium}, které umožňuje při splnění určité podmínky přijmout zakázaný $S_{cand}$.
+Příkladem je nalezení lepší $S_{cand}$, než je nejlepší dosud nalezený stav $S_{best}$ \cite{laguna}.
 
 Pro řešení náročnějších problémů lze přidat \textit{dlouhodobou paměť}, která pomáhá lépe vyvážit proces diverzifikace a intenzifikace.
 Paměť je obvykle založena na frekvenci změn jednotlivých atributů.
 Pomáhá s lepším výběrem dalšího tahu \cite{laguna}.
-Pseudokód algoritmu lze vidět na \ref{alg:tabu:search}, kde $S$ označuje stav, $M$ tah a $N$ velikost sousedství.
+Pseudokód algoritmu lze vidět na \ref{alg:tabu:search}, kde $M_{curr}$ je současný tah, $M_{cand}$ je kandidátní tah a $N$ velikost sousedství.
 
 \begin{algorithm}
 \caption{Tabu prohledávání}\label{alg:tabu:search}
@@ -282,7 +272,7 @@ Pseudokód algoritmu lze vidět na \ref{alg:tabu:search}, kde $S$ označuje stav
         \State $S_{best} \gets S_{curr}$
     \EndIf
     \State $forget()$
-    \State $remember(M_{curr})$
+    \State $remember(M_{curr}, T)$
 \EndWhile
 \State \Return {$S_{best}$}
 \end{algorithmic}
@@ -295,8 +285,8 @@ Vývoj těchto systémů vedl ke zrodu vysokofrekvenčního algoritmického obch
 
 Obchodování se uskutečňuje párováním nákupních a prodejních objednávek.
 Párovací engine si vede centralizovanou knihu objednávek (order book).
-Lze ji snadno vizualizovat jako tabulku se 2 sloupci, první s nákupními objednávkami a druhý s prodejními objednávkami.
-Nákupní objednávky jsou řazeny sestupně, takže objednávka s nejvyšší cenou je první, jelikož cílem prodejce je prodat za co nejvyšší cenu.
+Lze ji snadno vizualizovat jako tabulku se 2 sloupci, 1. s nákupními objednávkami a 2. s prodejními objednávkami.
+Nákupní objednávky jsou řazeny sestupně, takže objednávka s nejvyšší cenou je 1., jelikož cílem prodejce je prodat za co nejvyšší cenu.
 Prodejní objednávky jsou seřazeny v obráceném pořadí, protože kupující chce koupit za nejnižší možnou cenu.
 Po úspěšném spárování objednávek je provedena výměna (trade) \cite{nuti}.
 
@@ -310,7 +300,7 @@ Proces obchodování lze rozdělit do 4 fází: předobchodní analýza, generov
 Všechny lze automatizovat.
 Během předobchodní analýzy je aktivum analyzováno na základě finančních dat a zpráv.
 Výsledky se používají ke generování nákupních a prodejních signálů, které jsou následně převedeny na objednávky.
-Proces lze formulovat jako optimalizační problém, který lze řešit pomocí kvadratického programování, genetického programování nebo optimalizace roje částic \cite{nuti}.
+Proces lze formulovat jako optimalizační problém, který lze řešit pomocí heuristických metod \cite{nuti}.
 
 \section{Předobchodní analýza}
 Předobchodní analýzu lze rozdělit do 3 kategorií: \textit{fundamentální}, \textit{technická} a \textit{kvantitativní} analýza.
@@ -321,7 +311,7 @@ Technická analýza má za cíl předpovídat budoucí pohyb ceny aktiva na zák
 Předpokládá, že všechny informace potřebné pro generovaní signálu se odrážejí v její historii.
 Pracuje s konceptem trendů, které určují dlouhodobější směr pohybu ceny.
 Trendy lze organizovat do vzorů, jako jsou trendové linie, oblasti podpory a odporu.
-Používají se také technické indikátory jako klouzavé průměry, index relativní síly (RSI), stochastické oscilátory nebo pohyblivá průměrná konvergence/divergence (MACD).
+Používají se také technické ukazatele jako klouzavé průměry, index relativní síly (RSI), stochastické oscilátory nebo pohyblivá průměrná konvergence/divergence (MACD).
 Obchodní signály jsou generovány při změně trendu \cite{nuti}.
 
 Kvantitativní analýza považuje ceny za náhodné a jejím cílem je vytvořit modely, které danou náhodnost dobře popisují.
@@ -334,8 +324,8 @@ Skládá se ze vstupní a výstupní strategie.
 Vstupní strategie určuje podmínky, kdy má program pozici otevřít, a výstupní strategie, kdy ji zavřít.
 Rizika a velikosti objednávek musí být také řízeny \cite{nuti}.
 
-Vstupní strategie mohou být jednoduché, jako je překřížení hodnot 2 technických indikátorů nebo odchýlení se od férové ceny.
-I když je cílem pravidla co nejvíce zjednodušit, může být nutné přidat některá další pravidla.
+Vstupní strategie mohou být jednoduché, jako je překřížení hodnot 2 technických ukazatelů nebo odchýlení se od férové ceny.
+I když je cílem pravidla co nejvíce zjednodušit, může být nutné přidat některá pravidla navíc.
 Například otevírání obchodů může být příliš časté a na krátkou dobu, takže částka zaplacená na poplatcích převýší zisk.
 Výstupní strategie definuje, kdy uzavřít zisk a kdy odejít se ztrátou.
 Značně závisí na typu použité analýzy.
@@ -360,7 +350,7 @@ Základní myšlenkou zpětného testování (backtesting) je zjistit, jak by fu
 Vychází z předpokladu, že pokud strategie fungovala dobře v minulosti, měla by fungovat dobře i v budoucnu.
 Zpětné testování je nezbytnou součástí rozvoje obchodní strategie, jelikož pomáhá lépe porozumět testované strategii a dává příležitost k jejímu zlepšení \cite{efficient-backtesting}.
 
-Spuštění strategie na historických datech se nazývá historická simulace.
+Spuštění strategie na historických datech se nazývá \textit{historická simulace}.
 Během procesu se shromažďují různé statistiky, které jsou používány k vyhodnocení strategie.
 Strategie jsou často parametrizované a nalezení jejich optimálních hodnot je NP-těžký problém.
 Jednoduché metody jako hrubá síla nebo prioritní krokové vyhledávání jsou většinou nepoužitelné, protože nedokončí vyhledávání v dostatečně krátkém čase.
@@ -369,10 +359,10 @@ Proto se doporučuje používat sofistikovanější vyhledávací metody, jako j
 
 Statistiky shromážděné během historické simulace se používají k formulaci optimalizačního kritéria.
 Objektivní funkce založené na zisku jsou intuitivní volbou, ale ne nejlepší, protože mohou ignorovat podstatné nedostatky.
-Upřednostňuje se použití pokročilejších kritérií, jako je CECPP a PROM, protože lépe odrážejí celkovou výkonnost strategie \cite{pardo}.
+Upřednostňuje se použití pokročilejších kritérií, jako je CECPP (Correlation Between Equity Curve and Perfect Profit) a PROM (Pessimistic Return On Margin), protože lépe odrážejí celkovou výkonnost strategie \cite{pardo}.
 
 Dokonce i ta nejlepší nalezená konfigurace nemusí být nejlepší, protože může trpět jevem zvaným overfitting.
-V zásadě to znamená, že strategie funguje velmi dobře na historických datech, na kterých byla optimalizována, ale podstatě hůře ve zkutečném obchodování \cite{pardo}.
+Důsledkem je, že strategie funguje velmi dobře na historických datech, na kterých byla optimalizována, ale podstatě hůře ve zkutečném obchodování \cite{pardo}.
 
 % \cite{bowman}.
 % overfitting
@@ -409,7 +399,7 @@ Skluz je nízký, když je trh klidný a je málo objednávek, a vyšší, když
 Záleží také na typu objednávky, velikosti objednávky a likviditě trhu \cite{pardo}.
 
 \subsection{Výkonnostní statistiky}
-Výkonnostní statistiky se používají k měření odměny a rizika.
+Výkonnostní statistiky se používají k měření zisku a rizika.
 Díky tomu, že jsou nezávislé na konkrétní obchodní strategii, tak poskytují způsob, jak je porovnat.
 Statistiky lze nejen vypočítat na historických datech, ale lze je také použít pro měření výkonnosti běžící strategie v reálném čase.
 Umožňují tedy kontrolu průběhu obchodování.
@@ -419,7 +409,7 @@ Mohou zahrnovat statistiky jako: celkový počet obchodů, počet vítězných a
 \begin{description}
     \item [realizovaný zisk (realized profit)] $rp$ je částka ztracená nebo získaná po uzavření pozice.
     Lze ji vypočítat pomocí vzorce $rp=tr-ti$, kde $tr$ je celkem získaná částka a $ti$ je celkem investovaná částka.
-    Může být také vyjádřena v procentech $rp_p=\frac{rp}{ti}\cdot 100$.
+    Může být také vyjádřena v procentech $rp\%=\frac{rp}{ti}\cdot 100$.
     Pokud $rp\leq0$, tak se označuje jako ztráta, jinak jako zisk.
     \item[hrubý zisk (gross profit)] $gp\geq0$ je částka, která se spočítá jako součet realizovaných zisků všech ziskových uzavřených pozic $gp=\sum_{i=0}^{n} max(rp_i, 0)$, kde $n$ je počet uzavřených pozic.
     \item[hrubá ztráta (gross loss)] $gl\geq0$ je částka, která se spočítá jako součet realizovaných ztrát všech ztrátových uzavřených pozic $gl=-\sum_{i=0}^{n} min(rp_i, 0)$, kde $n$ je počet uzavřených pozic.
@@ -440,8 +430,8 @@ Mohou zahrnovat statistiky jako: celkový počet obchodů, počet vítězných a
 \end{description}
 
 \section{Vizualizace}
-Data získaná ze simulace lze dále vizualizovat pomocí grafu, což také pomáhá při ohodnocování a testování obchodní strategie.
-Historická data jsou vykreslena pomocí svíčkového grafu, do kterého lze dále vykreslit hodnoty indikátorů, vstupní a výstupní body.
+Data získaná ze simulace lze vizualizovat pomocí grafu, což také pomáhá při ohodnocování a testování obchodní strategie.
+Historická data jsou vykreslena pomocí svíčkového grafu, do kterého lze dále vykreslit hodnoty ukazatelů, vstupní a výstupní body.
 Čistá hodnota v každém okamžiku je často vykreslena na samostatném grafu pod svíčkovým grafem \cite{pardo}.
 
 % doplnit o schéma
@@ -482,7 +472,7 @@ Dále jsou ukládány samotné obchody ve formě obchodních tiků (trade ticks)
 Pro dosažení větší přesnosti lze také použít nabídkové tiky (quote ticks), které ukládají údaje o nejlepší nabídce (bid) a poptávce (ask) z knihy objednávek v daném okamžiku \cite{polygon}.
 
 \section{PROM}
-PROM (Pessimistic Return On Margin) je robustní míra používaná k vyhodnocení obchodní strategie.
+PROM je robustní míra používaná k vyhodnocení obchodní strategie.
 Pesimistická je v tom smyslu, že předpokládá, že při reálném obchodování by byly zisky menší a ztráty větší než hodnoty získané z historické simulace.
 Lze jej vypočíst pomocí:
 
@@ -504,7 +494,7 @@ Je to převážně webová aplikace a pokud by nad ní mělo být postaveno vlas
 MultiCharts je řešení, které nabízí mnoho funkcí používaných pro automatizaci obchodování.
 Je zdarma po omezenou dobu a je k dispozici jako desktopová aplikace.
 Nabízí požadovanou funkcionalitu ve formě genetického algoritmu, ale není tak flexibilní.
-Oproti TradingView je však mnohem více zaměřen na efektivitu.
+Oproti TradingView je však mnohem více zaměřena na efektivitu.
 
 \subsection{TradingView}
 TradingView je oblíbená obchodní platforma, která umožňuje provádět technickou analýzu, vývoj a zpětné testování obchodní strategie.
@@ -548,26 +538,26 @@ Využívá také mechanismus řízení rizik.
 Strategie byla implementována na základě osobních setkání a ukázkové implementace v jazyku \textit{PineScript} pro platformu \textit{TradingView}.
 
 K vyvolání otevíracího nebo uzavíracího signálu se používají klouzavé průměry, které mohou být typu EMA nebo SMA.
-Obecně mohou být různé, například vstupní indikátor může být typu EMA s periodou 30 a výstupní indikátor může být typu SMA s periodou 20.
-Indikátory jsou aktualizovány pomocí průměrné ceny historických svíček v daném intervalu.
-Pokud by byly například použity 30minutové svíčky, znamenalo by to, že by se indikátory aktualizovaly každých 30 minut s cenou získanou průměrem právě uzavřené 30minutové svíčky.
+Obecně mohou být různé, například vstupní ukazatel může být typu EMA s periodou 30 a výstupní ukazatel může být typu SMA s periodou 20.
+Ukazatelé jsou aktualizovány pomocí průměrné ceny historických svíček v daném intervalu.
+Pokud by byly například použity 30minutové svíčky, znamenalo by to, že by se ukazatele aktualizovaly každých 30 minut s cenou získanou průměrem právě uzavřené 30minutové svíčky.
 
 Strategie využívá více úrovní nákupu, které se získávají posunutím hodnoty vstupního ukazatele směrem dolů.
-Hodnota každé nákupní úrovně $lv_i$ se získá pomocí $lv_i=env \cdot l_i$, kde $env$ je hodnota vstupního indikátoru a $l_i$ je zlomek určující posunutí.
-Pro úrovně nákupu platí, že $\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap (0, 1) \land n>0 \land [\forall i \in \{0,\dots,n-1\} : l_i > l_{i+1}]$, kde $n$ je počet nákupních úrovní.
+Hodnota nákupní úrovně $lv_i$ se získá pomocí $lv_i=env \cdot l_i$, kde $env$ je hodnota vstupního ukazatele a $l_i$ je nákupní úroveň.
+Pro úrovně nákupu platí, že $L=\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap (0, 1) \land n>0 \land [\forall i \in \{0,\dots,n-1\} : l_i > l_{i+1}]$, kde $n$ je počet nákupních úrovní.
 Nákupní signál je vyvolán, pokud nastane $mp\leq lv_c$, kde $mp$ je současná tržní cena aktiva a $lv_c$ je hodnota současné nákupní úrovně.
 Nákup na každé úrovni lze provést pouze jednou.
 
-Velikost nákupu $ps_i$ pro nákupní úroveň $i$ je určena $ps_i=bn \cdot s_i$, kde $bn$ je zůstatek na účtu před otevřením pozice a $s_i$ je zlomek určující část, za kterou bude nákup proveden.
-Pro velikosti nákupu platí, že $ (s_0, s_1,\dots,s_n) \in \mathbb{Q} \cap (0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $, kde $n$ je počet nákupních úrovní.
-Pokud například $(bn=100 \land s = (\frac{2}{10}, \frac{5}{10}, \frac{3}{10}))\implies ps=(20, 50, 30)$.
+Investovaná částka $ia_i$ pro nákupní úroveň $i$ je určena $ia_i=bn \cdot s_i$, kde $bn$ je zůstatek na účtu před otevřením pozice a $s_i$ velikost nákupu.
+Pro velikosti nákupu platí, že $ S = \{s_0, s_1,\dots,s_n\} \in \mathbb{Q} \cap (0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $, kde $n$ je počet nákupních úrovní.
+Pokud například $(bn=100 \land S = \{\frac{2}{10}, \frac{5}{10}, \frac{3}{10}\})\implies ia=\{20, 50, 30\}$.
 
 Prodejní signál je vyvolán, pokud platí $mv\geq exv$, kde $exv$ je hodnota výstupního ukazatele a byla otevřena pozice.
 Na rozdíl od vstupní strategie, která zvětšuje velikost pozice po částech, výstupní strategie prodává celou pozici najednou.
 Strategie obchoduje, dokud není dosaženo minimální čisté ceny nebo je ručně vypnuta.
 
 Použití strategie lze vidět na grafu \ref{fig:bazooka:example}.
-Konfigurace strategie je $n=3, l=\{\frac{55}{64}, \frac{53}{64}, \frac{52}{64}\}$, $s=(\frac{1}{8}, \frac{6}{8}, \frac{1}{8})$, typ vstupního a výstupního ukazatele je SMA s periodou 15.
+Konfigurace strategie je $n=3, L=\{\frac{55}{64}, \frac{53}{64}, \frac{52}{64}\}$, $S=\{\frac{1}{8}, \frac{6}{8}, \frac{1}{8}\}$, typ vstupního a výstupního ukazatele je SMA s periodou 15.
 Ve výřezu jsou vidět 2 ziskové pozice, kde se 1. pozice skládá ze 2 otevřených objednávek a 2. ze 3.
 Historická data jsou 1 minutové svíčky, které jsou také vyneseny do grafu.
 Perioda převzorkování je 45, což znamená, že 45 minutových svíček se převzorkuje na jednu 45minutovou svíčku, která je nejprve zprůměrována metodou OHLC4 a následně použita k aktualizaci ukazatelů.
@@ -580,9 +570,9 @@ Hodnoty vstupních a výstupních úrovní jsou vyneseny pomocí bodového grafu
 \end{figure}
 
 \section{Klouzavé průměry}
-Klouzavé průměry jsou technické indikátory, jejichž cílem je určit trend daného aktiva výpočtem průměru jeho cen.
-Existují 3 běžně používané indikátory: jednoduchý klouzavý průměr (SMA), exponenciální klouzavý průměr (EMA) a vážený klouzavý průměr (WMA).
-Jsou počítány za určité období $k>0$, které určuje počet vzorků použitých k výpočtu.
+Klouzavé průměry jsou technické ukazatele, jejichž cílem je určit trend daného aktiva výpočtem průměru jeho cen.
+Existují 3 běžně používané ukazatele: jednoduchý klouzavý průměr (SMA), exponenciální klouzavý průměr (EMA) a vážený klouzavý průměr (WMA).
+Jsou počítány za určitou periodu $k>0$, které určuje počet vzorků použitých k výpočtu.
 Pokud je proveden SMA na cenách představujících 10 dní, nazývá se 10denní SMA.
 Obvykle jsou vizualizovány společně s grafy cen akcií.
 Křížení indikátorů lze použít k identifikaci změny trendu  \cite{ma-algorithms}.
@@ -766,7 +756,7 @@ Voláním této metody se spustí daný algoritmus \cite{strategy}.
 
 V práci je vzor strategie použit pro výběr různých druhů rozvrhů chlazení pro algoritmus simulovaného ochlazování.
 Strategie je předána instanci optimalizátoru jako parametr při jeho volání.
-Musí splňovat koncept \texttt{simulated\_annealing::Cooler}.
+Musí splňovat koncept \texttt{simulated\_annealing::ICooler}.
 Jelikož různé algoritmy chlazení vyžadují různé sady argumentů, je při volání strategie předána přímo instance optimalizátoru.
 Volba požadovaného parametru jako je aktuální teplota nebo počet proběhlých iterací je na strategii samotné.
 Je navržen hlavně pro použití pro statický polymorfismus, ale lze mezi strategiemi přepínat za běhu pomocí \texttt{std::function}, který používá \textit{type erasure}.
@@ -1071,7 +1061,7 @@ int operator()(int origin)
 \end{lstlisting}
 
 \section{Úrovně nákupu}
-Pro úrovně nákupu platí, že $\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap (0, 1) \land n>0 \land [\forall i \in \{0,\dots,n-1\} : l_i > l_{i+1}]$.
+Pro úrovně nákupu platí, že $L=\{l_0, l_1,\dots,l_n\} \in \mathbb{Q} \cap (0, 1) \land n>0 \land [\forall i \in \{0,\dots,n-1\} : l_i > l_{i+1}]$.
 Příkladem takové sekvence racionálních čísel může být $\{\frac{1}{2}, \frac{1}{3}, \frac{1}{4}\}$.
 Generátory jsou parametrizovány pomocí parametru $u\geq n$, který označuje počet jedinečných zlomků, které se mohou v sekvenci objevit.
 Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}\} \in (0, 1) \land d=u+1$.
@@ -1154,11 +1144,11 @@ const value_type& operator()(const value_type& origin){
 \end{lstlisting}
 
 \section{Velikosti nákupu}
-Pro velikosti nákupu platí, že $ (s_0, s_1,\dots,s_n) \in \mathbb{Q} \cap (0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $.
-Příkladem takové sekvence může být $ (\frac{1}{4}, \frac{2}{4}, \frac{1}{4})\ $.
+Pro velikosti nákupu platí, že $ S=\{s_0, s_1,\dots,s_n\} \in \mathbb{Q} \cap (0, 1] \land n>1 \land \sum_{i=0}^{n} s_i = 1 $.
+Příkladem takové sekvence může být $ \{\frac{1}{4}, \frac{2}{4}, \frac{1}{4}\} $.
 Generátory jsou parametrizovány pomocí parametru $u\geq 1$, který označuje počet jedinečných zlomků, které se mohou v sekvenci objevit.
-Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $(\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}) \in [0, 1] \land d=n+u-1$.
-Pro $n=3$, $u=3$ jsou všechny možné platné sekvence: $(\frac{1}{5}, \frac{1}{5}, \frac{3}{5}), (\frac{1}{5}, \frac{2}{5}, \frac{2}{5}), (\frac{1}{5}, \frac{3}{5}, \frac{1}{5}), (\frac{2}{5}, \frac{1}{5}, \frac{2}{5}), (\frac{2}{5}, \frac{2}{5}, \frac{1}{5}), (\frac{3}{5}, \frac{1}{5}, \frac{1}{5})$.
+Zlomky, které tvoří výslednou sekvenci, jsou brány z množiny $\{\frac{u}{d}, \frac{u-1}{d},\dots, \frac{1}{d}\} \in [0, 1] \land d=n+u-1$.
+Pro $n=3$, $u=3$ jsou všechny možné platné sekvence: $\{\frac{1}{5}, \frac{1}{5}, \frac{3}{5}\}, \{\frac{1}{5}, \frac{2}{5}, \frac{2}{5}\}, \{\frac{1}{5}, \frac{3}{5}, \frac{1}{5}\}, \{\frac{2}{5}, \frac{1}{5}, \frac{2}{5}\}, \{\frac{2}{5}, \frac{2}{5}, \frac{1}{5}\}, \{\frac{3}{5}, \frac{1}{5}, \frac{1}{5}\}$.
 
 \subsection{Systematické generování}
 Velikosti nákupů jsou systematicky generovány pomocí třídy \texttt{systematic::sizes\_generator} podobně jako úrovně nákupů (viz \ref{lst:systematic:sizes_generator}).
