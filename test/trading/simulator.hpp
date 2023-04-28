@@ -83,19 +83,23 @@ BOOST_AUTO_TEST_SUITE(simulator_test)
         }
     };
 
-    struct mock_trader {
-        bool position_active{false};
-        trading::action action{trading::action::none};
-        double equity_value{0.0};
+    class mock_trader {
+        bool position_active_{false};
+        trading::action action_{trading::action::none};
+        double equity_value_{0.0};
 
-        bool has_active_position() const
+    public:
+        explicit mock_trader(bool position_active = false, action action = trading::action::none, double equity_value=0.0)
+                :position_active_(position_active), action_(action), equity_value_(equity_value) { }
+
+        bool position_active() const
         {
-            return position_active;
+            return position_active_;
         }
 
         trading::action operator()(const price_point&) const
         {
-            return action;
+            return action_;
         }
 
         bool update_indicators(price_t) const
@@ -105,7 +109,7 @@ BOOST_AUTO_TEST_SUITE(simulator_test)
 
         amount_t equity(const price_t&) const
         {
-            return equity_value;
+            return equity_value_;
         }
     };
 
@@ -135,8 +139,7 @@ BOOST_AUTO_TEST_SUITE(simulator_test)
         auto averager = trading::candle::ohlc4{};
         trading::simulator simulator{candles, period, averager, min_equity};
 
-        auto trader = mock_trader{};
-        trader.equity_value = min_equity+1;
+        auto trader = mock_trader{false, trading::action::none, min_equity+1};
         auto counter = event_counter{};
         simulator(trader, counter);
         BOOST_REQUIRE_EQUAL(counter.started_count, 1);

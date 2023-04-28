@@ -168,6 +168,7 @@ Logaritmické multiplikativní chlazení  & \small\(\displaystyle T_{curr} = \fr
 \end{tabular}%
 }
 \end{table}
+\def\arraystretch{1}
 
 \subsection{Genetický algoritmus}
 Genetický algoritmus je populační metaheuristika, která je inspirována přirozenou evolucí.
@@ -597,7 +598,7 @@ Vážený faktor se používá k určení množství váhy, která je přiřazen
 Například pokud $k=10 \land sf=2 \implies wf = 0,1818$, což znamená, že 18,18 \% celkové váhy je přiřazeno nejnovější hodnotě \cite{ma-stockcharts}.
 
 \chapter{Volba technologie}
-Pro dosažení větší flexibility, rychlosti a hlubšího porozumění procesu zpětného testování a optimalizace byl vytvořen vlastní framework.
+Pro dosažení větší flexibility, rychlosti a hlubšího porozumění zpětného testování a optimalizace byl vytvořen vlastní framework.
 Je napsán ve standardu C++20, což je nejnovější dostupný standard jazyka C++.
 Jazyk byl zvolen především proto, že nabízí vysokou úroveň abstrakce a prostředky pro efektivnější práci se systémovými zdroji.
 
@@ -614,14 +615,14 @@ Na základě indexu TIOBE za březen 2023 byl ohodnocen jako číslo 4 v popular
 Byl také vyhodnocen jako programovací jazyk roku 2022 stejnou společností díky jeho rostoucí popularitě  \cite{tiobe}.
 
 Mezi verzemi C++03 a C++11 byla obrovská mezera, což mohl být důvod, proč mnoho lidí od jazyka raději ustoupilo.
-Od C++11 se však každé 3 roky objevují nové verze jazyka, které do jazyka zavedly nové funkce, zlepšily bezpečnost práce s pamětí a pomohly mu získat větší důvěru.
+Od C++11 se však každé 3 roky objevují nové verze jazyka, které zavádějí nové funkce, zlepšují bezpečnost práce s pamětí a pomáhají získat větší důvěru v jazyk samotný.
 Posledním vydaným standardem je C++20 a nejnovější standard se chystá být vydán letos.
 
 Je to bohatý jazyk s rozsáhlou standardní knihovnou.
-Ve srovnání s jinými modernějšími jazyky, jako je Python, je však obtížnější se naučit a správně používat.
-Jazyk je staticky typován, což znamená, že typ objektu musí být při deklaraci explicitně specifikován.
+Ve srovnání s jinými modernějšími jazyky, jako je Python, je však obtížnější se jej naučit a správně používat.
+Jazyk je staticky typováný, což znamená, že typ objektu musí být určen při jeho deklaraci.
 Na rozdíl od Pythonu, který je interpretován za běhu, je C++ kód kompilován.
-Ve srovnání s Pythonem trvá psaní kódu obecně více času, protože programátor musí být konkrétnější, což může určitou skupinu programátorů odradit.
+Ve srovnání s Pythonem trvá psaní kódu obecně více času, jelikož programátor musí být konkrétnější, což může určitou skupinu programátorů odradit.
 Má ale jednu věc, kterou Python postrádá, a tou je rychlost.
 
 C++ nabízí generické programování, k čemuž jsou používány šablony.
@@ -635,18 +636,18 @@ Využívá proto datovou a funkční nezávislost.
 
 Paralelní zpracování lze také použít ke zrychlení kódu.
 Program může být spuštěn na jiném procesu nebo různých vláknech nebo obojí.
-Standardní knihovna nabízí implementaci vláken a souvisejících nástrojů, lze však použít i OpenMP framework.
+Standardní knihovna nabízí implementaci vláken a souvisejících prostředků, lze však použít i OpenMP framework.
 Zpracování na více procesech najednou lze zajistit například použitím MPI frameworku.
-Ne všechny programy jsou vhodné pro paralizaci, ale je dobré, že je tu možnost ji použít.
-Například v Pythonu existuje koncept vláken, nicméně v jednom procesu může současně běžet pouze jedno vlákno díky Global Interpreter Lock (GIL).
+Ne všechny programy jsou vhodné pro paralizaci, ale je dobré, že existuje možnost ji použít.
+Například v Pythonu existuje koncept vláken, nicméně v rámci jednoho procesu může současně běžet pouze jedno vlákno díky Global Interpreter Lock (GIL).
 
 Kromě standardní knihovny je k dispozici mnoho open-source, dobře navržených a testovaných knihoven.
 Existují knihovny Boost, které nabízejí knihovny pro síťování (Asio), unit testování (Test), paralelní zpracování (MPI) a mnoho dalších, jako je POCO, JSON pro moderní C++, Google Test a OpenCV.
 
 \section{Python}
-Programování v Pythonu je dynamicky typovaný, interpretovaný programovací jazyk, který vytvořil Guido van Rossum v roce 1991.
+Python je dynamicky typovaný, interpretovaný programovací jazyk, který vytvořil Guido van Rossum v roce 1991.
 Podporuje objektově orientované i funkční programování.
-Je vyvinut a spravován Python Software Foundation.
+Je vyvíjen a spravován organizací Python Software Foundation.
 Nejnovější verze jazyka je 3.11 \cite{python}.
 
 Ve srovnání s C++ je mnohem snazší se jej naučit.
@@ -714,7 +715,7 @@ Projekt je rozdělen do 3 hlavních adresářů: include, src a test.
 Adresář include obsahuje obchodovací framework a vybrané hlavičkové soubory z knihovny CppCoro.
 Organizace frameworku je inspirovaná knihovnou Boost.Asio.
 Definice a deklarace tříd jsou uloženy společně v jednom souboru s příponou .hpp.
-Hierarchie složek se řídí jmennými prostory, například třídu \texttt{trading::bazooka::strategy} lze nalézt v souboru /include/trading/bazooka/strategy.
+Hierarchie složek se řídí jmennými prostory, například třídu \texttt{trading::bazooka::strategy} lze nalézt v souboru /include/trading/bazooka/strategy.hpp.
 Framework lze zahrnout jako celek pomocí trading.hpp nebo jednotlivě po souborech.
 
 Adresář src se skládá ze souboru main.cpp, Jypiter Notebooků používaných pro vizualizaci, vstupních a výstupních dat.
@@ -727,7 +728,7 @@ Vytváří 2 spustitelné soubory backesting pro použití optimalizátorů a te
 Existuje celá řada známých a dobře popsaných návrhových vzorů, je však nutné rozpoznat situace, kdy je vhodné je použít.
 Obecně slouží jako řešení běžně se vyskytujících problémů, nelze je však importovat z knihovny.
 Je to jen koncept s nějakou základní myšlenkou, kterou lze aplikovat různým způsobem v závislosti na konkrétním problému.
-V následujících částech jsou popsány pouze ty, které byly použity v samotném projektu \cite{design-pattern}.
+V následujících částech jsou popsány pouze ty, které byly použity v samotné práci \cite{design-pattern}.
 
 \subsection{Pozorovatel}
 Návrhový vzor pozorovatel (observer) umožňuje objektům nazývaným pozorovatelé být upozorňováni na události, které nastanou u pozorovaného objektu.
@@ -735,15 +736,14 @@ Pozorovatelé se přihlásí k odběru oznámení o událostech, které nastáva
 
 Pozorovaný objekt musí být nejprve předán pozorovanému objektu, obvykle pomocí vyhrazené metody.
 Poté, kdykoli dojde k události, je zavolána specifická metoda pozorovatele s událostí spojená.
-Tím se pozorovatel a pozorovaný stávají na sobě nezávislými, pozorovatel musí pouze splňovat dohodnuté rozhraní \cite{observer}.
+Tímto způsobem není nutné aktivně čekat, jelikož pozorovatel a pozorovaný jsou časově synchronizovány, musí pouze splňovat dohodnuté rozhraní \cite{observer}.
 
-Vzor pozorovatel se používá pro upozornění na události, které nastanou během optimalizačního procesu a simulace obchodování.
+Vzor pozorovatel se používá pro upozornění na události, které nastanou během optimalizace a historické simulace.
 Informace shromážděné během simulace lze použít k výpočtu výkonnostních statistik nebo ke sběru dat pro vizualizaci.
-Pozorovatelé jsou dodáváni při volání instance třídy a jsou předávány jako sada šablonových parametrů.
-Což umožňuje předání žádného, jednoho nebo více pozorovatelů, kteří mohou být různého typu, avšak musí být známy v době kompilace.
+Pozorovatelé jsou předáváni jako sada šablonových parametrů při volání instance třídy, což umožňuje předání žádného, jednoho nebo více pozorovatelů, kteří mohou být různého typu, avšak musí být známy v době kompilace.
 
 \subsection{Strategie}
-Účelem strategického vzoru (strategy) je zapouzdřit rodinu podobných algoritmů se stejným účelem do samostatných tříd a učinit je vzájemně zaměnitelnými.
+Cílem použití návrhového vzoru strategie (strategy) je zapouzdřit rodinu podobných algoritmů se stejným účelem do samostatných tříd a učinit je vzájemně zaměnitelnými.
 Třídy těchto algoritmů se nazývají strategie \cite{strategy}.
 
 Třída používající strategii se většinou nazývá kontext.
@@ -754,18 +754,18 @@ Volba vhodné strategie je na uživateli aplikace.
 Algoritmy obvykle implementují jednu společnou metodu, která musí přebírat setjnou sadu argumentů.
 Voláním této metody se spustí daný algoritmus \cite{strategy}.
 
-V práci je vzor strategie použit pro výběr různých druhů rozvrhů chlazení pro algoritmus simulovaného ochlazování.
-Strategie je předána instanci optimalizátoru jako parametr při jeho volání.
+V práci je vzor strategie použit pro výběr různých druhů rozvrhů chlazení pro algoritmus simulovaného ochlazování nebo ukončovacích kritérií.
+Strategie chlazení je předána instanci optimalizátoru jako parametr při jeho volání.
 Musí splňovat koncept \texttt{simulated\_annealing::ICooler}.
 Jelikož různé algoritmy chlazení vyžadují různé sady argumentů, je při volání strategie předána přímo instance optimalizátoru.
 Volba požadovaného parametru jako je aktuální teplota nebo počet proběhlých iterací je na strategii samotné.
 Je navržen hlavně pro použití pro statický polymorfismus, ale lze mezi strategiemi přepínat za běhu pomocí \texttt{std::function}, který používá \textit{type erasure}.
 
 \chapter{Simulace obchodování}
-Simulace obchodování byla inspirována kryptoměnovou burzou \textit{Binance}.
-Byly přijaty některé konvence pojmenování, jako je otevírání a zavírání pozic.
+Simulace obchodování byla inspirována kryptoměnovou burzou Binance.
+Byly přijaty konvence pojmenování, jako je otevírání a zavírání pozic.
 Otevření longové pozice znamená nákup aktiva, nicméně otevření shortové pozice znamená jeho prodej.
-Prodej a nákup tedy jdou proti sobě, a proto je lepší používat termíny otevření a uzavření.
+Prodej a nákup tedy jdou proti sobě, a proto je lepší používat termíny otevření a uzavření pozice.
 
 Je také běžné zaměnitelně říkat, že obchod nebo pozice jsou otevřené.
 Na \textit{Binance} je možné si vyžádat historii uskutečněných obchodů.
@@ -775,10 +775,9 @@ Proto je lepší používat termín pozice, který představuje seznam souvisej�
 % Účet je na kryptoburzách reprezentován jako peněženka, která uchovává množství nakoupených aktiv.
 
 \section{Bazooka}
-Strategie s názvem \textit{Bazooka} byla rozdělena do 2 tříd: \texttt{bazooka::strategy} a \texttt{bazooka::manager}.
-Důvodem rozdělení bylo oddělení zájmů.
+Bazooka obchodní strategie byla rozdělena do 2 tříd: \texttt{bazooka::strategy} a \texttt{bazooka::manager} za účelem oddělení zájmů.
 Třída \texttt{bazooka::strategy} dělá rozhodnutí a třída \texttt{bazooka::manager} je realizuje.
-V současné době je implementována burza podporující pouze longové obchody, ale pokud by v budoucnu existovala např. \texttt{futures::market} burza podporující pákové obchody, bylo by nutné použít jiný typ manažera, nicméně strategie by zůstala stejná.
+Je implementována pouze burza podporující pouze longové obchody, ale pokud by v budoucnu existovala např. \texttt{futures::market} burza podporující použití páky (leverage), bylo by nutné použít jiný typ manažera, nicméně strategie by zůstala stejná.
 Jsou dány dohromady pomocí třídy \texttt{trader}.
 
 Hodnoty nákupních velikostí a úrovní jsou uloženy jako pole zlomků pevné délky.
@@ -786,12 +785,12 @@ Zlomky jsou reperezentovány pomocí třídy \texttt{fraction}, která je inspir
 Je však mnohem jednodušší a méně obecná.
 Předpokládá, na rozdíl od \texttt{boost::rational}, že zlomky, mezi kterými se provádějí aritmetické operace, mají stejného jmenovatele.
 Porušení tohoto předpokladu vede k nedefinovanému chování.
-Zlomky jsou uloženy v instanci třídy \texttt{std::array}, což také znamená, že velikost sekvence musí být známa v době kompilace.
+Zlomky jsou uloženy pomocí \texttt{std::array}, což také znamená, že počet nákupních úrovní musí být znám v době kompilace.
 
 \subsection{Strategie}
 % dát pryč nebo přidat long/short strategy
 Strategie je implementována pomocí třídy \texttt{bazooka::strategy}.
-Má jeden parametr šablony třídy \texttt{n\_levels}, který uvádí počet úrovní nákupu.
+Má jeden parametr šablony třídy \texttt{n\_levels}, který uvádí počet úrovní nákupu (viz \ref{fig:bazooka:strategy:uml}.
 Při inicializaci přebírá parametry: vstupní a výstupní indikátor a úrovně nákupu.
 V průběhu inicializace jsou také validovány nákupní úrovně, pokud nesplňují požadavky, je vyhozena výjimka \texttt{std::invalid\_argument}.
 
@@ -803,27 +802,26 @@ Indikátory jsou aktualizovány pomocí metody \texttt{update\_indicators}.
 Vstupní a výstupní hodnoty lze získat voláním getrů třídy.
 Lze je použít pro vykreslování grafů.
 
-\subsection{Indikátor}
-Indikátor může být typu \texttt{sma} nebo \texttt{ema}.
-Běžným způsobem, jak umožnit oba typy, by bylo použití runtime polymorfismu prostřednictvím virtuálních funkcí.
-Oba indikátory by musely dědit ze společné třídy a implementovat její virtuální funkce.
-Instance třídy by musela být inicializována na haldě namísto zásobníku a dalo by se k ní přistupovat pomocí ukazatele na společnou třídu.
-Jak dynamická alokace, tak použití virtuálních funkcí způsobují režii navíc.
-Existuje několik nedávných přednášek z \textit{C++ konference} (CppCon) \cite{gobel-virtual, bogosavljevic-virtual}, které jsou zaměřeny na způsoby, jak se vyhnout používání virtuálních funkcí.
-V obou přednáškách jsou zapojeny prvky moderního C++.
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale=0.85]{img/bazooka-strategy-uml.pdf}}
+\caption{Rozhraní třídy \texttt{bazooka::strategy}}
+\label{fig:bazooka:strategy:uml}
+\end{figure}
 
-Jako nejvhodnější se v tomto případě nabízí použití třídy \texttt{std::variant} zavedené standardem C++17.
-Třída funguje jako uložiště pro různé typy.
+\subsection{Ukazatel}
+Ukazatel může být typu SMA nebo EMA.
+Běžným způsobem, jak umožnit záměnu obou typů za běhu programu, by bylo použití runtime polymorfismu prostřednictvím virtuálních funkcí.
+Nicméně místo toho byla použita třída \texttt{std::variant} zavedená standardem C++17, která funguje jako uložiště pro různé datové typy.
 Pro uložení instance daného typu používá staticky alokované pole bajtů, který má velikost největšího uložitelného typu.
 Jako třídní šablonové parametry přebírá seznam typů, které mohou být v objektu uloženy.
+
 K hodnotě uložené v instanci objektu lze přistupovat pomocí funkce \texttt{std::get}.
 Funkce přijímá šablonový argument, který je buď indexem typu, nebo samotným typem, který by měl být aktuálně v instanci uložen.
 Pokud je uložen jiný typ, tak volání funkce způsobí vyhození \texttt{std::bad\_variant\_access} výjimky.
-
 Dalším způsobem přístupu k uložené hodnotě je použití funkce \texttt{std::visit}.
-Vyžaduje 2 argumenty, první je volatelný objekt a druhý instance třídy \texttt{std::variant}.
+Vyžaduje 2 argumenty, 1. je volatelný objekt a 2. instance třídy \texttt{std::variant}.
 Funkce při volání nejprve získá hodnotu uloženou v instanci a poté ji předá volatelnému objektu.
-V případě indikátorů může být použita například při jeho aktualizaci (viz \ref{lst:update:indicator}).
+V případě ukazatele může být použita například při jeho aktualizaci (viz \ref{lst:update:indicator}).
 
 \begin{lstlisting}[caption={~Aktualizace indikátoru pomocí std::visit},label={lst:update:indicator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 std::variant<sma, ema> ma{sma{30}};
@@ -832,34 +830,40 @@ bool ready = std::visit([&value](auto& indic) {
 }, ma);
 \end{lstlisting}
 
-Aby bylo možné objekt zapouzdřit a snadněji spravovat, byla vytvořena třída \texttt{indicator}.
-Třída má pouze jeden členský atribut \texttt{data\_} typu \texttt{std::variant<sma, ema>}, který je používán pro uložení indikátoru.
+Instance \texttt{std::variant} byla zapouzdřena do třídy \texttt{bazooka::indicator}, které usnadňují práci s uloženým ukazatelem.
+Třída má pouze 1 členský atribut \texttt{data\_} typu \texttt{std::variant<sma, ema>}.
 Metody používají \texttt{std::visit} pro přístup a změnu hodnoty indikátoru.
-Sdílí stejné rozhraní s třídami \texttt{sma} a \texttt{ema}.
+Sdílí stejné rozhraní s třídami \texttt{sma} a \texttt{ema} (viz \ref{fig:indicator:uml}).
 
-Byly implementovány 2 indikátory založené na klouzavém průměru \texttt{sma} a \texttt{ema}.
-Sdílejí stejné rozhraní.
-Jsou aktualizovány voláním metody \texttt{update} a jejich hodnotu lze získat voláním metody \texttt{value}.
+Ukazatele jsou aktualizovány voláním metody \texttt{update} a jejich hodnotu lze získat voláním metody \texttt{value}.
 Metoda \texttt{update} vrací hodnotu boolean indikující, zda je indikátor připraven.
 Lze to také zkontrolovat voláním metody \texttt{is\_ready}.
 
-Počáteční hodnota indikátoru \texttt{ema} je získána pomocí indikátoru \texttt{sma} se stejnou periodou.
+Počáteční hodnota ukazatele \texttt{ema} je získána pomocí ukazatele \texttt{sma} se stejnou periodou.
 Další hodnoty se vypočítají pomocí vzorce, který používá aktuální hodnotu.
-Třída \texttt{sma} používá \texttt{boost::circular\_buffer} k uložení předchozích hodnot pro výpočet průměru.
-Jakmile je buffer plný, tak je indikátor připraven.
+Třída \texttt{sma} používá instanci třídy \texttt{boost::circular\_buffer} k uložení předchozích hodnot pro výpočet průměru.
+Jakmile je buffer plný, je ukazatel připraven.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale=0.85]{img/indicator-uml.pdf}}
+\caption{Rozhraní tříd typu ukazatel}
+\label{fig:indicator:uml}
+\end{figure}
 
 \subsection{Manažer}
 Účelem manažera je realizovat akce vytvořené strategií.
 Je implementován pomocí třídy \texttt{manager}.
-Komunikuje s burzou a zabývá se tvorbou objednávek a řízením rizik.
-Dvě nejdůležitější metody pro vytváření objednávek jsou \texttt{create\_open\_order} a \texttt{create\_close\_all\_order}.
-Objednávky jsou reprezentovány strukturou \texttt{order}, která obsahuje 3 atributy: prodané množství, cenu, za kterou bylo aktivum nakoupeno/prodáno, a čas jejího vytvoření.
+Komunikuje s burzou, vytváří objednávky a řídí rizika.
+Dvě nejdůležitější metody pro vytváření objednávek jsou \texttt{create\_open\_order} a \texttt{create\_close\_all\_order} (viz \ref{fig:bazooka:manager:uml}).
+
+Otevírací objednávky jsou reprezentovány strukturou \texttt{open\_order}, která obsahuje 3 atributy: prodané množství, cenu, za kterou bylo aktivum nakoupeno a čas jejího vytvoření.
+Uzavírací objednávka je implementována strukturou \texttt{close\_all\_order}, která na rozdíl od otevírací objednávky neuvádí prodané množství, jelikož je prodáno vše.
 
 Strategie používá $n$ nákupních úrovní.
 Vždy začíná obchodovat s počátečním zůstatkem, který je rozdělen na $n$ velikostí nákupu.
-Skutečné velikosti objednávek lze vypočítat buď na začátku, nebo průběžně.
-Výpočet velikostí objednávek za běhu se zdálo být přirozenější, takže byla implementována třída \texttt{order\_sizer}.
-Při konstrukci přijímá pole velikostí objednávek $s$ a převádí jej na pole akumulovaných velikostí $a$, kde platí, že $s_0 = a_0 \land a_n = 1 \land [\forall i \in \{0,\dots,n\} : a_i = \sum_{j=0}^{i} s_j]$.
+Částku investovanou na každou objednávku lze vypočítat buď na začátku, nebo průběžně.
+Výpočet částek za běhu se zdálo být přirozenější, takže byla implementována třída \texttt{order\_sizer}.
+Při konstrukci přijímá pole nákupních velikostí $S$ a převádí jej na pole akumulovaných velikostí $a$, kde platí, že $s_0 = a_0 \land a_n = 1 \land [\forall i \in \{0,\dots,n\} : a_i = \sum_{j=0}^{i} s_j]$.
 Po zavolání instance je vynásoben zůstatek aktuální akumulovanou velikostí pro získání velikosti objednávky.
 
 Vzhledem k tomu, že má manažer přístup k burze, tak poskytuje metody pro přístup k jejímu aktuálnímu stavu, jako je zůstatek peněženky, čistá hodnotu a aktuální zisk aktivní pozice.
@@ -867,14 +871,26 @@ Jakmile je objednávka provedena, je uložena jako poslední otevřená/uzavřen
 Je to cenná informace pro vykreslování grafů a výpočet statistik.
 Může nebo nemusí být použita, takže je lepší ji uložit samostatně a neustále ji přepisovat, než všechny ukládat například do instance \texttt{std::vector}, což by způsobilo zbytečnou režii navíc.
 
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale=0.85]{img/bazooka-manager-uml.pdf}}
+\caption{Rozhraní třídy \texttt{bazooka::manager}}
+\label{fig:bazooka:manager:uml}
+\end{figure}
+
 \subsection{Obchodník}
-Funkcionality tříd \texttt{manager} a \texttt{strategy} jsou propojeny pomocí \texttt{trader}.
-Pro zpřístupnění veřejných metod obou tříd je použita vícenásobní veřejná dědičnost.
-Volací operátor třídy (viz \ref{lst:trade} používá metody obou tříd.
+Funkcionality \texttt{manager} a \texttt{strategy} jsou propojeny pomocí \texttt{trader}.
+Pro zpřístupnění veřejných metod obou tříd je použita vícenásobná veřejná dědičnost.
+Volací operátor třídy (viz \ref{lst:trade}) používá metody obou tříd.
 Strategie činí rozhodnutí, která manažer uskutečňuje.
 Metoda vrací výčet \texttt{action} udávající, která akce byla provedena.
 
-\begin{lstlisting}[caption={~Implementace volací metody třídy \texttt{bazooka::trader}},label={lst:trade},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+% \begin{figure}[htbp]
+% \centerline{\includegraphics[scale=0.9]{img/trader-uml.pdf}}
+% \caption{Rozhraní třídy \texttt{bazooka::trader}}
+% \label{fig:bazooka:trader:uml}
+% \end{figure}
+
+\begin{lstlisting}[caption={~Implementace volacího operátoru třídy \texttt{bazooka::trader}},label={lst:trade},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 action operator()(const price_point& curr)
 {
     action done{action::none};
@@ -892,11 +908,11 @@ action operator()(const price_point& curr)
 }
 \end{lstlisting}
 
-\section{Burza}
-Burza je implementována pomocí třídy \texttt{market}.
+\section{Trh}
+Trh je implementován pomocí třídy \texttt{market}.
 Ve srovnání se skutečnou burzou je to velmi zjednodušená.
-Podporuje pouze objednávky typu long a jeden uživatelský účet.
-Mezi třídní atributy patří: aktivní pozice, poslední uzavřená pozice, peněženka a výše poplatků spojených s realizací objednávek.
+Podporuje pouze objednávky typu long a 1 uživatelský účet.
+Mezi třídní atributy patří: aktivní pozice, poslední uzavřená pozice, peněženka a výše poplatků spojených s realizací objednávek (viz \ref{fig:market:uml}).
 
 Peněženka je implementována třídou \texttt{wallet} a slouží ke správě zůstatku zákaznického účtu.
 Zůstatek lze snížit voláním metody \texttt{withdraw} nebo navýšit použitím \texttt{deposit}.
@@ -907,6 +923,12 @@ Pomocí metody \texttt{fill\_open\_order} může být aktivní pozice otevřena 
 Po otevření lze pozici uzavřít jako celek pomocí \texttt{fill\_close\_all\_order} metody, nikoli po částech.
 Třída také poskytuje getry pro získání přístupu k aktuální čísté hodnotě, kontrolu, zda je otevřená pozice, nebo zjištění aktuálního zisku aktivní pozice.
 
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale=0.85]{img/market-uml.pdf}}
+\caption{Rozhraní třídy \texttt{market}}
+\label{fig:market:uml}
+\end{figure}
+
 \section{Pozice}
 Pozice je implementována třídou \texttt{position}.
 Lze ji otevřít vytvořením instance třídy, zvýšit voláním metody \texttt{increase} nebo uzavřít pomocí metody \texttt{close}.
@@ -916,55 +938,64 @@ Vzhledem k tomu, že je v průběhu ukládán celkový realizovaný zisk a celko
 Při změně velikosti pozice jsou uplatňovány poplatky.
 Výše otevíracích a uzavíracích poplatků jsou poskytnuty při inicializaci.
 
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale=0.85]{img/position-uml.pdf}}
+\caption{Rozhraní třídy \texttt{position}}
+\label{fig:position:uml}
+\end{figure}
+
 \section{Simulátor}
 Obchodování lze simulovat pomocí třídy \texttt{simulator}, která uchovává a připravuje historická data pro simulaci a umožňuje její provedení.
 Hlavním účelem třídy je použít ji jako objektivní funkci během optimalizace.
 Obchodování lze pozorovat pomocí pozorovatelů.
 Tímto způsobem lze například použít třídu \texttt{bazooka::statistics::collector} ke sběru statistik nebo ke sběru časových řad třídu \texttt{chart\_series::collector}, které mouhou být použity pro vykreslování grafů.
 
-Při inicializaci jsou předány simulátoru historické ceny v podobě minutových svíček.
-Pro rozhodování se používají minutové uzavírací ceny.
-Ceny používané pro aktualizaci indikátorů jsou získány tak, že jsou minutové svíčky nejprve převzorkovány pomocí \texttt{resampler} na požadované časové období a zprůměrovány pomocí zvolené průměrovací metody.
-Pokud je například doba převzorkování 30 minut a metoda průměrování \textit{OHLC4}, tak jsou svíčky nejprve převzorkovány na 30minutové svíčky a poté zprůměrovány pomocí \texttt{candle::ohlc4}.
+Při inicializaci jsou předány simulátoru historické ceny v podobě svíček.
+Pro rozhodování se používají uzavírací ceny.
+Ceny používané pro aktualizaci indikátorů jsou získány tak, že jsou svíčky nejprve převzorkovány pomocí \texttt{resampler} na požadované časové období a zprůměrovány pomocí zvolené průměrovací metody.
+Pokud je například doba převzorkování 30 a průměrovací metoda \textit{OHLC4}, tak jsou minutové svíčky nejprve převzorkovány na 30minutové svíčky a poté zprůměrovány pomocí \texttt{candle::ohlc4}.
 
-Proces převzorkování probíhá tak, že za dané období se otevírací cena první svíčky stane otevírací cenou převzorkované svíčky a uzavírací cena poslední svíčky se stane její uzavírací cenou.
+Proces převzorkování probíhá tak, že za dané období se otevírací cena 1. svíčky stane otevírací cenou převzorkované svíčky a uzavírací cena poslední svíčky se stane její uzavírací cenou.
 Vysoká a nízká cena jsou nejvyšší a nejnižší ceny v daném období.
 Jelikož je převzorkování poměrně časově náročné, tak se provádí pouze jednou v konstruktoru, takže se neopakuje při každém volání simulátoru.
 
 Simulátor při volání přebírá instanci obchodníka a seznam pozorovatelů \ref{lst:simulator}.
 Iteruje přes rozhodovací ceny až do konce nebo dosažení minimální čisté hodnoty.
-Pozorovatelé jsou během optimalizace informováni o událostech, jako je otevření pozice nebo aktualizace indikátoru.
-Ceny použité pro aktualizaci indikátoru jsou procházeny pomocí iterátoru.
+Pozorovatelé jsou během optimalizace informováni o událostech, jako je otevření pozice nebo aktualizace ukazatelů.
+Ceny použité pro aktualizaci ukazatelů jsou procházeny pomocí iterátoru.
 
 \begin{lstlisting}[caption={~Implementace simulace obchodování},label={lst:simulator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 template<class Trader, class... Observer>
 void operator()(Trader&& trader, Observer& ... observers)
 {
     auto indic_prices_it = indic_prices_.begin();
-
-    (observers.begin(trader, prices_.front()), ...);
-    for (std::size_t i{0}; i<prices_.size() &&
+    (observers.started(trader, prices_.front()), ...);
+    for (std::size_t i{0}; i<prices_.size() && 
         trader.equity(prices_[i].data)>min_equity_; i++) {
-        (observers.traded(trader,trader(prices_[i]),prices_[i]),...);
+        (observers.decided(trader, trader(prices_[i]), prices_[i]), ...);
 
-        if (trader.has_active_position())
+        if (trader.position_active())
             (observers.position_active(trader, prices_[i]), ...);
 
-        // update indicators
         if (i && (i+1)%resampling_period_==0)
             if (trader.update_indicators((*indic_prices_it++)))
                 (observers.indicators_updated(trader, prices_[i]), ...);
     }
-    (observers.end(trader, prices_.back()), ...);
-}
+    (observers.finished(trader, prices_.back()), ...); }
 \end{lstlisting}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale=0.85]{img/simulator-uml.pdf}}
+\caption{Rozhraní třídy \texttt{simulator}}
+\label{fig:position:uml}
+\end{figure}
 
 \section{Statistiky}
 Nezbytnou součástí optimalizace jsou statistiky, jelikož jsou použity k formulaci optimalizačního kritéria a omezujících podmínek.
-Statistiky, které jsou společné pro všechny obchodní strategie, jsou reprezentovány třídou \texttt{statistics} a jsou rozšířeny pro \textit{Bazooka} obchodovací strategii \texttt{bazooka::statistics}.
+Statistiky, které jsou společné pro všechny obchodní strategie, jsou reprezentovány třídou \texttt{statistics} a jsou rozšířeny pro Bazooka obchodní strategii \texttt{bazooka::statistics}.
 
 Instance třídy je inicializována předáním počátečního zůstatku.
-Statistiky jsou aktualizovány pomocí metod pro aktualizaci \texttt{update\_equity()} nebo setrů \texttt{set\_final\_balance}.
+Statistiky jsou aktualizovány pomocí metod pro aktualizaci \texttt{update\_equity()} nebo setrů \texttt{final\_balance} (viz \ref{fig:statistics:uml}).
 K uloženým statistikám lze přistovat pomocí getrů.
 Některé hodnoty, jako je celkový zisk, lze získat buď jako částku nebo v procentech.
 Pro upřesnění jednotky a se používá značka \texttt{percent} nebo \texttt{amount} \ref{lst:use:unit:tag} při volání metody.
@@ -988,11 +1019,16 @@ percent_t total_profit() const
 Všechny statistiky související se ziskem jsou sledovány pomocí instance \texttt{profit\_statistics}, které lze použít k získání hrubého zisku, hrubé ztráty nebo faktoru zisku.
 Dále jsou sledovány statistiky související s pohybem pomocí \texttt{motion\_statistics}, které poskytují minimální a maximální hodnotu, maximální vzestupný a sestupný pohyb.
 Vzestupný pohyb je sledován pomocí \texttt{run\_up\_tracker} a sestupný pomocí \texttt{drawdown\_tracker}.
-Tím to způsobem jsou sledovány čistá hodnota a uzavírací zůstatek.
-Hodnoty lze opět vyjádřit v procentech nebo částkách.
+Tím to způsobem jsou sledovány čistá hodnota a zůstatek po uzavření pozice.
 
 Do třídy \texttt{bazooka::statistics} byl přidán čítač otevíracích objednávek pro jednotlivé nákupní úrovně.
 Nese informace o tom, kolikrát bylo dosaženo jednotlivých úrovní nákupu, a může tak pomoci lépe porozumět tomu, jak se strategie chová.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[scale=0.85]{img/statistics-uml.pdf}}
+\caption{Rozhraní třídy typu statistika}
+\label{fig:statistics:uml}
+\end{figure}
 
 \chapter{Generátory stavového prostoru}
 
@@ -1804,8 +1840,8 @@ BOOST_AUTO_TEST_CASE(should_open_test)
 }
 \end{lstlisting}
 
-\section{Indikátory}
-Hodnoty generované implementací indikátorů EMA a SMA byly porovnány s hodnotami generovanými knihovnou pro technickou analýzu TA-lib.
+\section{Ukazatelé}
+Hodnoty generované implementací ukazatelů EMA a SMA byly porovnány s hodnotami generovanými knihovnou pro technickou analýzu TA-lib.
 Pro testování byly použity různé hodnoty period a hodnot vzorků.
 Otestováno bylo také, že při zavolání konstruktoru s neplatnými parametry, je vyhozena výjimka.
 Byla zkontrolována správná indikace připravenosti indikátoru jak při zavolání metody \texttt{update} tak \texttt{is\_ready}.
@@ -1876,24 +1912,21 @@ Hlavním cílem byla kontrola dosažitelnosti, pokud náhodné generátory vygen
 \begin{lstlisting}[caption={~Testování dosažitelnosti stavů},label={lst:test:reachability},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 template<class Value, class SystematicGenerator, class RandomGenerator>
 void test_reachability(Value origin, SystematicGenerator&& sys_gen,
-    RandomGenerator&& rand_gen, std::size_t n_it)
-{
+    RandomGenerator&& rand_gen, std::size_t n_it) {
+    using map_t = std::map<Value, std::size_t>;
     std::size_t it{0};
-    using map_type = std::map<Value, std::size_t>;
-    map_type options;
+    map_t options;
 
     for (const auto& value: sys_gen())
-        options.insert(typename map_type::value_type{value, 0});
-
+        options.insert(typename map_t::value_type{value, 0});
+        
     while (it++!=n_it) {
         origin = rand_gen(origin);
         BOOST_REQUIRE(options.contains(origin));
         options[origin] += 1;
     }
-
     for (const auto& [opt, count]: options)
-        BOOST_REQUIRE(count);
-}
+        BOOST_REQUIRE(count); }
 \end{lstlisting}
 
 \section{Optimalizátory}
@@ -2014,95 +2047,8 @@ Nastavení experimentu jsou ukládána do souboru ve formátu JSON.
 Díky tomu je experiment opakovatelný, i když výsledky nemusí být stejné, alespoň to platí pro všechny heuristické optimalizátory, protože spoléhají na randomizaci.
 Všechny optimalizátory mají společné sekce nastavení.
 Obsahují informace o historických datech, převzorkování a vyhledávacím prostoru \ref{lst:common:settings}.
-
-\begin{lstlisting}[caption={~Společné části nastavení},label={lst:common:settings},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
-{
-    "candles": {
-        "count": 2160979,
-        "currency pair": {
-            "base": "ZRX",
-            "quote": "USDT"
-        },
-        "from": 1551326400,
-        "to": 1681230420
-    },
-    "optimization criterion": "prom",
-    "resampling": {
-        "averaging method": "ohlc4",
-        "period[min]": 15
-    },
-    "search space": {
-        "indicator": {
-            "period": {
-                "from": 3,
-                "step": 3,
-                "to": 105
-            },
-            "types": [
-                "sma"
-            ]
-        },
-        "levels": {
-            "count": 3,
-            "lower bound": "12/20",
-            "unique count": 15
-        },
-        "open order sizes": {
-            "unique count": 11
-        }
-    }
-}
-\end{lstlisting}
-
 Nejlepší stavy jsou uloženy jako seznam konfigurací a statistik v souboru best-states.json.
 K dispozici jsou různé statistiky, které mohou pomoci lépe porozumět chování optimalizované strategie \ref{lst:best-state}.
-
-\begin{lstlisting}[caption={~Informace uložené o nejlepším stavu},label={lst:best-state},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount]
-{
-    "configuration": {
-        "indicator": {
-            "period": 36,
-            "type": "ema"
-        },
-        "levels": ["5/6","4/6","2/6"],
-        "open sizes": ["5/7","1/7","1/7"]
-    },
-    "statistics": {
-        "close balance": {
-            "max": 78961.828125,
-            "max drawdown": {
-                "amount": -459.23828125,
-                "percent": -1.4765747785568237
-            },
-            "max run up": {
-                "amount": 68961.828125,
-                "percent": 689.6182861328125
-            },
-            "min": 10000.0
-        },
-        "equity": {
-            "max": 78961.828125,
-            "max drawdown": {
-                "amount": -11520.890625,
-                "percent": -34.7911491394043
-            },
-            "max run up": {
-                "amount": 69040.4375,
-                "percent": 695.8746337890625
-            },
-            "min": 9921.390625
-        },
-        "gross loss": -459.23828125,
-        "gross profit": 69421.0625,
-        "net profit": 68961.828125,
-        "open order counts": [24,2,0],
-        "order ratio": 1.0833333333333333,
-        "profit factor": 151.16566467285156,
-        "total close orders": 24,
-        "total open orders": 26
-    }
-},
-\end{lstlisting}
 
 Python skripty byly následně použity k vytvoření souhrnných tabulek a grafů z dat generovaných optimalizací.
 Tímto způsobem bylo následné zpracování automatizováno, což snížilo možnost udělat chybu a výrazně zkrátilo čas potřebný k vytvoření přehledových tabulek.
@@ -2438,7 +2384,7 @@ Průměrné zrychlení ve srovnání s algoritmem hrubé síly je \textbf{22,5} 
 Výsledky lze nalézt v tabulce \ref{tab:genetic:algorithm:white:box:results}.
 
 \begin{figure}[!htbp]
-\centerline{\includegraphics[scale=0.55]{img/genetic-algorithm-white-box-progress.png}}
+\centerline{\includegraphics[scale=0.65]{img/genetic-algorithm-white-box-progress.png}}
 \caption{Průběh optimalizace white-box testování genetického algoritmu}
 \label{fig:genetic:algorithm:white:box:optimization:progress}
 \end{figure}
@@ -2555,7 +2501,7 @@ Je tedy asi \textbf{2krát} pomalejší než genetický algoritmus.
 Nicméně ve výsledcích testování black-box byl genetický algoritmus překonán, protože byly nalezeny optimální konfigurace pro všechny měny v sadě (viz \ref{tab:simulated:annealing:black:box:results}).
 
 \begin{figure}[!htbp]
-\centerline{\includegraphics[scale=0.55]{img/simulated-annealing-white-box-progress.png}}
+\centerline{\includegraphics[scale=0.65]{img/simulated-annealing-white-box-progress.png}}
 \caption{Průběh optimalizace white-box testování simulovaného ochlazování}
 \label{fig:simulated:annealing:white:box:optimization:progress}
 \end{figure}

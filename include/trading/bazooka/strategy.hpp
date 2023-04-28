@@ -23,8 +23,8 @@ namespace trading::bazooka {
     class strategy : public trading::strategy {
         // must be at least one level
         static_assert(n_levels>0);
-        indicator entry_ma_;
-        indicator exit_ma_;
+        indicator entry_indic_;
+        indicator exit_indic_;
         std::array<fraction_t, n_levels> entry_levels_;
         std::size_t next_level_{0};
         static constexpr std::less_equal<> entry_comp_;
@@ -33,21 +33,21 @@ namespace trading::bazooka {
         price_t entry_value(index_t level) const
         {
             assert(level>=0 && level<n_levels);
-            auto baseline = entry_ma_.value();
+            auto baseline = entry_indic_.value();
             return baseline*fraction_cast<price_t>(entry_levels_[level]); // move baseline
         }
 
     public:
-        explicit strategy(indicator  entry_ma, indicator  exit_ma,
+        explicit strategy(indicator entry_indic, indicator exit_indic,
                 const std::array<fraction_t, n_levels>& entry_levels)
-                :entry_ma_(std::move(entry_ma)), exit_ma_(std::move(exit_ma)),
+                :entry_indic_(std::move(entry_indic)), exit_indic_(std::move(exit_indic)),
                  entry_levels_(validate_levels(entry_levels)) { }
 
         strategy() = default;
 
         bool update_indicators(price_t price)
         {
-            ready_ = entry_ma_.update(price) && exit_ma_.update(price);
+            ready_ = entry_indic_.update(price) && exit_indic_.update(price);
             return ready_;
         }
 
@@ -60,7 +60,7 @@ namespace trading::bazooka {
 
         price_t exit_value() const
         {
-            return exit_ma_.value();
+            return exit_indic_.value();
         }
 
         bool should_open(price_t curr)
@@ -82,7 +82,7 @@ namespace trading::bazooka {
         {
             // hasn't opened any positions yet
             if (!next_level_) return false;
-            auto exit = exit_ma_.value();
+            auto exit = exit_indic_.value();
 
             // exceeded the value of the exit indicator
             if (exit_comp_(curr, exit)) {
@@ -94,12 +94,12 @@ namespace trading::bazooka {
 
         const indicator& entry_indicator() const
         {
-            return entry_ma_;
+            return entry_indic_;
         }
 
         const indicator& exit_indicator() const
         {
-            return exit_ma_;
+            return exit_indic_;
         }
 
         size_t next_entry_level() const

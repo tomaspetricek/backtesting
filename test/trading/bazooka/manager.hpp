@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_SUITE(bazooka_manager_test)
         BOOST_REQUIRE_EQUAL(manager.wallet_balance(), market.wallet_balance());
         trading::price_t curr{1'000};
         BOOST_REQUIRE_EQUAL(manager.equity(curr), market.equity(curr));
-        BOOST_REQUIRE_EQUAL(manager.has_active_position(), market.has_active_position());
+        BOOST_REQUIRE_EQUAL(manager.position_active(), market.position_active());
         BOOST_REQUIRE(!manager.try_closing_active_position(trading::price_point{0, curr}));
     }
 
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_SUITE(bazooka_manager_test)
         trading::price_t curr_price{1'000.};
         BOOST_REQUIRE_EQUAL(manager.wallet_balance(), market.wallet_balance());
         BOOST_REQUIRE_EQUAL(manager.equity(curr_price), market.equity(curr_price));
-        BOOST_REQUIRE_EQUAL(manager.has_active_position(), market.has_active_position());
+        BOOST_REQUIRE_EQUAL(manager.position_active(), market.position_active());
         BOOST_REQUIRE_EQUAL(manager.position_current_profit<trading::amount>(curr_price),
                 market.position_current_profit<trading::amount>(curr_price));
         BOOST_REQUIRE_EQUAL(manager.position_current_profit<trading::percent>(curr_price),
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_SUITE(bazooka_manager_test)
         market.fill_open_order(expect_open_order);
         BOOST_REQUIRE_EQUAL(manager.wallet_balance(), market.wallet_balance());
         BOOST_REQUIRE_EQUAL(manager.equity(curr_price), market.equity(curr_price));
-        BOOST_REQUIRE_EQUAL(manager.has_active_position(), market.has_active_position());
+        BOOST_REQUIRE_EQUAL(manager.position_active(), market.position_active());
         BOOST_REQUIRE_EQUAL(manager.position_current_profit<trading::amount>(curr_price),
                 market.position_current_profit<trading::amount>(curr_price));
         BOOST_REQUIRE_EQUAL(manager.position_current_profit<trading::percent>(curr_price),
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_SUITE(bazooka_manager_test)
         market.fill_close_all_order(expect_close_all);
         BOOST_REQUIRE_EQUAL(manager.wallet_balance(), market.wallet_balance());
         BOOST_REQUIRE_EQUAL(manager.equity(curr_price), market.equity(curr_price));
-        BOOST_REQUIRE_EQUAL(manager.has_active_position(), market.has_active_position());
+        BOOST_REQUIRE_EQUAL(manager.position_active(), market.position_active());
         BOOST_REQUIRE(manager.last_closed_position()==market.last_closed_position());
     }
 BOOST_AUTO_TEST_SUITE_END()

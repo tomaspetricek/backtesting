@@ -20,19 +20,15 @@
 #include <trading/data_point.hpp>
 
 namespace trading {
-    template<class ConcreteAverager>
-    concept Averager = std::invocable<ConcreteAverager, const candle&> &&
-            std::same_as<price_t, std::invoke_result_t<ConcreteAverager, const candle&>>;
-
     class simulator {
         std::vector<price_point> prices_;
         std::vector<price_t> indic_prices_;
         std::size_t resampling_period_;
-        amount_t min_equity_{100};
+        amount_t min_equity_;
 
     public:
         simulator(const std::vector<candle>& candles, std::size_t resampling_period,
-                Averager auto&& averager, amount_t min_equity)
+                IAverager auto&& averager, amount_t min_equity)
                 :resampling_period_(resampling_period), min_equity_{min_equity}
         {
             assert(candles.size());
@@ -58,7 +54,7 @@ namespace trading {
             for (std::size_t i{0}; i<prices_.size() && trader.equity(prices_[i].data)>min_equity_; i++) {
                 (observers.decided(trader, trader(prices_[i]), prices_[i]), ...);
 
-                if (trader.has_active_position())
+                if (trader.position_active())
                     (observers.position_active(trader, prices_[i]), ...);
 
                 if (i && (i+1)%resampling_period_==0)

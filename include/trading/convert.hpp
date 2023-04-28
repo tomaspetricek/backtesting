@@ -50,7 +50,7 @@ namespace nlohmann {
                  {"gross loss",         stats.gross_loss()},
                  {"order ratio",        stats.order_ratio()},
                  {"total open orders",  stats.total_open_orders()},
-                 {"total close orders", stats.total_close_orders()},
+                 {"total close orders", stats.total_close_all_orders()},
                  {"open order counts",  stats.open_order_counts()},
                  {"win count",          stats.win_count()},
                  {"loss count",         stats.loss_count()},

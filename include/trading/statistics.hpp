@@ -108,7 +108,7 @@ namespace trading {
         motion_statistics equity_;
         profit_statistics profit_;
         std::size_t total_open_orders_{0};
-        std::size_t total_close_orders_{0};
+        std::size_t total_close_all_orders_{0};
 
         void validate_init_balance(amount_t init_balance)
         {
@@ -140,19 +140,19 @@ namespace trading {
             profit_.update(position_profit);
         }
 
-        void set_final_balance(amount_t final_balance)
+        void final_balance(amount_t final_balance)
         {
             final_balance_ = final_balance;
         }
 
-        void increase_total_open_orders()
+        void increase_total_open_order_count()
         {
             total_open_orders_++;
         }
 
-        void increase_total_close_orders()
+        void increase_total_close_all_order_count()
         {
-            total_close_orders_++;
+            total_close_all_orders_++;
         }
 
         amount_t init_balance() const
@@ -184,9 +184,9 @@ namespace trading {
             return total_open_orders_;
         }
 
-        std::size_t total_close_orders() const
+        std::size_t total_close_all_orders() const
         {
-            return total_close_orders_;
+            return total_close_all_orders_;
         }
 
         amount_t min_equity() const
@@ -255,7 +255,7 @@ namespace trading {
 
         double order_ratio() const
         {
-            return static_cast<double>(total_open_orders_)/total_close_orders_;
+            return static_cast<double>(total_open_orders_)/total_close_all_orders_;
         }
 
         std::size_t win_count() const

@@ -17,25 +17,18 @@
 #include "trading/direction.hpp"
 
 namespace trading::bazooka {
-    // to avoid use of virtual functions CRTP is used
-    // src: https://www.fluentcpp.com/2017/05/12/curiously-recurring-template-pattern/
-    template<std::size_t n_open>
+    template<std::size_t n_levels>
     class manager {
     protected:
         market market_;
-        order_sizer<n_open> open_sizer_;
+        order_sizer<n_levels> open_sizer_;
         open_order last_open_order_{};
         close_all_order last_close_all_order_{};
-
-        void reset_sizers()
-        {
-            open_sizer_.reset();
-        }
 
     public:
         manager() = default;
 
-        manager(const trading::market& market, const order_sizer<n_open>& open_sizer)
+        manager(const trading::market& market, const order_sizer<n_levels>& open_sizer)
                 :market_(market), open_sizer_(open_sizer) { }
 
         void create_open_order(const price_point& point)
@@ -48,18 +41,18 @@ namespace trading::bazooka {
 
         void create_close_all_order(const price_point& point)
         {
-            assert(market_.has_active_position());
+            assert(market_.position_active());
             trading::close_all_order order{point.data, point.time};
             market_.fill_close_all_order(order);
             last_close_all_order_ = order;
-            reset_sizers();
+            open_sizer_.reset();
         }
 
         // it closes active trade, if there is one
         bool try_closing_active_position(const price_point& point)
         {
             bool traded{false};
-            if (market_.has_active_position()) {
+            if (market_.position_active()) {
                 create_close_all_order(point);
                 traded = true;
             }
@@ -81,9 +74,9 @@ namespace trading::bazooka {
             return last_close_all_order_;
         }
 
-        bool has_active_position()
+        bool position_active()
         {
-            return market_.has_active_position();
+            return market_.position_active();
         }
 
         amount_t wallet_balance() const

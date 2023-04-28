@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_SUITE(market_test)
         trading::market market;
         BOOST_REQUIRE_EQUAL(trading::fraction_cast<double>(market.open_fee()), 0.0);
         BOOST_REQUIRE_EQUAL(trading::fraction_cast<double>(market.close_fee()), 0.0);
-        BOOST_REQUIRE(!market.has_active_position());
+        BOOST_REQUIRE(!market.position_active());
     }
 
     BOOST_AUTO_TEST_CASE(constructor_exception_test)
@@ -47,12 +47,12 @@ BOOST_AUTO_TEST_SUITE(market_test)
         trading::open_order open{2'000, 100, 0};
 
         // open position
-        BOOST_REQUIRE(!market.has_active_position());
+        BOOST_REQUIRE(!market.position_active());
         BOOST_REQUIRE_EQUAL(market.wallet_balance(), wallet.balance());
         market.fill_open_order(open);
         trading::position expect_position{open};
         wallet.withdraw(open.sold);
-        BOOST_REQUIRE(market.has_active_position());
+        BOOST_REQUIRE(market.position_active());
         BOOST_REQUIRE_EQUAL(market.wallet_balance(), wallet.balance());
         BOOST_REQUIRE_EQUAL(market.equity(open.price), wallet.balance()+expect_position.current_value(open.price));
         BOOST_REQUIRE(market.active_position()==expect_position);
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_SUITE(market_test)
         market.fill_open_order(increase);
         expect_position.increase(increase);
         wallet.withdraw(increase.sold);
-        BOOST_REQUIRE(market.has_active_position());
+        BOOST_REQUIRE(market.position_active());
         BOOST_REQUIRE_EQUAL(market.wallet_balance(), wallet.balance());
         BOOST_REQUIRE_EQUAL(market.equity(increase.price), wallet.balance()+expect_position.current_value(increase.price));
         BOOST_REQUIRE(market.active_position()==expect_position);
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_SUITE(market_test)
         trading::close_all_order close_all{300, 0};
         market.fill_close_all_order(close_all);
         wallet.deposit(expect_position.close_all(close_all));
-        BOOST_REQUIRE(!market.has_active_position());
+        BOOST_REQUIRE(!market.position_active());
         BOOST_REQUIRE_EQUAL(market.wallet_balance(), wallet.balance());
         BOOST_REQUIRE_EQUAL(market.equity(increase.price), wallet.balance());
         BOOST_REQUIRE(market.last_closed_position()==expect_position);

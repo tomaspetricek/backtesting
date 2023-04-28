@@ -22,9 +22,9 @@ namespace trading {
         fraction_t open_fee_{default_fee};
         fraction_t close_fee_{default_fee};
 
-        [[nodiscard]] inline amount_t apply_fee(amount_t a, const fraction_t& fee) const
+        [[nodiscard]] inline amount_t apply_fee(amount_t amount, const fraction_t& fee) const
         {
-            return a*fraction_cast<amount_t>(fraction_t{fee.denominator(), fee.denominator()}-fee);
+            return amount*fraction_cast<amount_t>(fraction_t{fee.denominator(), fee.denominator()}-fee);
         }
 
     public:

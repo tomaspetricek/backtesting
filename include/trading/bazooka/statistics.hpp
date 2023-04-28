@@ -21,9 +21,9 @@ namespace trading::bazooka {
 
         statistics() = default;
 
-        void increase_open_order_count(std::size_t level_idx)
+        void increase_open_order_count(std::size_t level)
         {
-            open_order_counts_[level_idx] += 1;
+            open_order_counts_[level] += 1;
         }
 
         const std::array<std::size_t, n_levels>& open_order_counts() const
@@ -48,11 +48,11 @@ namespace trading::bazooka {
                     stats_.update_close_balance(trader.wallet_balance());
                     stats_.update_equity(trader.equity(curr.data));
                     stats_.update_profit(trader.last_closed_position().template total_realized_profit<amount>());
-                    stats_.increase_total_close_orders();
+                    stats_.increase_total_close_all_order_count();
                 }
                 else if (action==action::opened) {
                     stats_.increase_open_order_count(trader.next_entry_level()-1);
-                    stats_.increase_total_open_orders();
+                    stats_.increase_total_open_order_count();
                 }
             }
 
@@ -68,7 +68,7 @@ namespace trading::bazooka {
             template<class Trader>
             void finished(const Trader& trader, const price_point&)
             {
-                stats_.set_final_balance(trader.wallet_balance());;
+                stats_.final_balance(trader.wallet_balance());;
             }
 
             const auto& get() const

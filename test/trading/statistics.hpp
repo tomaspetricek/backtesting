@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE(statistics_test)
         BOOST_REQUIRE_EQUAL(stats.total_profit<trading::amount>(), 0.0);
         BOOST_REQUIRE_EQUAL(stats.total_profit<trading::percent>(), 0.0);
         BOOST_REQUIRE_EQUAL(stats.total_open_orders(), 0);
-        BOOST_REQUIRE_EQUAL(stats.total_close_orders(), 0);
+        BOOST_REQUIRE_EQUAL(stats.total_close_all_orders(), 0);
 
         BOOST_REQUIRE_EQUAL(stats.min_equity(), init_balance);
         BOOST_REQUIRE_EQUAL(stats.max_equity(), init_balance);
@@ -63,20 +63,20 @@ BOOST_AUTO_TEST_SUITE(statistics_test)
         std::mt19937 gen{std::random_device{}()};
         auto coin_flip = std::uniform_int_distribution<int>(0, 1);
         BOOST_REQUIRE_EQUAL(stats.total_open_orders(), expect_open_order_count);
-        BOOST_REQUIRE_EQUAL(stats.total_close_orders(), expect_close_order_count);
+        BOOST_REQUIRE_EQUAL(stats.total_close_all_orders(), expect_close_order_count);
         BOOST_REQUIRE(stats.order_ratio()!=static_cast<double>(expect_open_order_count)/expect_close_order_count);
 
         for (std::size_t i{0}; i<10; i++) {
             if (coin_flip(gen)) {
-                stats.increase_total_open_orders();
+                stats.increase_total_open_order_count();
                 expect_open_order_count++;
             }
             else {
-                stats.increase_total_close_orders();
+                stats.increase_total_close_all_order_count();
                 expect_close_order_count++;
             }
             BOOST_REQUIRE_EQUAL(stats.total_open_orders(), expect_open_order_count);
-            BOOST_REQUIRE_EQUAL(stats.total_close_orders(), expect_close_order_count);
+            BOOST_REQUIRE_EQUAL(stats.total_close_all_orders(), expect_close_order_count);
             BOOST_REQUIRE(stats.order_ratio()==static_cast<double>(expect_open_order_count)/expect_close_order_count);
         }
     }
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_SUITE(statistics_test)
         BOOST_REQUIRE_EQUAL(stats.total_profit<trading::amount>(), 0.0);
         BOOST_REQUIRE_EQUAL(stats.total_profit<trading::percent>(), 0.0);
 
-        stats.set_final_balance(final_balance);
+        stats.final_balance(final_balance);
         BOOST_REQUIRE_EQUAL(stats.init_balance(), init_balance);
         BOOST_REQUIRE_EQUAL(stats.final_balance(), final_balance);
         BOOST_REQUIRE_EQUAL(stats.total_profit<trading::amount>(), final_balance-init_balance);

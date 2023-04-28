@@ -21,7 +21,8 @@ namespace trading::bazooka {
         explicit indicator(value_type data)
                 :data_(std::move(data)) { }
 
-        indicator& operator=(const value_type& src) {
+        indicator& operator=(const value_type& src)
+        {
             data_ = src;
             return *this;
         }
@@ -55,6 +56,13 @@ namespace trading::bazooka {
         const auto& data()
         {
             return data_;
+        }
+
+        bool is_ready() const
+        {
+            return std::visit([](auto& indic) {
+                return indic.is_ready();
+            }, data_);
         }
     };
 }

@@ -1,3 +1,86 @@
-\chapter{Nějaká příloha}
+\chapter{Přílohy}
+\begin{lstlisting}[caption={~Společné části nastavení},label={lst:common:settings},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+{
+    "candles": {
+        "count": 2160979,
+        "currency pair": {
+            "base": "ZRX",
+            "quote": "USDT"
+        },
+        "from": 1551326400,
+        "to": 1681230420
+    },
+    "optimization criterion": "prom",
+    "resampling": {
+        "averaging method": "ohlc4",
+        "period[min]": 15
+    },
+    "search space": {
+        "indicator": {
+            "period": {
+                "from": 3,
+                "step": 3,
+                "to": 105
+            },
+            "types": [
+                "sma"
+            ]
+        },
+        "levels": {
+            "count": 3,
+            "lower bound": "12/20",
+            "unique count": 15
+        },
+        "open order sizes": {
+            "unique count": 11
+        }
+    }
+}
+\end{lstlisting}
 
-Sem přijde to, co nepatří do hlavní části.
+\begin{lstlisting}[caption={~Informace uložené o nejlepším stavu},label={lst:best-state},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount]
+{
+    "configuration": {
+        "indicator": {
+            "period": 36,
+            "type": "ema"
+        },
+        "levels": ["5/6","4/6","2/6"],
+        "open sizes": ["5/7","1/7","1/7"]
+    },
+    "statistics": {
+        "close balance": {
+            "max": 78961.828125,
+            "max drawdown": {
+                "amount": -459.23828125,
+                "percent": -1.4765747785568237
+            },
+            "max run up": {
+                "amount": 68961.828125,
+                "percent": 689.6182861328125
+            },
+            "min": 10000.0
+        },
+        "equity": {
+            "max": 78961.828125,
+            "max drawdown": {
+                "amount": -11520.890625,
+                "percent": -34.7911491394043
+            },
+            "max run up": {
+                "amount": 69040.4375,
+                "percent": 695.8746337890625
+            },
+            "min": 9921.390625
+        },
+        "gross loss": -459.23828125,
+        "gross profit": 69421.0625,
+        "net profit": 68961.828125,
+        "open order counts": [24,2,0],
+        "order ratio": 1.0833333333333333,
+        "profit factor": 151.16566467285156,
+        "total close orders": 24,
+        "total open orders": 26
+    }
+},
+\end{lstlisting}

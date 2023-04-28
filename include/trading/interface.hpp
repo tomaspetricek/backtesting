@@ -6,6 +6,7 @@
 #define BACKTESTING_INTERFACE_HPP
 
 #include <concepts>
+#include <trading/candle.hpp>
 
 namespace trading {
     namespace genetic_algorithm {
@@ -129,6 +130,10 @@ namespace trading {
         { result.update(candidate) } -> std::same_as<void>;
         { result.get() };
     };
+
+    template<class ConcreteAverager>
+    concept IAverager = std::invocable<ConcreteAverager, const candle&> &&
+            std::same_as<price_t, std::invoke_result_t<ConcreteAverager, const candle&>>;
 }
 
 #endif //BACKTESTING_INTERFACE_HPP
