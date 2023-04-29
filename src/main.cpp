@@ -183,8 +183,8 @@ std::array<std::string, 4> optimizer_names{
 int main()
 {
     constexpr std::size_t n_levels{3};
-    using state_type = trading::bazooka::state<n_levels>;
-    using config_type = state_type::config_type;
+    using state_t = trading::bazooka::state<n_levels>;
+    using config_t = state_t::config_type;
 
     std::string experiment_set_name = "remove";
     auto optim_tag = optimizer_tag::brute_force;
@@ -290,23 +290,23 @@ int main()
         }});
 
         // create result
-        enumerative_result<state_type, maximization> result{10, maximization()};
-        auto constraints = [](const state_type& curr) { return curr.stats.net_profit()>0.0; };
+        enumerative_result<state_t, maximization> result{10, maximization()};
+        auto constraints = [](const state_t& curr) { return curr.stats.net_profit()>0.0; };
         auto optim_criterion = prom_criterion{};
         settings.emplace(json{"optimization criterion", decltype(optim_criterion)::name()});
 
         // create objective
-        auto objective = [&](const config_type& curr) {
+        auto objective = [&](const config_t& curr) {
             bazooka::statistics<n_levels>::collector collector{};
             simulator(create_trader(curr), collector);
             auto stats = collector.get();
             auto optim_val = optim_criterion(stats);
 //            if (optim_val<=0.0) optim_val = 0.0;
-            return state_type{{curr, optim_val}, stats};
+            return state_t{{curr, optim_val}, stats};
         };
 
         if (optim_tag==optimizer_tag::brute_force) {
-            brute_force::parallel::optimizer<state_type> optimizer{};
+            brute_force::parallel::optimizer<state_t> optimizer{};
 
             // create generators
             systematic::levels_generator<n_levels> sys_levels{levels_unique_count, levels_lower_bound};
@@ -314,12 +314,12 @@ int main()
             systematic::int_range_generator sys_periods{period_from, period_to, period_step};
 
             // create search space
-            auto search_space = [&]() -> cppcoro::generator<config_type> {
+            auto search_space = [&]() -> cppcoro::generator<config_t> {
                 for (std::size_t period: sys_periods())
                     for (const auto& tag: tags)
                         for (const auto& levels: sys_levels())
                             for (const auto& open_sizes: sys_sizes())
-                                co_yield config_type{tag, period, levels, open_sizes};
+                                co_yield config_t{tag, period, levels, open_sizes};
             };
 
             std::size_t period_count, tag_count, levels_count, sizes_count;
@@ -353,7 +353,7 @@ int main()
 
             if (optim_tag==optimizer_tag::simulated_annealing) {
                 double start_temp{94}, min_temp{12};
-                trading::simulated_annealing::optimizer<state_type> optimizer{start_temp, min_temp};
+                trading::simulated_annealing::optimizer<state_t> optimizer{start_temp, min_temp};
                 auto cooler = trading::simulated_annealing::basic_cooler{};
                 auto equilibrium = trading::simulated_annealing::temperature_based_equilibrium{{75, 100}};
 
@@ -367,19 +367,19 @@ int main()
                 bazooka::neighbor<n_levels> neighbor{rand_levels, rand_sizes, rand_period};
                 bazooka::configuration<n_levels> init{tags[0], static_cast<std::size_t>(rand_period()), rand_levels(),
                                                       rand_sizes()};
-                auto appraise = [](const state_type& current, const state_type& candidate) -> double {
+                auto appraise = [](const state_t& current, const state_t& candidate) -> double {
                     return current.value-candidate.value;
                 };
 
                 simulated_annealing::progress_collector progress_observer;
                 simulated_annealing::progress_reporter reporter{logger};
-                config_type next;
+                config_t next;
 
                 // optimize
                 *logger << "began: " << boost::posix_time::second_clock::local_time() << std::endl;
                 duration = measure_duration([&]() {
                     optimizer(init, result, constraints, objective, cooler,
-                            [&](const config_type& genes) {
+                            [&](const config_t& genes) {
                                 std::tie(next, std::ignore) = neighbor(genes);
                                 return next;
                             },
@@ -418,7 +418,7 @@ int main()
                 }});
 
                 // generate init population
-                std::vector<config_type> init_genes;
+                std::vector<config_t> init_genes;
                 init_genes.reserve(init_genes_count);
                 for (std::size_t i{0}; i<init_genes_count; i++)
                     init_genes.emplace_back(rand_genes());
@@ -428,13 +428,13 @@ int main()
                 genetic_algorithm::progress_observers observers{progress_collector, reporter};
 
                 auto neighbor = bazooka::neighbor<n_levels>{rand_levels, rand_sizes, rand_period};
-                auto mutation = [&](const config_type& genes) {
-                    config_type next;
+                auto mutation = [&](const config_t& genes) {
+                    config_t next;
                     std::tie(next, std::ignore) = neighbor(genes);
                     return next;
                 };
 
-                genetic_algorithm::optimizer<state_type> optimizer;
+                genetic_algorithm::optimizer<state_t> optimizer;
 
                 *logger << "began: " << boost::posix_time::second_clock::local_time() << std::endl;
                 duration = measure_duration([&]() {
@@ -477,7 +477,7 @@ int main()
 
                 tabu_search::progress_collector collector;
                 tabu_search::progress_reporter reporter{logger};
-                tabu_search::optimizer<state_type, move_t, memory_t> optimizer{memory};
+                tabu_search::optimizer<state_t, move_t, memory_t> optimizer{memory};
                 auto aspiration = [&](const auto& candidate, const auto& optimizer) -> bool {
                     return result.compare(candidate, optimizer.best_state());
                 };
