@@ -5,21 +5,21 @@
 \chapter*{Úvod}\addcontentsline{toc}{chapter}{Úvod}\markboth{Úvod}{Úvod}
 %---------------------------------------------------------------
 \setcounter{page}{1}
-Lze obchodovat různá aktiva, jako jsou akcie, kryptoměny nebo indexy, nicméně hlavní cíl zůstává stejný, využít změny tržních cen k maximalizaci zisku a zároveň minimalizovat riziko ztráty.
-Pro dosažení konzistentních zisků systematickým způsobem bylo vyvinuto algoritmické obchodování, které využívá počítačově naprogramované strategie pro dělání obchodních rozhodnutí na základě jasně definovaných podmínek.
-Nejsou svázáni stejnými omezeními jako lidští obchodníci, necítí únavu a nenechají se svést emocemi.
+Obchodovat lze různá aktiva, jako jsou akcie, kryptoměny nebo indexy, nicméně hlavní cíl zůstává stejný, využít změny tržních cen k maximalizaci zisku a zároveň minimalizovat riziko ztráty.
+Pro dosažení konzistentních zisků systematickým způsobem bylo vyvinuto algoritmické obchodování, které využívá počítačově naprogramované strategie pro obchodní rozhodnutí na základě jasně definovaných podmínek.
+Tyto strategie nejsou svázány stejnými omezeními jako lidští obchodníci, necítí únavu a nenechají se svést emocemi.
 
 Mohou být také zpětně testovány na historických tržních datech, aby bylo možné vyhodnotit jejich výkonnost a najít slabá místa.
 Strategie jsou většinou parametrizované a hledání optimálních parametrů je NP-těžký problém.
 K nalezení nejlepšího nastavení lze použít algoritmus hrubé síly, který je však v praxi většinou nepoužitelný, protože nenajde vhodné nastavení v dostatečně krátkém čase.
 
 Použití heuristických přístupů se v tomto případě jeví jako přirozené, nicméně existuje pouze pár platforem, které je nabízejí.
-Možným vysvětlením, proč nejsou běžně dostupné, je, že existuje velké množství různých algoritmických strategií, které vyžadují odlišně parametrizované vyhledávací prostory, což implementaci značně ztěžuje.
-Zároveň je těžší je vysvětlit než algoritmus hrubé síly.
+Možným vysvětlením, proč nejsou běžně dostupné je, že existuje velké množství různých algoritmických strategií, které vyžadují odlišně parametrizované vyhledávací prostory, což implementaci značně ztěžuje.
+Oproti algoritmu hrubé síly jsou obtížněji vysvětlitelné.
 
 Cílem této práce je implementovat vybranou algoritmickou obchodní strategii a pomocí heuristických přístupů spolehlivě a rychle najít její optimální parametry.
-V rámci toho získat lepší porozumění algoritmickému obchodování a více zkušeností s implementací, používáním a laděním heuristik.
-Ideálně vytvořit dobrý základ pro budoucí práci.
+V rámci toho lze získat lepší porozumění algoritmickému obchodování a více zkušeností s implementací, používáním a laděním heuristik.
+Ideálně je možné vytvořit dobrý základ pro budoucí práci.
 
 % popsat optimalizační kritérium
 \chapter{Kombinatorická optimalizace}
@@ -32,7 +32,7 @@ Problémy lze dělit na minimalizační a maximalizační podle toho, zda je cí
 Vyhledávací prostor se skládá ze sady proměnných označovaných jako konfigurační proměnné.
 Pro získání platných řešení mohou být použita omezení \cite{kirkpatrik, peres}.
 
-\textit{Kombinatorické optimalizační problémy} jsou definované pomocí diskrétních konfiguarčních proměnných.
+\textit{Kombinatorické optimalizační problémy} jsou definovány pomocí diskrétních konfiguračních proměnných.
 Jelikož je množina přeskupení těchto proměnných konečná, je konečná i množina řešení.
 Problémy obvykle spadají do kategorie \textit{NP-těžkých} problémů \cite{peres}.
 
@@ -46,11 +46,11 @@ Obtížnost problému lze měřit pomocí \textit{výpočetní složitosti}, kte
 Výhodou je, že je nezávislá na hardwaru a umožňuje srovnání algoritmů \cite{peres}.
 
 Problémy lze podle efektivity jejich řešení rozdělit do tříd.
-Pokud je doba jejich běhu vázána na polynomiální funkci: $O(n^c)$, kde $c$ je nějaká konstanta a $n$ je velikost vstupu, jsou považovány za efektivní.
+Pokud je doba jejich běhu vázána na polynomiální funkci: $O(n^c)$, kde $c$ je nějaká konstanta a $n$ je velikost vstupu, jsou algoritmy považovány za efektivní.
 Ne všechny problémy však lze efektivně vyřešit.
-Pokud problém patří do třídy \textit{NP-těžký}, je domníváno, že neexistuje žádný efektivní algoritmus k jeho řešení \cite{erickson}.
+Pokud problém patří do třídy \textit{NP-těžký} předpokládá se, že neexistuje žádný efektivní algoritmus k jeho řešení \cite{erickson}.
 
-Rozhodovací problémy, jejichž výstupem je booleanovská hodnota, lze zařadit do 3 tříd.
+Rozhodovací problémy, jejichž výstupem je booleanovská hodnota, lze zařadit do tří tříd.
 Do třídy \textit{P} patří problémy, které lze vyřešit v polynomiálním čase.
 Pokud lze odpověď \textit{ano} na problém ověřit v polynomiálním čase, patří do třídy \textit{NP}, což znamená nedeterministický polynomiální.
 Pokud lze odpověď \textit{ne} ověřit v polynomiálním čase, tak patří do třídy \textit{co-NP}, která je komplementární třídě NP.
@@ -61,7 +61,7 @@ Nicméně to nebylo nikdy dokázáno, a protože jde o jeden z problémů tisíc
 Jestli NP a co-NP patří do stejné třídy také není známo \cite{erickson}.
 
 Problém je NP-těžký, pokud by nalezení algoritmu, který jej řeší v polynomiálním čase, znamenalo existenci polynomiálního časového algoritmu pro každý problém v NP.
-Aby problém patřil mezi NP-těžkým problémy, musí být alespoň tak těžký jako každý problém v NP.
+Aby problém patřil mezi NP-těžké problémy, musí být alespoň tak těžký jako každý problém v NP.
 Pokud je problém NP-těžký a zároveň NP, pak je nazýván NP-úplný.
 Polynomiální algoritmus pro jeden NP-úplný problém by znamenal polynomiální algoritmus pro všechny NP-úplné problémy \cite{erickson}.
 Schéma všech zmíněných tříd složitosti lze vidět na obrázku \ref{fig:complexity-classes}.
@@ -78,23 +78,25 @@ Heuristická metoda je postup, který umožňuje nalézt rozumně dobré řešen
 Metody jsou často iterativní, počínaje počátečním řešením, které se během každé iterace snaží vylepšit.
 Po uplynutí přiměřeně dlouhé doby je proces optimalizace ukončen a nejlepší řešení vráceno \cite{kaveh}.
 
-Termín \textit{metaheuristika} byl zaveden v roce 1986 a skládá se ze dvou slov meta znamenající vyšší úroveň abstrakce a heuristiky znamenající umění objevovat pravidla k řešení problému.
+Termín \textit{metaheuristika} byl zaveden v roce 1986.
+Skládá se ze dvou slov meta znamenající vyšší úroveň abstrakce a heuristiky znamenající umění objevovat pravidla k řešení problému.
 Jsou to strategie, které využívají vyšší úroveň abstrakce spolu s heuristikou k prohledávání stavového prostoru s cílem nalezení nejlepšího řešení.
 Jednou z jejich hlavních výhod je, že jsou nezávislé na daném problému.
 Díky tomu nalezly uplatnění v různých oborech jako je lékařství, aplikovaná matematika, strojírenství nebo ekonomie \cite{kaveh, peres}.
 
 Při prohledávání stavového prostoru je klíčové vyvážit fáze průzkumu (exploration) a vytěžování (exploitation).
-Průzkum slouží jako prostředek pro \textit{diverzifikaci}, cílem je najít slibné oblasti s vysoce kvalitními řešeními.
+Průzkum slouží jako prostředek pro \textit{diverzifikaci}.
+Cílem je najít slibné oblasti s vysoce kvalitními řešeními.
 Jakmile je oblast identifikována, přistoupí se k vytěžování, kdy je hledání v dané oblasti zintenzivněno \cite{peres}.
 
-Metaheuristiky lze dělit do 2 kategorií na algoritmy založené na jediném řešení nebo na populaci.
+Metaheuristiky lze dělit do dvou kategorií na algoritmy založené na jediném řešení nebo na populaci.
 Metaheuristiky založené na jednom řešení začínají s jedinou kandidátní konfigurací, kterou se snaží postupem času vylepšovat pomocí místního vyhledávání.
 Nevýhodou těchto technik je, že mohou snadno uvíznout v lokálním optimu.
-Patří mezi ně: tabu prohledávání, simulované ochlazování nebo řízené místní vyhledávání \cite{katoch}.
+Patří mezi ně tabu prohledávání, simulované ochlazování nebo řízené místní vyhledávání \cite{katoch}.
 
 Na druhé straně metaheuristiky založené na populaci používají během vyhledávání více konfigurací.
 Díky tomu je zachována diverzita, která ztěžuje uvíznutí v lokálním optimu.
-Zahrnuje algoritmy, jako jsou: genetický algoritmus, optimalizace roje částic a optimalizace mravenčích kolonií \cite{katoch}.
+Zahrnuje algoritmy, jako jsou genetický algoritmus, optimalizace roje částic a optimalizace mravenčích kolonií \cite{katoch}.
 
 \subsection{Simulované ochlazování}
 Simulované ochlazovaní bylo vytvořeno v roce 1982.
