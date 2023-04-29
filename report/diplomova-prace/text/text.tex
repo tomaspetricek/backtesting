@@ -1021,7 +1021,7 @@ percent_t total_profit() const
 Všechny statistiky související se ziskem jsou sledovány pomocí instance \texttt{profit\_statistics}, které lze použít k získání hrubého zisku, hrubé ztráty nebo faktoru zisku.
 Dále jsou sledovány statistiky související s pohybem pomocí \texttt{motion\_statistics}, které poskytují minimální a maximální hodnotu, maximální vzestupný a sestupný pohyb.
 Vzestupný pohyb je sledován pomocí \texttt{run\_up\_tracker} a sestupný pomocí \texttt{drawdown\_tracker}.
-Tím to způsobem jsou sledovány čistá hodnota a zůstatek po uzavření pozice.
+Tímto způsobem je sledována čistá hodnota a zůstatek po uzavření pozice.
 
 Do třídy \texttt{bazooka::statistics} byl přidán čítač otevíracích objednávek pro jednotlivé nákupní úrovně.
 Nese informace o tom, kolikrát bylo dosaženo jednotlivých úrovní nákupu, a může tak pomoci lépe porozumět tomu, jak se strategie chová.
@@ -1033,10 +1033,11 @@ Nese informace o tom, kolikrát bylo dosaženo jednotlivých úrovní nákupu, a
 \end{figure}
 
 \chapter{Generátory stavového prostoru}
-Pro optimalizaci byly vybrány 4 konfigurační proměnné: typ a perioda ukazatele, úrovně a velikosti nákupů.
-Hodnoty proměnných lze generovat buď systematicky, nebo náhodně.
+Pro optimalizaci byly vybrány čtyři konfigurační proměnné: typ a perioda ukazatele, úrovně a velikosti nákupů.
+Hodnoty proměnných lze generovat buď systematicky nebo náhodně.
 Důležitým aspektem, který bylo nutné dodržet, bylo, že obě verze generátorů musí generovat hodnoty ze stejného vyhledávacího prostoru, jinak by byly výsledky jednotlivých optimalizačních metod nesrovnatelné.
-Generátory sdílejí společné rozhraní, jakmile jsou vytvořeny, lze je použít voláním volacího operátoru třídy.
+Generátory sdílejí společné rozhraní.
+Jakmile jsou vytvořeny, lze je použít voláním volacího operátoru třídy.
 
 Náhodné generátory mají volací operátor přetížen.
 Specializace přebírá argument představující počáteční hodnotu, která je používaná při generování následující hodnoty.
@@ -1046,8 +1047,8 @@ Na druhou stranu systematické generátory vracejí stejné hodnoty právě jedn
 
 
 \section{Typ ukazatele}
-Typ ukazatele je reprezentován enumerační třídou \texttt{indicator\_tag} se 2 možnými hodnotami: \texttt{indicator\_tag::ema} a \texttt{indicator\_tag::sma}.
-Jediný způsob, jak parametrizovat tuto proměnnou, je použít buď jednu z hodnot, nebo obě.
+Typ ukazatele je reprezentován enumerační třídou \texttt{indicator\_tag} se dvěma možnými hodnotami \texttt{indicator\_tag::ema} a \texttt{indicator\_tag::sma}.
+Jediný způsob, jak parametrizovat tuto proměnnou, je použít buď jednu z hodnot nebo obě.
 Hodnoty jsou stejného typu, takže je lze uložit do pole.
 Jelikož je jeho velikost malá a maximální velikost je známa v době kompilace, tak lze použít \texttt{etl::vector} k uložení hodnot pro generování.
 Hodnoty lze náhodně rovnoměrně generovat pomocí instance třídy \texttt{std::uniform\_int\_distribution}.
@@ -1075,8 +1076,8 @@ int operator()()
 
 Při generování periody z počátku $o$ používá generátor navíc parametr rozpětí změny $k\in[1,\frac{n}{2}]$.
 Například, když $f=1$, $t=5$, $s=1$, $o=3$ a $k=1$, pak jsou všechny možné výstupní hodnoty periody $ p_o \in [o-(k\cdot s), o+(k\cdot s)]=[2, 4]$.
-Na okrajích intervalu, kdy mohou být hodnoty generovány z 2 podintervalů. Například, když $f=1$, $t=5$, $s=1$ a $k=1$, pak jsou všechny možné výstupní periody $p_o \in [1, 2] \cup [5, 5]$.
-Jelikož jsou periody generovány pomocí datového typu integer, který může nabývat i záporných hodnot, lze nejprve vygenerovat hodnotu $ w \in [o-(k\cdot s), o+(k\cdot s)]$, výslednou periodu získat $(w<p_{min}\implies(p_o=w+(n*|s|))) \land (w>p_{max}\implies(p_o=w-(n*|s|))) \land (w \in [p_{min}, p_{max}]\implies p_o=w)$ (viz \ref{lst:random:int:range:generator:origin}).
+Na okrajích intervalu, kdy mohou být hodnoty generovány ze dvou podintervalů. Například, když $f=1$, $t=5$, $s=1$ a $k=1$, pak jsou všechny možné výstupní periody $p_o \in [1, 2] \cup [5, 5]$.
+Jelikož jsou periody generovány pomocí datového typu integer, který může nabývat i záporných hodnot, lze nejprve vygenerovat hodnotu $ w \in [o-(k\cdot s), o+(k\cdot s)]$ a výslednou periodu získat $(w<p_{min}\implies(p_o=w+(n*|s|))) \land (w>p_{max}\implies(p_o=w-(n*|s|))) \land (w \in [p_{min}, p_{max}]\implies p_o=w)$ (viz \ref{lst:random:int:range:generator:origin}).
 
 \begin{lstlisting}[caption={~Metoda pro náhodné generování periody z počátku},label={lst:random:int:range:generator:origin},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 int operator()(int origin)
@@ -1187,7 +1188,7 @@ Pro $n=3$, $u=3$ jsou všechny možné platné sekvence: $\{\frac{1}{5}, \frac{1
 \subsection{Systematické generování}
 Velikosti nákupů jsou systematicky generovány pomocí třídy \texttt{systematic::sizes\_generator} podobně jako úrovně nákupů (viz \ref{lst:systematic:sizes_generator}).
 Opět je použita rekurze, každá smyčka \texttt{for} předává součet zbývajících čitatelů následující smyčce.
-Maximální současný čitatel má buď hodnotu maximálního čitatele, nebo součet zbývajících čitatelů snížený o 1.
+Maximální současný čitatel má buď hodnotu maximálního čitatele nebo součet zbývajících čitatelů snížený o jedna.
 
 \begin{lstlisting}[caption={~Metody pro systematické generování velikostí nákupu},label={lst:systematic:sizes_generator},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 cppcoro::recursive_generator<value_type> operator()()
@@ -1220,7 +1221,7 @@ cppcoro::recursive_generator<value_type> generate(std::size_t remaining)
 Generování náhodných velikostí nákupu je implementováno třídou \texttt{random::sizes\_generator}.
 Bez počátku se provádí nejprve promícháním indexů výstupní sekvence (viz \ref{lst:random:sizes:generator}).
 Následně je zavolána metoda \texttt{fill\_rest}, která doplní chybějící velikosti nákupu, v tomto případě všechny.
-Ve smyčce se nejprve vygeneruje velikost nákupu z intervalu od minimální po aktuální maximální možnou velikost a poté jsou přiřazeny na příslušný index.
+Ve smyčce se nejprve vygeneruje velikost nákupu z intervalu od minimální po aktuální maximální možnou velikost, a poté jsou přiřazeny na příslušný index.
 Následuje snížení celkové zbývající velikosti nákupu a aktualizace aktuální maximální velikosti nákupu.
 Cyklus končí, když jsou přiřazeny všechny velikosti nákupu kromě poslední, které je přiřazen zbytek.
 
@@ -1279,13 +1280,13 @@ Zobecnění bylo dosaženo pomocí konceptů, které kontrolují rozhraní před
 Samotné optimalizátory mají pouze několik atributů, které by měly být společné pro všechny možné problémy.
 Další části algoritmu jsou dodány při samotném volání instance třídy.
 
-Pro sledování průběhu heuristických optimalizací se používají objekty pozorovatele, které jsou upozorňovány na události, ke kterým při optimalizaci dochází.
+Pro sledování průběhu heuristických optimalizací se používají pozorovatelé, které jsou upozorňováni na události, ke kterým při optimalizaci dochází.
 Průběh optimalizace mohou hlásit nebo ukládat.
 Příkladem události, která může nastat během optimalizace simulovaného ochlazování, je snížení teploty nebo přijetí lepšího stavu.
-Pozorovatelé jsou předány jako poslední parametr při volání optimalizátoru a jsou uloženy jako sada parametrů šablony.
+Pozorovatelé jsou předáni jako poslední parametr při volání optimalizátoru a jsou uloženi jako sada parametrů šablony.
 Tímto způsobem lze přijmout víc než jeden pozorovatel nebo žádný.
 
-Všechny optimalizátory používají objektivní funkci, která nejprve přijme konfiguraci, spustí historickou simulaci, během níž se shromažďují statistiky výkonu, vypočítá hodnotu optimalizačního kritéria a vrátí stav (viz \ref{lst:objective:function}).
+Všechny optimalizátory používají objektivní funkci, která nejprve přijme konfiguraci, spustí historickou simulaci, během níž se shromažďují výkonnostní statistiky, vypočítá se hodnota optimalizačního kritéria a je vrácen stav (viz \ref{lst:objective:function}).
 Omezení kontroluje samotný optimalizátor a nejlepší stavy se shromažďují pomocí třídy s výsledky, která je porovnává na základě uložené hodnoty optimalizačního kritéria.
 
 \begin{lstlisting}[caption={~Implementace objektivní funkce},label={lst:objective:function},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
@@ -1370,9 +1371,9 @@ void operator()(SimulatedAnnealing& optimizer)
 
 Algoritmus pro nalezení náhodného souseda je implementován třídou \texttt{bazooka::neighbor}.
 Ke generování sousední konfigurace využívá náhodné generátory, které na základě aktuální hodnoty generují následující hodnotu.
-Náhodně je vždy změněn pouze 1 konfigurační parametr.
+Náhodně je vždy změněn pouze jeden konfigurační parametr.
 
-Pro určení počtu prohledávaných sousedů byly implementovány 2 algoritmy.
+Pro určení počtu prohledávaných sousedů byly implementovány dva algoritmy.
 Jednodušší z nich \texttt{simulated\_annealing::fixed\_equilibrium} vždy vrací stejný počet sousedů.
 Během experimentální fáze byl přidán \texttt{simulated\_annealing::temperature\_base\_equilibrium}, který vypočítává aktuální počet iterací pomocí $N=m \cdot T_{curr}$, kde $m\geq 0$ je multiplákátor a $T_{curr}$ je současná teplota.
 
