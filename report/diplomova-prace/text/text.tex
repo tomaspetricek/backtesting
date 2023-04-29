@@ -102,7 +102,7 @@ Zahrnuje algoritmy, jako jsou genetický algoritmus, optimalizace roje částic 
 Simulované ochlazovaní bylo vytvořeno v roce 1982.
 Heuristika je založena na procesu žíhání pevné látky.
 Účelem žíhání je donutit materiál se dostat do nízkoenergetického stavu, jako je krystal.
-Proces spočívá v tom, že je materiál nejprve zahřán, což umožňuje vytvoření mnoha atomových přeskupení, a poté pomalu chlazen.
+Proces spočívá v tom, že je materiál nejprve zahřát, což umožňuje vytvoření mnoha atomových přeskupení, a poté pomalu chlazen.
 Na začátku existuje mnoho atomových uspořádání, ale postupem času při správném chlazení přetrvají jen ty dobré \cite{rutenbar}.
 
 Algoritmus začíná s počáteční stavem $S_{init}$ a snaží se jej postupně vylepšit.
@@ -112,7 +112,7 @@ Každý krok je ohodnocen změnou energie $\Delta E$.
 Je-li zlepšující $\Delta E\leq0$ nahradí $S_{curr}$, pokud je horší $\Delta E>0$ může být stále přijat.
 Pravděpodobnost přijetí horšího stavu je  vypočítána pomocí $p_a = e^{\frac{-\Delta E}{T_{curr}}}$, kde $T_{curr}>0$ je současná teplota.
 Stav je přijat, pokud platí $r<p_a$, kde $r$ je náhodné číslo z $ Unif(0, 1)$.
-Pravděpodobnost přijetí horšího stavu se s snižuje s $T_{curr}$, nicméně je vždy nenulová \cite{rutenbar, kirkpatrik}.
+Pravděpodobnost přijetí horšího stavu se snižuje s $T_{curr}$, nicméně je vždy nenulová \cite{rutenbar, kirkpatrik}.
 
 Na konci každé iterace se $T_{curr}$ sníží.
 Její průběh je řízen pomocí \textit{rozvrhu ochlazování}.
@@ -122,7 +122,7 @@ Na závěr vede k intenzifikaci připomínající metodu iterativního zlepšov�
 Na každé teplotě musí zůstat dostatečně dlouho, aby bylo dosaženo ustáleného stavu zvaném \textit{equilibrium} \cite{rutenbar, kirkpatrik}.
 
 Algoritmus je ukončen, pokud platí $T_{curr}\leq T_{min}$.
-Pro použití heuristiky je třeba implementovat: konfiguraci představující nastavení systému, náhodný generátor sousedních konfigurací, objektivní funkci a rozvrh ochlazování \cite{kirkpatrik}.
+Pro použití heuristiky je třeba implementovat konfiguraci představující nastavení systému, náhodný generátor sousedních konfigurací, objektivní funkci a rozvrh ochlazování \cite{kirkpatrik}.
 Pseudokód algoritmu lze vidět na \ref{alg:simulated:annealing}, kde $S_{best}$ označuje nejlepší stav a $S_{cand}$ kandidátní stav.
 
 \begin{algorithm}
@@ -152,7 +152,8 @@ Pseudokód algoritmu lze vidět na \ref{alg:simulated:annealing}, kde $S_{best}$
 \end{algorithm}
 
 V tabulce \ref{tab:cooling:schedules} jsou uvedeny rozvrhy chlazení ze srovnávajícího článku \cite{cooling-comparison}, které byly implementovány v praktické části.
-Všechny generují konečnou sekvenci klesajících teplot, liší se však časem potřebným pro jejich výpočet a samotný průběhem.
+Všechny generují konečnou sekvenci klesajících teplot.
+Liší se však časem potřebným pro jejich výpočet a samotný průběhem.
 Všechny používají $T_{init}$ a hodnotu aktuální iterace $i\geq 0$ k výpočtu $T_{curr}$.
 Některé jsou navíc parametrizovány pomocí parametru rozpadu $\alpha$, jehož rozsah platných hodnot je rovněž uveden.
 
@@ -179,7 +180,7 @@ Byla navržena v roce 1992.
 Stavy jsou označovány jako jedinci.
 Množina jedinců je nazývána populace.
 Objektivní funkce se označuje jako fitness funkce a slouží k přiřazení zdatnosti jednotlivým jedincům.
-Algoritmus používá 3 biologicky inspirované operátory: \textit{selekci}, \textit{křížení} a \textit{mutaci} \cite{katoch}.
+Algoritmus používá tři biologicky inspirované operátory: \textit{selekci}, \textit{křížení} a \textit{mutaci} \cite{katoch}.
 
 Začíná s náhodně inicializovanou populací $P_{init}$.
 Nové generace jsou produkovány iterativně aplikací genetických operátorů.
@@ -194,7 +195,7 @@ Hlavní výhodou je, že operátory křížení a mutace lze snadno a rychle imp
 Mezi další typy kódování patří permutační kódování, kódování hodnot a stromové kódování \cite{katoch}.
 
 Selekce se používá k určení jedinců, kteří se budou účastnit reprodukce.
-Je spojena s \textit{selekčním tlakem}, který umožňuje algoritmu konvergovat.
+Ta je spojena s \textit{selekčním tlakem}, který umožňuje algoritmu konvergovat.
 Určuje pravděpodobnost výběru zdatnějšího jedince.
 Mezi známé algoritmy selekce patří: \textit{ruletový}, \textit{turnajový} nebo \textit{boltzmannův} výběr \cite{katoch}.
 
@@ -204,7 +205,7 @@ Což znamená, že čím je daný jedinec zdatnější, tím větší je pravdě
 Při každém náhodném roztočení rulety je vybrán jeden jedinec.
 Každý jedinec může být vybrán vícekrát \cite{katoch}.
 
-Křížení se používá s cílem vytvořit nové potomky spojením genů 2 nebo více rodičů.
+Křížení se používá s cílem vytvořit nové potomky spojením genů dvou nebo více rodičů.
 Existují dobře známé techniky jako jsou: jednobodové, vícebodové, cyklové a rovnoměrné křížení.
 Dále může docházet k mutacím, které se vyskytují s určitou nízkou pravděpodobností.
 Slouží k zavedení náhodných změn.
@@ -226,7 +227,7 @@ Pseudokód algoritmu lze vidět na \ref{alg:genetic:algorithm}.
 \end{algorithm}
 
 \subsection{Tabu prohledávání}
-Tabu prohledávání patří mezi metaheuristiky založených na jednom řešení.
+Tabu prohledávání patří mezi metaheuristiky založené na jednom řešení.
 K prohledávání stavového prostoru využívá adaptivní paměť, která umožňuje jeho efektivní prohledávání.
 Prohledávacím prostorem se pohybuje aplikováním změn na aktuální stav $S_{curr}$.
 Množina stavů dosažitelných z $S_{curr}$ se nazývá sousedství.
@@ -288,8 +289,8 @@ Vývoj těchto systémů vedl ke zrodu vysokofrekvenčního algoritmického obch
 
 Obchodování se uskutečňuje párováním nákupních a prodejních objednávek.
 Párovací engine si vede centralizovanou knihu objednávek (order book).
-Lze ji snadno vizualizovat jako tabulku se 2 sloupci, 1. s nákupními objednávkami a 2. s prodejními objednávkami.
-Nákupní objednávky jsou řazeny sestupně, takže objednávka s nejvyšší cenou je 1., jelikož cílem prodejce je prodat za co nejvyšší cenu.
+Lze ji snadno vizualizovat jako tabulku se dvěma sloupci, prvním s nákupními objednávkami a druhým s prodejními objednávkami.
+Nákupní objednávky jsou řazeny sestupně, takže objednávka s nejvyšší cenou je první, jelikož cílem prodejce je prodat za co nejvyšší cenu.
 Prodejní objednávky jsou seřazeny v obráceném pořadí, protože kupující chce koupit za nejnižší možnou cenu.
 Po úspěšném spárování objednávek je provedena výměna (trade) \cite{nuti}.
 
@@ -299,18 +300,18 @@ Tržní objednávky jsou provedeny okamžitě, zatímco limitní objednávky jso
 Obchodování se provádí buď přímo přístupem na burzu, nebo prostřednictvím brokera, jako jsou banky.
 Mezi aktiva, se kterými lze obchodovat, patří akcie, dluhopisy, opce, komodity, měnové páry, kryptoměny a deriváty \cite{nuti}.
 
-Proces obchodování lze rozdělit do 4 fází: předobchodní analýza, generování obchodních signálů, provedení obchodu a poobchodní analýza.
+Proces obchodování lze rozdělit do čtyř fází: předobchodní analýza, generování obchodních signálů, provedení obchodu a poobchodní analýza.
 Všechny lze automatizovat.
 Během předobchodní analýzy je aktivum analyzováno na základě finančních dat a zpráv.
 Výsledky se používají ke generování nákupních a prodejních signálů, které jsou následně převedeny na objednávky.
 Proces lze formulovat jako optimalizační problém, který lze řešit pomocí heuristických metod \cite{nuti}.
 
 \section{Předobchodní analýza}
-Předobchodní analýzu lze rozdělit do 3 kategorií: \textit{fundamentální}, \textit{technická} a \textit{kvantitativní} analýza.
+Předobchodní analýzu lze rozdělit do tří kategorií: \textit{fundamentální}, \textit{technická} a \textit{kvantitativní} analýza.
 Cílem fundamentální analýzy je určit férovou cenu aktiva.
 Signály jsou obvykle generovány, když se aktuální cena aktiva liší od jeho férové ceny \cite{nuti}.
 
-Technická analýza má za cíl předpovídat budoucí pohyb ceny aktiva na základě její \textbf{historie} a souvisejících informací, jako je objem.
+Technická analýza má za cíl předpovídat budoucí pohyb ceny aktiva na základě její historie a souvisejících informací, jako je objem.
 Předpokládá, že všechny informace potřebné pro generovaní signálu se odrážejí v její historii.
 Pracuje s konceptem trendů, které určují dlouhodobější směr pohybu ceny.
 Trendy lze organizovat do vzorů, jako jsou trendové linie, oblasti podpory a odporu.
@@ -327,7 +328,7 @@ Skládá se ze vstupní a výstupní strategie.
 Vstupní strategie určuje podmínky, kdy má program pozici otevřít, a výstupní strategie, kdy ji zavřít.
 Rizika a velikosti objednávek musí být také řízeny \cite{nuti}.
 
-Vstupní strategie mohou být jednoduché, jako je překřížení hodnot 2 technických ukazatelů nebo odchýlení se od férové ceny.
+Vstupní strategie mohou být jednoduché, jako je překřížení hodnot dvou technických ukazatelů nebo odchýlení se od férové ceny.
 I když je cílem pravidla co nejvíce zjednodušit, může být nutné přidat některá pravidla navíc.
 Například otevírání obchodů může být příliš časté a na krátkou dobu, takže částka zaplacená na poplatcích převýší zisk.
 Výstupní strategie definuje, kdy uzavřít zisk a kdy odejít se ztrátou.
@@ -344,7 +345,7 @@ Další metodou, kterou lze použít, je pevný zlomkový systém (fixed fractio
 Dalším krokem je samotné provedení objednávky.
 Hlavní věc, které se systém snaží dosáhnout, je minimalizace nákladů.
 V této fázi musí být rozhodnuto o typu objednávky a burze, na kterou má být objednávka zadána.
-Mezi nejdůležitější aspekty, které je třeba vzít v úvahu při výběru správné burzy, patří: nabídka aktiv, mechanismus obchodování, cena provedení, likvidita a stupeň anonymity obchodníka.
+Mezi nejdůležitější aspekty, které je třeba vzít v úvahu při výběru správné burzy, patří nabídka aktiv, mechanismus obchodování, cena provedení, likvidita a stupeň anonymity obchodníka.
 Burzy s vyšší likviditou mají tendenci provádět objednávky rychleji a účtovat si nižší poplatky \cite{nuti}.
 
 % Popsat PROM
@@ -365,13 +366,7 @@ Objektivní funkce založené na zisku jsou intuitivní volbou, ale ne nejlepš�
 Upřednostňuje se použití pokročilejších kritérií, jako je CECPP (Correlation Between Equity Curve and Perfect Profit) a PROM (Pessimistic Return On Margin), protože lépe odrážejí celkovou výkonnost strategie \cite{pardo}.
 
 Dokonce i ta nejlepší nalezená konfigurace nemusí být nejlepší, protože může trpět jevem zvaným overfitting.
-Důsledkem je, že strategie funguje velmi dobře na historických datech, na kterých byla optimalizována, ale podstatě hůře ve zkutečném obchodování \cite{pardo}.
-
-% \cite{bowman}.
-% overfitting
-% need to be tested live
-% paper trading
-% representative data
+Důsledkem je, že strategie funguje velmi dobře na historických datech, na kterých byla optimalizována, ale podstatě hůře ve skutečném obchodování \cite{pardo}.
 
 % historická simulace by měla počítat s poplatky
 \section{Historická simulace}
@@ -385,8 +380,8 @@ Souhrn výkonnosti se skládá ze statistik, které popisují celkovou výkonnos
 Výpis obchodů obsahuje seznam všech uskutečněných obchodů s informacemi, jako je vstupní a výstupní čas, vstupní a výstupní cena a dosažený zisk nebo ztráta.
 Mohou pomoci lépe porozumět tomu, jak se strategie chová během různých tržních období \cite{pardo}.
 
-Simulace by měla být co nejpřesnější, jinak může vést k chybným závěrům a ztrátám při zkutečném obchodování.
-Trhy používají různé zaokrouhlování svých cen, pokud simulátor používá nesprávně zaokrouhlené ceny, může to mít za následek neprovedení objednávek nebo nesprávné hodnoty zisku.
+Simulace by měla být co nejpřesnější, jinak může vést k chybným závěrům a ztrátám při skutečném obchodování.
+Trhy používají různé zaokrouhlování svých cen. Pokud simulátor používá nesprávně zaokrouhlené ceny, může to mít za následek neprovedení objednávek nebo nesprávné hodnoty zisku.
 Chyby při zaokrouhlování mají obecně větší dopad na strategie, které obchodují častěji, protože rozdíl mezi otevírací a uzavírací cenou je menší \cite{pardo}.
 
 Pokud jsou během simulace strategii poskytnuta data z většího časového rámce, jako jsou denní svíčky, tak může během daného období dojít k vytvoření více objednávek a jejich pořadí je nejednoznačné.
@@ -407,7 +402,7 @@ Díky tomu, že jsou nezávislé na konkrétní obchodní strategii, tak poskytu
 Statistiky lze nejen vypočítat na historických datech, ale lze je také použít pro měření výkonnosti běžící strategie v reálném čase.
 Umožňují tedy kontrolu průběhu obchodování.
 Zároveň jsou jediným způsobem, jak měřit a řídit riziko.
-Mohou zahrnovat statistiky jako: celkový počet obchodů, počet vítězných a ztrátových obchodů, největší vítězný obchod, největší ztrátový obchod, celkový čistý zisk (total net profit), hrubý zisk (gross profit) a hrubá ztráta (gross loss) \cite{pardo}.
+Mohou zahrnovat statistiky jako: celkový počet obchodů, počet vítězných a ztrátových obchodů, největší vítězný obchod, největší ztrátový obchod, celkový čistý zisk (total net profit), hrubý zisk (gross profit) a hrubou ztrátu (gross loss) \cite{pardo}.
 
 \begin{description}
     \item [realizovaný zisk (realized profit)] $rp$ je částka ztracená nebo získaná po uzavření pozice.
@@ -419,7 +414,7 @@ Mohou zahrnovat statistiky jako: celkový počet obchodů, počet vítězných a
     \item[celkový zisk (net profit)] $np$ lze vypočítat buď součtem realizovaných zisků všech uzavřených pozic $np=\sum_{i=0}^{n} rp_i$, kde $n$ je počet uzavřených pozic nebo $np=gp-gl$.
     \item [ziskový faktor (profit factor)] $pf\geq0$ lze spočítat $pf=\frac{gp}{gl}$.
     Pokud platí $pf>1$, tak byla strategie zisková, jelikož celkové zisky převyšují celkové ztráty.
-    \item[zůstatek (balance)] $bn\geq0$ částka uložená na účtu.
+    \item[zůstatek (balance)] $bn\geq0$ je částka uložená na účtu.
     \item[současná hodnota] $cv>0$ je hodnota otevřené pozice, kdyby byla uzavřena za současnou tržní cenu $mp$.
     Lze ji vypočítat jako $cv=ps\cdot mp$, kde $ps$ je velikost pozice.
     \item[současný zisk] $cp$ je částka, která byla získána nebo ztracena za dobu po otevření pozice.
@@ -444,9 +439,9 @@ Koncept vyvinul v 18. století japonský obchodník s rýží Munehisa Homma.
 Na západě byly představeny mnohem později na konci 20. století Stevem Nisonem.
 Graf může být použit k identifikaci vzorů a trendů \cite{candlestick-corporate}.
 
-Skládá se ze svíček, které jsou grafickým znázorněním 4 klíčových cen: otevírací $o$, nejvyšší $h$, nejnižší $l$ a uzavírací $c$ ceny za daný časový interval.
+Skládá se ze svíček, které jsou grafickým znázorněním čtyř klíčových cen: otevírací $o$, nejvyšší $h$, nejnižší $l$ a uzavírací $c$ ceny za daný časový interval.
 Platí, že $l\leq h$.
-Svíčka je tvořena 3 částmi: 2 knoty a tělem.
+Svíčka je tvořena třemi částmi: dvěma knoty a tělem.
 Knoty jsou znázorněny jako úsečky a tělo jako obdélník.
 Horní knot začíná od středu horní strany těla a končí v úrovni $h$.
 Spodní knot vede od středu spodní strany těla a končí na úrovni $l$.
@@ -463,7 +458,7 @@ Zároveň pokud je rostoucí, bývá tělo vybarveno zeleně, v opačném příp
 Svíčky jsou většinou dostupné ve formátu OHLC, což je zkratka pro otevírací (open), nejvyšší (high), nejnižší (low) a uzavírací (close) ceny.
 Nejčastěji jsou ukládány do CSV souborů.
 Používají se také pro historickou simulaci, pro kterou je třeba tyto čtyři hodnoty zredukovat na jedinou.
-Obvykle se to provádí zprůměrováním cen a existuje několik běžně používaných metod: $hl2=\frac{h+l}{2}$, $hlc3=\frac{h+l+c}{3}$ nebo $ohlc4=\frac{o+h+l+c}{4}$.
+Obvykle se to provádí zprůměrováním cen a existuje několik běžně používaných metod: \mbox{$hl2=\frac{h+l}{2}$}, $hlc3=\frac{h+l+c}{3}$ nebo $ohlc4=\frac{o+h+l+c}{4}$.
 
 \section{Historická tržní data}
 Historická tržní data jsou nezbytnou součástí zpětného testování, jelikož bez nich nelze provést historickou simulaci.
@@ -487,11 +482,13 @@ Poslední člen $ibn$ je počáteční zůstatek \cite{pardo}.
 
 % Doplnit o MultiChart
 \section{Obchodní platformy}
-V dnešní době existuje mnoho platforem nabízejících zpětné testování, liší se především druhem a množstvím dostupných historických dat, propracovaností, s jakou lze strategii implementovat, a částkou, kterou si účtují za používání jejich produktu \cite{bowman}.
-Podrobněji jsou popsány 2 platformy, které byly vybrány z různých důvodů.
+V dnešní době existuje mnoho platforem nabízejících zpětné testování.
+Liší se především druhem a množstvím dostupných historických dat, propracovaností, s jakou lze strategii implementovat, a částkou, kterou si účtují za používání jejich produktu \cite{bowman}.
+Podrobněji jsou popsány dvě platformy, které byly vybrány z různých důvodů.
 
 TradingView je platforma, kde byla vyvinuta strategie optimalizovaná v praktické části a kde aktuálně probíhá zpětné testování.
-Nabízí převážně možnosti práce s grafy, zpětné testování je velmi jednoduché a neposkytuje způsoby, jak optimalizovat parametry strategie.
+Nabízí převážně možnosti práce s grafy.
+Zpětné testování je velmi jednoduché a neposkytuje způsoby, jak optimalizovat parametry strategie.
 Je to převážně webová aplikace a pokud by nad ní mělo být postaveno vlastní řešení, postrádalo by rychlost k dosažení rozumných výsledků.
 
 MultiCharts je řešení, které nabízí mnoho funkcí používaných pro automatizaci obchodování.
@@ -528,11 +525,11 @@ Jedná se o jednoduchý jazyk, který se používá již 20 let a je podporován
 Jakmile je automatizovaná obchodní strategie vyvinuta, může být testována.
 V rámci zpětného testování platforma poskytuje realistickou historickou simulaci, optimalizaci strategie a walk forward testování \cite{multicharts}.
 
-Platforma nabízí 2 druhy optimalizace, hrubou sílu a genetický algoritmus.
+Platforma nabízí dva druhy optimalizace hrubou sílu a genetický algoritmus.
 Algoritmy jsou napsány vícevláknově a výsledek optimalizace lze zobrazit jako zprávu.
 Podporují použití různých optimalizačních kritérií.
 Dále je možné využít walk forward testování, jehož hlavním účelem je předcházet overfittingu.
-Při testování jsou data rozdělena do více segmentů, které jsou dále rozděleny na 2 části, vzorky použité pro optimalizaci a vzorky použité pro validaci \cite{multicharts}.
+Při testování jsou data rozdělena do více segmentů, které jsou dále rozděleny na dvě části, vzorky použité pro optimalizaci a vzorky použité pro validaci \cite{multicharts}.
 
 \section{Bazooka obchodní strategie}
 Pro optimalizaci v praktické části práce byla vybrána obchodní strategie s názvem \textit{Bazooka}, která byla vytvořena a poskytnuta externím subjektem.
@@ -561,8 +558,8 @@ Strategie obchoduje, dokud není dosaženo minimální čisté ceny nebo je ruč
 
 Použití strategie lze vidět na grafu \ref{fig:bazooka:example}.
 Konfigurace strategie je $n=3, L=\{\frac{55}{64}, \frac{53}{64}, \frac{52}{64}\}$, $S=\{\frac{1}{8}, \frac{6}{8}, \frac{1}{8}\}$, typ vstupního a výstupního ukazatele je SMA s periodou 15.
-Ve výřezu jsou vidět 2 ziskové pozice, kde se 1. pozice skládá ze 2 otevřených objednávek a 2. ze 3.
-Historická data jsou 1 minutové svíčky, které jsou také vyneseny do grafu.
+Ve výřezu jsou vidět dvě ziskové pozice, kde se první skládá ze dvou otevřených objednávek a druhá ze tří.
+Historická data jsou minutové svíčky, které jsou také vyneseny do grafu.
 Perioda převzorkování je 45, což znamená, že 45 minutových svíček se převzorkuje na jednu 45minutovou svíčku, která je nejprve zprůměrována metodou OHLC4 a následně použita k aktualizaci ukazatelů.
 Hodnoty vstupních a výstupních úrovní jsou vyneseny pomocí bodového grafu a odpovídají době aktualizace ukazatelů, což znamená, že jsou body od sebe vzdáleny 45 minut.
 
@@ -574,8 +571,8 @@ Hodnoty vstupních a výstupních úrovní jsou vyneseny pomocí bodového grafu
 
 \section{Klouzavé průměry}
 Klouzavé průměry jsou technické ukazatele, jejichž cílem je určit trend daného aktiva výpočtem průměru jeho cen.
-Existují 3 běžně používané ukazatele: jednoduchý klouzavý průměr (SMA), exponenciální klouzavý průměr (EMA) a vážený klouzavý průměr (WMA).
-Jsou počítány za určitou periodu $k>0$, které určuje počet vzorků použitých k výpočtu.
+Existují tři běžně používané ukazatele: jednoduchý klouzavý průměr (SMA), exponenciální klouzavý průměr (EMA) a vážený klouzavý průměr (WMA).
+Jsou počítány za určitou periodu $k>0$, která určuje počet vzorků použitých k výpočtu.
 Pokud je proveden SMA na cenách představujících 10 dní, nazývá se 10denní SMA.
 Obvykle jsou vizualizovány společně s grafy cen akcií.
 Křížení indikátorů lze použít k identifikaci změny trendu  \cite{ma-algorithms}.
@@ -589,7 +586,7 @@ Nejčastěji používané SMA jsou období 50, 100 a 200 dnů \cite{ma-algorithm
 
 \subsection{Exponenciální klouzavý průměr}
 Na rozdíl od SMA, kde má každá hodnota při výpočtu průměru stejnou váhu, tak exponenciální klouzavý průměr (EMA) přiřazuje cenám váhy.
-Hodnoty vah klesají exponenciálně, takže novější hodnoty mají větší váhu a tím i větší vliv na výslednou průměrnou hodnotu.
+Hodnoty vah klesají exponenciálně, takže novější hodnoty mají větší váhu, a tím i větší vliv na výslednou průměrnou hodnotu.
 Díky tomu reaguje rychleji na změny ceny aktiva než SMA.
 Obvykle se používá k výpočtu průměru za kratší časové období \cite{ma-algorithms, ema-institute}.
 
@@ -613,7 +610,7 @@ C++ je programovací jazyk na vysoké úrovni vyvinutý v roce 1983 \textit{Bjar
 Jedná se o multiparadigmatický programovací jazyk, který podporuje datovou abstrakci, objektově orientované programování, procedurální programování a generické programování \cite{cpp}.
 
 V programátorské komunitě je dobře známý a hojně používaný například pro vývoj herních enginů, prohlížečů, aplikací a provádění vysoce-výkonných výpočtů (HPC).
-Na základě indexu TIOBE za březen 2023 byl ohodnocen jako číslo 4 v popularitě, velmi těsně za programovacím jazykem Java.
+Na základě indexu TIOBE za březen 2023 byl ohodnocen jako čtvrtý v popularitě, velmi těsně za programovacím jazykem Java.
 Byl také vyhodnocen jako programovací jazyk roku 2022 stejnou společností díky jeho rostoucí popularitě  \cite{tiobe}.
 
 Mezi verzemi C++03 a C++11 byla obrovská mezera, což mohl být důvod, proč mnoho lidí od jazyka raději ustoupilo.
@@ -654,7 +651,7 @@ Nejnovější verze jazyka je 3.11 \cite{python}.
 
 Ve srovnání s C++ je mnohem snazší se jej naučit.
 Vyznačuje se jasnou a čitelnou syntaxí.
-Má rozsáhlou standardní knihovnu a 2 správce balíčků Pip a Conda.
+Má rozsáhlou standardní knihovnu a dva správce balíčků Pip a Conda.
 V březnu 2023 se umístil na 1. místě v oblíbenosti podle indexu TIOBE.
 Používá se hlavně pro vývoj webových aplikací, skriptování a strojové učení.
 
