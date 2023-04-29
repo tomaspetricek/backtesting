@@ -675,7 +675,7 @@ Na druhou stranu dynamický polymorfismus vyžaduje dynamickou alokaci a volán�
 
 Požadavky na šablonové argumenty lze specifikovat pomocí konceptů.
 Současné použití a vzhled byl inspirován videem z konference CppCon 2022 o dependency injection, kde bylo představeno použití konceptů pro specifikaci rozhraní šablonových argumentů \cite{zoffoli}.
-Rozhraní jsou psána 2 způsoby, pro kontrolu chování volatelného objektu a svazku více metod.
+Rozhraní jsou psána dvěma způsoby, pro kontrolu chování volatelného objektu a svazku více metod.
 Implementaci pro kontrolu třídy pozorovatele a tabu lhůty lze vidět \ref{lst:concepts:example}.
 
 \begin{lstlisting}[caption={~Specifikace rozhraní pomocí konceptů},label={lst:concepts:example},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
@@ -705,12 +705,13 @@ Nejsou zatím široce používány, ale existuje knihovna CppCoro, která poskyt
 \section{Jmenné konvence}
 Konvence pojmenování jsou převzaty převážně z STL a Boost knihoven.
 Názvy tříd a funkcí používají \texttt{snake\_case}.
-Metody nastavení a čtení atributů třídy nepoužívají \texttt{set} a \texttt{get} ve svém názvu, jsou jednoduše odlišeni tak, že gettery neberou žádný parametr a setry berou více než jeden.
+Metody nastavení a čtení atributů třídy nepoužívají \texttt{set} a \texttt{get} ve svém názvu.
+Jsou jednoduše odlišeni tak, že gettery neberou žádný parametr a setry berou více než jeden.
 Názvy šablon a konceptů používají \texttt{CamelCase}.
 Soukromé atributy třídy končí podtržítkem.
 
 \section{Uspořádání projektu}
-Projekt je rozdělen do 3 hlavních adresářů: include, src a test.
+Projekt je rozdělen do tří hlavních adresářů: include, src a test.
 Adresář include obsahuje obchodovací framework a vybrané hlavičkové soubory z knihovny CppCoro.
 Organizace frameworku je inspirovaná knihovnou Boost.Asio.
 Definice a deklarace tříd jsou uloženy společně v jednom souboru s příponou .hpp.
@@ -720,7 +721,7 @@ Framework lze zahrnout jako celek pomocí trading.hpp nebo jednotlivě po soubor
 Adresář src se skládá ze souboru main.cpp, Jypiter Notebooků používaných pro vizualizaci, vstupních a výstupních dat.
 Testy jsou organizovány stejně jako třídy obchodovacího frameworku.
 Projekt je kompilován pomocí souborů CMakeLists.txt, které obsahují seznam souborů ke kompilaci, nastavení kompilátoru a informace pro hledání externích knihoven.
-Vytváří 2 spustitelné soubory backesting pro použití optimalizátorů a test\_ pro provádění testů.
+Vytváří dva spustitelné soubory backesting pro použití optimalizátorů a test\_ pro provádění testů.
 
 \section{Návrhové vzory}
 Účelem návrhových vzorů je snížit složitost kódu a šanci udělat chybu.
@@ -735,7 +736,8 @@ Pozorovatelé se přihlásí k odběru oznámení o událostech, které nastáva
 
 Pozorovaný objekt musí být nejprve předán pozorovanému objektu, obvykle pomocí vyhrazené metody.
 Poté, kdykoli dojde k události, je zavolána specifická metoda pozorovatele s událostí spojená.
-Tímto způsobem není nutné aktivně čekat, jelikož pozorovatel a pozorovaný jsou časově synchronizovány, musí pouze splňovat dohodnuté rozhraní \cite{observer}.
+Tímto způsobem není nutné aktivně čekat, jelikož pozorovatel a pozorovaný jsou časově synchronizováni.
+Musí pouze splňovat dohodnuté rozhraní \cite{observer}.
 
 Vzor pozorovatel se používá pro upozornění na události, které nastanou během optimalizace a historické simulace.
 Informace shromážděné během simulace lze použít k výpočtu výkonnostních statistik nebo ke sběru dat pro vizualizaci.
@@ -750,7 +752,7 @@ Neví nic o strategii, která je ji předána.
 Jediné, co musí strategie splňovat, je dohodnuté rozhraní.
 Díky tomu je kontext nezávislý na konkrétní strategii.
 Volba vhodné strategie je na uživateli aplikace.
-Algoritmy obvykle implementují jednu společnou metodu, která musí přebírat setjnou sadu argumentů.
+Algoritmy obvykle implementují jednu společnou metodu, která musí přebírat stejnou sadu argumentů.
 Voláním této metody se spustí daný algoritmus \cite{strategy}.
 
 V práci je vzor strategie použit pro výběr různých druhů rozvrhů chlazení pro algoritmus simulovaného ochlazování nebo ukončovacích kritérií.
@@ -758,7 +760,8 @@ Strategie chlazení je předána instanci optimalizátoru jako parametr při jeh
 Musí splňovat koncept \texttt{simulated\_annealing::ICooler}.
 Jelikož různé algoritmy chlazení vyžadují různé sady argumentů, je při volání strategie předána přímo instance optimalizátoru.
 Volba požadovaného parametru jako je aktuální teplota nebo počet proběhlých iterací je na strategii samotné.
-Je navržen hlavně pro použití pro statický polymorfismus, ale lze mezi strategiemi přepínat za běhu pomocí \texttt{std::function}, který používá \textit{type erasure}.
+Je navržen hlavně pro použití pro statický polymorfismus.
+Nicméně by bylo možné mezi strategiemi přepínat za běhu pomocí \texttt{std::function}, který používá \textit{type erasure}.
 
 \chapter{Simulace obchodování}
 Simulace obchodování byla inspirována kryptoměnovou burzou Binance.
@@ -774,7 +777,7 @@ Proto je lepší používat termín pozice, který představuje seznam souvisej�
 % Účet je na kryptoburzách reprezentován jako peněženka, která uchovává množství nakoupených aktiv.
 
 \section{Bazooka}
-Bazooka obchodní strategie byla rozdělena do 2 tříd: \texttt{bazooka::strategy} a \texttt{bazooka::manager} za účelem oddělení zájmů.
+Bazooka obchodní strategie byla rozdělena do dvou tříd \texttt{bazooka::strategy} a \texttt{bazooka::manager} za účelem oddělení zájmů.
 Třída \texttt{bazooka::strategy} dělá rozhodnutí a třída \texttt{bazooka::manager} je realizuje.
 Je implementována pouze burza podporující pouze longové obchody, ale pokud by v budoucnu existovala např. \texttt{futures::market} burza podporující použití páky (leverage), bylo by nutné použít jiný typ manažera, nicméně strategie by zůstala stejná.
 Jsou dány dohromady pomocí třídy \texttt{trader}.
@@ -790,7 +793,7 @@ Zlomky jsou uloženy pomocí \texttt{std::array}, což také znamená, že poče
 % dát pryč nebo přidat long/short strategy
 Strategie je implementována pomocí třídy \texttt{bazooka::strategy}.
 Má jeden parametr šablony třídy \texttt{n\_levels}, který uvádí počet úrovní nákupu (viz \ref{fig:bazooka:strategy:uml}.
-Při inicializaci přebírá parametry: vstupní a výstupní indikátor a úrovně nákupu.
+Při inicializaci přebírá vstupní a výstupní ukazatele a úrovně nákupu.
 V průběhu inicializace jsou také validovány nákupní úrovně, pokud nesplňují požadavky, je vyhozena výjimka \texttt{std::invalid\_argument}.
 
 Účelem třídy je činit rozhodnutí a k tomu má dvě metody \texttt{should\_open} a \texttt{should\_close}.
@@ -818,7 +821,7 @@ K hodnotě uložené v instanci objektu lze přistupovat pomocí funkce \texttt{
 Funkce přijímá šablonový argument, který je buď indexem typu, nebo samotným typem, který by měl být aktuálně v instanci uložen.
 Pokud je uložen jiný typ, tak volání funkce způsobí vyhození \texttt{std::bad\_variant\_access} výjimky.
 Dalším způsobem přístupu k uložené hodnotě je použití funkce \texttt{std::visit}.
-Vyžaduje 2 argumenty, 1. je volatelný objekt a 2. instance třídy \texttt{std::variant}.
+Vyžaduje dva argumenty, první je volatelný objekt a druhý instance třídy \texttt{std::variant}.
 Funkce při volání nejprve získá hodnotu uloženou v instanci a poté ji předá volatelnému objektu.
 V případě ukazatele může být použita například při jeho aktualizaci (viz \ref{lst:update:indicator}).
 
@@ -830,12 +833,12 @@ bool ready = std::visit([&value](auto& indic) {
 \end{lstlisting}
 
 Instance \texttt{std::variant} byla zapouzdřena do třídy \texttt{bazooka::indicator}, které usnadňují práci s uloženým ukazatelem.
-Třída má pouze 1 členský atribut \texttt{data\_} typu \texttt{std::variant<sma, ema>}.
-Metody používají \texttt{std::visit} pro přístup a změnu hodnoty indikátoru.
+Třída má pouze jeden členský atribut \texttt{data\_} typu \texttt{std::variant<sma, ema>}.
+Metody používají \texttt{std::visit} pro přístup a změnu hodnoty ukazatele.
 Sdílí stejné rozhraní s třídami \texttt{sma} a \texttt{ema} (viz \ref{fig:indicator:uml}).
 
 Ukazatele jsou aktualizovány voláním metody \texttt{update} a jejich hodnotu lze získat voláním metody \texttt{value}.
-Metoda \texttt{update} vrací hodnotu boolean indikující, zda je indikátor připraven.
+Metoda \texttt{update} vrací hodnotu boolean indikující, zda je ukazatel připraven.
 Lze to také zkontrolovat voláním metody \texttt{is\_ready}.
 
 Počáteční hodnota ukazatele \texttt{ema} je získána pomocí ukazatele \texttt{sma} se stejnou periodou.
@@ -855,7 +858,7 @@ Je implementován pomocí třídy \texttt{manager}.
 Komunikuje s burzou, vytváří objednávky a řídí rizika.
 Dvě nejdůležitější metody pro vytváření objednávek jsou \texttt{create\_open\_order} a \texttt{create\_close\_all\_order} (viz \ref{fig:bazooka:manager:uml}).
 
-Otevírací objednávky jsou reprezentovány strukturou \texttt{open\_order}, která obsahuje 3 atributy: prodané množství, cenu, za kterou bylo aktivum nakoupeno a čas jejího vytvoření.
+Otevírací objednávky jsou reprezentovány strukturou \texttt{open\_order}, která obsahuje tři atributy: prodané množství, cenu, za kterou bylo aktivum nakoupeno a čas jejího vytvoření.
 Uzavírací objednávka je implementována strukturou \texttt{close\_all\_order}, která na rozdíl od otevírací objednávky neuvádí prodané množství, jelikož je prodáno vše.
 
 Strategie používá $n$ nákupních úrovní.
@@ -909,9 +912,9 @@ action operator()(const price_point& curr)
 
 \section{Trh}
 Trh je implementován pomocí třídy \texttt{market}.
-Ve srovnání se skutečnou burzou je to velmi zjednodušená.
-Podporuje pouze objednávky typu long a 1 uživatelský účet.
-Mezi třídní atributy patří: aktivní pozice, poslední uzavřená pozice, peněženka a výše poplatků spojených s realizací objednávek (viz \ref{fig:market:uml}).
+Ve srovnání se skutečnou burzou je velmi zjednodušená.
+Podporuje pouze objednávky typu long a jeden uživatelský účet.
+Mezi třídní atributy patří aktivní pozice, poslední uzavřená pozice, peněženka a výše poplatků spojených s realizací objednávek (viz \ref{fig:market:uml}).
 
 Peněženka je implementována třídou \texttt{wallet} a slouží ke správě zůstatku zákaznického účtu.
 Zůstatek lze snížit voláním metody \texttt{withdraw} nebo navýšit použitím \texttt{deposit}.
@@ -952,9 +955,9 @@ Tímto způsobem lze například použít třídu \texttt{bazooka::statistics::c
 Při inicializaci jsou předány simulátoru historické ceny v podobě svíček.
 Pro rozhodování se používají uzavírací ceny.
 Ceny používané pro aktualizaci indikátorů jsou získány tak, že jsou svíčky nejprve převzorkovány pomocí \texttt{resampler} na požadované časové období a zprůměrovány pomocí zvolené průměrovací metody.
-Pokud je například doba převzorkování 30 a průměrovací metoda \textit{OHLC4}, tak jsou minutové svíčky nejprve převzorkovány na 30minutové svíčky a poté zprůměrovány pomocí \texttt{candle::ohlc4}.
+Pokud je například doba převzorkování 30 a průměrovací metoda $ohlc4$, tak jsou minutové svíčky nejprve převzorkovány na 30minutové svíčky a poté zprůměrovány pomocí \texttt{candle::ohlc4}.
 
-Proces převzorkování probíhá tak, že za dané období se otevírací cena 1. svíčky stane otevírací cenou převzorkované svíčky a uzavírací cena poslední svíčky se stane její uzavírací cenou.
+Proces převzorkování probíhá tak, že za dané období se otevírací cena první svíčky stane otevírací cenou převzorkované svíčky a uzavírací cena poslední svíčky se stane její uzavírací cenou.
 Vysoká a nízká cena jsou nejvyšší a nejnižší ceny v daném období.
 Jelikož je převzorkování poměrně časově náročné, tak se provádí pouze jednou v konstruktoru, takže se neopakuje při každém volání simulátoru.
 
