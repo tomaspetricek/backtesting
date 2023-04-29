@@ -32,8 +32,7 @@ namespace trading::bazooka {
             auto genes_it = genes.begin();
 
             etl::set<fraction_t, n_levels, std::greater<>> child_genes;
-            while (!child_genes.full())
-                child_genes.insert(*genes_it++);
+            while (!child_genes.full()) child_genes.insert(*genes_it++);
 
             std::array<fraction_t, n_levels> child;
             std::copy(child_genes.begin(), child_genes.end(), child.begin());
@@ -77,8 +76,7 @@ namespace trading::bazooka {
                 idx = *it;
                 max_add = std::min(rest, max_num_add[idx]);
 
-                if (!max_add)
-                    available_indices.erase(it++);
+                if (!max_add) available_indices.erase(it++);
                 else {
                     distrib_.param(std::uniform_int_distribution<std::size_t>::param_type{1, max_add});
                     add = distrib_(gen_);
@@ -87,9 +85,7 @@ namespace trading::bazooka {
                     max_num_add[idx] -= add;
                     it++;
                 }
-
-                if (it==available_indices.end())
-                    it = available_indices.begin();
+                if (it==available_indices.end()) it = available_indices.begin();
             }
             return child;
         }

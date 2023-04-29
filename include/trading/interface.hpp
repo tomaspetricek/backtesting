@@ -9,6 +9,10 @@
 #include <trading/candle.hpp>
 
 namespace trading {
+    template<class ConcreteComparator, class Type>
+    concept IComparator = std::invocable<ConcreteComparator, const Type&, const Type&> &&
+            std::same_as<bool, std::invoke_result_t<ConcreteComparator, const Type&, const Type&>>;
+
     namespace genetic_algorithm {
         template<class Mutation, class Genes>
         concept IMutation = std::invocable<Mutation, Genes&&> &&
@@ -24,10 +28,10 @@ namespace trading {
         std::invocable<Selection, std::size_t, const std::vector<Individual>&, std::vector<Individual>&>
                 && std::same_as<void, std::invoke_result_t<Selection, std::size_t, const std::vector<Individual>&, std::vector<Individual>&>>;
 
-        template<class Replacement, class Individual>
+        template<class Replacement, class Individual, class Comparator>
         concept IReplacement =
-        std::invocable<Replacement, std::vector<Individual>&, std::vector<Individual>&, std::vector<Individual>&>
-                && std::same_as<void, std::invoke_result_t<Replacement, std::vector<Individual>&, std::vector<Individual>&, std::vector<Individual>&>>;
+        std::invocable<Replacement, std::vector<Individual>&, std::vector<Individual>&, const Comparator&, std::vector<Individual>&>
+                && std::same_as<void, std::invoke_result_t<Replacement, std::vector<Individual>&, std::vector<Individual>&, const Comparator&, std::vector<Individual>&>>;
 
         template<class ConcreteMatchmaker, class Individual>
         concept IMatchmaker = std::invocable<ConcreteMatchmaker, std::vector<Individual>&>
@@ -120,10 +124,6 @@ namespace trading {
     template<class ConcreteSearchSpace, class Config>
     concept ISearchSpace = std::invocable<ConcreteSearchSpace> &&
             std::same_as<cppcoro::generator<Config>, std::invoke_result_t<ConcreteSearchSpace>>;
-
-    template<class ConcreteComparator, class Type>
-    concept IComparator = std::invocable<ConcreteComparator, const Type&, const Type&> &&
-            std::same_as<bool, std::invoke_result_t<ConcreteComparator, const Type&, const Type&>>;
 
     template<class ConcreteResult, class Type>
     concept IResult = requires(ConcreteResult& result, const Type& candidate) {

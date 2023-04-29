@@ -49,14 +49,12 @@ namespace trading::tabu_search {
                 assert(neighborhood>=1);
                 for (std::size_t i{0}; i<neighborhood-1; i++) {
                     std::tie(candidate.config, candidate_move_) = neighbor(origin.config);
+                    candidate = objective(candidate.config);
 
-                    if (!tabu_list_.contains(candidate_move_)) {
-                        candidate = objective(candidate.config);
-
-                        if (result.compare(candidate, curr_state_) || aspire(candidate, *this)) {
-                            curr_state_ = candidate;
-                            curr_move_ = candidate_move_;
-                        }
+                    if ((!tabu_list_.contains(candidate_move_) && result.compare(candidate, curr_state_))
+                        || aspire(candidate, *this)) {
+                        curr_state_ = candidate;
+                        curr_move_ = candidate_move_;
                     }
                 }
 

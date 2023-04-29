@@ -11,8 +11,6 @@
 #include <trading/interface.hpp>
 
 namespace trading {
-
-
     template<class Type, IComparator<Type> Comp>
     class result {
     protected:
@@ -20,9 +18,16 @@ namespace trading {
         explicit result(const Comp& comp) :comp_{comp} { }
 
     public:
+        using comparator_type = Comp;
+
         bool compare(const Type& rhs, const Type& lhs)
         {
             return comp_(rhs, lhs);
+        }
+
+        const Comp& comparator() const
+        {
+            return comp_;
         }
     };
 

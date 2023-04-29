@@ -265,11 +265,9 @@ Pseudokód algoritmu lze vidět na \ref{alg:tabu:search}, kde $M_{curr}$ je sou�
     \State $M_{curr}, S_{curr} \gets neighbor(S_{origin})$
     \For{$n \gets 1$ to $N$} \Comment{Explore neighborhood}
         \State $M_{cand}, S_{cand} \gets neighbor(S_{origin})$
-        \If{$\lnot is\_tabu(S_{cand})$}
-            \If{$is\_better(S_{cand}, S_{curr}) \lor aspire()$}
-                \State $S_{curr} \gets S_{cand}$
-                \State $M_{curr} \gets M_{cand}$
-            \EndIf
+        \If{$(\lnot is\_tabu(S_{cand}) \land is\_better(S_{cand}, S_{curr})) \lor aspire()$}
+            \State $S_{curr} \gets S_{cand}$
+            \State $M_{curr} \gets M_{cand}$
         \EndIf
     \EndFor
     \If{$is\_better(S_{curr},S_{best})$}
@@ -1413,7 +1411,6 @@ void operator()(const config_t& init_config,
             else {
                 double diff = appraise(curr_state_, candidate);
                 double threshold = std::exp(-diff/curr_temp_);
-                assert(threshold>=0.0 && threshold<=1.0);
 
                 if (rand_prob_()<threshold) {
                     curr_state_ = candidate;
@@ -1430,62 +1427,77 @@ void operator()(const config_t& init_config,
 
 \section{Genetický algoritmus}
 Genetický algoritmus je implementován třídou \texttt{genetic\_algorithm::optimizer}.
-Má pouze 2 třídní atributy, počet iterací a populaci.
-Další části algoritmu jsou poskytovány při jeho volání.
+Má pouze dva třídní atributy počet iterací a populaci.
+Další části algoritmu jsou poskytovány při jeho volání (viz \ref{lst:genetic:algorithm}).
 Populace je uložena pomocí třídy \texttt{std::vector}, která spravuje dynamicky alokované pole prvků.
-Bylo dbáno na to, aby došlo k co nejmenšímu počtu realokací v průběhu optimalizace, a to opětovným použitím již alokovaného pole pomocí metody \texttt{clear} a použití metody \texttt{reserve}, kdykoli je dopředu známa velikost pole.
-Jinak by docházelo ke zbytečnému zpomalování optimalizace.
+Počet dynamických realokací byl minimalizován pomocí metod \texttt{clear} a \texttt{reserve}, jinak by se optimalizace zbytečně zpomalovala.
+Data o průběhu optimalizace lze shromažďovat pomocí \texttt{progress\_collector} a zaznamenávat pomocí \texttt{progress\_reporter}.
 
 Pro mutaci lze použít instanci třídy \texttt{bazooka::neighbor}.
 Algoritmus pro křížení je implementován třídou \texttt{bazooka::crossover}.
 Při křížení se používají všechny konfigurační proměnné, a proto je pro každou z nich implementován operátor křížení.
-O tom, zda potomek obdrží periodu indikátoru nebo typ indikátoru od své matky nebo otce, se rozhoduje hodem mincí.
+O tom, zda potomek obdrží periodu ukazatele nebo typ ukazatele od své matky nebo otce, se rozhoduje hodem mincí.
 Pro křížení úrovní a velikostí nákupů byly vytvořeny vlastní třídy.
 
-Křížení úrovní nákupu je implementováno třídou \texttt{bazooka::levels\_crossover}.
+Křížení úrovní nákupu je implementováno třídou \texttt{bazooka::levels\_crossover} (viz \ref{lst:levels:crossover}).
 Funguje tak, že genetickou informaci od otce a matky vloží do společného pole typu \texttt{etl::vector}, které na rozdíl od \texttt{std::vector} používá statickou alokaci místo dynamické.
 Geny jsou náhodně zamíchány a následně vkládány ve \texttt{while} cyklu do instance \texttt{elt::flat\_set} do jejího naplnění.
 Hodnoty jsou nakonec překopírovány do výstupního pole.
 Algoritmus má několik vlastností, jednou z nich je, že pokud jsou rodiče stejní, bude i potomek stejný.
 Pokud mají rodiče společný gen, je větší šance, že bude vybrán.
 
+\begin{lstlisting}[caption={~Implementace křížení nákupních úrovní},label={lst:levels:crossover},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+value_type operator()(const value_type& mother, const value_type& father)
+{
+    etl::vector<fraction_t,n_levels*2> genes{mother.begin(),mother.end()};
+    genes.insert(genes.end(), father.begin(), father.end());
+
+    std::shuffle(genes.begin(), genes.end(), gen_);
+    auto genes_it = genes.begin();
+
+    etl::set<fraction_t, n_levels, std::greater<>> child_genes;
+    while (!child_genes.full()) child_genes.insert(*genes_it++);
+
+    std::array<fraction_t, n_levels> child;
+    std::copy(child_genes.begin(), child_genes.end(), child.begin());
+    return child;
+}
+\end{lstlisting}
+
 Křížení velikostí nákupů je implementováno třídou \texttt{bazooka::sizes\_crossover}.
 Nejmenší hodnoty rodičů jsou použity jako základ pro potomka.
 Dále jsou nákupní velikosti dítěte náhodně zvyšovány v cyklu \texttt{while} tak, aby velikost nákupu nikdy nebyla větší než nejvyšší hodnota rodiče.
-Smyčka končí, jakmile je součet všech velikostí roven 1.
+Smyčka končí, jakmile je součet všech velikostí roven jedné.
 Výsledné hodnoty potomků se tedy budou vždy pohybovat v rozmezí hodnot rodičů.
 Pokud rodiče nejsou stejní, potomek je jiný, ale stále je podobný svým rodičům.
 
-Pro výběr rodičů byl implementován ruletový výběr \texttt{genetic\_algorithm::roulette\_selection}.
-Interně používá instanci třídy \texttt{std::discrete\_distribution} pro výběr rodičů.
-Zdatnost každého jednotlivce představuje váhu, čím vyšší je váha, tím pravděpodobněji bude daný jedinec vybrán jako rodič.
+Ruletový výběr byl implementován třídou \texttt{genetic\_algorithm::roulette\_selection}, která interně používá instanci třídy \texttt{std::discrete\_distribution} pro výběr rodičů.
+Zdatnost každého jedince představuje váhu, čím vyšší je váha, tím pravděpodobněji bude daný jedinec vybrán jako rodič.
 
-Byl implementován \texttt{random\_matchmaker} algoritmus náhodného párování rodičů.
+Pro náhodné párování rodičů byl implementován algoritmus \texttt{random\_matchmaker}.
 Rodiče jsou nejprve náhodně zamícháni a následně párováni.
 Celkový počet rodičů nemusí být dělitelný počtem vybíraných n-tic, takže někteří rodiče mohou být použiti vícekrát.
+N-tice jsou vraceny jako korutina typu \texttt{cppcoro::generator}.
 
-Poslední část algoritmu se zabývá nahrazením původní generace za novou.
-Byly implementovány 2 přístupy.
-\textit{En block} nahrazování reprezentované třídou \texttt{en\_block\_replacement} zachovává pouze děti k vytvoření nové generace.
-Druhý přístup používá \textit{elitismus} a je implementován třídou \texttt{elitism\_replacement}.
-Třída má parametr $l\in[0, 1]$ představující zlomek vybraných elitních rodičů.
-Nejprve seřadí rodiče podle zdatnosti a poté jimi nahradí prvních n dětí.
-Implementaci algoritmu lze vidět ve výpise \ref{lst:genetic:algorithm}.
-Data o průběhu optimalizace lze shromažďovat pomocí \texttt{progress\_collector} a zaznamenávat pomocí \texttt{progress\_reporter}.
+Byly implementovány dva přístupy nahrazování populace.
+Třída \texttt{en\_block\_replacement} zachovává pouze děti k vytvoření nové generace.
+Na druhou stranu třída \texttt{elitism\_replacement} k nim přidá ještě $er\cdot n$ nejzdatnějších rodičů, kde $er \in [0, 1]$ je poměr elitních rodičů a $n$ jejich celkový počet.
 
 \begin{lstlisting}[caption={~Implementace genetického algoritmu},label={lst:genetic:algorithm},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+template<IResult<state_t> Result>
 void operator()(const std::vector<config_t>& init_genes,
-    IResult<state_t> auto& result,
-    IConstraints<state_t> auto&& constraints,
-    IObjectiveFunction<state_t> auto&& fitness,
-    IPopulationSizer auto&& size,
-    ISelection<state_t> auto&& select,
-    IMatchmaker<state_t> auto&& match,
-    ICrossover<config_t> auto&& crossover,
-    IMutation<config_t> auto&& mutate,
-    IReplacement<state_t> auto&& replace,
-    ITerminationCriteria<optimizer> auto&& terminate,
-    IObserver<optimizer> auto& ... observers)
+        Result& result,
+        IConstraints<state_t> auto&& constraints,
+        IObjectiveFunction<state_t> auto&& fitness,
+        IPopulationSizer auto&& size,
+        ISelection<state_t> auto&& select,
+        IMatchmaker<state_t> auto&& match,
+        ICrossover<config_t> auto&& crossover,
+        IMutation<config_t> auto&& mutate,
+        IReplacement<state_t, typename Result::comparator_type>
+            auto&& replace,
+        ITerminationCriteria<optimizer> auto&& terminate,
+        IObserver<optimizer> auto& ... observers)
 {
     population_.clear(), population_.reserve(init_genes.size());
     for (const auto& genes: init_genes)
@@ -1500,14 +1512,11 @@ void operator()(const std::vector<config_t>& init_genes,
         // mate
         children.clear();
         for (const auto& mates: match(parents))
-            for (auto&& genes: crossover(mates)) {
-                genes = mutate(std::move(genes));
-                children.template emplace_back(fitness(genes));
-            }
+            for (auto&& genes: crossover(mates))
+                children.emplace_back(fitness(mutate(std::move(genes))));
 
-        // replace
         population_.clear();
-        replace(parents, children, population_);
+        replace(parents, children, result.comparator(), population_);
 
         // update results
         for (const auto& individual: population_)
@@ -1516,20 +1525,19 @@ void operator()(const std::vector<config_t>& init_genes,
 
         (observers.population_updated(*this), ...);
     };
-    (observers.finished(*this), ...);
-}
+    (observers.finished(*this), ...); }
 \end{lstlisting}
 
 \section{Tabu prohledávání}
 Tabu prohledávání je implementováno třídou \texttt{tabu\_search::optimizer}.
-Má 3 třídní atributy: počet iterací, aktuální a nejlepší stav.
-Pro ukládání zakázaných tahů byla implementována třída \texttt{bazooka::moves\_memory}.
+Má čtyři třídní atributy počet iterací, seznam tabu, aktuální a nejlepší stav.
+Pro ukládání zakázaných tahů byla implementována třída \texttt{bazooka::configuration\_memory}.
 Ukládá pouze konfigurační atributy, které byly změněny, nikoli celé konfigurace.
-Perioda a typ indikátoru jsou zapamatovány tak, jak jsou.
-Hodnoty úrovně a velikosti nákupu, které nebyly změněny, se vynulují.
+Perioda a typ ukazatele jsou zapamatovány tak, jak jsou.
+Hodnoty úrovně a velikosti nákupu, které nebyly změněny, jsou vynulovány před uložením do paměti.
 K ukládání úrovní a velikostí nákupu se používá \texttt{std::map}.
 
-Jelikož existují 4 konfigurační proměnné, z nichž se vždy mění pouze jedna, tak se tah ukládá do instance třídy \texttt{std::variant}, která je zapouzdřena pomocí třídy \texttt{bazooka::movement}.
+Jelikož existují čtyři konfigurační proměnné, z nichž se vždy mění pouze jedna, tak se tah ukládá do instance třídy \texttt{std::variant}, která je zapouzdřena pomocí třídy \texttt{bazooka::movement}.
 Vzhledem k tomu, že úrovně a velikosti nákupu jsou reprezentovány stejným datovým typem, polem zlomků, je nutné implementovat způsob, jak je rozlišit.
 Třída proto obsahuje výčtovou třídu zvanou \texttt{indices}, ke které lze přistupovat zvenčí.
 Lze ji použít ve výrazech \texttt{switch} \ref{lst:movement:usage}.
@@ -1551,10 +1559,8 @@ bool contains(const move_t& move) const
 }
 \end{lstlisting}
 
-Hodnoty vložené do paměti v ní zůstávají po určitý počet iterací.
-Při každé iteraci se počet iterací sníží pouze pro konfigurační parametr, který byl změněn.
-Pevný počet operací lze nastavit pomocí instance třídy \texttt{tabu\_search::fixed\_tenure} pro paměť každého konfiguračního parametru.
-
+Hodnoty jsou vkládány do paměti pomocí metody \texttt{remember} a zůstanou v ni po určitý počet iterací určeným tabu lhůtou $t>0$, kterou přebírá paměť při konstrukci.
+Počet iterací se sníží o jednu pomocí metody \texttt{forget}.
 Sousední konfigurace lze vygenerovat pomocí \texttt{bazooka::neighbor}, která vrací sousední konfiguraci včetně tahu.
 Velikost sousedství říká, kolik sousedních konfigurací je prohledáno během jedné iterace.
 Celý algoritmus lze vidět ve výpise \ref{lst:tabu:search}.
@@ -1572,28 +1578,23 @@ void operator()(const config_t& init,
 {
     best_state_ = curr_state_ = objective(init);
     state_t candidate, origin;
-    std::size_t neighborhood;
 
     (observers.started(*this), ...);
     for (it_ = 0; !terminate(*this); it_++) {
         // explore neighborhood
         origin = curr_state_;
-        std::tie(curr_state_.config, curr_move_) = neighbor(origin.config);
+        std::tie(curr_state_.config, curr_move_)=neighbor(origin.config);
         curr_state_ = objective(curr_state_.config);
 
-        neighborhood = neighborhood_size(*this);
-        assert(neighborhood>=1);
-        for (std::size_t i{0}; i<neighborhood-1; i++) {
+        for (std::size_t i{0}; i<neighborhood_size(*this)-1; i++) {
             std::tie(candidate.config, candidate_move_) = neighbor(origin.config);
+            candidate = objective(candidate.config);
 
-            if (!tabu_list_.contains(candidate_move_)) {
-                candidate = objective(candidate.config);
-
-                if (result.compare(candidate, curr_state_)
-                    || aspire(candidate, *this)) {
-                    curr_state_ = candidate;
-                    curr_move_ = candidate_move_;
-                }
+            if ((!tabu_list_.contains(candidate_move_)
+                && result.compare(candidate, curr_state_))
+                || aspire(candidate, *this)) {
+                curr_state_ = candidate;
+                curr_move_ = candidate_move_;
             }
         }
 
@@ -1617,9 +1618,28 @@ Třída \texttt{enumeration\_result} slouží ke shromažďování $n$ nejlepš�
 Má 2 třídní šablonové parametry: typ výsledku a funkci pro jejich porovnávání.
 Interně používá datovou strukturu \textit{halda}, jelikož má složitost $\mathcal{O}(log{}n)$ pro vložení nového prvku a odstranění prvního.
 K ukládání výsledků používá kontejner \texttt{std::vector}.
-Hodnoty jsou aktualizovány voláním metody \texttt{update}.
-K vytvoření haldy používá funkci \texttt{std::push\_heap} a jakmile je plná, použije po vložení nového prvku funkci \texttt{std::pop\_back} k odstranění nejhoršího prvku \cite{push-heap}.
+
+Hodnoty jsou aktualizovány voláním metody \texttt{update} (viz \ref{lst:result:update}).
+K vytvoření haldy používá funkci \texttt{std::push\_heap} a jakmile je plná, použije po vložení nového prvku funkci \texttt{std::pop\_back} k odstranění nejhoršího prvku.
 K získání výsledku lze zavolat metodu \texttt{get}, která používá funkci \texttt{std::sort\_heap} k seřazení prvků v požadovaném pořadí.
+
+\begin{lstlisting}[caption={~Implementace metody \texttt{update} třídy \texttt{enumerative\_result}},label={lst:result:update},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
+void update(const Type& candidate)
+{
+    if (best_.size()<best_.capacity()-1) {
+        best_.emplace_back(candidate);
+        std::push_heap(best_.begin(), best_.end(), this->comp_);
+    }
+    else if (best_.size()==best_.capacity()-1) {
+        best_.emplace_back(candidate);
+        pop_heap(best_.begin(), best_.end(), this->comp_);
+    }
+    else {
+        best_.back() = candidate;
+        pop_heap(best_.begin(), best_.end(), this->comp_);
+    }
+}
+\end{lstlisting}
 
 \chapter{Zpracování vstupů a výstupů}
 Byly vytvořeny vlastní třídy pro čtení a zápis do souborů \textit{CSV}.

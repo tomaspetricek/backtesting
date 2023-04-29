@@ -24,8 +24,9 @@ namespace trading::genetic_algorithm {
         std::vector<state_t> population_;
 
     public:
+        template<IResult<state_t> Result>
         void operator()(const std::vector<config_t>& init_genes,
-                IResult<state_t> auto& result,
+                Result& result,
                 IConstraints<state_t> auto&& constraints,
                 IObjectiveFunction<state_t> auto&& fitness,
                 IPopulationSizer auto&& size,
@@ -33,7 +34,7 @@ namespace trading::genetic_algorithm {
                 IMatchmaker<state_t> auto&& match,
                 ICrossover<config_t> auto&& crossover,
                 IMutation<config_t> auto&& mutate,
-                IReplacement<state_t> auto&& replace,
+                IReplacement<state_t, typename Result::comparator_type> auto&& replace,
                 ITerminationCriteria<optimizer> auto&& terminate,
                 IObserver<optimizer> auto& ... observers)
         {
@@ -50,14 +51,12 @@ namespace trading::genetic_algorithm {
                 // mate
                 children.clear();
                 for (const auto& mates: match(parents))
-                    for (auto&& genes: crossover(mates)) {
-                        genes = mutate(std::move(genes));
-                        children.template emplace_back(fitness(genes));
-                    }
+                    for (auto&& genes: crossover(mates))
+                        children.template emplace_back(fitness(mutate(std::move(genes))));
 
                 // replace
                 population_.clear();
-                replace(parents, children, population_);
+                replace(parents, children, result.comparator(), population_);
 
                 // update results
                 for (const auto& individual: population_)

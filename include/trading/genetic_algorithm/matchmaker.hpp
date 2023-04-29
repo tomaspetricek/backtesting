@@ -23,8 +23,7 @@ namespace trading::genetic_algorithm {
         template<class Individual>
         cppcoro::generator<std::array<typename Individual::config_type, n_parents>> operator()(std::vector<Individual>& parents)
         {
-            if (parents.size()<n_parents)
-                co_return;
+            if (parents.size()<n_parents) co_return;
 
             std::shuffle(parents.begin(), parents.end(), gen_);
             std::array<typename Individual::config_type, n_parents> match;
@@ -32,12 +31,9 @@ namespace trading::genetic_algorithm {
             for (std::size_t i{0}; i<parents.size(); i++) {
                 match[i%n_parents] = parents[i].config;
 
-                if (!((i+1)%n_parents))
-                    co_yield match;
+                if (!((i+1)%n_parents)) co_yield match;
             }
-
-            if (parents.size()%n_parents)
-                co_yield match;
+            if (parents.size()%n_parents) co_yield match;
         }
     };
 }
