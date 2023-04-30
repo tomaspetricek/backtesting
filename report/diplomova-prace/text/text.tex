@@ -2759,6 +2759,15 @@ Výsledky optimalizace jsou nejlepší nalezenou konfigurací pro daná historic
 Z hlediska strojového učení je nyní strategie optimalizována na trénovací sadě, ale výsledky nejsou porovnány s validační či testovací sadou.
 Jedním ze způsobů, jak se tomu vyhnout, by bylo použít walk-forward optimalizaci používanou platformou MultiCharts.
 
+Historickou simulaci lze zpřesnit zohledněním skluzu nebo použitím přesnějších historických dat, jako jsou tiky, namísto minutových svíček.
+Dále lze zavést podporu pro více typů objednávek, jako jsou limitní objednávky.
+Pozice může být rozšířena, aby bylo možné využívat páku a stop loss.
+Mezi výstup historické simulace lze zařadit i seznam provedených objednávek.
+
 Dalším způsobem, jak zlepšit aplikaci, by bylo použití databází k ukládání a manipulaci s daty.
 InfluxDB by se hodila, pokud by se zvýšil objem historických dat, a tím i potřeba je lépe organizovat a vytvářet složitější dotazy.
-MongoDB lze použít k lepší organizaci a manipulaci s výstupními daty, jako jsou nejlepší stavy a nastavení, která jsou aktuálně uložena ve formátu JSON.
+MongoDB lze použít k lepší organizaci a manipulaci s výstupními daty, jako jsou nejlepší stavy a nastavení, které jsou aktuálně uloženy ve formátu JSON.
+
+Aplikaci lze také obohatit o uživatelské rozhraní, které by ji učinilo uživatelsky přívětivější.
+Mohlo by poskytnout snazší a přehlednější způsob organizace, vyhodnocení a prohlížení výsledků experimentů.
+Může být webové nebo desktopové v závislosti na tom, co by se ukázalo jako výhodnější.
