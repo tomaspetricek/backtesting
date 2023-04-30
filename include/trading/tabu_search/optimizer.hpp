@@ -29,14 +29,13 @@ namespace trading::tabu_search {
                 IConstraints<state_t> auto&& constraints,
                 IObjectiveFunction<state_t> auto&& objective,
                 INeighbor<config_t, move_t> auto&& neighbor,
-                INeighborhoodSizer<optimizer> auto&& neighborhood_size,
+                INeighborhoodSizer<optimizer> auto&& neighborhood,
                 ITerminationCriteria<optimizer> auto&& terminate,
                 IAspirationCriteria<state_t, optimizer> auto&& aspire,
                 IObserver<optimizer> auto& ... observers)
         {
             best_state_ = curr_state_ = objective(init);
             state_t candidate, origin;
-            std::size_t neighborhood;
 
             (observers.started(*this), ...);
             for (it_ = 0; !terminate(*this); it_++) {
@@ -45,9 +44,7 @@ namespace trading::tabu_search {
                 std::tie(curr_state_.config, curr_move_) = neighbor(origin.config);
                 curr_state_ = objective(curr_state_.config);
 
-                neighborhood = neighborhood_size(*this);
-                assert(neighborhood>=1);
-                for (std::size_t i{0}; i<neighborhood-1; i++) {
+                for (std::size_t i{0}; i<neighborhood(*this)-1; i++) {
                     std::tie(candidate.config, candidate_move_) = neighbor(origin.config);
                     candidate = objective(candidate.config);
 

@@ -90,11 +90,11 @@ namespace trading::io::csv {
             std::stringstream ss(line_);
             ss.exceptions(std::ios::failbit);
 
-            auto parse_line = [&](auto& in) {
+            auto read_line = [&](auto& in) {
                 read_value(ss, in);
             };
 
-            (parse_line(inputs), ...);
+            (read_line(inputs), ...);
             return true;
         }
     };

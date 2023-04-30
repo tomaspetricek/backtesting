@@ -1480,8 +1480,7 @@ Celkový počet rodičů nemusí být dělitelný počtem vybíraných n-tic, ta
 N-tice jsou vraceny jako korutina typu \texttt{cppcoro::generator}.
 
 Byly implementovány dva přístupy nahrazování populace.
-Třída \texttt{en\_block\_replacement} zachovává pouze děti k vytvoření nové generace.
-Na druhou stranu třída \texttt{elitism\_replacement} k nim přidá ještě $er\cdot n$ nejzdatnějších rodičů, kde $er \in [0, 1]$ je poměr elitních rodičů a $n$ jejich celkový počet.
+Třída \texttt{en\_block\_replacement} zachovává pouze děti k vytvoření nové generace. Třída \texttt{elitism\_replacement} k dětem ještě přidává $er\cdot n$ nejzdatnějších rodičů, kde $er \in [0, 1]$ je poměr elitních rodičů a $n$ jejich celkový počet.
 
 \begin{lstlisting}[caption={~Implementace genetického algoritmu},label={lst:genetic:algorithm},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 template<IResult<state_t> Result>
@@ -1529,8 +1528,7 @@ void operator()(const std::vector<config_t>& init_genes,
 \end{lstlisting}
 
 \section{Tabu prohledávání}
-Tabu prohledávání je implementováno třídou \texttt{tabu\_search::optimizer}.
-Má čtyři třídní atributy počet iterací, seznam tabu, aktuální a nejlepší stav.
+Tabu prohledávání je implementováno třídou \texttt{tabu\_search::optimizer}, která má čtyři třídní atributy počet iterací, seznam tabu, aktuální a nejlepší stav.
 Pro ukládání zakázaných tahů byla implementována třída \texttt{bazooka::configuration\_memory}.
 Ukládá pouze konfigurační atributy, které byly změněny, nikoli celé konfigurace.
 Perioda a typ ukazatele jsou zapamatovány tak, jak jsou.
@@ -1559,11 +1557,11 @@ bool contains(const move_t& move) const
 }
 \end{lstlisting}
 
-Hodnoty jsou vkládány do paměti pomocí metody \texttt{remember} a zůstanou v ni po určitý počet iterací určeným tabu lhůtou $t>0$, kterou přebírá paměť při konstrukci.
-Počet iterací se sníží o jednu pomocí metody \texttt{forget}.
+Hodnoty se vkládají do paměti pomocí metody \texttt{remember} a zůstanou v ni  po daný počet iterací určený 
+tabu lhůtou, která je předána paměti při konstrukci.
+Počet iterací se sníží o jednu pomocí metody \texttt{forget} (viz \ref{lst:tabu:search}).
 Sousední konfigurace lze vygenerovat pomocí \texttt{bazooka::neighbor}, která vrací sousední konfiguraci včetně tahu.
-Velikost sousedství říká, kolik sousedních konfigurací je prohledáno během jedné iterace.
-Celý algoritmus lze vidět ve výpise \ref{lst:tabu:search}.
+Velikost sousedství udává počet sousedních konfigurací, které jsou prohledány během jedné iterace.
 
 \begin{lstlisting}[caption={~Implementace genetického algoritmu},label={lst:tabu:search},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 void operator()(const config_t& init,
@@ -1571,7 +1569,7 @@ void operator()(const config_t& init,
     IConstraints<state_t> auto&& constraints,
     IObjectiveFunction<state_t> auto&& objective,
     INeighbor<config_t, move_t> auto&& neighbor,
-    INeighborhoodSizer<optimizer> auto&& neighborhood_size,
+    INeighborhoodSizer<optimizer> auto&& neighborhood,
     ITerminationCriteria<optimizer> auto&& terminate,
     IAspirationCriteria<state_t, optimizer> auto&& aspire,
     IObserver<optimizer> auto& ... observers)
@@ -1586,8 +1584,9 @@ void operator()(const config_t& init,
         std::tie(curr_state_.config, curr_move_)=neighbor(origin.config);
         curr_state_ = objective(curr_state_.config);
 
-        for (std::size_t i{0}; i<neighborhood_size(*this)-1; i++) {
-            std::tie(candidate.config, candidate_move_) = neighbor(origin.config);
+        for (std::size_t i{0}; i<neighborhood(*this)-1; i++) {
+            std::tie(candidate.config,candidate_move_) =
+                neighbor(origin.config);
             candidate = objective(candidate.config);
 
             if ((!tabu_list_.contains(candidate_move_)
@@ -1609,8 +1608,7 @@ void operator()(const config_t& init,
         tabu_list_.remember(curr_move_);
         (observers.iteration_passed(*this), ...);
     }
-    (observers.finished(*this), ...);
-}
+    (observers.finished(*this), ...); }
 \end{lstlisting}
 
 \section{Shromažďování výsledků}
@@ -1642,13 +1640,13 @@ void update(const Type& candidate)
 \end{lstlisting}
 
 \chapter{Zpracování vstupů a výstupů}
-Byly vytvořeny vlastní třídy pro čtení a zápis do souborů \textit{CSV}.
+Byly vytvořeny vlastní třídy pro čtení a zápis do souborů ve \textit{CSV} (Comma-Separated Values).
 Jsou užitečné při čtení historických svíčkových dat a při ukládání časových řad pro vykreslování grafů.
 Pro uložení nastavení a výsledků experimentu byl zvolen formát \textit{JSON} (\textit{JavaScript Object Notation}), který je standardizovaný a čitelný.
-V tomto případě nebylo nutné vytvářet vlastní implementaci, protože existuje dobře známá, používaná a udržovaná knihovna \texttt{nlohmann/json} \cite{lohmann}.
+Nebylo nutné vytvářet vlastní implementaci, protože existuje dobře známá, používaná a udržovaná knihovna \texttt{nlohmann/json} \cite{lohmann}.
 
 \section{Formát CSV}
-Pro čtení a zápis do souborů CSV (Comma-Separated Values) byly vytvořeny třídy \texttt{csv::reader} a \texttt{csv::writer}.
+Pro čtení a zápis do souborů CSV byly vytvořeny třídy \texttt{csv::reader} a \texttt{csv::writer}.
 Hodnoty jsou uloženy v tabulce, kde sloupce jsou hodnoty stejného typu odděleny oddělovačem, obvykle čárkou.
 První řádek může obsahovat názvy sloupců, ale nemusí.
 
@@ -1658,8 +1656,8 @@ Soubor je otevřen při konstrukci třídy, pokud jej nelze otevřít, je vyhoze
 Soubor je uzavřen při destrukci objektu.
 
 Třída \texttt{csv::reader} nabízí dvě metody pro čtení řádků: \texttt{read\_header} a \texttt{read\_row}.
-Je přirozenější číst názvy sloupců do instance \texttt{std::array} než přímo do proměnných.
-Čtení přímo do proměnných je dosaženo použitím sady šablonových parametrů \ref{lst:csv:read:row}.
+Názvy sloupců jsou čteny do instance třídy \texttt{std::array}.
+Čtení přímo do proměnných je dosaženo použitím sady šablonových parametrů (viz \ref{lst:csv:read:row}).
 Třída vrací booleovský příznak s informací o tom, zda byl řádek přečten nebo ne.
 Hodnoty pak lze snadno číst v cyklu \texttt{while} (viz \ref{lst:read:candles}).
 Třída \texttt{io::parser} je používána k parsování jednotlivých hodnot.
@@ -1669,18 +1667,14 @@ template<class ...Types>
 bool read_row(Types& ...inputs)
 {
     static_assert(sizeof...(Types)==n_cols);
-    if (!std::getline(file_, line_))
-        return false;
+    if (!std::getline(this->file_, line_)) return false;
 
-    line_.erase(std::remove(line_.begin(),line_.end(),'\r'),line_.end());
+    line_.erase(std::remove(line_.begin(), line_.end(), '\r'), line_.end());
     std::stringstream ss(line_);
     ss.exceptions(std::ios::failbit);
 
-    auto parse_line = [&](auto& in) {
-        read_value(ss, in);
-    };
-
-    (parse_line(inputs), ...);
+    auto read_line = [&](auto& in) { read_value(ss, in); };
+    (read_line(inputs), ...);
     return true;
 }
 \end{lstlisting}
@@ -1707,7 +1701,7 @@ Pro C++ je k dispozici několik JSON knihoven, ale zdá se, že \texttt{nlohmann
 Na příslušné GitHub stránce je uvedeno, že jde o knihovnu JSON pro moderní C++, má 34 tisíc hvězdiček, je důkladně testována a pečlivě zdokumentována \cite{lohmann}.
 
 Podporuje vytvoření specifikace pro serializaci a deserializaci vlastních typů.
-Pro daný typ je vytvořena specializace struktury \texttt{adl\_serializer}, která může mít dvě metody \texttt{from\_json} pro deserializaci a \texttt{to\_json} pro serializaci.
+Pro daný typ je vytvořena specializace struktury \texttt{adl\_serializer}, která mohou být implementovány metody \texttt{from\_json} pro deserializaci a \texttt{to\_json} pro serializaci.
 Implementaci pro třídu \texttt{bazooka::indicator} lze vidět ve výpise \ref{lst:json:serialize}.
 
 \begin{lstlisting}[caption={~Implementace deserializace pro vlastní datový typ},label={lst:json:serialize},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
@@ -1751,7 +1745,7 @@ Vlastní widget byl vyvinut, jelikož se graf obvykle nevejde na šíři obrazov
 Graf je vykreslen pomocí knihovny \texttt{mplfinance}, což je větev (branch) \texttt{Matplotlib}, která se specializuje na vykreslování finančních dat a musí být instalována samostatně.
 Nabízí způsob, jak snadno vykreslit svíčková data a také dobře integruje použití třídy \texttt{Pandas.DataFrame} pro předání dat.
 
-Widget se skládá ze 2 částí: samotného grafu a posuvníku pro určení počátečního časového bodu (viz \ref{fig:historical-simulation-widget}).
+Widget se skládá ze dvou částí: samotného grafu a posuvníku pro určení počátečního časového bodu (viz \ref{fig:historical-simulation-widget}).
 Na graf jsou nejprve vynesena svíčková data, na které jsou bodově umístěny zbývající časové řady.
 Vedle něj je umístěna legenda.
 Posuvník je popsán pomocí časových značek, aby se dal snadněji používat.
@@ -1761,14 +1755,14 @@ Jelikož je vykreslováno mnoho časových bodů najednou, může aktualizace po
 Nástroj může být užitečný pro získání lepší představy o tom, jak strategie funguje.
 
 \begin{figure}[htbp]
-\centerline{\includegraphics[scale=0.3]{img/historical-simulation-widget-2.png}}
+\centerline{\includegraphics[scale=0.30]{img/historical-simulation-widget-2.png}}
 \caption{Widget pro vykreslování svíček}
 \label{fig:historical-simulation-widget}
 \end{figure}
 
 \chapter{Testování}
-K zajištění správnosti kódu byly použity 2 nástroje, a to tvrzení (assertions) a unit testování.
-Když něco vždy platí, lze to ověřit pomocí tvrzení.
+K zajištění správnosti kódu byly použity 2 nástroje, tvrzení (assertions) a unit testování.
+Pokud něco vždy platí, lze jej ověřit pomocí tvrzení.
 V C++ jsou k dispozici makra z hlavičkového souboru \texttt{assert.h}.
 Lze je například použít ke kontrole předpokladu, že vygenerované číslo je v požadovaném rozsahu.
 Pokud neplatí, způsobí ukončení programu a nelze je zachytit jako výjimky.
@@ -1781,7 +1775,7 @@ Mohou být způsobeny například poskytnutím nesprávně naformátovaného CSV
 Kontrola výjimečných stavů způsobuje režii navíc, takže se používají hlavně ve fázi konstrukce objektu, která se provádí pouze jednou.
 Výjimky jsou vnořeny pomocí \texttt{std::throw\_with\_nested}, aby mohl uživatel získat co nejvíce informací k vyřešení problému.
 
-V C++ existuje několik testovacích frameworků, ale Boost.Test a GoogleTest jsou 2, které vynikají nejvíce.
+V C++ existuje několik testovacích frameworků, ale Boost.Test a GoogleTest jsou dva, které vynikají nejvíce.
 Oba používají makra k vytváření testovacích sad, testovacích případů a asercí, což minimalizuje množství práce potřebné k vytvoření testu.
 Jsou dobře zdokumentované, široce používané a také integrované do IDE, jako je Visual Studio a CLion.
 Pro tuto práci byl vybrán Boost.Test, protože je známější.
@@ -1814,15 +1808,15 @@ BOOST_AUTO_TEST_SUITE(ema_test)
 BOOST_AUTO_TEST_SUITE_END()
 \end{lstlisting}
 
-K samotnému testování jsou používány výroky (assertion), které jsou vyhodnoceny jako pravdivé nebo nepravdivé.
-Framework nabízí různé výroky, které jsou spojeny s jednou ze tří úrovní testování.
+K samotnému testování jsou používány tvrzení, které jsou vyhodnoceny jako pravdivé nebo nepravdivé.
+Framework nabízí různé tvrzení, které jsou spojeny s jednou ze tří úrovní testování.
 Nejméně závažná je úroveň \texttt{WARN}, která vydá varovnou zprávu, pokud výrok není pravdivý.
 Pokud je použita úroveň \texttt{CHECK}, vygeneruje chybu, ale umožní pokračovat v testování.
 Nejzávažnější je úroveň \texttt{REQUIRE}, která vygeneruje chybovou hlášku a přeruší provedení daného testovacího případu.
 
 Nabízí velmi dobře formátované a přehledné konzolové logy, které slouží k hlášení průběhu testování.
 K dispozici jsou různé úrovně logování.
-Ve výchozím nastavení je hlášeno vše: úspěch, varování, chyby, nezachycené výjimky a další.
+Ve výchozím nastavení je hlášeno vše úspěch, varování, chyby, nezachycené výjimky a další.
 Úroveň lze nastavit pomocí proměnné prostředí nebo příznaků příkazového řádku.
 
 V CLion IDE lze testovací sady a případy spouštět jednotlivě.
@@ -1863,10 +1857,10 @@ BOOST_AUTO_TEST_CASE(should_open_test)
 Hodnoty generované implementací ukazatelů EMA a SMA byly porovnány s hodnotami generovanými knihovnou pro technickou analýzu TA-lib.
 Pro testování byly použity různé hodnoty period a hodnot vzorků.
 Otestováno bylo také, že při zavolání konstruktoru s neplatnými parametry, je vyhozena výjimka.
-Byla zkontrolována správná indikace připravenosti indikátoru jak při zavolání metody \texttt{update} tak \texttt{is\_ready}.
+Byla zkontrolována správná indikace připravenosti ukazatelů jak při zavolání metody \texttt{update} tak \texttt{is\_ready}.
 
 \section{Manažer}
-Manažer přijímá signály generované strategií a převádí je na objednávky, které jsou následně předány burze.
+Manažer přijímá signály generované strategií a převádí je na objednávky, které jsou následně předány trhu.
 I když je to složitější třída, tak lze její stav simulovat zvenčí.
 Proto byly při testování pro srovnání stavu trhu použity očekávané instance tříd \texttt{market}, \texttt{wallet}, \texttt{order\_sizer}, \texttt{open\_order} a \texttt{close\_all\_order}.
 Nejprve byla zkontrolována správná inicializace třídy a poté byl proveden test použití.
@@ -1897,11 +1891,11 @@ struct mock_strategy {
 };
 \end{lstlisting}
 
-\section{Burza}
-Třída \texttt{market} byla nejprve testována na správnou inicializaci a výjimky, které mohou být vyvolány při volání konstruktoru.
+\section{Trh}
+Třída \texttt{market} byla nejprve testována na správnou inicializaci a výjimky, které mohou být vyvolány.
 Konstruktor vyvolá výjimku typu \texttt{std::invalid\_argument}, když je mu předána neplatná hodnota poplatku.
 Aby bylo možné otestovat její použití, byly k porovnání hodnot udržovány instance tříd \texttt{position} a \texttt{wallet} představují očekávaný stav třídy.
-Test prošel všemi stavy aktivní pozice: vytvoření, navýšení a uzavření, během kterých byly skutečné hodnoty poskytované metodami třídy porovnány s očekávanými.
+Test prošel všemi stavy aktivní pozice vytvoření, navýšení a uzavření, během kterých byly skutečné hodnoty poskytované metodami třídy porovnány s očekávanými.
 
 \section{Pozice}
 Nejprve byla testována inicializace pro kontrolu, že jsou všechny atributy správně inicializovány.
@@ -1910,15 +1904,15 @@ Během testu byly počítány očekávaná celková investovaná částka a oče
 
 \section{Simulátor}
 Cílem prvního testu bylo ujistit se, že proces převzorkování prováděný v těle konstruktoru je správně implementován.
-Za tímto účelem byly vypočteny očekávané ceny a indikátorové ceny a porovnány s hodnotami získanými pomocí getrů instanciované třídy.
-Poté byla testována samotná simulace přístupná pomocí volacího operátoru třídy, který přebírá 2 typy parametrů: obchodníka a sadu pozorovatelů.
+Za tímto účelem byly vypočteny očekávané ceny a ceny pro ukazatele a porovnány s hodnotami získanými pomocí getrů instanciované třídy.
+Poté byla testována samotná simulace přístupná pomocí volacího operátoru třídy, který přebírá dva typy parametrů: obchodníka a sadu pozorovatelů.
 Ke kontrole, zda jsou pozorovatelé voláni správně, byl použit pozorovatel počítající počet událostí.
 Jako obchodník byla použita mockovací třída, která umožňovala nastavení výsledků volání metod před použitím simulátoru.
-Pomocí těchto 2 objektů bylo provedeno několik testovacích případů.
+Pomocí těchto dvou objektů bylo provedeno několik testovacích případů.
 
 \section{Statistiky}
 Výkonnostní statistiky byly testovány, aby bylo zajištěno, že jsou hodnoty správně inicializovány a aktualizovány.
-Bylo využito toho, že jsou rozděleny do 4 nezávislých skupin: statistiky související s pohybem, statistiky související se ziskem, čítače otevřených a uzavřených objednávek a zůstatky.
+Bylo využito toho, že jsou rozděleny do 4 nezávislých skupin statistiky související s pohybem, statistiky související se ziskem, čítače otevřených a uzavřených objednávek a zůstatky.
 Na všech byly proto provedeny samostatné testovací případy.
 
 \section{Generátory stavového prostoru}
@@ -1954,7 +1948,7 @@ Pro generování stavového prostoru mohly být využity generátory  \texttt{sy
 
 Jako objektivní funkce byla zvolena funkce převádějící integer na double.
 Cílem všech testů bylo nalézt její maximální hodnotu.
-Omezení mohla být definována uvedením minimální objektivní hodnoty.
+Omezení mohla být definována uvedením minimální hodnoty optimalizačního kritéria.
 Byly testovány na výjimky, které by mohly být vyvolány během inicializace objektu.
 Aby bylo možné zkontrolovat, zda jsou pozorovatelé informováni o událostech správně, byli vytvořeni pozorovatelé pro počítání událostí.
 Ukázku testování simulovaného ochlazování pomocí čítacího pozorovatele lze vidět na \ref{lst:test:event:counter}.
@@ -1998,11 +1992,11 @@ BOOST_AUTO_TEST_CASE(count_events_test)
 
 \subsection{Hrubá síla}
 Optimalizátor hrubé síly byl nejsnáze testovatelný.
-Vyhledávací prostor byl generován pomocí systematicky, takže optimalizátor vždy najde nejlepší stav.
+Vyhledávací prostor byl generován systematicky, takže optimalizátor vždy najde nejlepší stav.
 Testováno bylo také použití omezení a procházení prázdného vyhledávacího prostoru.
 
 \subsection{Simulované ochlazování}
-Třída \texttt{simulated\_annealing::optimizer} byla nejprve testována na správnou inicializaci a výjimky, které jsou vyvolány při předání neplatných hodnot.
+Třída \texttt{simulated\_annealing::optimizer} byla nejprve testována na správnou inicializaci a vyhození vyjímek, které jsou vyvolány při předání neplatných hodnot.
 Ke kontrole, zda byli pozorovatelé správně informováni o událostech, byl použit čítač událostí.
 Jednotlivé čítače událostí byly kontrolovány během optimalizace uvnitř metod čítače (viz \ref{lst:event:counter:finished}) a nakonec po jejím skončení.
 Hledání závisí na náhodném prohledávání sousedních stavů, takže test použití byl nastaven tak, aby po dostatečném množství iterací bylo nalezení nejlepšího stavu téměř jisté.
@@ -2019,9 +2013,9 @@ void finished(const Optimizer&)
 
 \subsection{Genetický algoritmus}
 Třída \texttt{genetic\_algorithm::optimizer} byla testována velmi podobně.
-Operátor křížení byl implementován jako průměr konfigurací 2 rodičů.
+Operátor křížení byl implementován jako průměr konfigurací dvou rodičů.
 Mutace byla provedena stejně, pouze druhý rodič byl generován náhodně.
-Byly navrženy 2 testovací případy pro kontrolu \texttt{bazooka::crossover} třídy.
+Pro kontrolu třídy \texttt{bazooka::crossover} byly navrženy dva testovací případy.
 Cílem prvního bylo se ujistit, že pokud jsou rodiče stejní, tak je totožné i jejich dítě.
 Při druhém byli opakovaně vygenerováni náhodní rodiče a bylo zkontrolováno, že produkují validní potomky.
 
@@ -2032,23 +2026,23 @@ Paměťové třídy byly také testovány, aby bylo zajištěno, že si správn�
 
 \section{Čtení a zápis do CSV}
 Pro testování čtení a zápisu do CSV souborů byly připraveny 4 soubory: prázdný, pouze s hlavičkou, pouze s daty a kompletní soubor.
-Při použití čtecí třídy může být vyvolána výjimka \texttt{std::runtime\_error}, buď při volání konstruktoru, pokud soubor neexistuje, nebo při samotném čtení, pokud je soubor nesprávně naformátován nebo je třída nesprávně používána.
+Při použití třídy \texttt{io::csv::reader}může být vyvolána výjimka \texttt{std::runtime\_error}, buď při volání konstruktoru, pokud soubor neexistuje, nebo při samotném čtení, pokud je soubor nesprávně naformátován nebo je třída nesprávně používána.
 Rozlišuje mezi výjimkou, která nastane při oddělování dat oddělovačem, a výjimkou, která nastane při převodu dat na požadovaný datový typ.
 Hlavním rozdílem mezi nimi je obsah chybové zprávy.
 Byly provedeny důkladné testy k simulaci požadovaných a výjimečných situací.
-Třída čtení byla použita k testování třídy zápisu, aby se ověřilo, že produkuje validní výstup.
+Třída pro čtení byla použita k testování třídy pro zápis, aby se ověřilo, že produkuje validní výstup.
 
 \chapter{Experimentální vyhodnocení}
 Cílem experimentálního vyhodnocení bylo najít vhodná nastavení pro optimalizátory a mít možnost je vzájemně porovnat.
 Pomocí algoritmu hrubé síly byly nalezeny optimální stavy pro vyhledávací prostor použitý pro vyhodnocení heuristik.
 Při vyhodnocování heuristiky byly nejprve nalezeny vhodné parametry na sadě historických dat white-box a následně testovány na sadě black-box.
-Výsledky experimentů byly pečlivě a systematicky uchovávány, aby bylo co nejjednodušší rozhodování, co upravit pro další experiment.
 
-Jsou umístěny v systematicky uspořádané hierarchii složek.
-Všechny mají společný adresář výstupních dat, který obsahuje 4 složky s názvy odpovídajícími jednotlivým optimalizátorům, do nichž patří složky s výsledky jednotlivých experimentů.
+Výsledky experimentů byly pečlivě a systematicky uchovávány, aby bylo co nejjednodušší rozhodování, co upravit pro další experiment.
+Jsou umístěny v uspořádané hierarchii složek.
+Všechny mají společný adresář výstupních dat, který obsahuje čtyři složky s názvy odpovídajícími jednotlivým optimalizátorům, do nichž patří složky s výsledky jednotlivých experimentů.
 Například výsledky experimentu s názvem white-box-1 genetického algoritmu by bylo možné najít ve složce data/out/genetic-algorithm/white-box-1.
 
-Výsledky všech experimentů se skládají z minimálně 3 souborů: log.txt, best-states.json a settings.json.
+Výsledky všech experimentů se skládají z minimálně tří souborů: log.txt, best-states.json a settings.json.
 Soubor log.txt obsahuje zprávy, které byly během procesu optimalizace zobrazeny do konzole.
 Aby bylo možné výsledky zobrazit na standardní výstup a zároveň je zapsat do souboru, byl použit \texttt{boost::iostreams::stream} spolu s \texttt{boost::iostreams::tee\_device}.
 Všechny optimalizátory mají společný začátek logu s informacemi o načtených historických datech \ref{lst:log:candles}.
@@ -2063,16 +2057,16 @@ duration: 3.664928s
 \end{lstlisting}
 
 Nastavení experimentu jsou ukládána do souboru ve formátu JSON.
-Díky tomu je experiment opakovatelný, i když výsledky nemusí být stejné, alespoň to platí pro všechny heuristické optimalizátory, protože spoléhají na randomizaci.
+Díky tomu je experiment opakovatelný, i když výsledky nemusí být stejné.
 Všechny optimalizátory mají společné sekce nastavení.
 Obsahují informace o historických datech, převzorkování a vyhledávacím prostoru \ref{lst:common:settings}.
 Nejlepší stavy jsou uloženy jako seznam konfigurací a statistik v souboru best-states.json.
 K dispozici jsou různé statistiky, které mohou pomoci lépe porozumět chování optimalizované strategie \ref{lst:best-state}.
 
-Python skripty byly následně použity k vytvoření souhrnných tabulek a grafů z dat generovaných optimalizací.
+Python skripty byly použity k vytvoření souhrnných tabulek a grafů z dat generovaných optimalizací.
 Tímto způsobem bylo následné zpracování automatizováno, což snížilo možnost udělat chybu a výrazně zkrátilo čas potřebný k vytvoření přehledových tabulek.
 
-Experimenty byly prováděny na notebooku MacBook Pro s 2,3 GHz Intel 4jádrovým procesorem s 32 GB RAM pamětí.
+Experimenty byly prováděny na notebooku MacBook Pro s 2,3 GHz Intel 4jádrovým procesorem.
 Procesor podporuje hyper-trading, který umožňuje současný běh 2 vláken na každém jádru.
 Což ovlivňuje framework OpenMP, který díky tomu může používat 8 vláken.
 
@@ -2108,9 +2102,6 @@ ZRX  & 2 160 979 & 28. 02. 2019 & 11. 04. 2023 & 4,1 \\ \hline
 }
 \end{table}
 
-Průměrná doba výpočtu objektivní funkce je přibližně 0,006 sekundy, což znamená, že prohledání 1 milionu různých stavů by trvalo přibližně 1,5 hodiny.
-Výpočet byl proveden na mnohem větším vyhledávacím prostoru pro získání přesnějších výsledků.
-
 \section{Hrubá síla}
 Hlavním účelem algoritmu hrubé síly bylo vyzkoušet použití různých optimalizačních kritérií a omezení.
 Je to také dobrý způsob měření vlivu optimalizace.
@@ -2134,7 +2125,7 @@ duration: 01:04:20.000111
 
 \subsection{Optimalizace}
 Nejprve byly provedeny experimenty zaměřené na měření účinků optimalizací.
-Byly použity 2 typy optimalizací: optimalizace kompilátoru a paralelismus.
+Byly použity dva typy optimalizací: optimalizace kompilátoru a paralelismus.
 Hlavní použitá optimalizace kompilátoru byla \texttt{O3}, která nastavuje nejvyšší úroveň optimalizací.
 Druhou je \texttt{march=native}, která říká kompilátoru, aby provedl optimalizaci pro konkrétní CPU na daném počítači.
 
@@ -2154,10 +2145,13 @@ optimalizace kompilátoru a paralelismus & 24                       & 41,1      
 \end{tabular}
 \end{table}
 
+Průměrná doba výpočtu objektivní funkce je přibližně \textbf{6 ms}, což znamená, že prohledání 1 milionu různých stavů by trvalo přibližně 1,5 h.
+Výpočet byl proveden na mnohem větším vyhledávacím prostoru pro získání přesnějších výsledků.
+
 \subsection{Experimenty}
 Na začátku bylo provedeno několik experimentů k nalezení vhodného vyhledávacího prostoru.
 Hodnoty úrovně nákupu se ukázaly být nejdůležitějším konfiguračním parametrem, který musel mít širokou škálu možných hodnot.
-Ke generátorům úrovně nákupu byl přidán parametr spodní hranice, čímž se snížil počet jedinečných hodnot potřebných k nalezení přijatelných výsledků, a tím se zmenšil vyhledávací prostor.
+Ke generátorům úrovně nákupu byl přidán parametr spodní hranice, čímž se snížil počet jedinečných hodnot potřebných k nalezení přijatelných výsledků a zmenšil se i vyhledávací prostor.
 
 PROM byl zvolen jako optimální kritérium, jelikož poskytuje rozumné výsledky s vyváženým poměrem rizika a zisku.
 Byla také vyzkoušena jiná jednodušší optimalizační kritéria, jako maximalizace ziskového faktoru, což vedlo k nalezení konfigurací, které byly velmi bezpečné, avšak přinášely nízké zisky.
@@ -2166,10 +2160,10 @@ Výsledky byly primárně porovnávány pomocí statistik, nicméně byla použi
 Na grafu \ref{fig:btc-historical-simulation} lze vidět, že strategie obchoduje, když dochází k rychlým poklesům ceny.
 Při vhodném nastavení přináší zisky, ale může se stát, že strategie otevře pozici příliš brzy, což vede k nižším ziskům nebo dokonce ztrátám.
 Stalo by se to například na začátku roku 2020, kdy začala pandemie COVID, následky jsou vidět na grafu s čistou hodnotou.
-Je také vidět, že většina obchodů byla provedena na začátku kolem roku 2018 a počet obchodů s postupem času klesá, což může naznačovat, že strategie byla optimalizována na příliš velkém množství dat.
+Lze si všimnout, že většina obchodů byla provedena na začátku kolem roku 2018 a počet obchodů s postupem času klesá, což může naznačovat, že strategie byla optimalizována na příliš velkém množství dat.
 
 \begin{figure}[htbp]
-\centerline{\includegraphics[scale=0.6]{img/btc-historical-simulation.png}}
+\centerline{\includegraphics[width=\textwidth]{img/btc-historical-simulation.png}}
 \caption{Průběh historické simulace}
 \label{fig:btc-historical-simulation}
 \end{figure}
@@ -2177,33 +2171,37 @@ Je také vidět, že většina obchodů byla provedena na začátku kolem roku 2
 Po dokončení počátečních testů byly provedeny 2 sady testů na všech historických datech.
 Hodnoty parametrů vyhledávacího prostoru byly zvoleny na základě získaných výsledků.
 I při použití optimalizace byl čas stále limitujícím faktorem.
-Rozumná velikost vyhledávacího prostoru se pohybuje 0,5--1 milion možných konfigurací, což trvá přibližně 0,75--1,5 hodiny, než se dokončí jeden běh optimalizace.
+Rozumná velikost vyhledávacího prostoru se pohybuje 0,5--1 milion možných konfigurací, což trvá přibližně 0,75--1,5 h, než se dokončí jeden běh optimalizace.
 
 Stavový prostor pro 1. sadu experimentů měl přibližně 0,4 milionu konfigurací a pro 2. sadu přibližně 1 milion.
 Hodnoty parametrů generátorů stavového prostoru a perioda převzorkování jsou uvedeny v tabulce \ref{tab:brute:force:sets:search:space}.
 Změny provedené po 1. sadě experimentů spočívaly v tom, že počet jedinečných hodnot úrovní nákupu byl zvýšen z 15 na 20 a v seznamu možných typů ukazatelů byl ponechán pouze SMA.
-Během poslední sady experimentů byla doba převzorkování zkrácena ze 45 minut na 15, počet jedinečných hodnot úrovní nákupu byl vrácen zpět na 15, byl zvýšen počet jedinečných hodnot velikostí nákupu z 6 na 11 a spodní hranice úrovní nákupu byla snížena z \(-20 \%\) na \(-40 \%\).
+Perioda převzorkování zkrácena ze 45 minut na 15, počet jedinečných hodnot úrovní nákupu byl vrácen zpět na 15, byl zvýšen počet jedinečných hodnot velikostí nákupu z 6 na 11 a spodní hranice úrovní nákupu byla snížena z \(-20 \%\) na \(-40 \%\).
 
 \begin{table}[!htbp]
 \centering
 \caption[Přehled hodnot parametrů vyhledávacího prostoru pro sady experimentů]{~Přehled hodnot parametrů vyhledávacího prostoru pro sady experimentů}
 \label{tab:brute:force:sets:search:space}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+\begin{tabular}{|l|c|c|c|}
 \hline
 \multicolumn{1}{|c|}{\textbf{Sada}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Období\\ převzorkování\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Perioda\\ převzorkování\end{tabular}} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Úrovně nákupu\\ počet jedinečných hodnot\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Úrovně nákupu\\ spodní hranice (\%) \end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Úrovně nákupu\\ spodní hranice (\%) \end{tabular}} \\ \hline
+1 & 45 & 15 & \(-25,0\) \\ \hline
+2 & 15 & 15 & \(-40,0\) \\ \hline
+\end{tabular}
+\bigskip
+\begin{tabular}{|c|c|c|c|c|}
+\hline
   \textbf{\begin{tabular}[c]{@{}c@{}}Velikosti nákupu\\ počet jedinečných hodnot\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Období\\ od\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Období\\ do\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Období\\ krok\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Perioda\\ od\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Perioda\\ do\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Perioda\\ krok\end{tabular}} &
   \textbf{Ukazatelé} \\ \hline
-1 & 45 & 15 & \(-25,0\) & 6  & 3 & 60  & 3 & \([\begin{array}{cc} SMA & EMA \end{array}]\) \\ \hline
-2 & 15 & 15 & \(-40,0\) & 11 & 3 & 105 & 3 & \([\begin{array}{c} SMA \end{array}]\)        \\ \hline
-\end{tabular}%
-}
+6 & 3 & 60 & 3 & \([\begin{array}{cc} SMA & EMA \end{array}]\) \\ \hline
+11 & 3 & 105 & 3 & \([\begin{array}{c} SMA \end{array}]\)        \\ \hline
+\end{tabular}
 \end{table}
 
 Hodnoty úrovně nákupu a velikosti nákupu byly převedeny ze zlomků do čitelnějšího formátu.
@@ -2213,7 +2211,7 @@ Z přehledu nejlepších konfigurací z 1. sady experimentů (viz \ref{tab:brute
 Na základě toho by se měl zvýšit počet jedinečných velikostí, aby byla dostupná větší rozmanitost velikostí nákupu.
 Medián první úrovně nákupu je \(-12.5 \% \) a poslední úrovně \( -19.6 \% \). 
 Poslední úroveň je velmi blízko spodní hranici úrovně nákupu, což naznačuje, že může být výhodné ji snížit ještě více.
-SMA je přítomen v 7 z 10 nejlepších konfigurací, takže indikátor EMA lze v dalších experimentech vynechat.
+SMA je přítomen v 7 z 10 nejlepších konfigurací, takže ukazatel EMA lze v dalších experimentech vynechat.
 V případě měny XLM dosáhlo maximální hodnoty období, což naznačuje, že by měla být maximální hodnota zvýšena.
 
 % Please add the following required packages to your document preamble:
@@ -2224,7 +2222,7 @@ V případě měny XLM dosáhlo maximální hodnoty období, což naznačuje, ž
 {%
 \begin{tabular}{|l|c|c|c|c|}
 \hline
-\multicolumn{1}{|c|}{\textbf{Měna}} & \textbf{Ukazatel} & \textbf{Období} & \textbf{Nákupní úrovně (\%)} & \textbf{Nákupní velikosti (\%)} \\ \hline
+\multicolumn{1}{|c|}{\textbf{Měna}} & \textbf{Ukazatel} & \textbf{Perioda} & \textbf{Nákupní úrovně (\%)} & \textbf{Nákupní velikosti (\%)} \\ \hline
 ADA  & EMA & 51 & \([\begin{array}{ccc} -14,1 & -17,2 & -20,3 \end{array}]\) & \([\begin{array}{ccc} 12,5 & 12,5 & 75,0 \end{array}]\) \\ \hline
 BTC  & SMA & 15 & \([\begin{array}{ccc} -9,4 & -10,9 & -12,5 \end{array}]\)  & \([\begin{array}{ccc} 12,5 & 75,0 & 12,5 \end{array}]\) \\ \hline
 DASH & SMA & 15 & \([\begin{array}{ccc} -14,1 & -17,2 & -18,8 \end{array}]\) & \([\begin{array}{ccc} 12,5 & 75,0 & 12,5 \end{array}]\) \\ \hline
@@ -2272,9 +2270,9 @@ ZRX  & 268,3   & 326,7   & 165,5 & \(-0,3\)  & \(-36,7\) \\ \hline
 Na základě poznatků z 1. sady experimentů byla sestavena 2. sada experimentů.
 Z přehledu nejlepších konfigurací z 2. sady experimentů (viz \ref{tab:brute:force:set:2:best:configs}) lze vidět, že zvýšení počtu jedinečných velikostí nákupu způsobilo zvýšení částky zůstatku vloženého na jedenou úroveň, ze 75 \% na 84,6 \%.
 Minimální část nákupu 7,7 \%, kterou bylo možné vložit na obchod, byla nejčastěji se vyskytující hodnotou.
-Období převzorkování bylo 3krát zkráceno ze 45 minut na 15 minut, což například způsobilo ztrojnásobení hodnoty období u BTC, úrovně nákupu se v podstatě nezměnily a ještě větší část zůstatku byla soustředěna na 2. nákupní úroveň.
-Převzorkování také způsobilo, že ADA dosáhla nejvyšší hodnoty období, což bránilo nalezení lepšího řešení.
-Všechna období indikátoru se zvýšila 2--3krát kromě XLM, kde se snížila na polovinu z 60 na 27.
+Perioda převzorkování byla 3krát zkrácena ze 45 minut na 15 minut, což například způsobilo ztrojnásobení hodnoty období u BTC, úrovně nákupu se v podstatě nezměnily a ještě větší část zůstatku byla soustředěna na 2. nákupní úroveň.
+Převzorkování také způsobilo, že ADA dosáhla nejvyšší hodnoty periody, což bránilo nalezení lepšího řešení.
+Všechna periody ukazatele se zvýšily 2--3krát kromě XLM, kde se snížila na polovinu z 60 na 27.
 Medián poslední nákupní úrovně se snížil na \(-18,75\) \%, což je stále velmi blízko \(-19\) \%, avšak zvýšení spodní hranice umožnilo DASH snížit hodnotu poslední úrovně na \(-32\) \%.
 
 \begin{table}[!htbp]
@@ -2286,7 +2284,7 @@ Medián poslední nákupní úrovně se snížil na \(-18,75\) \%, což je stál
 \hline
 \multicolumn{1}{|c|}{\textbf{Měna}} &
   \textbf{Ukazatel} &
-  \textbf{Období} &
+  \textbf{Perioda} &
   \textbf{Nákupní úrovně (\%)} &
   \textbf{Nákupní velikosti (\%)} \\ \hline
 ADA  & SMA & 105 & \([\begin{array}{ccc} -12,5 & -15,0 & -17,5 \end{array}]\) & \([\begin{array}{ccc} 7,7 & 7,7 & 84,6 \end{array}]\)  \\ \hline
@@ -2310,7 +2308,7 @@ ZRX  & SMA & 54  & \([\begin{array}{ccc} -10,0 & -15,0 & -22,5 \end{array}]\) & 
 Z přehledu statistik (viz \ref{tab:brute:force:set:2:best:stats}) lze vypozorovat, že hodnoty zisku jsou řádově stejné u všech měn kromě ADA, LTC a XLM, kde se snížily o \(-47\) \%, \(-18.6\) \% a \mbox{\(-27.7\) \%}.
 Největší celkové zlepšení lze zaznamenat u měny DASH, jejíž ziskový faktor vzrostl 4,5krát a sestupné pohyby se zmenšily, na výsledný zisk to však mělo minimální dopad.
 Výsledky 1. sady experimentů byly tedy celkově lepší.
-Hlavním důvodem zhoršení bylo nejspíš snížení doby převzorkování.
+Hlavním důvodem zhoršení bylo nejspíš snížení periody převzorkování.
 
 \begin{table}[!htbp]
 \centering
@@ -2399,7 +2397,7 @@ Nejlepší nalezenou kombinaci těchto parametrů lze vidět v tabulce \ref{tab:
 Průběh optimalizace white-box testování lze vidět na \ref{fig:genetic:algorithm:white:box:optimization:progress}.
 Nejlepší konfigurace pro ADA a BTC byly nalezeny v 1. polovině iterací a pro DASH během poslední, což může naznačovat, že počet iterací mohl být trochu zvýšen.
 Průměrná zdatnost má u všech rostoucí tendenci.
-Průměrné zrychlení ve srovnání s algoritmem hrubé síly je \textbf{22,5} a optimalizace trvá \textbf{1,3--2 minuty}, takže je hledání výrazně méně časově náročné.
+Průměrné zrychlení ve srovnání s algoritmem hrubé síly je \textbf{22,5} a optimalizace trvá \textbf{1,3--2 min}, takže je hledání výrazně méně časově náročné.
 Výsledky lze nalézt v tabulce \ref{tab:genetic:algorithm:white:box:results}.
 
 \begin{figure}[!htbp]
@@ -2454,6 +2452,7 @@ ZRX  & 0,0  & 79,3  & 21,6 \\ \hline
 }
 \end{table}
 
+\clearpage
 \section{Simulované ochlazování}
 Soubor \texttt{settings.json} byl rozšířen o informace o optimalizátoru jako je počáteční a minimalní teplota, použitý rozvrh ochlazování a equilibrium.
 Průběh optimalizace byl uložen do souboru \texttt{progress.csv}.
@@ -2478,7 +2477,6 @@ Pro 1. skupinu skládající se z měn ADA a BTC byly hodnoty parametrů: počá
 Při použití nastavení 1. skupiny pro 2. DASH nedosáhl intenzifikační fáze a při opačném použití nastala intenzifikační fáze u 1. skupiny příliš brzy.
 
 Jelikož byly rozsahy vhodných hodnot parametrů příliš daleko od sebe, byla navržena nová dynamičtější implementace equilibria  \texttt{temperature\_based\_equilibrium} založená na aktuální teplotě.
-Počet pokusů vypočítá vynásobením aktuální teploty koeficientem.
 Implementace umožnila snížení počtu pokusů s teplotou a tím spojení obou nastavení parametrů.
 
 Nejlepší nalezené nastavení parametrů pro sadu white-box je uvedeno v tabulce \ref{tab:simulated:annealing:setting}.
@@ -2490,23 +2488,25 @@ Rozsah změn generátoru náhodných období byl nastaven na 10 z výchozí hodn
 \centering
 \caption[Nejlepší nalezené nastavení pro sadu white-box pro simulované ochlazování]{~Nejlepší nalezené nastavení pro sadu white-box pro simulované ochlazování}
 \label{tab:simulated:annealing:setting}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{|c|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|}
 \hline
 \textbf{\begin{tabular}[c]{@{}c@{}}Počáteční\\ teplota\end{tabular}} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Minimální\\ teplota\end{tabular}} &
   \textbf{\begin{tabular}[c]{@{}c@{}}Koeficient equilibria\\ založeném na teplotě (\%)\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Rozsah změny\\ období\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Počet změn\\ nákupních úrovní\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Počet změn\\ nákupních velikostí\end{tabular}} \\ \hline
+  \textbf{\begin{tabular}[c]{@{}c@{}}Rozsah změny\\ periody\end{tabular}} \\ \hline
 94 &
   12 &
   \(-20\) &
-  10 &
+  10 \\ \hline
+\end{tabular}
+\bigskip
+\begin{tabular}{|c|c|}
+\hline
+  \textbf{\begin{tabular}[c]{@{}c@{}}Počet změn\\ nákupních úrovní\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Počet změn\\ nákupních velikostí\end{tabular}} \\ \hline
   2 &
   1 \\ \hline
-\end{tabular}%
-}
+\end{tabular}
 \end{table}
 
 Průběh optimalizace white-box testování je vidět na grafu \ref{fig:simulated:annealing:white:box:optimization:progress}.
@@ -2515,12 +2515,12 @@ U BTC je přechod pomalejší a u DASH lze vypozorovat, že dochází k výrazn�
 Individuálně lze tedy nalézt lepší hodnoty parametrů, ale i přesto se podařilo konvergovat ke globálním optimům, což lze vidět v tabulce \ref{tab:simulated:annealing:white:box:results}.
 
 Počet iterací je řádově vyšší než u genetického algoritmu, ale trvají mnohem kratší dobu.
-Průměrné zrychlení je \textbf{11,4} oproti hrubé síle a čas optimalizace se pohybuje mezi \textbf{2,5--3,9 minut}.
+Průměrné zrychlení je \textbf{11,4} oproti hrubé síle a čas optimalizace se pohybuje mezi \textbf{2,5--3,9 min}.
 Je tedy asi \textbf{2krát} pomalejší než genetický algoritmus.
 Nicméně ve výsledcích testování black-box byl genetický algoritmus překonán, protože byly nalezeny optimální konfigurace pro všechny měny v sadě (viz \ref{tab:simulated:annealing:black:box:results}).
 
 \begin{figure}[!htbp]
-\centerline{\includegraphics[scale=0.65]{img/simulated-annealing-white-box-progress.png}}
+\centerline{\includegraphics[width=\textwidth]{img/simulated-annealing-white-box-progress.png}}
 \caption{Průběh optimalizace white-box testování simulovaného ochlazování}
 \label{fig:simulated:annealing:white:box:optimization:progress}
 \end{figure}
@@ -2568,7 +2568,7 @@ ZRX  & 0,0 & 133,8 & 12,8 \\ \hline
 \end{table}
 
 \section{Tabu prohledávání}
-Do souboru \texttt{settings.json} byly přidány informace o nastavení optimalizátoru: počet iterací tabu lhůty, velikost sousedství a kritérium ukončení.
+Do souboru \texttt{settings.json} byly přidány informace o nastavení optimalizátoru počet iterací tabu lhůty, velikost sousedství a kritérium ukončení.
 Průběh optimalizace byl uložen do souboru \texttt{progress.csv} a obsahoval informace o hodnotě optimalizačního kritéria aktuálního a nejlepšího stavu a velikosti krátkodobé paměti.
 Log byl také náležitě doplněn (viz \ref{lst:tabu:search:log}).
 
@@ -2579,8 +2579,8 @@ it: 12, best value: 52.0412, curr value: 52.0412, tabu list size: 13
 \end{lstlisting}
 
 \subsection{Experimenty}
-Při hledání vhodného nastavení byly nejdůlžitější hodnoty 2 parametrů, tabu lhůty, která udává počet iterací, během kterých je atribut označen jako tabu, a velikost sousedství, který udává počet sousedů, kteří jsou prohledáni během jedné iterace.
-Posledním parametrem bylo kritérium ukončení, které bylo implementováno pomocí \texttt{itation\_based\_termination}.
+Při hledání vhodného nastavení byly nejdůlžitější hodnoty 2 parametrů, tabu lhůty, která udává počet iterací, během kterých je atribut označen jako zakázaný, a velikost sousedství, který udává počet sousedů, kteří jsou prohledáni během jedné iterace.
+Posledním parametrem bylo kritérium ukončení, které bylo určeno fixním počtem iterací.
 Všechny hodnoty parametrů byly pevně dané, takže se během optimalizace neměnily.
 
 Pokud je hodnota tabu lhůty příliš nízká, dostane se do lokálního optima, z kterého se ji nepodaří uniknout a zůstane ve fázi vytěžování.
@@ -2599,23 +2599,25 @@ Například v případě BTC se začne vzdalovat od nejlepšího stavu kolem 20.
 \centering
 \caption[Nejlepší nalezené nastavení pro sadu white-box pro tabu prohledávání]{~Nejlepší nalezené nastavení pro sadu white-box pro tabu prohledávání}
 \label{tab:tabu:search:setting}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{|c|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|}
 \hline
 \textbf{Tabu lhůta} &
   \textbf{Velikost sousedství} &
   \textbf{Počet iterací} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Rozsah změny\\ období\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Počet změn\\ nákupních úrovní\end{tabular}} &
-  \textbf{\begin{tabular}[c]{@{}c@{}}Počet změn\\ nákupních velikostí\end{tabular}} \\ \hline
+  \textbf{\begin{tabular}[c]{@{}c@{}}Rozsah změny\\ periody\end{tabular}} \\ \hline
 32 &
   128 &
   128 &
-  10 &
+  10 \\ \hline
+\end{tabular}%
+
+\begin{tabular}{|c|c|}
+\hline
+  \textbf{\begin{tabular}[c]{@{}c@{}}Počet změn\\ nákupních úrovní\end{tabular}} &
+  \textbf{\begin{tabular}[c]{@{}c@{}}Počet změn\\ nákupních velikostí\end{tabular}} \\ \hline
   2 &
   1 \\ \hline
-\end{tabular}%
-}
+\end{tabular}
 \end{table}
 
 Velikost paměti téměř vždy dosáhne hodnotě blízké své maximální kapacitě, která je rovna tabu lhůtě.
@@ -2623,7 +2625,7 @@ Pokud je stejný atribut zapamatován vícekrát po sobě, velikost paměti se s
 Tah aktuálního stavu může být tabu, jelikož se musí aktuální stav každou iteraci změnit.
 
 Průměrné zrychlení oproti hrubé síle pro sadu white-box je \textbf{9,5}, což je o trochu pomalejší než simulované ochlazování.
-Doba výpočtu se pohybuje v rozmezí \textbf{3,1-4,4 minuty}.
+Doba výpočtu se pohybuje v rozmezí \textbf{3,1-4,4 min}.
 Opět bylo dosaženo globálního optima pro všechny měny.
 Při použití na vzorky ze sady black-box bylo dosaženo 3 ze 7 globálních optim.
 Rozdíl mezi globálním optimem byl nižší než \(-2\) \% ve 3 případech.
@@ -2692,12 +2694,12 @@ Dále byla popsána obchodní strategie Bazooka, jejíž parametry byly optimali
 
 Aplikace byla napsána v C++20.
 Jazyk byl použit, jelikož nabízí prostředky k efektivnějšímu využívání počítačových zdrojů a použití optimalizací.
-Kód je organizován do frameworku, který se skládá ze 2 hlavních částí, z nichž 1. se zaměřuje na historickou simulaci a 2. na optimalizaci.
+Kód je organizován do frameworku, který se skládá ze 2 hlavních částí, z nichž první se zaměřuje na historickou simulaci a druhá na optimalizaci.
 Výstupy optimalizace se ukládají do souborů ve formátu CSV a JSON, které lze následně zpracovat pomocí vědeckých balíčků jazyka Python.
 
 Návrh a konvence pojmenování frameworku byly inspirovány knihovnami Boost.
 Kód byl napsán objektově především proto, že umožňuje zapouzdření, snadnější unit testování a použití návrhových vzorů.
-Pro zjednodušení kódu a snížení závislostí byly použity návrhové vzory Strategy a Observer.
+Pro zjednodušení kódu a snížení závislostí byly použity návrhové vzory strategie a pozorovatel.
 Z důvodů vyšší efektivity byl preferován statický polymorfismus před dynamickým.
 Minimalizována byla také nutnost použití dynamické alokace.
 
@@ -2706,9 +2708,8 @@ Byla vytvořena sada tříd, které byly použity pro simulaci obchodování.
 Důvodem, proč jich bylo více, bylo rozdělení odpovědností, takže existuje třída, která má za úkol pouze rozhodovat, další, která vytváří objednávky a poslední je plní.
 Celá historická simulace se pak provádí voláním jediné metody.
 
-Konfigurace se skládá ze 4 atributů: typu a období ukazatele, velikostí a úrovní nákupu.
+Konfigurace se skládá ze 4 atributů: typu a periody ukazatele, velikostí a úrovní nákupu.
 Byly navrženy a implementovány systematické generátory stavového prostoru používané algoritmem hrubé síly a náhodné generátory používané heuristikami.
-Byly formálně popsány.
 K systematickému generování konfigurací byly použity korutiny zavedené standardem C++20.
 Náhodné generátory používaly rovnoměrné rozdělení.
 
@@ -2745,8 +2746,7 @@ Nejméně konzistentní z hlediska dosažených výsledků se jevilo tabu prohle
 Jako každý optimalizační problém je aplikace náchylná na overfitting.
 Výsledky optimalizace jsou nejlepší nalezenou konfigurací pro daná historická data z poskytnutého vyhledávacího prostoru, to však neznamená, že by na nově poskytnutých datech dosáhly stejných výsledků.
 Z hlediska strojového učení je nyní strategie optimalizována na trénovací sadě, ale výsledky nejsou porovnány s validační či testovací sadou.
-Stejná historická data by musela být alespoň rozdělena na 2, kdy by 1. část byla použita pro ladění parametrů a 2. pro validaci.
-Strategie by pak mohla být optimalizována na základě kritéria, které zohledňuje rozdíl mezi statistikami použitými k vyhodnocení výkonnosti strategie.
+Jedním ze způsobů, jak se tomu vyhnout, by bylo použít walk-forward optimalizaci používanou platformou MultiCharts.
 
 Dalším způsobem, jak zlepšit aplikaci, by bylo použití databází k ukládání a manipulaci s daty.
 InfluxDB by se hodila, pokud by se zvýšil objem historických dat a tím i potřeba je lépe organizovat a vytvářet složitější dotazy.
