@@ -1466,13 +1466,14 @@ value_type operator()(const value_type& mother, const value_type& father)
 
 Křížení velikostí nákupů je implementováno třídou \texttt{bazooka::sizes\_crossover}.
 Nejmenší hodnoty rodičů jsou použity jako základ pro potomka.
-Dále jsou nákupní velikosti dítěte náhodně zvyšovány v cyklu \texttt{while} tak, aby velikost nákupu nikdy nebyla větší než nejvyšší hodnota rodiče.
+Dále jsou nákupní velikosti potomka náhodně zvyšovány v cyklu \texttt{while} tak, aby velikost nákupu nikdy nebyla větší než nejvyšší hodnota rodiče.
 Smyčka končí, jakmile je součet všech velikostí roven jedné.
 Výsledné hodnoty potomků se tedy budou vždy pohybovat v rozmezí hodnot rodičů.
 Pokud rodiče nejsou stejní, potomek je jiný, ale stále je podobný svým rodičům.
 
 Ruletový výběr byl implementován třídou \texttt{genetic\_algorithm::roulette\_selection}, která interně používá instanci třídy \texttt{std::discrete\_distribution} pro výběr rodičů.
-Zdatnost každého jedince představuje váhu, čím vyšší je váha, tím pravděpodobněji bude daný jedinec vybrán jako rodič.
+Zdatnost každého jedince představuje váhu.
+Čím vyšší je váha, tím pravděpodobněji bude daný jedinec vybrán jako rodič.
 
 Pro náhodné párování rodičů byl implementován algoritmus \texttt{random\_matchmaker}.
 Rodiče jsou nejprve náhodně zamícháni a následně párováni.
@@ -1528,7 +1529,7 @@ void operator()(const std::vector<config_t>& init_genes,
 \end{lstlisting}
 
 \section{Tabu prohledávání}
-Tabu prohledávání je implementováno třídou \texttt{tabu\_search::optimizer}, která má čtyři třídní atributy počet iterací, seznam tabu, aktuální a nejlepší stav.
+Tabu prohledávání je implementováno třídou \texttt{tabu\_search::optimizer}, která má čtyři třídní atributy: počet iterací, seznam tabu, aktuální a nejlepší stav.
 Pro ukládání zakázaných tahů byla implementována třída \texttt{bazooka::configuration\_memory}.
 Ukládá pouze konfigurační atributy, které byly změněny, nikoli celé konfigurace.
 Perioda a typ ukazatele jsou zapamatovány tak, jak jsou.
@@ -1613,12 +1614,13 @@ void operator()(const config_t& init,
 
 \section{Shromažďování výsledků}
 Třída \texttt{enumeration\_result} slouží ke shromažďování $n$ nejlepších výsledků.
-Má 2 třídní šablonové parametry: typ výsledku a funkci pro jejich porovnávání.
+Má dva šablonové parametry: typ výsledku a funkci pro jejich porovnávání.
 Interně používá datovou strukturu \textit{halda}, jelikož má složitost $\mathcal{O}(log{}n)$ pro vložení nového prvku a odstranění prvního.
 K ukládání výsledků používá kontejner \texttt{std::vector}.
 
 Hodnoty jsou aktualizovány voláním metody \texttt{update} (viz \ref{lst:result:update}).
-K vytvoření haldy používá funkci \texttt{std::push\_heap} a jakmile je plná, použije po vložení nového prvku funkci \texttt{std::pop\_back} k odstranění nejhoršího prvku.
+K vytvoření haldy používá funkci \texttt{std::push\_heap}.
+Jakmile je plná, použije po vložení nového prvku funkci \texttt{std::pop\_back} k odstranění nejhoršího prvku.
 K získání výsledku lze zavolat metodu \texttt{get}, která používá funkci \texttt{std::sort\_heap} k seřazení prvků v požadovaném pořadí.
 
 \begin{lstlisting}[caption={~Implementace metody \texttt{update} třídy \texttt{enumerative\_result}},label={lst:result:update},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
@@ -1701,8 +1703,8 @@ Pro C++ je k dispozici několik JSON knihoven, ale zdá se, že \texttt{nlohmann
 Na příslušné GitHub stránce je uvedeno, že jde o knihovnu JSON pro moderní C++, má 34 tisíc hvězdiček, je důkladně testována a pečlivě zdokumentována \cite{lohmann}.
 
 Podporuje vytvoření specifikace pro serializaci a deserializaci vlastních typů.
-Pro daný typ je vytvořena specializace struktury \texttt{adl\_serializer}, která mohou být implementovány metody \texttt{from\_json} pro deserializaci a \texttt{to\_json} pro serializaci.
-Implementaci pro třídu \texttt{bazooka::indicator} lze vidět ve výpise \ref{lst:json:serialize}.
+Pro daný typ je vytvořena specializace struktury \texttt{adl\_serializer}, u které mohou být implementovány metody \texttt{from\_json} pro deserializaci a \texttt{to\_json} pro serializaci.
+Implementaci pro \texttt{bazooka::indicator} lze vidět ve výpise \ref{lst:json:serialize}.
 
 \begin{lstlisting}[caption={~Implementace deserializace pro vlastní datový typ},label={lst:json:serialize},captionpos=t,abovecaptionskip=-\medskipamount,belowcaptionskip=\medskipamount,language=C]
 template<>
@@ -1741,7 +1743,7 @@ Vizuální vzhled notebooku je zachován i po zastavení běhu jádra, což zahr
 Během historické simulace lze shromažďovat časové řady pomocí \texttt{chart\_series::collector} třídy, která sleduje čistou hodnotu, zůstatek po uzavření pozice, otevírací a uzavírací ceny a hodnoty vstupního a výstupního indikátoru.
 Po uložení dat do CSV souboru je lze zpracovat pomocí výše popsaných nástrojů a zobrazit pomocí třídy \texttt{CandlestickWidget} spolu s historickými svíčkami.
 
-Vlastní widget byl vyvinut, jelikož se graf obvykle nevejde na šíři obrazovky, takže bylo nutné přidat posuvník.
+Vlastní widget byl vyvinut, protože se graf obvykle nevejde na šíři obrazovky, proto bylo nutné přidat posuvník.
 Graf je vykreslen pomocí knihovny \texttt{mplfinance}, což je větev (branch) \texttt{Matplotlib}, která se specializuje na vykreslování finančních dat a musí být instalována samostatně.
 Nabízí způsob, jak snadno vykreslit svíčková data a také dobře integruje použití třídy \texttt{Pandas.DataFrame} pro předání dat.
 
