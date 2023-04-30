@@ -1763,7 +1763,7 @@ Nástroj může být užitečný pro získání lepší představy o tom, jak st
 \end{figure}
 
 \chapter{Testování}
-K zajištění správnosti kódu byly použity 2 nástroje, tvrzení (assertions) a unit testování.
+K zajištění správnosti kódu byly použity dva nástroje: tvrzení (assertions) a unit testování.
 Pokud něco vždy platí, lze jej ověřit pomocí tvrzení.
 V C++ jsou k dispozici makra z hlavičkového souboru \texttt{assert.h}.
 Lze je například použít ke kontrole předpokladu, že vygenerované číslo je v požadovaném rozsahu.
@@ -1811,14 +1811,14 @@ BOOST_AUTO_TEST_SUITE_END()
 \end{lstlisting}
 
 K samotnému testování jsou používány tvrzení, které jsou vyhodnoceny jako pravdivé nebo nepravdivé.
-Framework nabízí různé tvrzení, které jsou spojeny s jednou ze tří úrovní testování.
+Framework nabízí různá tvrzení, která jsou spojena s jednou ze tří úrovní testování.
 Nejméně závažná je úroveň \texttt{WARN}, která vydá varovnou zprávu, pokud výrok není pravdivý.
 Pokud je použita úroveň \texttt{CHECK}, vygeneruje chybu, ale umožní pokračovat v testování.
 Nejzávažnější je úroveň \texttt{REQUIRE}, která vygeneruje chybovou hlášku a přeruší provedení daného testovacího případu.
 
 Nabízí velmi dobře formátované a přehledné konzolové logy, které slouží k hlášení průběhu testování.
 K dispozici jsou různé úrovně logování.
-Ve výchozím nastavení je hlášeno vše úspěch, varování, chyby, nezachycené výjimky a další.
+Ve výchozím nastavení je hlášeno vše: úspěch, varování, chyby, nezachycené výjimky a další.
 Úroveň lze nastavit pomocí proměnné prostředí nebo příznaků příkazového řádku.
 
 V CLion IDE lze testovací sady a případy spouštět jednotlivě.
@@ -1827,7 +1827,7 @@ Poskytuje různé nástroje, jak lépe prozkoumat výsledky testování.
 
 \section{Strategie}
 Strategie byla testována především proto, aby se zjistilo, zda byly správně implementovány podmínky pro vyvolání signálu.
-Pro testování byl použit ukazatel typu SMA s periodou 1, jelikož je jeho hodnota rovna poslednímu předanému vzorku, což usnadňuje vytváření testů.
+Pro testování byl použit ukazatel typu SMA s periodou jedna, jelikož je jeho hodnota rovna poslednímu předanému vzorku, což usnadňuje vytváření testů.
 Každá metoda pro generování signálu vrací booleovskou hodnotu označující, zda má být vytvořena objednávka, čehož bylo využito při testování (viz \ref{lst:test:strategy:should:open}).
 Byly také provedeny testy pro kontrolu inicializace, aktualizace indikátorů a metod pro získávání hodnot indikátorů.
 
@@ -1896,13 +1896,13 @@ struct mock_strategy {
 \section{Trh}
 Třída \texttt{market} byla nejprve testována na správnou inicializaci a výjimky, které mohou být vyvolány.
 Konstruktor vyvolá výjimku typu \texttt{std::invalid\_argument}, když je mu předána neplatná hodnota poplatku.
-Aby bylo možné otestovat její použití, byly k porovnání hodnot udržovány instance tříd \texttt{position} a \texttt{wallet} představují očekávaný stav třídy.
+Aby bylo možné otestovat její použití, byly k porovnání hodnot udržovány instance tříd \texttt{position} a \texttt{wallet} představující očekávaný stav třídy.
 Test prošel všemi stavy aktivní pozice vytvoření, navýšení a uzavření, během kterých byly skutečné hodnoty poskytované metodami třídy porovnány s očekávanými.
 
 \section{Pozice}
 Nejprve byla testována inicializace pro kontrolu, že jsou všechny atributy správně inicializovány.
 Hlavním provedeným testem byl test použití, během kterého byla pozice otevřena, navýšena a uzavřena.
-Během testu byly počítány očekávaná celková investovaná částka a očekávaná velikost pozice pro kontrolu výsledků volání metod a stavu atributů pozice.
+Během testu byla počítána očekávaná celková investovaná částka a očekávaná velikost pozice pro kontrolu výsledků volání metod a stavu atributů pozice.
 
 \section{Simulátor}
 Cílem prvního testu bylo ujistit se, že proces převzorkování prováděný v těle konstruktoru je správně implementován.
@@ -1914,7 +1914,7 @@ Pomocí těchto dvou objektů bylo provedeno několik testovacích případů.
 
 \section{Statistiky}
 Výkonnostní statistiky byly testovány, aby bylo zajištěno, že jsou hodnoty správně inicializovány a aktualizovány.
-Bylo využito toho, že jsou rozděleny do 4 nezávislých skupin statistiky související s pohybem, statistiky související se ziskem, čítače otevřených a uzavřených objednávek a zůstatky.
+Bylo využito toho, že jsou rozděleny do 4 nezávislých skupin: statistik související s pohybem, statistik související se ziskem, čítače otevřených a uzavřených objednávek a zůstatku.
 Na všech byly proto provedeny samostatné testovací případy.
 
 \section{Generátory stavového prostoru}
@@ -2027,8 +2027,8 @@ Jinak testování probíhalo stejně jako u ostatních optimalizátorů.
 Paměťové třídy byly také testovány, aby bylo zajištěno, že si správně pamatují a zapomínají hodnoty, které jim byly předány.
 
 \section{Čtení a zápis do CSV}
-Pro testování čtení a zápisu do CSV souborů byly připraveny 4 soubory: prázdný, pouze s hlavičkou, pouze s daty a kompletní soubor.
-Při použití třídy \texttt{io::csv::reader}může být vyvolána výjimka \texttt{std::runtime\_error}, buď při volání konstruktoru, pokud soubor neexistuje, nebo při samotném čtení, pokud je soubor nesprávně naformátován nebo je třída nesprávně používána.
+Pro testování čtení a zápisu do CSV souborů byly připraveny čtyři soubory: prázdný, pouze s hlavičkou, pouze s daty a kompletní soubor.
+Při použití třídy \texttt{io::csv::reader} může být vyvolána výjimka \texttt{std::runtime\_error}, buď při volání konstruktoru, pokud soubor neexistuje, nebo při samotném čtení, pokud je soubor nesprávně naformátován nebo je třída nesprávně používána.
 Rozlišuje mezi výjimkou, která nastane při oddělování dat oddělovačem, a výjimkou, která nastane při převodu dat na požadovaný datový typ.
 Hlavním rozdílem mezi nimi je obsah chybové zprávy.
 Byly provedeny důkladné testy k simulaci požadovaných a výjimečných situací.
@@ -2074,7 +2074,7 @@ Což ovlivňuje framework OpenMP, který díky tomu může používat 8 vláken.
 
 \section{Historická data}
 Data pro experimenty byla získána ze stránky CryptoArchive (www.cryptoarchive.com.au).
-Svíčky pocházejí z Binance kryptoměnové burzy a jsou aktualizována denně.
+Svíčky pocházejí z Binance kryptoměnové burzy a jsou aktualizovány denně.
 Mezi hlavní důvody, proč byl web upřednostněn před ostatními dostupnými poskytovateli, patřilo to, že data byla zdarma, snadno dostupná a v požadované granularitě.
 
 Bylo vybráno 10 různých kryptoměn včetně některých známějších jako Bitcoin (BTC), Ethereum (ETH) a Litecoin (LTC) a také novějších jako Solana (SOL).
@@ -2170,7 +2170,7 @@ Lze si všimnout, že většina obchodů byla provedena na začátku kolem roku 
 \label{fig:btc-historical-simulation}
 \end{figure}
 
-Po dokončení počátečních testů byly provedeny 2 sady testů na všech historických datech.
+Po dokončení počátečních testů byly provedeny dvě sady testů na všech historických datech.
 Hodnoty parametrů vyhledávacího prostoru byly zvoleny na základě získaných výsledků.
 I při použití optimalizace byl čas stále limitujícím faktorem.
 Rozumná velikost vyhledávacího prostoru se pohybuje 0,5--1 milion možných konfigurací, což trvá přibližně 0,75--1,5 h, než se dokončí jeden běh optimalizace.
@@ -2207,7 +2207,9 @@ Perioda převzorkování zkrácena ze 45 minut na 15, počet jedinečných hodno
 \end{table}
 
 Hodnoty úrovně nákupu a velikosti nákupu byly převedeny ze zlomků do čitelnějšího formátu.
-Obě jsou uvedeny v procentech, úrovně jsou záporné a udávají, o kolik je úroveň snížena od hodnoty vstupního indikátoru, a velikosti označují část zůstatku na účtu, která je použita k nákupu na dané úrovni.
+Obě jsou uvedeny v procentech.
+Úrovně jsou záporné a udávají, o kolik je úroveň snížena od hodnoty vstupního ukazatele.
+Velikosti označují část zůstatku na účtu, která je použita k nákupu na dané úrovni.
 
 Z přehledu nejlepších konfigurací z 1. sady experimentů (viz \ref{tab:brute:force:set:1:best:configs}) lze vidět, že 8 z 10 distribucí úrovně nákupu klade důraz na jednu úroveň nákupu tím, že na ni vloží 75 \% zůstatku a minimum možné na zbytek.
 Na základě toho by se měl zvýšit počet jedinečných velikostí, aby byla dostupná větší rozmanitost velikostí nákupu.
@@ -2270,11 +2272,12 @@ ZRX  & 268,3   & 326,7   & 165,5 & \(-0,3\)  & \(-36,7\) \\ \hline
 \end{table}
 
 Na základě poznatků z 1. sady experimentů byla sestavena 2. sada experimentů.
-Z přehledu nejlepších konfigurací z 2. sady experimentů (viz \ref{tab:brute:force:set:2:best:configs}) lze vidět, že zvýšení počtu jedinečných velikostí nákupu způsobilo zvýšení částky zůstatku vloženého na jedenou úroveň, ze 75 \% na 84,6 \%.
+Z přehledu nejlepších konfigurací z 2. sady experimentů (viz \ref{tab:brute:force:set:2:best:configs}) lze vidět, že zvýšení počtu jedinečných velikostí nákupu způsobilo zvýšení částky zůstatku vloženého na jednu úroveň, ze 75 \% na 84,6 \%.
 Minimální část nákupu 7,7 \%, kterou bylo možné vložit na obchod, byla nejčastěji se vyskytující hodnotou.
-Perioda převzorkování byla 3krát zkrácena ze 45 minut na 15 minut, což například způsobilo ztrojnásobení hodnoty období u BTC, úrovně nákupu se v podstatě nezměnily a ještě větší část zůstatku byla soustředěna na 2. nákupní úroveň.
+Perioda převzorkování byla 3krát zkrácena ze 45 minut na 15 minut, což například způsobilo ztrojnásobení hodnoty období u BTC.
+Úrovně nákupu se v podstatě nezměnily a ještě větší část zůstatku byla soustředěna na 2. nákupní úroveň.
 Převzorkování také způsobilo, že ADA dosáhla nejvyšší hodnoty periody, což bránilo nalezení lepšího řešení.
-Všechna periody ukazatele se zvýšily 2--3krát kromě XLM, kde se snížila na polovinu z 60 na 27.
+Všechny periody ukazatele se zvýšily 2--3krát kromě XLM, kde se snížila na polovinu z 60 na 27.
 Medián poslední nákupní úrovně se snížil na \(-18,75\) \%, což je stále velmi blízko \(-19\) \%, avšak zvýšení spodní hranice umožnilo DASH snížit hodnotu poslední úrovně na \(-32\) \%.
 
 \begin{table}[!htbp]
@@ -2361,14 +2364,17 @@ Historická data byla rozdělena na data použitá pro white-box a black-box tes
 Menší část sady zahrnující měny ADA, BTC a DASH byla použita pro testování white-box a zbytek pro black-box.
 Cílem vytvoření white-box sady bylo vybrat měny, které se při optimalizaci chovají dostatečně odlišně na to, aby bylo možné najít nastavení, které bude vyhovovat nejen konkrétní sadě, ale ideálně i jakékoli jiné měně pro daný vyhledávací prostor.
 
-Bylo provedeno několik počátečních testů na jednom členu sady white-box, jakmile se pro něj našlo vhodné nastavení, bylo to vyzkoušeno na zbytku.
-Pro výběr rodičů byl použit ruletový výběr a pro nahrazení populace bylo použit elitismus, jelikož se ukázalo, že je lepší volbou než en-block nahrazování.
+Bylo provedeno několik počátečních testů na jednom členu sady white-box.
+Jakmile se pro něj našlo vhodné nastavení, bylo vyzkoušeno na zbytku.
+Pro výběr rodičů byl použit ruletový výběr a pro nahrazení populace byl použit elitismus.
+Ukázalo se, že je lepší volbou než en-block nahrazování.
 Dále bylo provedeno několik sad testů s cílem spolehlivě najít nejlepší konfigurace pro všechny měny v co nejkratším čase.
 Počet rodičů a potomků byl nastaven na 2.
 Už od začátku se zdálo, že k nalezení nejlepších stavů bude stačit 10 iterací.
 
-Ukázalo se, že 3 nejdůležitější parametry jsou ty, které kontrolují velikost populace.
-Prvním parametrem je velikost počáteční populace, pokud je příliš velká, zpomaluje optimalizaci a pokud je příliš malá, populace postrádá diverzitu.
+Ukázalo se, že tři nejdůležitější parametry jsou ty, které kontrolují velikost populace.
+Prvním parametrem je velikost počáteční populace.
+Pokud je příliš velká, zpomaluje optimalizaci a pokud je příliš malá, populace postrádá diverzitu.
 Dalším parametrem je elitní poměr, který udává počet elitních rodičů, kteří přejdou spolu s dětmi do další generace.
 Posledním parametrem je růstový faktor, který udává počet jedinců, kteří jsou vybráni jako rodiče.
 Nejlepší nalezenou kombinaci těchto parametrů lze vidět v tabulce \ref{tab:genetic:algorithm:setting}.
