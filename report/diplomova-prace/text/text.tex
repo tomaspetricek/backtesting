@@ -2480,9 +2480,9 @@ Nepřebírá žádný parametr rozkladu a je závislá pouze na počáteční te
 
 % Začít s 2 skupinami vhodných nastavení
 Pro výpočet počtu pokusů o změnu aktuálního stavu byla použita třída \texttt{fixed\_equilibrium}.
-Po několika počátečních experimentech se sada rozdělila do 2 skupin, pro které dobře fungovala 2 různá nastavení.
+Po několika počátečních experimentech se sada rozdělila do dvou skupin, pro které dobře fungovala dvě různá nastavení.
 Pro 1. skupinu skládající se z měn ADA a BTC byly hodnoty parametrů: počáteční teplota 128, minimální teplota 26 a počet pokusů 64 a pro 2. skupinu, která zahrnovala pouze DASH, bylo nastavení: počáteční teplota 54, minimální teplota 8 a počet pokusů 16.
-Při použití nastavení 1. skupiny pro 2. DASH nedosáhl intenzifikační fáze a při opačném použití nastala intenzifikační fáze u 1. skupiny příliš brzy.
+Při použití nastavení první skupiny pro druhou DASH nedosáhl intenzifikační fáze a při opačném použití nastala intenzifikační fáze u první skupiny příliš brzy.
 
 Jelikož byly rozsahy vhodných hodnot parametrů příliš daleko od sebe, byla navržena nová dynamičtější implementace equilibria  \texttt{temperature\_based\_equilibrium} založená na aktuální teplotě.
 Implementace umožnila snížení počtu pokusů s teplotou a tím spojení obou nastavení parametrů.
@@ -2587,13 +2587,14 @@ it: 12, best value: 52.0412, curr value: 52.0412, tabu list size: 13
 \end{lstlisting}
 
 \subsection{Experimenty}
-Při hledání vhodného nastavení byly nejdůlžitější hodnoty 2 parametrů, tabu lhůty, která udává počet iterací, během kterých je atribut označen jako zakázaný, a velikost sousedství, který udává počet sousedů, kteří jsou prohledáni během jedné iterace.
-Posledním parametrem bylo kritérium ukončení, které bylo určeno fixním počtem iterací.
-Všechny hodnoty parametrů byly pevně dané, takže se během optimalizace neměnily.
+Při hledání vhodného nastavení byly nejdůležitější dva parametry.
+První je tabu lhůta udávající počet iterací, během kterých je atribut označen jako zakázaný.
+Druhým je velikost sousedství, která určuje počet sousedů, kteří jsou prohledáni během jedné iterace.
+Všechny parametry byly pevně dané, včetně počtu iterací ukončovacího kritéria.
 
 Pokud je hodnota tabu lhůty příliš nízká, dostane se do lokálního optima, z kterého se ji nepodaří uniknout a zůstane ve fázi vytěžování.
 Na druhou stranu, pokud je příliš vysoká, heuristika se nemůže vrátit do slibné oblasti a převažuje fáze průzkumu.
-Když je velikost sousedství příliš malé, pohybuje se heuristika rychleji skrze stavový prostor a okolí aktuálního stavu zůstává neprozkoumané.
+Když je velikost sousedství příliš malá, pohybuje se heuristika rychleji skrze stavový prostor a okolí aktuálního stavu zůstává neprozkoumané.
 Naopak pokud je příliš velké, prozkoumává podobné konfigurace, pohybuje se pomalu a zůstává ve stejné oblasti stavového prostoru.
 Jinými slovy, tabu lhůta pomáhá držet směr a velikost sousedství udává velikost kroku.
 
@@ -2628,7 +2629,7 @@ Například v případě BTC se začne vzdalovat od nejlepšího stavu kolem 20.
 \end{tabular}
 \end{table}
 
-Velikost paměti téměř vždy dosáhne hodnotě blízké své maximální kapacitě, která je rovna tabu lhůtě.
+Velikost paměti téměř vždy dosáhne hodnoty blízké své maximální kapacitě, která je rovna tabu lhůtě.
 Pokud je stejný atribut zapamatován vícekrát po sobě, velikost paměti se sníží.
 Tah aktuálního stavu může být tabu, jelikož se musí aktuální stav každou iteraci změnit.
 
@@ -2689,11 +2690,11 @@ ZRX  & -1,4 & 227,9 & 7,5  \\ \hline
 
 Nejprve byly představeny třídy složitosti a teorie kombinatorické optimalizace.
 Hlavním účelem bylo zavést koncepty a přístupy, které byly zásadní pro pochopení procesu optimalizace.
-Dále byly popsány 3 vybrané metaheuristiky použité v praktické části: simulované ochlazování, genetický algoritmus a tabu prohledávání.
+Dále byly popsány tři vybrané metaheuristiky použité v praktické části: simulované ochlazování, genetický algoritmus a tabu prohledávání.
 
 V další části bylo představeno algoritmické obchodování.
 Nejprve byl popsán samotný proces obchodování, který zahrnuje vytváření a plnění objednávek.
-Poté byly představeny různé automatizovatelné fáze obchodování včetně 3 hlavních typů analýz, které se používají ke generování obchodních signálů.
+Poté byly představeny různé automatizovatelné fáze obchodování včetně tří hlavních typů analýz, které se používají ke generování obchodních signálů.
 
 Následně bylo popsáno zpětné testování, jehož účelem je vyhodnocení obchodní strategie na historických tržních datech.
 Byly uvedeny vzorce výkonových statistik používané v praktické části.
@@ -2702,7 +2703,7 @@ Dále byla popsána obchodní strategie Bazooka, jejíž parametry byly optimali
 
 Aplikace byla napsána v C++20.
 Jazyk byl použit, jelikož nabízí prostředky k efektivnějšímu využívání počítačových zdrojů a použití optimalizací.
-Kód je organizován do frameworku, který se skládá ze 2 hlavních částí, z nichž první se zaměřuje na historickou simulaci a druhá na optimalizaci.
+Kód je organizován do frameworku, který se skládá ze dvou hlavních částí, z nichž první se zaměřuje na historickou simulaci a druhá na optimalizaci.
 Výstupy optimalizace se ukládají do souborů ve formátu CSV a JSON, které lze následně zpracovat pomocí vědeckých balíčků jazyka Python.
 
 Návrh a konvence pojmenování frameworku byly inspirovány knihovnami Boost.
@@ -2713,10 +2714,11 @@ Minimalizována byla také nutnost použití dynamické alokace.
 
 Zpětné testování bylo inspirováno platformou TradingView a proces vytváření a plnění objednávek burzou Binance.
 Byla vytvořena sada tříd, které byly použity pro simulaci obchodování.
-Důvodem, proč jich bylo více, bylo rozdělení odpovědností, takže existuje třída, která má za úkol pouze rozhodovat, další, která vytváří objednávky a poslední je plní.
-Celá historická simulace se pak provádí voláním jediné metody.
+Důvodem proč jich bylo více, bylo rozdělení odpovědností.
+Existuje třída, která má za úkol pouze rozhodovat, další, která vytváří objednávky a poslední je plní.
+Celá historická simulace se provádí voláním jediné metody.
 
-Konfigurace se skládá ze 4 atributů: typu a periody ukazatele, velikostí a úrovní nákupu.
+Konfigurace se skládá ze čtyř atributů: typu ukazatele, periody ukazatele, velikostí nákupu a úrovní nákupu.
 Byly navrženy a implementovány systematické generátory stavového prostoru používané algoritmem hrubé síly a náhodné generátory používané heuristikami.
 K systematickému generování konfigurací byly použity korutiny zavedené standardem C++20.
 Náhodné generátory používaly rovnoměrné rozdělení.
@@ -2740,16 +2742,17 @@ Jako optimalizační kritérium byla použita statistika PROM, což je pesimisti
 První experimenty byly provedeny pomocí algoritmu hrubé síly.
 Při aplikaci optimalizací kompilátoru a použití více vláken byl algoritmus 44,1krát zrychlen oproti jeho neoptimalizované verzi.
 Na základě provedených sad experimentů byl vymezen vyhledávací prostor pro experimentální vyhodnocení heuristických přístupů.
-Skládal se z 0,4 milionu konfigurací a algoritmu hrubé síly se všemi zapnutými optimalizacemi trvalo nalezení optimálního stavu v průměru 0,5 hodiny pro jednu měnu.
+Skládal se z 0,4 milionu konfigurací.
+Algoritmu hrubé síly, se všemi zapnutými optimalizacemi, trvalo nalezení optimálního stavu v průměru 0,5 hodiny pro jednu měnu.
 
-Při vyhodnocování heuristických optimalizátorů byla data rozdělena do 2 sad white-box a black-box.
+Při vyhodnocování heuristických optimalizátorů byla data rozdělena do dvou sad white-box a black-box.
 Parametry optimalizátoru byly nejprve vyladěny na sadě white-box a poté otestovány na sadě black-box.
 Nejlepších celkových výsledků dosáhlo simulované ochlazování, které našlo všechna globální optima v průměru za 2,6 minuty a průměrného zrychlení oproti hrubé síle 11,4 pro sadu black-box.
 Genetický algoritmus dosáhl nejvyššího zrychlení 22,5krát o proti hrubé síle, ale u některých vzorků nenašel globální optimum.
 
 Celkově se genetický algoritmus zdál nejsnáze laditelný a nejrobustnější.
 Nalezení vhodných parametrů pro simulované ochlazování zabralo nejvíce času a pro dosažení rozumných výsledků bylo nutné vytvořit vlastní equilibrium založené na hodnotě aktuální teploty.
-Nejméně konzistentní z hlediska dosažených výsledků se jevilo tabu prohledávání.
+Nejméně konzistentní, z hlediska dosažených výsledků, se jevilo tabu prohledávání.
 
 Jako každý optimalizační problém je aplikace náchylná na overfitting.
 Výsledky optimalizace jsou nejlepší nalezenou konfigurací pro daná historická data z poskytnutého vyhledávacího prostoru, to však neznamená, že by na nově poskytnutých datech dosáhly stejných výsledků.
@@ -2757,5 +2760,5 @@ Z hlediska strojového učení je nyní strategie optimalizována na trénovací
 Jedním ze způsobů, jak se tomu vyhnout, by bylo použít walk-forward optimalizaci používanou platformou MultiCharts.
 
 Dalším způsobem, jak zlepšit aplikaci, by bylo použití databází k ukládání a manipulaci s daty.
-InfluxDB by se hodila, pokud by se zvýšil objem historických dat a tím i potřeba je lépe organizovat a vytvářet složitější dotazy.
+InfluxDB by se hodila, pokud by se zvýšil objem historických dat, a tím i potřeba je lépe organizovat a vytvářet složitější dotazy.
 MongoDB lze použít k lepší organizaci a manipulaci s výstupními daty, jako jsou nejlepší stavy a nastavení, která jsou aktuálně uložena ve formátu JSON.
