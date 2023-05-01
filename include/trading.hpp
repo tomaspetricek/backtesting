@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 26.07.2022.
 //
 
-#ifndef TRADING_TRADING_HPP
-#define TRADING_TRADING_HPP
+#ifndef BACKTESTING_TRADING_HPP
+#define BACKTESTING_TRADING_HPP
 
 #include <trading/bazooka/configuration.hpp>
 #include <trading/bazooka/crossover.hpp>
@@ -20,7 +20,6 @@
 #include <trading/genetic_algorithm/progress_reporter.hpp>
 #include <trading/genetic_algorithm/replacement.hpp>
 #include <trading/genetic_algorithm/selection.hpp>
-#include <trading/direction.hpp>
 #include <trading/market.hpp>
 #include <trading/order.hpp>
 #include <trading/position.hpp>
@@ -43,13 +42,11 @@
 #include <trading/tabu_search/progress_collector.hpp>
 #include <trading/tabu_search/progress_reporter.hpp>
 #include <trading/tabu_search/tenure.hpp>
-#include <trading/validator/interval.hpp>
 #include <trading/types.hpp>
 #include <trading/candle.hpp>
 #include <trading/chart_series.hpp>
 #include <trading/convert.hpp>
 #include <trading/criterion.hpp>
-#include <trading/currency.hpp>
 #include <trading/data_point.hpp>
 #include <trading/exception.hpp>
 #include <trading/function.hpp>
@@ -70,4 +67,4 @@
 #include <cppcoro/recursive_generator.hpp>
 #include <trading/validate.hpp>
 
-#endif //TRADING_TRADING_HPP
+#endif //BACKTESTING_TRADING_HPP

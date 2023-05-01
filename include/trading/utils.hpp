@@ -31,12 +31,6 @@ namespace trading {
         return std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin);
     }
 
-    // https://stackoverflow.com/questions/21868358/using-boost-floating-point-comparison-to-get-a-bool-return-value
-    bool is_close(double a, double b, double epsilon = 1e-5)
-    {
-        return std::fabs(a-b)<epsilon;
-    }
-
     // src: https://stackoverflow.com/questions/22590821/convert-stdduration-to-human-readable-time
     std::ostream& operator<<(std::ostream& os, std::chrono::nanoseconds ns)
     {

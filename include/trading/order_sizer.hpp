@@ -18,7 +18,7 @@ namespace trading {
         std::array<double, n_sizes> cum_sizes_;
         index_t curr_idx{0};
 
-        auto calc_cumulative_sizes(const std::array<fraction_t, n_sizes>& sizes)
+        auto compute_cumulative_sizes(const std::array<fraction_t, n_sizes>& sizes)
         {
             std::array<double, n_sizes> cum_sizes;
             cum_sizes[0] = fraction_cast<double>(sizes[0]);
@@ -47,7 +47,7 @@ namespace trading {
         }
 
         explicit order_sizer(const std::array<fraction_t, n_sizes>& fracs)
-                :cum_sizes_(calc_cumulative_sizes(validate_sizes(fracs))) { }
+                :cum_sizes_(compute_cumulative_sizes(validate_sizes(fracs))) { }
 
         order_sizer() = default;
     };

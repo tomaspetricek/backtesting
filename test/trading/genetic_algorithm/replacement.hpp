@@ -13,7 +13,6 @@ BOOST_AUTO_TEST_SUITE(genetic_algorithm_en_block_replacement_test)
     BOOST_AUTO_TEST_CASE(usage_test)
     {
         trading::genetic_algorithm::en_block_replacement replacement{};
-
     }
 BOOST_AUTO_TEST_SUITE_END()
 

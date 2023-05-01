@@ -24,27 +24,23 @@ using namespace trading;
 template<std::size_t n_levels>
 auto create_trader(const bazooka::configuration<n_levels>& config)
 {
-    bazooka::indicator ma;
+    // create strategy
+    bazooka::indicator indic;
     if (config.tag==bazooka::indicator_tag::ema) {
-        ma = ema{config.period};
+        indic = ema{config.period};
     }
     else {
-        ma = sma{config.period};
+        indic = sma{config.period};
     }
+    bazooka::strategy strategy{indic, indic, config.levels};
 
-    // create strategy
-    bazooka::strategy strategy{ma, ma, config.levels};
-
-    // create market
+    // create manager
     fraction_t fee{1, 100};   // 1 %
     amount_t init_balance{10'000};
     trading::market market{wallet{init_balance}, fee, fee};
-
-    // create open sizer
     order_sizer open_sizer{config.sizes};
-
-    // create trade manager
     bazooka::manager manager{market, open_sizer};
+
     return trading::bazooka::trader{strategy, manager};
 }
 
@@ -78,16 +74,10 @@ void set_up()
 }
 
 template<class Writer, class Data, std::size_t N, std::size_t... Is>
-void write_series_impl(Writer&& writer, const std::vector<data_point<std::array<Data, N>>
->& series,
-        std::index_sequence<Is...>)
+void write_series_impl(Writer&& writer, const std::vector<data_point<std::array<Data, N>>>& series, std::index_sequence<Is...>)
 {
-    for (
-        const auto& point
-            : series)
-        writer.
-                write_row(point
-                .time, point.data[Is]...);
+    for (const auto& point : series)
+        writer.write_row(point.time, point.data[Is]...);
 }
 
 template<class Writer, class Data, std::size_t N>
@@ -132,19 +122,6 @@ void to_csv(chart_series<n_levels>&& series, const std::filesystem::path& out_di
 inline std::string name_experiment_directory(std::size_t num)
 {
     return fmt::format("{:02d}", num);
-}
-
-std::filesystem::path try_create_experiment_directory(const std::filesystem::path& optim_dir)
-{
-    auto dir_it = std::filesystem::directory_iterator(optim_dir);
-    std::size_t n_dirs = std::count_if(
-            begin(dir_it),
-            end(dir_it),
-            [](const auto& entry) { return entry.is_directory(); }
-    );
-    auto empty_dir = optim_dir/name_experiment_directory(n_dirs+1);
-    std::filesystem::create_directory(empty_dir);
-    return empty_dir;
 }
 
 std::ostream& operator<<(std::ostream& os, const fraction_t& frac)
@@ -300,9 +277,7 @@ int main()
             bazooka::statistics<n_levels>::collector collector{};
             simulator(create_trader(curr), collector);
             auto stats = collector.get();
-            auto optim_val = optim_criterion(stats);
-//            if (optim_val<=0.0) optim_val = 0.0;
-            return state_t{{curr, optim_val}, stats};
+            return state_t{{curr, optim_criterion(stats)}, stats};
         };
 
         if (optim_tag==optimizer_tag::brute_force) {

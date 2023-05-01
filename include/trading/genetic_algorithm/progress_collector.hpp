@@ -13,8 +13,7 @@
 namespace trading::genetic_algorithm {
     class progress_collector {
         struct progress {
-            double mean_fitness;
-            double best_fitness;
+            double mean_fitness, best_fitness;
             std::size_t population_size;
         };
 

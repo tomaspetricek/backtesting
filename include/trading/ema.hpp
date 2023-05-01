@@ -6,10 +6,10 @@
 #define BACKTESTING_EMA_HPP
 
 #include <numeric>
-#include "exception.hpp"
-#include "types.hpp"
-#include "ma.hpp"
-#include "sma.hpp"
+#include <trading/exception.hpp>
+#include <trading/types.hpp>
+#include <trading/ma.hpp>
+#include <trading/sma.hpp>
 
 namespace trading {
 

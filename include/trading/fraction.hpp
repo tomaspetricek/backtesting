@@ -7,7 +7,7 @@
 
 #include <boost/functional/hash.hpp>
 
-// Inspired by Boost.Rational
+// inspired by: https://www.boost.org/doc/libs/1_75_0/libs/rational/rational.html
 #include <ostream>
 namespace trading {
     template<class IntType>

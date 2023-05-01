@@ -9,6 +9,7 @@
 #include <trading/candle.hpp>
 
 namespace trading {
+    // inspired by: https://youtu.be/l6Y9PqyK1Mc
     template<class ConcreteComparator, class Type>
     concept IComparator = std::invocable<ConcreteComparator, const Type&, const Type&> &&
             std::same_as<bool, std::invoke_result_t<ConcreteComparator, const Type&, const Type&>>;
@@ -50,7 +51,6 @@ namespace trading {
     }
 
     namespace simulated_annealing {
-        // https://youtu.be/l6Y9PqyK1Mc
         template<class Cooler, class SimulatedAnnealing>
         concept ICooler = std::invocable<Cooler, SimulatedAnnealing&> &&
                 std::same_as<void, std::invoke_result_t<Cooler, SimulatedAnnealing&>>;

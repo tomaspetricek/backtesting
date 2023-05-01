@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 21.02.2023.
 //
 
-#ifndef BACKTESTING_BAZOOKA_MOVE_MEMORY_HPP
-#define BACKTESTING_BAZOOKA_MOVE_MEMORY_HPP
+#ifndef BACKTESTING_BAZOOKA_MEMORY_HPP
+#define BACKTESTING_BAZOOKA_MEMORY_HPP
 
 #include <array>
 #include <vector>
@@ -108,4 +108,4 @@ namespace trading::bazooka {
     };
 }
 
-#endif //BACKTESTING_BAZOOKA_MOVE_MEMORY_HPP
+#endif //BACKTESTING_BAZOOKA_MEMORY_HPP

@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 22.02.2023.
 //
 
-#ifndef BACKTESTING_BAZOOKA_MOVING_AVERAGE_HPP
-#define BACKTESTING_BAZOOKA_MOVING_AVERAGE_HPP
+#ifndef BACKTESTING_BAZOOKA_INDICATOR_HPP
+#define BACKTESTING_BAZOOKA_INDICATOR_HPP
 
 #include <utility>
 #include <variant>
@@ -67,4 +67,4 @@ namespace trading::bazooka {
     };
 }
 
-#endif //BACKTESTING_BAZOOKA_MOVING_AVERAGE_HPP
+#endif //BACKTESTING_BAZOOKA_INDICATOR_HPP

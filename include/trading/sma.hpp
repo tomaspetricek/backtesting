@@ -11,8 +11,8 @@
 
 namespace trading {
 
-    // https://stackoverflow.com/questions/10990618/calculate-rolling-moving-average-in-c
-    // simple moving average
+    // inspired: https://stackoverflow.com/questions/10990618/calculate-rolling-moving-average-in-c
+    // sma = simple moving average
     class sma : public ma {
         double sum_{0};
         boost::circular_buffer<double> samples_;

@@ -20,7 +20,7 @@ namespace trading {
         static size_t validate_period(size_t period)
         {
             if (!period)
-                throw std::invalid_argument("Resampling period has to be greater than zero");
+                throw std::invalid_argument("Resampling period has to be greater than 0");
             return period;
         }
 
@@ -30,6 +30,7 @@ namespace trading {
         explicit resampler(size_t period)
                 :period_(validate_period(period)) { }
 
+        // Returns if the output candle is ready
         bool operator()(const candle& in, candle& out)
         {
             count_++;

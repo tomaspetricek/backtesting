@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_SUITE(random_levels_generator_test)
 
     BOOST_AUTO_TEST_CASE(reachability_test)
     {
-        constexpr std::size_t n_levels{2}, n_tries{10'000};
+        constexpr std::size_t n_levels{2}, n_tries{15'000};
         constexpr std::array<trading::fraction_t, 5> lower_bounds{{{0, 1}, {1, 10}, {1, 2}, {3, 4}, {9, 10}}};
         for (std::size_t unique_count{n_levels}; unique_count<n_levels*10; unique_count++)
             for (const auto& lower_bound : lower_bounds) {
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_SUITE(random_sizes_generator_test)
 
     BOOST_AUTO_TEST_CASE(reachability_test)
     {
-        constexpr std::size_t n_levels{3}, n_tries{10'000};
+        constexpr std::size_t n_levels{3}, n_tries{15'000};
         for (std::size_t unique_count{n_levels}; unique_count<n_levels*10; unique_count++) {
             auto sys_gen = trading::systematic::sizes_generator<n_levels>(unique_count);
             for (std::size_t change_count{2}; change_count<=n_levels; change_count++) {
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_SUITE(random_int_range_generator_test)
 
     BOOST_AUTO_TEST_CASE(reachability_test)
     {
-        std::size_t n_tries{10'000};
+        std::size_t n_tries{15'000};
         for (const auto& set: int_range::valid) {
             auto sys_gen = trading::systematic::int_range_generator{set.from, set.to, set.step};
             for (std::size_t change_count{1}; change_count<=sys_gen.value_count()/2; change_count++) {

@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 24.12.2022.
 //
 
-#ifndef BACKTESTING_CONFIG_HPP
-#define BACKTESTING_CONFIG_HPP
+#ifndef BACKTESTING_BAZOOKA_CONFIGURATION_HPP
+#define BACKTESTING_BAZOOKA_CONFIGURATION_HPP
 
 #include <array>
 #include <trading/bazooka/strategy.hpp>
@@ -89,4 +89,4 @@ namespace std {
     };
 }
 
-#endif //BACKTESTING_CONFIG_HPP
+#endif //BACKTESTING_BAZOOKA_CONFIGURATION_HPP

@@ -2,30 +2,25 @@
 // Created by Tomáš Petříček on 27.06.2022.
 //
 
-#ifndef EMASTRATEGY_CANDLE_HPP
-#define EMASTRATEGY_CANDLE_HPP
+#ifndef BACKTESTING_CANDLE_HPP
+#define BACKTESTING_CANDLE_HPP
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <trading/types.hpp>
 #include <trading/pack.hpp>
-#include <trading/currency.hpp>
 #include <ostream>
 
 namespace trading {
     class candle {
-        std::time_t opened_;
-        price_t open_{};
-        price_t high_{};
-        price_t low_{};
-        price_t close_{};
+        std::time_t opened_{0};
+        static constexpr price_t min_price{0};
+        price_t open_{min_price}, high_{min_price}, low_{min_price}, close_{min_price};
 
     public:
         candle() = default;
 
-        constexpr candle(std::time_t opened, const price_t& open, const price_t& high,
-                const price_t& low, const price_t& close)
-                :opened_(opened), open_(price_t{open}), high_(price_t{high}),
-                 low_(price_t{low}), close_(price_t{close})
+        constexpr candle(std::time_t opened, price_t open, price_t high, price_t low, price_t close)
+                :opened_(opened), open_(open), high_(high), low_(low), close_(close)
         {
             if (high<low)
                 throw std::invalid_argument("High price has to be higher or equal to low price");
@@ -118,4 +113,4 @@ namespace trading {
     };
 }
 
-#endif //EMASTRATEGY_CANDLE_HPP
+#endif //BACKTESTING_CANDLE_HPP

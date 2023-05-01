@@ -56,9 +56,9 @@ BOOST_AUTO_TEST_SUITE(genetic_algorithm_optimizer_test)
     };
 
     using config_type = int;
-    using state_type = trading::state<config_type>;
-    using optimizer_type = trading::genetic_algorithm::optimizer<state_type>;
-    auto objective = [](const auto& config) { return state_type{config, static_cast<double>(config)}; };
+    using state_t = trading::state<config_type>;
+    using optimizer_type = trading::genetic_algorithm::optimizer<state_t>;
+    auto objective = [](const auto& config) { return state_t{config, static_cast<double>(config)}; };
 
     BOOST_AUTO_TEST_CASE(usage_test)
     {
@@ -69,13 +69,12 @@ BOOST_AUTO_TEST_SUITE(genetic_algorithm_optimizer_test)
         for (std::size_t i{0}; i<population_size; i++)
             init_population.emplace_back(generator());
 
-        auto termination = trading::iteration_based_termination(100);
+        auto termination = trading::iteration_based_termination(160);
         int init{generator()};
-        trading::constructive_result result{objective(init),
-                                            [&](const state_type& lhs, const state_type& rhs) {
-                                                return lhs.value>rhs.value;
+        trading::constructive_result result{objective(init), [&](const state_t& lhs, const state_t& rhs) {
+            return lhs.value>rhs.value;
         }};
-        auto constraints = [](const state_type& candidate) { return true; };
+        auto constraints = [](const state_t& candidate) { return true; };
         using crossover_type = int_crossover;
         auto match = trading::genetic_algorithm::random_matchmaker<crossover_type::n_parents>{};
         auto selection = trading::genetic_algorithm::roulette_selection{};

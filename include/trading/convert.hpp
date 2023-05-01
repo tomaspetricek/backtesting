@@ -147,7 +147,7 @@ namespace nlohmann {
 
     template<>
     struct adl_serializer<trading::simulated_annealing::basic_cooler> {
-        static void to_json(nlohmann::json& j, const trading::simulated_annealing::basic_cooler& cooler)
+        static void to_json(nlohmann::json& j, const trading::simulated_annealing::basic_cooler&)
         {
             j = {{"name", trading::simulated_annealing::basic_cooler::name}};
         }

@@ -11,21 +11,21 @@
 #include <trading/interface.hpp>
 
 namespace trading {
-    template<class Type, IComparator<Type> Comp>
+    template<class Type, IComparator<Type> Comparator>
     class result {
     protected:
-        Comp comp_;
-        explicit result(const Comp& comp) :comp_{comp} { }
+        Comparator comp_;
+        explicit result(const Comparator& comp) :comp_{comp} { }
 
     public:
-        using comparator_type = Comp;
+        using comparator_type = Comparator;
 
         bool compare(const Type& rhs, const Type& lhs)
         {
             return comp_(rhs, lhs);
         }
 
-        const Comp& comparator() const
+        const Comparator& comparator() const
         {
             return comp_;
         }
@@ -52,6 +52,8 @@ namespace trading {
             return best_;
         }
     };
+
+    static_assert(IResult<constructive_result<int, std::greater<>>, int>);
 
     // Tracks the n best states.
     // Internally, it uses a heap data structure to efficiently update the best states.

@@ -27,7 +27,7 @@ namespace trading::bazooka {
         trading::random::int_range_generator rand_period_;
 
         std::array<fraction_t, n_levels>
-        create_diff(const std::array<fraction_t, n_levels>& before, const std::array<fraction_t, n_levels>& after)
+        compute_diff(const std::array<fraction_t, n_levels>& before, const std::array<fraction_t, n_levels>& after)
         {
             std::array<fraction_t, n_levels> diff;
             std::size_t denom = before[0].denominator();
@@ -62,12 +62,12 @@ namespace trading::bazooka {
             }
             case 2: {
                 next.levels = rand_levels_(next.levels);
-                move.levels(create_diff(origin.levels, next.levels));
+                move.levels(compute_diff(origin.levels, next.levels));
                 break;
             }
             default:
                 next.sizes = rand_sizes_(next.sizes);
-                move.open_sizes(create_diff(origin.sizes, next.sizes));
+                move.open_sizes(compute_diff(origin.sizes, next.sizes));
             }
 
             return std::make_tuple(next, move);

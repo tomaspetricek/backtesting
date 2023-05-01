@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 27.06.2022.
 //
 
-#ifndef EMASTRATEGY_READ_HPP
-#define EMASTRATEGY_READ_HPP
+#ifndef BACKTESTING_IO_CSV_READER_HPP
+#define BACKTESTING_IO_CSV_READER_HPP
 
 #include <filesystem>
 #include <fstream>
@@ -12,11 +12,10 @@
 #include <type_traits>
 #include <exception>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include "trading/candle.hpp"
-#include "trading/exception.hpp"
-#include "trading/currency.hpp"
+#include <trading/candle.hpp>
+#include <trading/exception.hpp>
 #include <trading/types.hpp>
-#include "trading/tuple.hpp"
+#include <trading/tuple.hpp>
 #include <trading/io/parser.hpp>
 #include <trading/io/csv/base.hpp>
 #include <utility>
@@ -100,4 +99,4 @@ namespace trading::io::csv {
     };
 }
 
-#endif //EMASTRATEGY_READ_HPP
+#endif //BACKTESTING_IO_CSV_READER_HPP

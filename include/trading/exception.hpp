@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 25.06.2022.
 //
 
-#ifndef EMASTRATEGY_EXCEPTION_HPP
-#define EMASTRATEGY_EXCEPTION_HPP
+#ifndef BACKTESTING_EXCEPTION_HPP
+#define BACKTESTING_EXCEPTION_HPP
 
 #include <exception>
 
@@ -34,20 +34,6 @@ namespace trading {
         }
     };
 
-    // source: https://github.com/mariusbancila/moneycpp/blob/master/include/money.h
-    class currency_mismatch_error : public std::runtime_error {
-    public:
-        explicit currency_mismatch_error()
-                :runtime_error("Currencies do not match") { }
-
-        ~currency_mismatch_error() noexcept override = default;
-
-        const char* what() const noexcept override
-        {
-            return runtime_error::what();
-        }
-    };
-
     class insufficient_funds : public std::runtime_error {
     public:
         explicit insufficient_funds(const std::string& msg = "Not enough funds to perform operation")
@@ -61,19 +47,7 @@ namespace trading {
         }
     };
 
-    class division_by_zero : public std::runtime_error {
-    public:
-        explicit division_by_zero()
-                :runtime_error("Division by zero") { }
-
-        ~division_by_zero() noexcept override = default;
-
-        const char* what() const noexcept override
-        {
-            return runtime_error::what();
-        }
-    };
-
+    // src: https://en.cppreference.com/w/cpp/error/nested_exception
     void print_exception(const std::exception& e, int level = 0)
     {
         std::cerr << std::string(level, '\t') << "exception: " << e.what() << '\n';
@@ -88,4 +62,4 @@ namespace trading {
     }
 }
 
-#endif //EMASTRATEGY_EXCEPTION_HPP
+#endif //BACKTESTING_EXCEPTION_HPP

@@ -2,16 +2,14 @@
 // Created by Tomáš Petříček on 01.07.2022.
 //
 
-#ifndef EMASTRATEGY_TEST_BOX_HPP
-#define EMASTRATEGY_TEST_BOX_HPP
+#ifndef BACKTESTING_SIMULATOR_HPP
+#define BACKTESTING_SIMULATOR_HPP
 
 #include <utility>
 #include <chrono>
 #include <trading/exception.hpp>
-#include "ema.hpp"
-#include <trading/currency.hpp>
+#include <trading/ema.hpp>
 #include <trading/data_point.hpp>
-#include <trading/currency.hpp>
 #include <trading/candle.hpp>
 #include <trading/motion_tracker.hpp>
 #include <trading/resampler.hpp>
@@ -86,4 +84,4 @@ namespace trading {
     };
 }
 
-#endif //EMASTRATEGY_TEST_BOX_HPP
+#endif //BACKTESTING_SIMULATOR_HPP

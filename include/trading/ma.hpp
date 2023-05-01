@@ -2,8 +2,8 @@
 // Created by Tomáš Petříček on 07.07.2022.
 //
 
-#ifndef BACKTESTING_MOVING_AVERAGE_HPP
-#define BACKTESTING_MOVING_AVERAGE_HPP
+#ifndef BACKTESTING_MA_HPP
+#define BACKTESTING_MA_HPP
 
 namespace trading {
     class ma {
@@ -16,8 +16,8 @@ namespace trading {
         }
 
     protected:
-        size_t period_;
         constexpr static size_t min_period{1};
+        size_t period_{min_period};
 
     public:
         explicit ma(size_t period = min_period)
@@ -30,4 +30,4 @@ namespace trading {
     };
 }
 
-#endif //BACKTESTING_MOVING_AVERAGE_HPP
+#endif //BACKTESTING_MA_HPP

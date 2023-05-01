@@ -27,8 +27,8 @@ namespace trading {
             template<class Trader>
             void started(const Trader& trader, const price_point& first)
             {
-                series_.equity.template emplace_back(trading::data_point<price_t>{first.time, trader.equity(first.data)});
-                series_.close_balance.template emplace_back(trading::data_point<price_t>{first.time, trader.wallet_balance()});
+                series_.equity.template emplace_back(data_point<price_t>{first.time, trader.equity(first.data)});
+                series_.close_balance.template emplace_back(data_point<price_t>{first.time, trader.wallet_balance()});
             }
 
             template<class Trader>
@@ -36,20 +36,20 @@ namespace trading {
             {
                 if (action==action::opened) {
                     auto order = trader.last_open_order();
-                    series_.open_order.template emplace_back(trading::data_point<price_t>{order.created, order.price});
+                    series_.open_order.template emplace_back(data_point<price_t>{order.created, order.price});
                 }
                 else if (action==action::closed_all) {
-                    series_.equity.template emplace_back(trading::data_point<amount_t>{curr.time, trader.equity(curr.data)});
-                    series_.close_balance.template emplace_back(trading::data_point<amount_t>{curr.time, trader.wallet_balance()});
+                    series_.equity.template emplace_back(data_point<amount_t>{curr.time, trader.equity(curr.data)});
+                    series_.close_balance.template emplace_back(data_point<amount_t>{curr.time, trader.wallet_balance()});
                     auto order = trader.last_close_all_order();
-                    series_.close_order.template emplace_back(trading::data_point<price_t>{order.created, order.price});
+                    series_.close_order.template emplace_back(data_point<price_t>{order.created, order.price});
                 }
             }
 
             template<class Trader>
             void position_active(const Trader& trader, const price_point& curr)
             {
-                series_.equity.template emplace_back(trading::data_point<amount_t>{curr.time, trader.equity(curr.data)});
+                series_.equity.template emplace_back(data_point<amount_t>{curr.time, trader.equity(curr.data)});
             }
 
             template<class Trader>

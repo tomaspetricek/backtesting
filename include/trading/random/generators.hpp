@@ -163,7 +163,7 @@ namespace trading::random {
         explicit numeric_interval_generator(const Type& min, const Type& max)
                 :_gen{std::random_device{}()}, _distrib{min, max}
         {
-            if (!(min<max)) throw std::invalid_argument("Maximum has  to be greater than minimum");
+            if (!(min<max)) throw std::invalid_argument("Maximum has to be greater than minimum");
         }
 
         Type operator()()
@@ -179,7 +179,7 @@ namespace trading::random {
     using int_interval_generator = numeric_interval_generator<Type, std::uniform_int_distribution>;
 
     class int_range_generator : public trading::int_range {
-        std::mt19937 gen_;
+        std::mt19937 gen_{std::random_device{}()};
         std::uniform_int_distribution<int> distrib_;
         std::size_t change_span_;
 
@@ -189,7 +189,7 @@ namespace trading::random {
         explicit int_range_generator(int from, int to, int step, std::size_t change_span = 1)
                 :trading::int_range(from, to, step), change_span_{change_span}
         {
-            int max_span = static_cast<int>(n_vals_)/2;
+            auto max_span = n_vals_/2;
             if (!change_span_ || change_span>max_span)
                 throw std::invalid_argument(fmt::format("Change span has to be in interval [1,{}]", max_span));
         }

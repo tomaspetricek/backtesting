@@ -12,8 +12,7 @@ using namespace boost::posix_time;
 
 namespace trading {
     struct trade {
-        amount_t sold;
-        amount_t bought;
+        amount_t sold, bought;
         price_t price;
         ptime time;
 

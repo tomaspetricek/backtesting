@@ -8,13 +8,12 @@
 #include <utility>
 #include <vector>
 #include <optional>
-#include "trading/data_point.hpp"
-#include "trading/order.hpp"
-#include "trading/order_sizer.hpp"
-#include "trading/order.hpp"
-#include "trading/market.hpp"
-#include "trading/position.hpp"
-#include "trading/direction.hpp"
+#include <trading/data_point.hpp>
+#include <trading/order.hpp>
+#include <trading/order_sizer.hpp>
+#include <trading/order.hpp>
+#include <trading/market.hpp>
+#include <trading/position.hpp>
 
 namespace trading::bazooka {
     template<std::size_t n_levels>

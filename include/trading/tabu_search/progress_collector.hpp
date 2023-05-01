@@ -11,8 +11,7 @@
 namespace trading::tabu_search {
     class progress_collector {
         struct progress {
-            double best_state_value;
-            double curr_state_value;
+            double best_state_value, curr_state_value;
             std::size_t tabu_list_size;
         };
 

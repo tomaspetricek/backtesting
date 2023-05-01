@@ -7,7 +7,6 @@
 
 #include <trading/order.hpp>
 #include <trading/types.hpp>
-#include <trading/direction.hpp>
 #include <trading/type_traits.hpp>
 
 namespace trading {
