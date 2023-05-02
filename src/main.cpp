@@ -164,14 +164,14 @@ int main()
     using config_t = state_t::config_type;
 
     std::string experiment_set_name = "remove";
-    auto optim_tag = optimizer_tag::brute_force;
+    auto optim_tag = optimizer_tag::genetic_algorithm;
     auto optimizer_name = optimizer_names[trading::to_underlying(optim_tag)];
 
     std::vector<currency_pair> pairs{
 // white box
             {"ADA",  "USDT"},
-            {"BTC",  "USDT"},
-            {"DASH", "USDT"},
+//            {"BTC",  "USDT"},
+//            {"DASH", "USDT"},
 // black box
 //            {"DOGE", "USDT"},
 //            {"ETH",  "USDT"},
@@ -181,7 +181,10 @@ int main()
 //            {"XRP",  "USDT"},
 //            {"ZRX",  "USDT"},
     };
-    std::filesystem::path data_dir{"../../src/data"}, in_dir{data_dir/"in"}, out_dir{data_dir/"out"};
+    std::cout << "current path: " << std::filesystem::current_path() << std::endl;
+//    std::filesystem::path base_dir{"../src/impl"};
+    std::filesystem::path base_dir{"../.."};
+    std::filesystem::path data_dir{base_dir/"src/data"}, in_dir{data_dir/"in"}, out_dir{data_dir/"out"};
     std::filesystem::path optim_dir{out_dir/optimizer_name};
     std::filesystem::create_directory(optim_dir);
     std::filesystem::path set_dir{optim_dir/experiment_set_name};
@@ -280,6 +283,7 @@ int main()
             return state_t{{curr, optim_criterion(stats)}, stats};
         };
 
+        std::cout << "optimizer: " <<  optimizer_name << std::endl;
         if (optim_tag==optimizer_tag::brute_force) {
             brute_force::parallel::optimizer<state_t> optimizer{};
 

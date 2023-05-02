@@ -14,26 +14,33 @@ namespace trading::genetic_algorithm {
     class roulette_selection {
         std::mt19937 gen_{std::random_device{}()};
         std::discrete_distribution<std::size_t> distrib_;
+        using distrib_param_type = std::discrete_distribution<std::size_t>::param_type;
         std::vector<double> fitness_values_;
 
     public:
+        // works only for maximization
         template<class Individual>
-        void operator()(std::size_t select_n, const std::vector<Individual>& population, std::vector<Individual>& parents)
+        void operator()(std::size_t select_count, const std::vector<Individual>& population, std::vector<Individual>& parents)
         {
             assert(population.size());
             fitness_values_.clear();
             fitness_values_.reserve(population.size());
+            double min_fitness{0};
             std::for_each(population.begin(), population.end(), [&](const auto& individual) {
-                auto value = individual.value;
-                assert(value>=0);
-                fitness_values_.template emplace_back(value);
+                auto fitness = individual.value;
+                min_fitness = std::min(fitness, min_fitness);
+                fitness_values_.template emplace_back(fitness);
             });
 
-            distrib_.param(
-                    std::discrete_distribution<std::size_t>::param_type(fitness_values_.begin(), fitness_values_.end()));
-            parents.reserve(select_n);
+            if (min_fitness<0)
+                std::transform(fitness_values_.begin(), fitness_values_.end(), fitness_values_.begin(),
+                        [&](double fitness) { return fitness-min_fitness; }
+                );
 
-            for (std::size_t i{0}; i<select_n; i++)
+            distrib_.param(distrib_param_type(fitness_values_.begin(), fitness_values_.end()));
+            parents.reserve(select_count);
+
+            for (std::size_t i{0}; i<select_count; i++)
                 parents.template emplace_back(population[distrib_(gen_)]);
         }
     };
