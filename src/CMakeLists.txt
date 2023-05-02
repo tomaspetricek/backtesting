@@ -10,5 +10,5 @@ include_directories(${Boost_INCLUDE_DIRS})
 target_link_libraries(backtesting PUBLIC ${Boost_LIBRARIES} fmt::fmt OpenMP::OpenMP_CXX PRIVATE etl::etl)
 
 # optimizations
-#add_definitions(-DNDEBUG) # disables asserts
+add_definitions(-DNDEBUG) # disables asserts
 set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -march=native")

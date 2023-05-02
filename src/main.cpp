@@ -133,7 +133,7 @@ struct maximization {
     template<class State>
     bool operator()(const State& rhs, const State& lhs) const
     {
-        return rhs.value>=lhs.value;
+        return rhs.value>lhs.value;
     }
 };
 
